@@ -201,22 +201,19 @@ export default function PropiedadesPage() {
             </p>
             <div
               style={{
-                display: 'flex',
-                flexWrap: 'wrap',
+                display: 'grid',
+                gridTemplateColumns: props.length === 1
+                  ? 'minmax(0,600px)'
+                  : props.length === 2
+                  ? 'repeat(2, minmax(0,1fr))'
+                  : 'repeat(auto-fill, minmax(300px, 1fr))',
                 gap: 1,
-                background: props.length >= 3 ? 'var(--border)' : 'transparent',
+                background: 'var(--border)',
+                maxWidth: props.length === 1 ? 600 : 'none',
               }}
             >
               {props.map((p, i) => (
-                <div
-                  key={p.id}
-                  style={{
-                    width: props.length === 1 ? '50%' : props.length === 2 ? 'calc(50% - 0.5px)' : 'calc(33.333% - 1px)',
-                    minWidth: 280,
-                    background: '#fff',
-                    border: props.length < 3 ? '1px solid var(--border)' : 'none',
-                  }}
-                >
+                <div key={p.id} style={{ background: '#fff', minWidth: 0 }}>
                   <PropertyCard propiedad={p} index={i} />
                 </div>
               ))}

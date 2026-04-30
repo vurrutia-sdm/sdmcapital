@@ -87,8 +87,8 @@ export default function HomePage() {
       {/* 5. Financiamiento */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-px mb-px" style={{ background: 'var(--border)' }}>
         <div
-          className="flex flex-col justify-between px-12 lg:px-16 py-16"
-          style={{ background: 'var(--navy-dark)', minHeight: 440 }}
+          className="flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-16"
+          style={{ background: 'var(--navy-dark)', minHeight: 380 }}
         >
           <div>
             <div className="section-label section-label--light" style={{ marginBottom: 18 }}>
