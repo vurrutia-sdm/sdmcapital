@@ -205,24 +205,27 @@ export default function PropiedadesPage() {
             <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20, letterSpacing: '0.5px' }}>
               {props.length} {props.length === 1 ? 'propiedad encontrada' : 'propiedades encontradas'}
             </p>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: props.length === 1
-                  ? 'minmax(0,600px)'
-                  : props.length === 2
-                  ? 'repeat(2, minmax(0,1fr))'
-                  : 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: 1,
-                background: 'var(--border)',
-                maxWidth: props.length === 1 ? 600 : 'none',
-              }}
-            >
-              {props.map((p, i) => (
-                <div key={p.id} style={{ background: '#fff', minWidth: 0 }}>
-                  <PropertyCard propiedad={p} index={i} />
-                </div>
-              ))}
+            {/* Wrapper centrado para cuando remainder = 1 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)' }}>
+              {props.map((p, i) => {
+                const total = props.length
+                const remainder = total % 3
+                const isLast = i === total - 1
+                // Si sobra 1 al final → centrar en columna 2 (sin span)
+                const centerLast = remainder === 1 && isLast
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      background: '#fff',
+                      minWidth: 0,
+                      gridColumn: centerLast ? '2 / 3' : undefined,
+                    }}
+                  >
+                    <PropertyCard propiedad={p} index={i} />
+                  </div>
+                )
+              })}
             </div>
           </>
         )}

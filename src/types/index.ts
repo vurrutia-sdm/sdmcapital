@@ -36,6 +36,10 @@ export interface Propiedad {
   agente_id?: string
   youtube_url?: string
   dossier_url?: string
+  dossiers?: string[]
+  precio_anterior_uf?: number
+  baja_precio?: boolean
+  ano_construccion?: number
   created_at: string
   updated_at: string
 }
@@ -72,6 +76,7 @@ export interface MiembroEquipo {
   foto?: string
   email?: string
   telefono?: string
+  whatsapp?: string
   linkedin?: string
   orden: number
   activo: boolean

@@ -92,8 +92,6 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
           }}
         />
       )}
-
-      {/* Imagen actual — aparece */}
       <div
         className="absolute inset-0"
         style={{
@@ -104,7 +102,12 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
           transition: 'opacity 1.2s ease',
           zIndex: 2,
         }}
-      />
+      >
+        {/* Preload hint para el navegador */}
+        {images[current] && (
+          <link rel="preload" as="image" href={images[current]} />
+        )}
+      </div>
 
       {/* Dots de navegación */}
       {images.length > 1 && (

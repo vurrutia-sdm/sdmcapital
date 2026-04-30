@@ -87,12 +87,16 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: 1, background: 'var(--border)' }}>
-          {props.slice(0, 6).map((p, i) => (
-            <div key={p.id} style={{ background: '#fff' }}>
-              <PropertyCard propiedad={p} index={i} />
-            </div>
-          ))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)' }}>
+          {props.slice(0, 6).map((p, i, arr) => {
+            const remainder = arr.length % 3
+            const isLast = i === arr.length - 1
+            return (
+              <div key={p.id} style={{ background: '#fff', gridColumn: remainder === 1 && isLast ? 'span 3' : undefined }}>
+                <PropertyCard propiedad={p} index={i} />
+              </div>
+            )
+          })}
         </div>
       </section>
 

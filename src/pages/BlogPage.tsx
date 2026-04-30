@@ -41,7 +41,19 @@ export default function BlogPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px" style={{ background: 'var(--border)' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: posts.length === 1
+              ? 'minmax(300px, 480px)'
+              : posts.length === 2
+              ? 'repeat(2, minmax(300px, 1fr))'
+              : 'repeat(3, 1fr)',
+            gap: 1,
+            background: 'var(--border)',
+            justifyContent: posts.length < 3 ? 'center' : 'stretch',
+            margin: posts.length < 3 ? '0 auto' : '0',
+            maxWidth: posts.length === 1 ? 480 : 'none',
+          }}>
             {posts.map(post => {
               const titulo = lang === 'en' && post.titulo_en ? post.titulo_en : post.titulo
               const resumen = lang === 'en' && post.resumen_en ? post.resumen_en : post.resumen
@@ -55,7 +67,7 @@ export default function BlogPage() {
                 >
                   <div style={{ height: 220, background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', overflow: 'hidden', position: 'relative' }}>
                     {post.imagen_portada
-                      ? <img src={post.imagen_portada} alt={titulo} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+                      ? <img src={post.imagen_portada} alt={titulo} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
                       : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic" style={{ fontSize: 15, color: 'rgba(255,255,255,0.2)' }}>{post.categoria}</span></div>
                     }
                     {post.destacado && (

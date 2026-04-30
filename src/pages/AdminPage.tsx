@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto } from '@/types'
@@ -174,33 +175,66 @@ function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (it
   return { items, setItems, onDragStart, onDragEnter, onDragEnd }
 }
 
-// ─── DOSSIER UPLOADER ────────────────────────────────────────────────────────
-function DossierUploader({ currentUrl, onUploaded }: { currentUrl: string; onUploaded: (url: string) => void }) {
+// ─── DOSSIER UPLOADER — múltiples archivos ───────────────────────────────────
+function DossierUploader({ urls, onChanged }: { urls: string[]; onChanged: (urls: string[]) => void }) {
   const [uploading, setUploading] = useState(false)
+
   const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files?.length) return
     setUploading(true)
-    const ext  = file.name.split('.').pop()
-    const name = `dossiers/${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
-    if (!error) {
-      const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
-      onUploaded(data.publicUrl)
+    const newUrls: string[] = []
+    for (const file of Array.from(files)) {
+      const ext  = file.name.split('.').pop()
+      const name = `dossiers/${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`
+      const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
+      if (!error) {
+        const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
+        newUrls.push(data.publicUrl)
+      }
     }
+    onChanged([...urls, ...newUrls])
     setUploading(false)
+    e.target.value = ''
   }
+
+  const remove = (url: string) => {
+    if (!confirm('¿Eliminar este archivo?')) return
+    onChanged(urls.filter(u => u !== url))
+  }
+
+  const fileName = (url: string) => {
+    try { return decodeURIComponent(url.split('/').pop() || url).replace(/^\d+_/, '') }
+    catch { return url.split('/').pop() || url }
+  }
+
   return (
-    <div className="flex items-center gap-3 flex-wrap">
-      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '8px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
-        {uploading ? 'Subiendo…' : '📎 Subir archivo'}
-        <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" style={{ display: 'none' }} disabled={uploading} onChange={upload} />
-      </label>
-      {currentUrl && (
-        <a href={currentUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: 'var(--navy)', textDecoration: 'underline' }}>
-          Ver archivo actual ↗
-        </a>
+    <div>
+      {/* Lista de archivos existentes */}
+      {urls.length > 0 && (
+        <div className="flex flex-col gap-2 mb-3">
+          {urls.map((url, i) => (
+            <div key={i} className="flex items-center gap-3 p-3 rounded-sm" style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)' }}>
+              <span style={{ fontSize: 18 }}>📄</span>
+              <a href={url} target="_blank" rel="noopener noreferrer"
+                style={{ flex: 1, fontSize: 13, color: 'var(--navy)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {fileName(url)}
+              </a>
+              <button onClick={() => remove(url)}
+                style={{ fontSize: 11, color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
+                Eliminar
+              </button>
+            </div>
+          ))}
+        </div>
       )}
+
+      {/* Botón subir */}
+      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
+        {uploading ? 'Subiendo…' : `📎 Agregar archivos (${urls.length} subido${urls.length !== 1 ? 's' : ''})`}
+        <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style={{ display: 'none' }} disabled={uploading} onChange={upload} />
+      </label>
+      <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PDF, Word, Excel. Puedes subir varios a la vez.</p>
     </div>
   )
 }
@@ -214,16 +248,42 @@ function PropImageManager({
   onChange: (imagenes: string[], principal: string) => void
 }) {
   const [uploading, setUploading] = useState(false)
+  const [progress, setProgress]   = useState('')
   const dragIdx  = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
+
+  // Comprime imagen a max 1200px y calidad 82% antes de subir
+  const compressImage = (file: File): Promise<Blob> =>
+    new Promise((resolve) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        const MAX = 1200
+        let { width, height } = img
+        if (width > MAX || height > MAX) {
+          if (width > height) { height = Math.round(height * MAX / width); width = MAX }
+          else { width = Math.round(width * MAX / height); height = MAX }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width; canvas.height = height
+        canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+        URL.revokeObjectURL(url)
+        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.82)
+      }
+      img.src = url
+    })
 
   const upload = async (files: FileList) => {
     setUploading(true)
     const newUrls: string[] = []
-    for (const file of Array.from(files).slice(0, 20 - imagenes.length)) {
-      const ext  = file.name.split('.').pop()
-      const name = `propiedades/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
+    const list = Array.from(files).slice(0, 20 - imagenes.length)
+    for (let idx = 0; idx < list.length; idx++) {
+      const file = list[idx]
+      setProgress(`Comprimiendo ${idx + 1}/${list.length}…`)
+      const compressed = await compressImage(file)
+      const name = `propiedades/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`
+      setProgress(`Subiendo ${idx + 1}/${list.length}…`)
+      const { error } = await supabase.storage.from('imagenes').upload(name, compressed, { upsert: true, contentType: 'image/jpeg' })
       if (!error) {
         const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
         newUrls.push(data.publicUrl)
@@ -232,6 +292,7 @@ function PropImageManager({
     const next = [...imagenes, ...newUrls]
     onChange(next, imagenPrincipal || next[0] || '')
     setUploading(false)
+    setProgress('')
   }
 
   const remove = (i: number) => {
@@ -333,7 +394,7 @@ function PropImageManager({
       {/* Upload button */}
       {imagenes.length < 20 && (
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
-          {uploading ? 'Subiendo…' : `+ Agregar fotos (${imagenes.length}/20)`}
+          {uploading ? (progress || 'Procesando…') : `+ Agregar fotos (${imagenes.length}/20)`}
           <input type="file" accept="image/*" multiple style={{ display: 'none' }} disabled={uploading}
             onChange={e => { if (e.target.files?.length) upload(e.target.files) }} />
         </label>
@@ -364,6 +425,16 @@ function PropiedadesAdmin() {
   const del = async (id: string) => {
     if (!confirm('¿Eliminar esta propiedad?')) return
     await supabase.from('propiedades').delete().eq('id', id); load()
+  }
+
+  const toggleDestacada = async (prop: Propiedad) => {
+    const destacadas = items.filter(p => p.destacada)
+    if (!prop.destacada && destacadas.length >= 6) {
+      alert('Ya tienes 6 propiedades destacadas. Quita una antes de destacar otra.')
+      return
+    }
+    await supabase.from('propiedades').update({ destacada: !prop.destacada }).eq('id', prop.id)
+    load()
   }
 
   const save = async () => {
@@ -404,8 +475,29 @@ function PropiedadesAdmin() {
               <Sel value={editing.estado || 'en_venta'} onChange={v => setEditing(p => ({ ...p, estado: v as Propiedad['estado'] }))}
                 options={[{value:'en_venta',label:'En venta'},{value:'en_arriendo',label:'En arriendo'},{value:'vendida',label:'Vendida'},{value:'reservada',label:'Reservada'}]} />
             </Field>
-            <Field label="Región"><Inp value={editing.region || ''} onChange={v => setEditing(p => ({ ...p, region: v }))} /></Field>
-            <Field label="Comuna"><Inp value={editing.comuna || ''} onChange={v => setEditing(p => ({ ...p, comuna: v }))} /></Field>
+            <Field label="Región">
+              <select
+                value={editing.region || ''}
+                onChange={e => setEditing(p => ({ ...p, region: e.target.value, comuna: '' }))}
+                className="input-line w-full"
+                style={{ fontFamily: 'inherit', fontSize: 15, color: 'var(--ink)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="">Seleccionar región...</option>
+                {REGIONES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </Field>
+            <Field label="Comuna">
+              <select
+                value={editing.comuna || ''}
+                onChange={e => setEditing(p => ({ ...p, comuna: e.target.value }))}
+                disabled={!editing.region}
+                className="input-line w-full"
+                style={{ fontFamily: 'inherit', fontSize: 15, color: editing.region ? 'var(--ink)' : 'var(--muted)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: editing.region ? 'pointer' : 'not-allowed' }}
+              >
+                <option value="">{editing.region ? 'Seleccionar comuna...' : 'Primero elige una región'}</option>
+                {getComunas(editing.region || '').map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </Field>
             <Field label="País"><Inp value={editing.pais || 'Chile'} onChange={v => setEditing(p => ({ ...p, pais: v }))} /></Field>
           </div>
 
@@ -417,7 +509,21 @@ function PropiedadesAdmin() {
               <Field label="Precio CLP (Pesos Chilenos)"><Inp type="number" value={(editing as Record<string,unknown>).precio_clp as number || ''} onChange={v => setEditing(p => ({ ...p, precio_clp: Number(v) }))} placeholder="Ej: 120000000" /></Field>
               <Field label="Precio USD"><Inp type="number" value={editing.precio_usd || ''} onChange={v => setEditing(p => ({ ...p, precio_usd: Number(v) }))} placeholder="Opcional" /></Field>
             </div>
-            <div className="mt-4"><Chk label="Precio a consultar (oculta los valores)" checked={!!editing.a_consultar} onChange={v => setEditing(p => ({ ...p, a_consultar: v }))} /></div>
+            <div className="mt-4 flex gap-6 flex-wrap">
+              <Chk label="Precio a consultar (oculta los valores)" checked={!!editing.a_consultar} onChange={v => setEditing(p => ({ ...p, a_consultar: v }))} />
+              <Chk
+                label="↓ Baja de precio (muestra badge rojo)"
+                checked={!!(editing as Record<string,unknown>).baja_precio}
+                onChange={v => setEditing(p => ({ ...p, baja_precio: v }))}
+              />
+            </div>
+            {(editing as Record<string,unknown>).baja_precio && (
+              <div className="mt-4">
+                <Field label="Precio anterior UF (aparece tachado)">
+                  <Inp type="number" value={(editing as Record<string,unknown>).precio_anterior_uf as number || ''} onChange={v => setEditing(p => ({ ...p, precio_anterior_uf: Number(v) }))} placeholder="Ej: 4200" />
+                </Field>
+              </div>
+            )}
           </div>
 
           {/* Características */}
@@ -429,6 +535,7 @@ function PropiedadesAdmin() {
               <Field label="Superficie total m²"><Inp type="number" value={editing.superficie_total || ''} onChange={v => setEditing(p => ({ ...p, superficie_total: Number(v) }))} /></Field>
               <Field label="Superficie construida m²"><Inp type="number" value={editing.superficie_util || ''} onChange={v => setEditing(p => ({ ...p, superficie_util: Number(v) }))} /></Field>
               <Field label="Estacionamientos"><Inp type="number" value={editing.estacionamientos || ''} onChange={v => setEditing(p => ({ ...p, estacionamientos: Number(v) }))} placeholder="0" /></Field>
+              <Field label="Año de construcción"><Inp type="number" value={(editing as Record<string,unknown>).ano_construccion as number || ''} onChange={v => setEditing(p => ({ ...p, ano_construccion: Number(v) }))} placeholder="Ej: 2018" /></Field>
             </div>
           </div>
 
@@ -457,21 +564,11 @@ function PropiedadesAdmin() {
 
           {/* Dossier */}
           <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📄 Dossier / Ficha técnica</div>
-            <Field label="URL del archivo (PDF, Word, etc.)">
-              <Inp
-                value={(editing as Record<string,unknown>).dossier_url as string || ''}
-                onChange={v => setEditing(p => ({ ...p, dossier_url: v }))}
-                placeholder="https://..."
-              />
-            </Field>
-            <div style={{ marginTop: 12 }}>
-              <label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 8 }}>O subir archivo directamente</label>
-              <DossierUploader
-                currentUrl={(editing as Record<string,unknown>).dossier_url as string || ''}
-                onUploaded={url => setEditing(p => ({ ...p, dossier_url: url }))}
-              />
-            </div>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📄 Dossiers / Fichas técnicas</div>
+            <DossierUploader
+              urls={(editing as Record<string,unknown>).dossiers as string[] || []}
+              onChanged={urls => setEditing(p => ({ ...p, dossiers: urls }))}
+            />
           </div>
 
           {/* Descripción — ahora con textarea que respeta párrafos */}
@@ -503,7 +600,7 @@ function PropiedadesAdmin() {
         <table className="w-full border-collapse">
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['','#','Propiedad','Tipo','Estado','Precio','Dest.','Acciones'].map(h => (
+              {['','#','★','Propiedad','Tipo','Estado','Precio','Dest.','Acciones'].map(h => (
                 <th key={h} className="text-left pb-3 pr-4" style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>
               ))}
             </tr>
@@ -516,12 +613,23 @@ function PropiedadesAdmin() {
                 onDragStart={() => onDragStart(i)}
                 onDragEnter={() => onDragEnter(i)}
                 onDragEnd={onDragEnd}
-                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', background: i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
+                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', background: p.destacada ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
                 <td className="py-3 pr-2" style={{ color: 'var(--muted)', fontSize: 16, cursor: 'grab' }}>⠿</td>
                 <td className="py-3 pr-4">
-                  <span style={{ fontSize: 12, fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
-                  {i < 6 && <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--green)' }}>★</span>}
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>{i + 1}</span>
+                </td>
+                {/* Estrella destacar */}
+                <td className="py-3 pr-4">
+                  <button
+                    onClick={() => toggleDestacada(p)}
+                    title={p.destacada ? 'Quitar de destacadas' : 'Destacar en el Inicio'}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '2px 4px', transition: 'transform 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <span style={{ color: p.destacada ? '#F5A623' : '#ddd' }}>★</span>
+                  </button>
                 </td>
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-3">
@@ -695,6 +803,7 @@ function EquipoAdmin() {
             <Field label="Email"><Inp type="email" value={editing.email || ''} onChange={v => setEditing(p => ({ ...p, email: v }))} /></Field>
             <Field label="Teléfono"><Inp value={editing.telefono || ''} onChange={v => setEditing(p => ({ ...p, telefono: v }))} /></Field>
             <Field label="LinkedIn URL"><Inp value={editing.linkedin || ''} onChange={v => setEditing(p => ({ ...p, linkedin: v }))} placeholder="https://linkedin.com/in/..." /></Field>
+            <Field label="WhatsApp (solo números, sin +)"><Inp value={editing.whatsapp || ''} onChange={v => setEditing(p => ({ ...p, whatsapp: v }))} placeholder="56912345678" /></Field>
             <Field label="Orden"><Inp type="number" value={editing.orden || ''} onChange={v => setEditing(p => ({ ...p, orden: Number(v) }))} /></Field>
           </div>
           <Field label="Biografía"><Txa rows={4} value={editing.bio || ''} onChange={v => setEditing(p => ({ ...p, bio: v }))} /></Field>
@@ -925,11 +1034,28 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
     setUrls(next)
   }
 
+  const compressImage = (file: File): Promise<Blob> =>
+    new Promise((resolve) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        const MAX = 1920
+        let { width, height } = img
+        if (width > MAX) { height = Math.round(height * MAX / width); width = MAX }
+        const canvas = document.createElement('canvas')
+        canvas.width = width; canvas.height = height
+        canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+        URL.revokeObjectURL(url)
+        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85)
+      }
+      img.src = url
+    })
+
   const upload = async (i: number, file: File) => {
     setUploading(i)
-    const ext  = file.name.split('.').pop()
-    const name = `hero/${Date.now()}_${i}.${ext}`
-    const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
+    const compressed = await compressImage(file)
+    const name = `hero/${Date.now()}_${i}.jpg`
+    const { error } = await supabase.storage.from('imagenes').upload(name, compressed, { upsert: true, contentType: 'image/jpeg' })
     if (!error) {
       const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
       const next = [...urls]; next[i] = data.publicUrl; setUrls(next)

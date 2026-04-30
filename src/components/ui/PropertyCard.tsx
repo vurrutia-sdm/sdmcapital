@@ -60,8 +60,9 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
                 <img
                   src={imgSrc}
                   alt={titulo}
-                  className="w-full h-full"
-                  style={{ objectFit: 'cover', objectPosition: 'center center', display: 'block' }}
+                  loading="lazy"
+                  decoding="async"
+                  style={{ objectFit: 'cover', objectPosition: 'center center', display: 'block', width: '100%', height: '100%' }}
                 />
               ) : (
                 <span className="font-serif italic" style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>
@@ -72,13 +73,23 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
           )
         })()}
 
-        {/* Badge */}
+        {/* Badge principal */}
         <div
           className="absolute top-3.5 left-3.5 text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1"
           style={{ ...badge.style, borderRadius: 1 }}
         >
           {badge.label}
         </div>
+
+        {/* Badge baja de precio */}
+        {propiedad.baja_precio && (
+          <div
+            className="absolute top-3.5 right-3.5 flex items-center gap-1 px-2.5 py-1"
+            style={{ background: '#E24B4A', color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', borderRadius: 1 }}
+          >
+            ↓ Baja de precio
+          </div>
+        )}
       </div>
 
       {/* Body */}
@@ -89,6 +100,12 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
             {!propiedad.a_consultar && priceLabel}
           </small>
         </div>
+        {/* Precio anterior tachado */}
+        {propiedad.baja_precio && propiedad.precio_anterior_uf && (
+          <div style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
+            Antes: UF {propiedad.precio_anterior_uf.toLocaleString('es-CL')}
+          </div>
+        )}
         <div className="font-sans font-light leading-[1.5] mb-2.5" style={{ fontSize: 15, color: 'var(--ink)' }}>
           {titulo}
         </div>

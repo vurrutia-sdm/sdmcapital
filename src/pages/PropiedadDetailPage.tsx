@@ -122,6 +122,9 @@ export default function PropiedadDetailPage() {
               {prop.destacada && (
                 <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 2, background: 'var(--green)', color: '#fff', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Destacada</span>
               )}
+              {prop.baja_precio && (
+                <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 2, background: '#E24B4A', color: '#fff', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>↓ Baja de precio</span>
+              )}
               <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 2, background: 'var(--navy-dark)', color: 'var(--sky)', fontWeight: 400, letterSpacing: '1px', textTransform: 'uppercase' }}>{prop.tipo}</span>
             </div>
 
@@ -136,7 +139,12 @@ export default function PropiedadDetailPage() {
 
             {(prop.a_consultar || prop.precio_uf || prop.precio_usd || prop.precio_clp) && (
               <div className="mb-6 pb-6 border-b border-[#e8edf2]">
-                <div className="font-serif" style={{ fontSize: 44, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>
+                {prop.baja_precio && prop.precio_anterior_uf && (
+                  <div style={{ fontSize: 18, color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
+                    UF {prop.precio_anterior_uf.toLocaleString('es-CL')} — precio anterior
+                  </div>
+                )}
+                <div className="font-serif" style={{ fontSize: 44, fontWeight: 300, color: prop.baja_precio ? '#E24B4A' : 'var(--navy-dark)', lineHeight: 1 }}>
                   {prop.a_consultar
                     ? 'A consultar'
                     : prop.precio_uf
@@ -160,6 +168,7 @@ export default function PropiedadDetailPage() {
                 prop.superficie_total ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)' }} />, val: `${prop.superficie_total} m²`, label: 'Sup. total' } : null,
                 p.superficie_util  ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)', opacity: 0.6 }} />, val: `${p.superficie_util} m²`, label: 'Sup. construida' } : null,
                 prop.estacionamientos ? { icon: <span style={{ fontSize: 20 }}>🅿</span>, val: prop.estacionamientos, label: 'Estacion.' } : null,
+                prop.ano_construccion  ? { icon: <span style={{ fontSize: 20 }}>🏗</span>, val: prop.ano_construccion,  label: 'Año const.' } : null,
               ].filter(Boolean)
 
               if (specs.length === 0) return null
@@ -187,20 +196,36 @@ export default function PropiedadDetailPage() {
               </div>
             )}
 
-            {/* Dossier */}
-            {prop.dossier_url && (
-              <a
-                href={prop.dossier_url as string}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mb-6"
-                style={{ fontSize: 14, color: 'var(--navy)', fontWeight: 500, textDecoration: 'none', border: '1px solid var(--border)', padding: '10px 18px', borderRadius: 2, transition: 'all 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--sky-pale)'; e.currentTarget.style.borderColor = 'var(--navy)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'var(--border)' }}
-              >
-                📄 Descargar dossier / ficha técnica
-              </a>
-            )}
+            {/* Dossiers múltiples */}
+            {(() => {
+              const dossiers = prop.dossiers as string[] | undefined
+              const legacy = prop.dossier_url
+              const all = [...(dossiers || []), ...(legacy && !dossiers?.includes(legacy) ? [legacy] : [])]
+              if (!all.length) return null
+              const getName = (url: string) => {
+                try { return decodeURIComponent(url.split('/').pop() || '').replace(/^\d+_/, '') }
+                catch { return 'Documento' }
+              }
+              return (
+                <div className="mb-6">
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>Documentos adjuntos</div>
+                  <div className="flex flex-col gap-2">
+                    {all.map((url, i) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-3 px-4 py-3 rounded-sm"
+                        style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)', textDecoration: 'none', fontSize: 14, color: 'var(--navy)', transition: 'background 0.15s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#dbeaf5'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'var(--sky-pale)'}
+                      >
+                        <span style={{ fontSize: 18 }}>📄</span>
+                        <span style={{ flex: 1 }}>{getName(url)}</span>
+                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>Descargar ↗</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
 
             <div className="flex gap-3 flex-wrap">
               <a
