@@ -1049,6 +1049,13 @@ function ContenidoAdmin() {
     servicio_fin_per_imagen: '',
     servicio_fin_emp_imagen: '',
     servicio_banco_imagen: '',
+    // Imágenes destinos internacionales
+    dest_miami_img: '',
+    dest_punta_cana_img: '',
+    dest_orlando_img: '',
+    dest_espana_img: '',
+    dest_uruguay_img: '',
+    dest_nueva_york_img: '',
     // Asociados
     asociados_intro: 'Trabajamos con una red selecta de socios estratégicos que nos permiten ofrecer a nuestros clientes el mejor servicio integral en cada etapa del proceso inmobiliario y financiero.',
     asociados_cta: 'Si tu empresa comparte nuestros valores de excelencia y transparencia, nos encantaría explorar una colaboración estratégica.',
@@ -1156,6 +1163,29 @@ function ContenidoAdmin() {
                 onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} />
             </Field>
           </Full>
+        </Sec>
+        <Sec title="🌎 Fotos de destinos internacionales">
+          <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8, gridColumn: '1/-1', lineHeight: 1.7 }}>
+            Estas fotos aparecen en los destinos del Home. Sin foto se muestra un fondo de color. Recomendado: fotos de ciudad, 16:9 horizontal.
+          </p>
+          {[
+            { key: 'dest_miami_img',      label: '🏙 Miami' },
+            { key: 'dest_punta_cana_img', label: '🏖 Punta Cana' },
+            { key: 'dest_orlando_img',    label: '🎡 Orlando' },
+            { key: 'dest_espana_img',     label: '🇪🇸 España' },
+            { key: 'dest_uruguay_img',    label: '🇺🇾 Uruguay' },
+            { key: 'dest_nueva_york_img', label: '🗽 Nueva York' },
+          ].map(({ key, label }) => (
+            <Full key={key}>
+              <Field label={label}>
+                <ImageUploader
+                  currentUrl={(d as Record<string,string>)[key] || ''}
+                  folder="destinos"
+                  onUploaded={url => setD(p => ({ ...p, [key]: url }))}
+                />
+              </Field>
+            </Full>
+          ))}
         </Sec>
         <Sec title="💬 Testimonios">
           <Field label="Testimonio 1 — Texto"><Txa value={d.testimonial_1_texto} onChange={set('testimonial_1_texto')} rows={2} /></Field>

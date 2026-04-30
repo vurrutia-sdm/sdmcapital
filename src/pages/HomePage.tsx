@@ -20,12 +20,12 @@ const SAMPLE_PROPS: Propiedad[] = [
 ]
 
 const CITIES = [
-  { name: 'Miami',      country: 'Florida, Estados Unidos', count: '3', bg: 'linear-gradient(160deg,#1a3d5c,#0a1f30)', span2: true },
-  { name: 'Punta Cana', country: 'Rep. Dominicana', count: '5', bg: 'linear-gradient(160deg,#1a3528,#0a2018)', span2: false },
-  { name: 'Orlando',    country: 'Florida, EE.UU.', count: '2', bg: 'linear-gradient(160deg,#1a2d40,#0a1a28)', span2: false },
-  { name: 'España',     country: 'Madrid · Barcelona', count: '3', bg: 'linear-gradient(160deg,#2a1a2a,#180d18)', span2: false },
-  { name: 'Uruguay',    country: 'Montevideo · Punta del Este', count: '8', bg: 'linear-gradient(160deg,#1a2810,#0d1a08)', span2: false },
-  { name: 'Nueva York', country: 'Estados Unidos', count: '—', bg: 'linear-gradient(160deg,#2a2010,#1a1208)', span2: false },
+  { key: 'miami',      name: 'Miami',      country: 'Florida, Estados Unidos',         count: '3', bg: 'linear-gradient(160deg,#1a3d5c,#0a1f30)', span2: true  },
+  { key: 'punta_cana', name: 'Punta Cana', country: 'Rep. Dominicana',                 count: '5', bg: 'linear-gradient(160deg,#1a3528,#0a2018)', span2: false },
+  { key: 'orlando',    name: 'Orlando',    country: 'Florida, EE.UU.',                  count: '2', bg: 'linear-gradient(160deg,#1a2d40,#0a1a28)', span2: false },
+  { key: 'espana',     name: 'España',     country: 'Madrid · Barcelona',               count: '3', bg: 'linear-gradient(160deg,#2a1a2a,#180d18)', span2: false },
+  { key: 'uruguay',    name: 'Uruguay',    country: 'Montevideo · Punta del Este',      count: '8', bg: 'linear-gradient(160deg,#1a2810,#0d1a08)', span2: false },
+  { key: 'nueva_york', name: 'Nueva York', country: 'Estados Unidos',                  count: '—', bg: 'linear-gradient(160deg,#2a2010,#1a1208)', span2: false },
 ]
 
 const TESTIMONIALS = [
@@ -50,6 +50,16 @@ export default function HomePage() {
 
   const finImg = get('financiamiento_imagen', '')
 
+  // Imágenes de destinos internacionales
+  const cityImgs: Record<string, string> = {
+    miami:      get('dest_miami_img', ''),
+    punta_cana: get('dest_punta_cana_img', ''),
+    orlando:    get('dest_orlando_img', ''),
+    espana:     get('dest_espana_img', ''),
+    uruguay:    get('dest_uruguay_img', ''),
+    nueva_york: get('dest_nueva_york_img', ''),
+  }
+
   return (
     <div>
       {/* 1. Hero */}
@@ -59,18 +69,20 @@ export default function HomePage() {
       <SearchBar />
 
       {/* 3. Propiedades destacadas */}
-      <section className="px-8 lg:px-12 py-20 lg:py-24">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <div className="section-label" style={{ marginBottom: 16 }}>{t.sections.propiedades.label}</div>
-            <h2 className="font-serif font-light" style={{ fontSize: 50, color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
-              Oportunidades <em>en Chile</em>
-            </h2>
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 10, lineHeight: 1.8, maxWidth: 380 }}>
-              {t.sections.propiedades.sub}
-            </p>
+      <section className="px-4 lg:px-12 py-12 lg:py-24">
+        <div className="mb-8 lg:mb-12">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="section-label" style={{ marginBottom: 12 }}>{t.sections.propiedades.label}</div>
+              <h2 className="font-serif font-light" style={{ fontSize: 'clamp(32px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
+                Oportunidades <em>en Chile</em>
+              </h2>
+              <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>
+                {t.sections.propiedades.sub}
+              </p>
+            </div>
           </div>
-          <Link to="/propiedades" className="btn-text flex-shrink-0 mb-2">
+          <Link to="/propiedades" className="btn-text mt-4 inline-flex">
             {t.sections.propiedades.verTodas}
           </Link>
         </div>
@@ -90,19 +102,19 @@ export default function HomePage() {
           className="flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-16"
           style={{ background: 'var(--navy-dark)', minHeight: 380 }}
         >
-          <div>
-            <div className="section-label section-label--light" style={{ marginBottom: 18 }}>
+          <div className="text-center lg:text-left">
+            <div className="section-label section-label--light justify-center lg:justify-start" style={{ marginBottom: 18 }}>
               {t.sections.financiamiento.label}
             </div>
-            <h2 className="font-serif font-light" style={{ fontSize: 44, lineHeight: 1.1, color: '#fff' }}>
+            <h2 className="font-serif font-light" style={{ fontSize: 'clamp(32px,5vw,44px)', lineHeight: 1.1, color: '#fff' }}>
               {t.sections.financiamiento.title.split('financiamiento')[0]}
               <br /><em style={{ color: 'var(--sky)' }}>financiamiento</em>?
             </h2>
-            <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.9, color: 'rgba(255,255,255,0.5)', maxWidth: 300, marginTop: 20 }}>
+            <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.9, color: 'rgba(255,255,255,0.5)', marginTop: 20 }}>
               {t.sections.financiamiento.body}
             </p>
           </div>
-          <div className="flex gap-3 mt-8">
+          <div className="flex gap-3 mt-8 justify-center lg:justify-start">
             <Link to="/servicios/financiamiento-personas" className="btn-green">
               {t.sections.financiamiento.personas}
             </Link>
@@ -112,7 +124,7 @@ export default function HomePage() {
           </div>
         </div>
         <div
-          className="flex items-center justify-center overflow-hidden"
+          className="hidden lg:flex items-center justify-center overflow-hidden"
           style={{ background: 'linear-gradient(160deg,#0d2035,#162d45)', minHeight: 440 }}
         >
           {finImg
@@ -123,53 +135,85 @@ export default function HomePage() {
       </div>
 
       {/* 6. Internacional */}
-      <section className="px-8 lg:px-12 py-20 lg:py-24" style={{ background: 'var(--off)' }}>
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <div className="section-label" style={{ marginBottom: 16 }}>{t.sections.internacional.label}</div>
-            <h2 className="font-serif font-light" style={{ fontSize: 50, color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
-              Explora el <em>mundo</em>
-            </h2>
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 10, lineHeight: 1.8, maxWidth: 380 }}>
-              {t.sections.internacional.sub}
-            </p>
+      <section className="px-4 lg:px-12 py-12 lg:py-24" style={{ background: 'var(--off)' }}>
+        {/* Header — centrado en mobile */}
+        <div className="text-center lg:text-left mb-3 lg:mb-0">
+          <div className="section-label justify-center lg:justify-start" style={{ marginBottom: 12 }}>
+            {t.sections.internacional.label}
           </div>
-          <Link to="/propiedades?internacional=true" className="btn-text flex-shrink-0 mb-2">
+          <h2 className="font-serif font-light" style={{ fontSize: 'clamp(36px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
+            Explora el <em>mundo</em>
+          </h2>
+          <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>
+            {t.sections.internacional.sub}
+          </p>
+        </div>
+
+        {/* Ver todos — centrado debajo en mobile, a la derecha en desktop */}
+        <div className="flex justify-center lg:justify-end mb-8 mt-4 lg:mt-0 lg:-mt-12">
+          <Link to="/propiedades?internacional=true" className="btn-text">
             {t.sections.internacional.verTodos}
           </Link>
         </div>
 
+        {/* Grid ciudades — 2 cols en mobile, layout original en desktop */}
         <div
-          className="grid"
+          className="lg:grid"
           style={{
-            gridTemplateColumns: '1.6fr 1fr 1fr',
-            gridTemplateRows: '230px 170px',
-            gap: 1,
-            background: 'var(--border)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 8,
           }}
         >
-          {CITIES.map(city => (
-            <div
-              key={city.name}
-              className="relative overflow-hidden cursor-pointer group"
-              style={{ gridRow: city.span2 ? 'span 2' : undefined }}
-            >
-              <div
-                className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04]"
-                style={{ background: city.bg }}
-              />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top,rgba(10,20,30,.85) 0%,rgba(10,20,30,.08) 55%)' }} />
-              <div className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-[16px] rounded-full" style={{ border: '1px solid rgba(255,255,255,.22)', color: 'rgba(255,255,255,.55)' }}>
-                ↗
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="font-serif font-light" style={{ fontSize: 22, color: '#fff', lineHeight: 1, marginBottom: 3 }}>{city.name}</div>
-                <div style={{ fontSize: 13, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(168,196,220,.85)' }}>
-                  {city.country} · {city.count} {city.count !== '—' ? 'propiedades' : ''}
+          {/* Mobile: 2 columnas simples */}
+          <div className="lg:hidden contents">
+            {CITIES.map(city => (
+              <div key={city.name} className="relative overflow-hidden cursor-pointer rounded-sm" style={{ height: 140 }}>
+                {cityImgs[city.key]
+                  ? <img src={cityImgs[city.key]} alt={city.name} className="absolute inset-0 w-full h-full object-cover" />
+                  : <div className="absolute inset-0" style={{ background: city.bg }} />
+                }
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top,rgba(10,20,30,.9) 0%,rgba(10,20,30,.1) 60%)' }} />
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <div className="font-serif font-light" style={{ fontSize: 18, color: '#fff', lineHeight: 1.1, marginBottom: 2 }}>{city.name}</div>
+                  <div style={{ fontSize: 10, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(168,196,220,.85)' }}>{city.country}</div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Desktop: layout original con span */}
+          <div
+            className="hidden lg:grid"
+            style={{
+              gridColumn: '1 / -1',
+              gridTemplateColumns: '1.6fr 1fr 1fr',
+              gridTemplateRows: '230px 170px',
+              gap: 1,
+              background: 'var(--border)',
+            }}
+          >
+            {CITIES.map(city => (
+              <div
+                key={city.name}
+                className="relative overflow-hidden cursor-pointer group"
+                style={{ gridRow: city.span2 ? 'span 2' : undefined }}
+              >
+                {cityImgs[city.key]
+                  ? <img src={cityImgs[city.key]} alt={city.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                  : <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04]" style={{ background: city.bg }} />
+                }
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top,rgba(10,20,30,.85) 0%,rgba(10,20,30,.08) 55%)' }} />
+                <div className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-[16px] rounded-full" style={{ border: '1px solid rgba(255,255,255,.22)', color: 'rgba(255,255,255,.55)' }}>↗</div>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="font-serif font-light" style={{ fontSize: 22, color: '#fff', lineHeight: 1, marginBottom: 3 }}>{city.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(168,196,220,.85)' }}>
+                    {city.country} · {city.count} {city.count !== '—' ? 'propiedades' : ''}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -75,17 +75,23 @@ export default function PropiedadesPage() {
   return (
     <div className="min-h-screen">
       {/* Header band */}
-      <div className="px-8 lg:px-12 pt-14 pb-10 border-b border-[#e8edf2]">
-        <div className="section-label" style={{ marginBottom: 14 }}>Catálogo</div>
-        <div className="flex items-end justify-between">
-          <h1 className="font-serif font-light" style={{ fontSize: 48, color: 'var(--navy-dark)', lineHeight: 1.05, letterSpacing: '-0.5px' }}>
-            {filtros.internacional ? 'Propiedades <em>internacionales</em>' : 'Propiedades'}
-            {filtros.region && ` · ${filtros.region}`}
+      <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[#e8edf2]">
+        <div className="section-label" style={{ marginBottom: 14 }}>
+          {filtros.internacional ? 'Propiedades internacionales' : 'Catálogo'}
+        </div>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="font-serif font-light" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.05, letterSpacing: '-0.5px' }}>
+            {filtros.internacional
+              ? <>Propiedades <em>internacionales</em></>
+              : filtros.region
+              ? <>Propiedades <em>en {filtros.region}</em></>
+              : 'Propiedades'
+            }
           </h1>
           <button
             onClick={() => setPanelOpen(v => !v)}
-            className="flex items-center gap-2 text-[13px] font-medium tracking-[1.5px] uppercase transition-colors"
-            style={{ color: panelOpen ? 'var(--green)' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+            className="flex items-center gap-2 font-medium tracking-[1.5px] uppercase transition-colors flex-shrink-0 mt-2"
+            style={{ fontSize: 13, color: panelOpen ? 'var(--green)' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             <SlidersHorizontal size={14} />
             Filtros {activeFiltros.length > 0 && `(${activeFiltros.length})`}

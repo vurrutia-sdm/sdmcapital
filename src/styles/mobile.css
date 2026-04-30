@@ -1,0 +1,99 @@
+/* ============================================================
+   SDM Capital — Ajustes exclusivos para móvil
+   Solo afecta pantallas menores a 768px
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  /* ── Layout general ── */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  header nav {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* ── Hero ── */
+  section.relative {
+    min-height: 480px !important;
+  }
+
+  /* ── Secciones con padding grande ── */
+  .px-8 {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* ── Títulos display grandes ── */
+  .font-serif {
+    word-break: break-word;
+  }
+
+  /* ── Grid de propiedades en inicio ── */
+  .grid-cols-3,
+  .lg\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Sección financiamiento: ocultar columna imagen en mobile ── */
+  .lg\:grid-cols-2 > div:last-child:has(img),
+  .lg\:grid-cols-2 > div:last-child:empty {
+    display: none;
+  }
+
+  /* ── Footer: 2 columnas en mobile ── */
+  footer .grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px !important;
+  }
+
+  /* ── Propiedades: 1 columna ── */
+  .propiedades-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Texto más legible en mobile ── */
+  .font-serif.display {
+    font-size: clamp(32px, 8vw, 52px) !important;
+  }
+
+  /* ── Botones full width en mobile ── */
+  .btn-primary,
+  .btn-green {
+    justify-content: center;
+  }
+
+  /* ── Contacto: columnas en mobile ── */
+  #contacto .grid-cols-4 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* ── Quiénes somos: historia en columna ── */
+  .historia-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Servicios: sin alternancia en mobile ── */
+  .lg\:order-1,
+  .lg\:order-2 {
+    order: unset !important;
+  }
+}
+
+/* ── Tablet (768px - 1024px) ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  /* Grid de propiedades: 2 columnas en tablet */
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Footer: 2 columnas */
+  footer .lg\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}

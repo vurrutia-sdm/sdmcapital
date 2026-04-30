@@ -85,63 +85,107 @@ export default function SearchBar() {
   return (
     <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(15,37,53,0.08)' }}>
 
-      {/* Tabs */}
-      <div className="flex" style={{ borderBottom: '2px solid var(--border)', paddingLeft: 16, paddingRight: 16 }}>
+      {/* Desktop: tabs horizontales */}
+      <div className="hidden md:flex" style={{ borderBottom: '2px solid var(--border)', paddingLeft: 48, paddingRight: 48 }}>
         {([
           { key: 'comprar', label: 'Comprar' },
           { key: 'arrendar', label: 'Arrendar' },
-          { key: 'internacional', label: 'Intl.' },
+          { key: 'internacional', label: 'Internacional' },
         ] as { key: Tab; label: string }[]).map(item => (
           <button key={item.key} onClick={() => setTab(item.key)}
             style={{
               fontSize: 11, fontWeight: tab === item.key ? 600 : 400,
               letterSpacing: '1.5px', textTransform: 'uppercase',
-              padding: '12px 14px 10px', cursor: 'pointer',
+              padding: '14px 22px 12px', cursor: 'pointer',
               background: tab === item.key ? 'var(--navy-dark)' : 'none',
               border: 'none',
               borderBottom: tab === item.key ? '2px solid var(--navy-dark)' : '2px solid transparent',
               color: tab === item.key ? '#fff' : 'var(--muted)',
               fontFamily: 'inherit', marginBottom: -2, transition: 'all 0.15s',
-              flex: 1,
             }}
           >{item.label}</button>
         ))}
       </div>
 
-      {/* Mobile: campo + botón en una fila, selects debajo */}
-      <div style={{ borderTop: '3px solid var(--green)', background: '#fff' }}>
+      {/* Desktop: fila de búsqueda */}
+      <div className="hidden md:flex items-center gap-0" style={{ borderTop: '3px solid var(--green)', background: '#fff' }}>
+        <div className="flex flex-1 items-center gap-3 py-5 px-12" style={{ borderRight: '1px solid var(--border)' }}>
+          <Search size={16} style={{ color: 'var(--green)', flexShrink: 0 }} />
+          <input type="text" value={query} onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            placeholder={tab === 'internacional' ? 'Ciudad, país o destino...' : 'Comuna, sector o dirección...'}
+            style={{ flex: 1, border: 'none', outline: 'none', fontSize: 15, fontWeight: 300, color: 'var(--ink)', fontFamily: 'inherit', background: 'transparent' }} />
+        </div>
+        <div style={{ padding: '0 24px', borderRight: '1px solid var(--border)' }}>
+          <CustomSelect label="Tipo" options={TIPOS} value={tipo} onChange={setTipo} />
+        </div>
+        <div style={{ padding: '0 24px', borderRight: '1px solid var(--border)' }}>
+          <CustomSelect label="Precio máx." options={PRECIOS} value={precio} onChange={setPrecio} />
+        </div>
+        <button onClick={handleSearch}
+          className="flex items-center gap-2 flex-shrink-0 self-stretch px-8"
+          style={{ background: 'var(--navy-dark)', color: '#fff', border: 'none', fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--green)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'var(--navy-dark)')}
+        >
+          Buscar <Search size={13} />
+        </button>
+      </div>
 
-        {/* Fila 1: input + buscar */}
-        <div className="flex items-center gap-0" style={{ borderBottom: '1px solid var(--border)' }}>
-          <div className="flex flex-1 items-center gap-2" style={{ padding: '12px 16px' }}>
-            <Search size={16} style={{ color: 'var(--green)', flexShrink: 0 }} />
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
+      {/* ── MOBILE: diseño diferente, fondo navy ── */}
+      <div className="md:hidden" style={{ background: 'var(--navy-dark)', padding: '16px' }}>
+        {/* Tabs en pills */}
+        <div className="flex gap-2 mb-4">
+          {([
+            { key: 'comprar', label: 'Comprar' },
+            { key: 'arrendar', label: 'Arrendar' },
+            { key: 'internacional', label: 'Intl.' },
+          ] as { key: Tab; label: string }[]).map(item => (
+            <button key={item.key} onClick={() => setTab(item.key)}
+              style={{
+                flex: 1, padding: '8px 4px', fontSize: 11, fontWeight: 600,
+                letterSpacing: '1px', textTransform: 'uppercase',
+                border: 'none', borderRadius: 20, cursor: 'pointer',
+                fontFamily: 'inherit', transition: 'all 0.2s',
+                background: tab === item.key ? 'var(--green)' : 'rgba(255,255,255,0.1)',
+                color: tab === item.key ? '#fff' : 'rgba(255,255,255,0.6)',
+              }}
+            >{item.label}</button>
+          ))}
+        </div>
+
+        {/* Input de búsqueda */}
+        <div className="flex gap-2 mb-3">
+          <div className="flex flex-1 items-center gap-2" style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <Search size={15} style={{ color: 'var(--green)', flexShrink: 0 }} />
+            <input type="text" value={query} onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
               placeholder={tab === 'internacional' ? 'Ciudad o país...' : 'Comuna o dirección...'}
-              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontWeight: 300, color: 'var(--ink)', fontFamily: 'inherit', background: 'transparent', minWidth: 0 }}
+              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, color: '#fff', fontFamily: 'inherit', background: 'transparent', minWidth: 0 }}
             />
           </div>
           <button onClick={handleSearch}
-            className="flex items-center gap-2 flex-shrink-0"
-            style={{ background: 'var(--navy-dark)', color: '#fff', border: 'none', padding: '14px 18px', fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', alignSelf: 'stretch', transition: 'background 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--green)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'var(--navy-dark)')}
+            style={{ background: 'var(--green)', border: 'none', borderRadius: 8, color: '#fff', padding: '0 16px', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <Search size={14} />
-            <span className="hidden sm:inline">Buscar</span>
+            <Search size={18} />
           </button>
         </div>
 
-        {/* Fila 2: dropdowns — en mobile van en fila horizontal scrollable */}
-        <div className="flex gap-0" style={{ overflowX: 'auto' }}>
-          <div style={{ padding: '10px 16px', borderRight: '1px solid var(--border)', flexShrink: 0 }}>
-            <CustomSelect label="Tipo" options={TIPOS} value={tipo} onChange={setTipo} />
+        {/* Selects en fila */}
+        <div className="flex gap-2">
+          <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Tipo</div>
+            <select value={tipo} onChange={e => setTipo(e.target.value)}
+              style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 13, fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
+              {TIPOS.map(o => <option key={o.value} value={o.value} style={{ color: 'var(--ink)', background: '#fff' }}>{o.label}</option>)}
+            </select>
           </div>
-          <div style={{ padding: '10px 16px', flexShrink: 0 }}>
-            <CustomSelect label="Precio máx." options={PRECIOS} value={precio} onChange={setPrecio} />
+          <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Precio máx.</div>
+            <select value={precio} onChange={e => setPrecio(e.target.value)}
+              style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 13, fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
+              {PRECIOS.map(o => <option key={o.value} value={o.value} style={{ color: 'var(--ink)', background: '#fff' }}>{o.label}</option>)}
+            </select>
           </div>
         </div>
       </div>
