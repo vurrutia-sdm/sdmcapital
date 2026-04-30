@@ -34,6 +34,8 @@ export interface Propiedad {
   internacional: boolean
   amenidades?: string[]
   agente_id?: string
+  youtube_url?: string
+  dossier_url?: string
   created_at: string
   updated_at: string
 }
@@ -129,3 +131,13 @@ export interface FiltrosPropiedades {
 
 // ─── Lang ────────────────────────────────────────────────────────────────────
 export type Lang = 'es' | 'en'
+
+// Extended fields added for SDM Capital
+declare module './index' {
+  interface Propiedad {
+    precio_clp?: number
+    superficie_util?: number
+    youtube_url?: string
+    dossier_url?: string
+  }
+}

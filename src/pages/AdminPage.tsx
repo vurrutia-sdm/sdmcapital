@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto } from '@/types'
@@ -250,57 +250,81 @@ function PropImageManager({
     const dragged = next.splice(dragIdx.current, 1)[0]
     next.splice(dragOver.current, 0, dragged)
     dragIdx.current = null; dragOver.current = null
-    onChange(next, imagenPrincipal)
+    // La portada siempre se puede elegir manualmente — no la cambiamos al arrastrar
+    onChange(next, imagenPrincipal || next[0] || '')
   }
 
   return (
     <div>
+      {/* Instrucción clara */}
+      {imagenes.length > 0 && (
+        <div style={{ fontSize: 13, color: 'var(--navy-dark)', background: 'var(--sky-pale)', border: '1px solid var(--sky)', borderRadius: 4, padding: '8px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 16 }}>📷</span>
+          <span>Haz clic en <strong>"Portada"</strong> debajo de la foto que quieres como imagen principal.</span>
+        </div>
+      )}
+
       {/* Grid de fotos */}
       {imagenes.length > 0 && (
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-3">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-3">
           {imagenes.map((url, i) => (
-            <div
-              key={url + i}
-              draggable
-              onDragStart={() => onDragStart(i)}
-              onDragEnter={() => onDragEnter(i)}
-              onDragEnd={onDragEnd}
-              onDragOver={e => e.preventDefault()}
-              style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 3, overflow: 'hidden', cursor: 'grab', border: url === imagenPrincipal ? '3px solid var(--green)' : '2px solid var(--border)' }}
-            >
-              <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <div key={url + i}>
+              {/* Thumbnail */}
+              <div
+                draggable
+                onDragStart={() => onDragStart(i)}
+                onDragEnter={() => onDragEnter(i)}
+                onDragEnd={onDragEnd}
+                onDragOver={e => e.preventDefault()}
+                style={{
+                  position: 'relative', aspectRatio: '4/3', borderRadius: 3,
+                  overflow: 'hidden', cursor: 'grab',
+                  border: url === imagenPrincipal ? '3px solid var(--green)' : '2px solid var(--border)',
+                  boxShadow: url === imagenPrincipal ? '0 0 0 2px rgba(61,170,110,0.25)' : 'none',
+                }}
+              >
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
 
-              {/* Badge principal */}
-              {url === imagenPrincipal && (
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'center', padding: '3px 0' }}>
-                  Principal
-                </div>
-              )}
-
-              {/* Grip */}
-              <div style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(0,0,0,0.5)', borderRadius: 2, padding: '2px 3px' }}>
-                <svg width="7" height="10" viewBox="0 0 7 10" fill="white" opacity="0.8">
-                  <circle cx="1.5" cy="1.5" r="1.2"/><circle cx="5.5" cy="1.5" r="1.2"/>
-                  <circle cx="1.5" cy="5" r="1.2"/><circle cx="5.5" cy="5" r="1.2"/>
-                  <circle cx="1.5" cy="8.5" r="1.2"/><circle cx="5.5" cy="8.5" r="1.2"/>
-                </svg>
-              </div>
-
-              {/* Acciones */}
-              <div style={{ position: 'absolute', top: 4, right: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {url !== imagenPrincipal && (
-                  <button
-                    onClick={() => setPrincipal(url)}
-                    title="Hacer principal"
-                    style={{ background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: 2, color: '#fff', width: 18, height: 18, cursor: 'pointer', fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  >★</button>
+                {/* Badge portada */}
+                {url === imagenPrincipal && (
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'center', padding: '4px 0' }}>
+                    ★ PORTADA
+                  </div>
                 )}
+
+                {/* Grip */}
+                <div style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.45)', borderRadius: 2, padding: '2px 3px' }}>
+                  <svg width="7" height="10" viewBox="0 0 7 10" fill="white" opacity="0.7">
+                    <circle cx="1.5" cy="1.5" r="1.2"/><circle cx="5.5" cy="1.5" r="1.2"/>
+                    <circle cx="1.5" cy="5" r="1.2"/><circle cx="5.5" cy="5" r="1.2"/>
+                    <circle cx="1.5" cy="8.5" r="1.2"/><circle cx="5.5" cy="8.5" r="1.2"/>
+                  </svg>
+                </div>
+
+                {/* Botón eliminar */}
                 <button
                   onClick={() => remove(i)}
-                  title="Eliminar"
-                  style={{ background: 'rgba(226,75,74,0.85)', border: 'none', borderRadius: 2, color: '#fff', width: 18, height: 18, cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Eliminar foto"
+                  style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
                 >✕</button>
               </div>
+
+              {/* Botón Portada — debajo de la foto, grande y claro */}
+              <button
+                onClick={() => setPrincipal(url)}
+                style={{
+                  width: '100%', marginTop: 4, padding: '5px 0',
+                  fontSize: 11, fontWeight: 600, letterSpacing: '0.5px',
+                  border: 'none', borderRadius: 2, cursor: 'pointer',
+                  fontFamily: 'inherit', transition: 'all 0.15s',
+                  background: url === imagenPrincipal ? 'var(--green)' : 'var(--border)',
+                  color: url === imagenPrincipal ? '#fff' : 'var(--muted)',
+                }}
+                onMouseEnter={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--sky)'; e.currentTarget.style.color = 'var(--navy-dark)' } }}
+                onMouseLeave={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)' } }}
+              >
+                {url === imagenPrincipal ? '★ Portada' : 'Portada'}
+              </button>
             </div>
           ))}
         </div>
@@ -327,8 +351,6 @@ function PropiedadesAdmin() {
   const [items, setItems]     = useState<Propiedad[]>([])
   const [editing, setEditing] = useState<Partial<Propiedad> | null>(null)
   const [saving, setSaving]   = useState(false)
-  const [uploading, setUploading] = useState(false)
-
   const load = () => supabase.from('propiedades').select('*').order('destacada', { ascending: false }).order('created_at', { ascending: false }).then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
@@ -880,7 +902,7 @@ const POSITION_OPTIONS = [
   { value: '50% 80%',       label: 'Bajo (80%)' },
 ]
 
-function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: React.Dispatch<React.SetStateAction<Record<string, string>>> }) {
+function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (fn: (prev: Record<string, string>) => Record<string, string>) => void }) {
   const dragIdx  = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
   const [uploading, setUploading] = useState<number | null>(null)
@@ -1108,7 +1130,7 @@ function ContenidoAdmin() {
             <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
               Sube hasta 5 fotos. Se muestran en secuencia cada 5 segundos. <strong>Arrastra las tarjetas para cambiar el orden.</strong>
             </p>
-            <CarouselPhotoManager d={d} setD={setD} />
+            <CarouselPhotoManager d={d as unknown as Record<string, string>} setD={setD as unknown as (fn: (prev: Record<string, string>) => Record<string, string>) => void} />
           </Full>
         </Sec>
         <Sec title="📝 Título y subtítulo del hero">

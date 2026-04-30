@@ -5,7 +5,7 @@ import type { Lang } from '@/types'
 interface LangContextType {
   lang: Lang
   setLang: (l: Lang) => void
-  t: typeof translations['es']
+  t: typeof translations['es'] & typeof translations['en']
 }
 
 const LangContext = createContext<LangContextType | null>(null)

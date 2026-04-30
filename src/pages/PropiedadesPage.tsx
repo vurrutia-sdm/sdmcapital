@@ -39,7 +39,6 @@ const PRECIOS = [
 ]
 
 export default function PropiedadesPage() {
-  const { t } = useLang()
   const [searchParams] = useSearchParams()
   const [props, setProps] = useState<Propiedad[]>([])
   const [loading, setLoading] = useState(true)

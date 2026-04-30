@@ -134,15 +134,15 @@ export default function PropiedadDetailPage() {
               {prop.comuna}, {prop.region}
             </div>
 
-            {(prop.a_consultar || prop.precio_uf || prop.precio_usd || (prop as Record<string,unknown>).precio_clp) && (
+            {(prop.a_consultar || prop.precio_uf || prop.precio_usd || prop.precio_clp) && (
               <div className="mb-6 pb-6 border-b border-[#e8edf2]">
                 <div className="font-serif" style={{ fontSize: 44, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>
                   {prop.a_consultar
                     ? 'A consultar'
                     : prop.precio_uf
                     ? `UF ${prop.precio_uf.toLocaleString('es-CL')}`
-                    : (prop as Record<string,unknown>).precio_clp
-                    ? `$ ${((prop as Record<string,unknown>).precio_clp as number).toLocaleString('es-CL')}`
+                    : prop.precio_clp
+                    ? `$ ${(prop.precio_clp as number).toLocaleString('es-CL')}`
                     : prop.precio_usd
                     ? `USD ${prop.precio_usd.toLocaleString()}`
                     : ''}
@@ -153,7 +153,7 @@ export default function PropiedadDetailPage() {
 
             {/* Specs principales — solo los que tienen valor */}
             {(() => {
-              const p = prop as Record<string, unknown>
+              const p = prop as typeof prop & Record<string, unknown>
               const specs = [
                 prop.dormitorios   ? { icon: <Home size={22} style={{ color: 'var(--navy)' }} />,     val: prop.dormitorios,       label: 'Dorm.' }       : null,
                 prop.banos         ? { icon: <Bath size={22} style={{ color: 'var(--navy)' }} />,     val: prop.banos,             label: 'Baños' }       : null,
@@ -188,9 +188,9 @@ export default function PropiedadDetailPage() {
             )}
 
             {/* Dossier */}
-            {(prop as Record<string,unknown>).dossier_url && (
+            {prop.dossier_url && (
               <a
-                href={(prop as Record<string,unknown>).dossier_url as string}
+                href={prop.dossier_url as string}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 mb-6"
@@ -283,8 +283,8 @@ export default function PropiedadDetailPage() {
       )}
 
       {/* ── Video YouTube ── */}
-      {(prop as Record<string,unknown>).youtube_url && (() => {
-        const raw = (prop as Record<string,unknown>).youtube_url as string
+      {prop.youtube_url && (() => {
+        const raw = prop.youtube_url as string
         const match = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
         const videoId = match?.[1]
         return videoId ? (
