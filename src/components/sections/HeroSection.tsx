@@ -196,9 +196,12 @@ export default function HeroSection() {
       <div className="relative h-full flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-14" style={{ zIndex: 4 }}>
 
         {/* Kicker */}
-        <div className="flex items-center gap-3" style={{ fontSize: 11, fontWeight: 400, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--green)' }}>
-          <span style={{ width: 28, height: 1, background: 'var(--green)', display: 'inline-block' }} />
-          {kicker}
+        <div className="flex items-start gap-3" style={{ fontSize: 11, fontWeight: 400, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--green)' }}>
+          <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
+          <span>
+            Inversión inmobiliaria<br />
+            Chile &amp; el mundo
+          </span>
         </div>
 
         {/* Headline */}

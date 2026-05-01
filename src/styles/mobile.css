@@ -72,9 +72,19 @@
     gap: 20px !important;
   }
 
-  /* ── Quiénes somos: historia en columna ── */
-  .historia-grid {
-    grid-template-columns: 1fr !important;
+  /* ── Testimonios: centrar en mobile ── */
+  [style*="background: var(--off)"] .section-label,
+  [style*="background: var(--off)"] h2,
+  [style*="background: var(--off)"] p,
+  [style*="background: var(--off)"] .flex.items-center {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* ── Hero label: dos líneas limpias ── */
+  .section-label {
+    word-break: normal !important;
+    white-space: normal !important;
   }
 
   /* ── Quiénes somos: margen lateral en cards de equipo ── */
@@ -146,24 +156,13 @@
     text-align: center !important;
   }
 
-  /* Links de navegación y servicios: centrados pero en bloque */
-  footer .grid > div a {
+  /* Links de navegación y servicios: centrados en bloque */
+  footer .grid > div > a {
     display: block !important;
     text-align: center !important;
   }
 
-  /* Íconos de redes sociales: mantener flex horizontal, centrar */
-  footer .flex.items-center.gap-3 {
-    justify-content: center !important;
-    display: flex !important;
-  }
-
-  /* El texto dentro del flex de redes sociales NO va en bloque */
-  footer .flex.items-center.gap-3 span,
-  footer .flex.items-center.gap-3 a {
-    display: inline !important;
-    text-align: left !important;
-  }
+  /* Íconos redes sociales: NO tocar — tienen flex inline propio */
 }
 
 /* ── Tablet (768px - 1024px) ── */

@@ -118,8 +118,8 @@ export default function Footer() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {SOCIALS.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
-                  style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e8edf2', borderRadius: '50%', flexShrink: 0 }}>
+                  style={{ textDecoration: 'none', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'nowrap' }}>
+                  <div style={{ width: 32, height: 32, minWidth: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e8edf2', borderRadius: '50%' }}>
                     <SocialIcon s={s} />
                   </div>
                   <span style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
@@ -133,7 +133,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>
+          <p style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)', textAlign: 'center' }}>
             © 2026 SDM Capital · Todos los derechos reservados · Diseño{' '}
             <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer"
               style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
@@ -141,7 +141,7 @@ export default function Footer() {
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
             >HaikuFlow.com</a>
           </p>
-          <p style={{ fontSize: 12, fontWeight: 300, color: 'var(--border)', letterSpacing: '2px', textTransform: 'uppercase' }}>
+          <p style={{ fontSize: 12, fontWeight: 300, color: 'var(--border)', letterSpacing: '2px', textTransform: 'uppercase', textAlign: 'center' }}>
             Las Condes · Santiago · Chile
           </p>
         </div>

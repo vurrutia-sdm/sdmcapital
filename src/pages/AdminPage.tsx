@@ -1299,6 +1299,13 @@ function ContenidoAdmin() {
           <Field label="Países"><Inp type="number" value={d.stats_paises} onChange={set('stats_paises')} /></Field>
           <Field label="Clientes satisfechos"><Inp type="number" value={d.stats_clientes} onChange={set('stats_clientes')} /></Field>
         </Sec>
+        <Sec title="🏠 Sección propiedades destacadas">
+          <Field label="Label (pequeño, ej: Selección editorial)"><Inp value={d.props_label} onChange={set('props_label')} /></Field>
+          <Field label="Título principal (ej: Oportunidades)"><Inp value={d.props_titulo} onChange={set('props_titulo')} /></Field>
+          <Field label="Título en cursiva (ej: en Chile)"><Inp value={d.props_titulo_em} onChange={set('props_titulo_em')} /></Field>
+          <Full><Field label="Subtítulo"><Inp value={d.props_sub} onChange={set('props_sub')} /></Field></Full>
+          <Field label="Texto del link"><Inp value={d.props_ver_todas} onChange={set('props_ver_todas')} /></Field>
+        </Sec>
         <Sec title="💰 Sección Financiamiento">
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>
           <Full><Field label="Descripción"><Txa value={d.financiamiento_body} onChange={set('financiamiento_body')} rows={3} /></Field></Full>
@@ -1332,14 +1339,6 @@ function ContenidoAdmin() {
             </Full>
           ))}
         </Sec>
-        <Sec title="🏠 Sección propiedades destacadas">
-          <Field label="Label (pequeño, ej: Selección editorial)"><Inp value={d.props_label} onChange={set('props_label')} /></Field>
-          <Field label="Título principal (ej: Oportunidades)"><Inp value={d.props_titulo} onChange={set('props_titulo')} /></Field>
-          <Field label="Título en cursiva (ej: en Chile)"><Inp value={d.props_titulo_em} onChange={set('props_titulo_em')} /></Field>
-          <Full><Field label="Subtítulo"><Inp value={d.props_sub} onChange={set('props_sub')} /></Field></Full>
-          <Field label="Texto del link"><Inp value={d.props_ver_todas} onChange={set('props_ver_todas')} /></Field>
-        </Sec>
-
         <Sec title="💬 Testimonios">
           <Full><p style={{ fontSize: 13, color: 'var(--muted)' }}>Los testimonios se editan en la pestaña <strong>💬 Testimonios</strong> de arriba.</p></Full>
         </Sec>

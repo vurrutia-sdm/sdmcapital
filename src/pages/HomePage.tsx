@@ -75,19 +75,19 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-24">
 
         {/* Columna izquierda — título fijo */}
-        <div>
-          <div className="section-label" style={{ marginBottom: 18 }}>{t.sections.testimonios.label}</div>
+        <div style={{ textAlign: 'center' }} className="lg:text-left">
+          <div className="section-label" style={{ marginBottom: 18, justifyContent: 'center' }}>{t.sections.testimonios.label}</div>
           <h2 className="font-serif font-light" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
             {get('testimonios_titulo', 'Palabras de nuestros clientes')}
           </h2>
-          <div style={{ width: 40, height: 1, background: 'var(--green)', margin: '24px 0 14px' }} />
+          <div style={{ width: 40, height: 1, background: 'var(--green)', margin: '24px auto 14px' }} />
           <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>
             {get('testimonios_subtitulo', t.sections.testimonios.sub)}
           </p>
 
           {/* Controles */}
           {items.length > 1 && (
-            <div className="flex items-center gap-4 mt-10">
+            <div className="flex items-center gap-4 mt-10" style={{ justifyContent: 'center' }}>
               <button onClick={prev}
                 style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: 'var(--navy-dark)', transition: 'all 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
@@ -98,7 +98,6 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.borderColor = 'var(--border)' }}
               >↓</button>
-              {/* Indicador */}
               <span style={{ fontSize: 12, color: 'var(--muted)', letterSpacing: '2px' }}>
                 {String(current + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
               </span>
@@ -111,12 +110,12 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
           <div
             style={{
               overflow: 'hidden',
-              transition: 'opacity 0.4s ease',
               opacity: animating ? 0 : 1,
               transform: animating
                 ? `translateY(${direction === 'up' ? '-20px' : '20px'})`
                 : 'translateY(0)',
               transition: 'opacity 0.4s ease, transform 0.4s ease',
+              textAlign: 'center',
             }}
           >
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: 28, marginBottom: 4 }}>
@@ -137,7 +136,7 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
 
             {/* Dots */}
             {items.length > 1 && (
-              <div className="flex gap-2 mt-8">
+              <div className="flex gap-2 mt-8" style={{ justifyContent: 'center' }}>
                 {items.map((_, i) => (
                   <button key={i} onClick={() => goTo(i)}
                     style={{ width: i === current ? 24 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'all 0.3s', background: i === current ? 'var(--green)' : 'var(--border)', padding: 0 }}
@@ -189,8 +188,8 @@ export default function HomePage() {
       {/* 3. Propiedades destacadas */}
       <section className="py-12 lg:py-24">
         <div style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)' }}>
-          <div className="mb-8 lg:mb-12">
-            <div className="section-label" style={{ marginBottom: 12 }}>
+          <div className="mb-8 lg:mb-12" style={{ textAlign: 'center' }} >
+            <div className="section-label" style={{ marginBottom: 12, justifyContent: 'center' }}>
               {get('props_label', t.sections.propiedades.label)}
             </div>
             <h2 className="font-serif font-light" style={{ fontSize: 'clamp(32px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
@@ -200,9 +199,11 @@ export default function HomePage() {
               {get('props_sub', t.sections.propiedades.sub)}
             </p>
           </div>
-          <Link to="/propiedades" className="btn-text mt-4 inline-flex">
-            {get('props_ver_todas', t.sections.propiedades.verTodas)}
-          </Link>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Link to="/propiedades" className="btn-text mt-4 inline-flex">
+              {get('props_ver_todas', t.sections.propiedades.verTodas)}
+            </Link>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)' }}>
