@@ -21,13 +21,14 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
   const { t, lang } = useLang()
   const p = t.prop
 
-  const badge = propiedad.destacada
-    ? { label: p.destacada, style: { background: 'var(--green)', color: '#fff' } }
-    : propiedad.estado === 'en_venta'
-    ? { label: p.enVenta, style: { background: 'var(--navy-dark)', color: 'var(--sky)' } }
-    : propiedad.estado === 'en_arriendo'
-    ? { label: p.enArriendo, style: { background: 'var(--navy)', color: 'var(--sky)' } }
-    : { label: p.reservada, style: { background: '#888', color: '#fff' } }
+  // Solo mostrar badge cuando hay info útil: vendida o reservada
+  const badge = propiedad.estado === 'vendida'
+    ? { label: 'Vendida', style: { background: '#888', color: '#fff' } }
+    : propiedad.estado === 'reservada'
+    ? { label: 'Reservada', style: { background: 'var(--navy)', color: 'var(--sky)' } }
+    : propiedad.baja_precio
+    ? { label: '↓ Baja de precio', style: { background: '#E24B4A', color: '#fff' } }
+    : null
 
   const priceDisplay = propiedad.a_consultar
     ? p.aConsultar
@@ -39,7 +40,7 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
     ? `USD ${propiedad.precio_usd.toLocaleString()}`
     : '—'
 
-  const priceLabel = propiedad.estado === 'en_venta' ? p.enVenta : p.enArriendo
+  const priceLabel = propiedad.estado === 'en_arriendo' ? p.enArriendo : null
 
   const titulo = lang === 'en' && propiedad.titulo_en ? propiedad.titulo_en : propiedad.titulo
 
@@ -75,32 +76,28 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
           )
         })()}
 
-        {/* Badge principal */}
-        <div
-          className="absolute top-3.5 left-3.5 text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1"
-          style={{ ...badge.style, borderRadius: 1 }}
-        >
-          {badge.label}
-        </div>
-
-        {/* Badge baja de precio */}
-        {propiedad.baja_precio && (
+        {/* Badge — solo vendida, reservada o baja de precio */}
+        {badge && (
           <div
-            className="absolute top-3.5 right-3.5 flex items-center gap-1 px-2.5 py-1"
-            style={{ background: '#E24B4A', color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', borderRadius: 1 }}
+            className="absolute top-3.5 left-3.5 text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1"
+            style={{ ...badge.style, borderRadius: 1 }}
           >
-            ↓ Baja de precio
+            {badge.label}
           </div>
         )}
+
+        {/* Badge baja de precio — ya incluido arriba */}
       </div>
 
       {/* Body */}
       <div className="p-5 lg:p-6">
         <div className="font-serif mb-1.5" style={{ fontSize: 21, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>
           {priceDisplay}
-          <small className="font-sans ml-1.5" style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
-            {!propiedad.a_consultar && priceLabel}
-          </small>
+          {priceLabel && (
+            <small className="font-sans ml-1.5" style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+              {priceLabel}
+            </small>
+          )}
         </div>
         {/* Precio anterior tachado */}
         {propiedad.baja_precio && propiedad.precio_anterior_uf && (

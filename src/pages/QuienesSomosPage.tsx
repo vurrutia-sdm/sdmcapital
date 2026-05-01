@@ -112,9 +112,9 @@ export default function QuienesSomosPage() {
             const bio   = m.bio
             return (
               <div key={m.id} className="bg-white group">
-                <div className="overflow-hidden flex items-center justify-center" style={{ height: 380, background: '#f0f4f7' }}>
+                <div style={{ height: 400, background: '#f4f6f8', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden' }}>
                   {m.foto
-                    ? <img src={m.foto} alt={m.nombre} loading="lazy" className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]" />
+                    ? <img src={m.foto} alt={m.nombre} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center bottom', display: 'block' }} />
                     : <div className="flex items-center justify-center w-full h-full" style={{ background: 'linear-gradient(160deg,#1a3d5c,#0d2035)' }}>
                         <span className="font-serif text-white opacity-20 italic" style={{ fontSize: 14 }}>{m.nombre}</span>
                       </div>

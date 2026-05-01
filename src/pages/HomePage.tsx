@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
@@ -33,6 +33,124 @@ const TESTIMONIALS = [
   { num: '02', quote: '"Como inversionista internacional, SDM Capital simplificó todo el proceso. Me ayudó a identificar oportunidades sólidas y mi cartera ha crecido significativamente."', sig: 'Carlos González · Miami, Florida, EE. UU.' },
   { num: '03', quote: '"Su conocimiento del mercado y atención personalizada hicieron que el proceso de compra en Viña del Mar fuera completamente libre de estrés."', sig: 'Isabel Ríos · Viña del Mar, Chile' },
 ]
+
+// ─── CARRUSEL DE TESTIMONIOS ──────────────────────────────────────────────────
+function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string; t: ReturnType<typeof useLang>['t'] }) {
+  const items = [1,2,3,4,5,6,7,8].map(n => ({
+    texto: get(`testimonial_${n}_texto`, n <= 3 ? (TESTIMONIALS[n-1]?.quote || '') : ''),
+    autor: get(`testimonial_${n}_autor`, n <= 3 ? (TESTIMONIALS[n-1]?.sig || '') : ''),
+    url:   get(`testimonial_${n}_url`, ''),
+  })).filter(i => i.texto)
+
+  const [current, setCurrent] = useState(0)
+  const [animating, setAnimating] = useState(false)
+  const [direction, setDirection] = useState<'up' | 'down'>('up')
+  const timer = useRef<ReturnType<typeof setInterval>>()
+
+  const goTo = (idx: number, dir: 'up' | 'down' = 'up') => {
+    if (animating || items.length <= 1) return
+    setDirection(dir)
+    setAnimating(true)
+    setTimeout(() => {
+      setCurrent(idx)
+      setAnimating(false)
+    }, 400)
+  }
+
+  const next = () => goTo((current + 1) % items.length, 'up')
+  const prev = () => goTo((current - 1 + items.length) % items.length, 'down')
+
+  useEffect(() => {
+    if (items.length <= 1) return
+    timer.current = setInterval(next, 5000)
+    return () => clearInterval(timer.current)
+  }, [current, items.length])
+
+  if (items.length === 0) return null
+
+  const item = items[current]
+
+  return (
+    <section style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)', paddingTop: 80, paddingBottom: 80 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-24">
+
+        {/* Columna izquierda — título fijo */}
+        <div>
+          <div className="section-label" style={{ marginBottom: 18 }}>{t.sections.testimonios.label}</div>
+          <h2 className="font-serif font-light" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
+            {get('testimonios_titulo', 'Palabras de nuestros clientes')}
+          </h2>
+          <div style={{ width: 40, height: 1, background: 'var(--green)', margin: '24px 0 14px' }} />
+          <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>
+            {get('testimonios_subtitulo', t.sections.testimonios.sub)}
+          </p>
+
+          {/* Controles */}
+          {items.length > 1 && (
+            <div className="flex items-center gap-4 mt-10">
+              <button onClick={prev}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: 'var(--navy-dark)', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              >↑</button>
+              <button onClick={next}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: 'var(--navy-dark)', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              >↓</button>
+              {/* Indicador */}
+              <span style={{ fontSize: 12, color: 'var(--muted)', letterSpacing: '2px' }}>
+                {String(current + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Columna derecha — testimonio animado */}
+        <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div
+            style={{
+              overflow: 'hidden',
+              transition: 'opacity 0.4s ease',
+              opacity: animating ? 0 : 1,
+              transform: animating
+                ? `translateY(${direction === 'up' ? '-20px' : '20px'})`
+                : 'translateY(0)',
+              transition: 'opacity 0.4s ease, transform 0.4s ease',
+            }}
+          >
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 28, marginBottom: 4 }}>
+              <p className="font-serif italic font-light" style={{ fontSize: 'clamp(18px,2.5vw,24px)', color: 'var(--ink)', lineHeight: 1.7, marginBottom: 20 }}>
+                "{item.texto}"
+              </p>
+              <div style={{ fontSize: 13, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: item.url ? 12 : 0 }}>
+                {item.autor}
+              </div>
+              {item.url && (
+                <a href={item.url} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green)', paddingBottom: 2 }}
+                >
+                  Conoce la historia →
+                </a>
+              )}
+            </div>
+
+            {/* Dots */}
+            {items.length > 1 && (
+              <div className="flex gap-2 mt-8">
+                {items.map((_, i) => (
+                  <button key={i} onClick={() => goTo(i)}
+                    style={{ width: i === current ? 24 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'all 0.3s', background: i === current ? 'var(--green)' : 'var(--border)', padding: 0 }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 export default function HomePage() {
   const { t } = useLang()
@@ -69,21 +187,21 @@ export default function HomePage() {
       <SearchBar />
 
       {/* 3. Propiedades destacadas */}
-      <section className="px-4 lg:px-12 py-12 lg:py-24">
-        <div className="mb-8 lg:mb-12">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="section-label" style={{ marginBottom: 12 }}>{t.sections.propiedades.label}</div>
-              <h2 className="font-serif font-light" style={{ fontSize: 'clamp(32px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
-                Oportunidades <em>en Chile</em>
-              </h2>
-              <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>
-                {t.sections.propiedades.sub}
-              </p>
+      <section className="py-12 lg:py-24">
+        <div style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)' }}>
+          <div className="mb-8 lg:mb-12">
+            <div className="section-label" style={{ marginBottom: 12 }}>
+              {get('props_label', t.sections.propiedades.label)}
             </div>
+            <h2 className="font-serif font-light" style={{ fontSize: 'clamp(32px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
+              {get('props_titulo', 'Oportunidades')} <em>{get('props_titulo_em', 'en Chile')}</em>
+            </h2>
+            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>
+              {get('props_sub', t.sections.propiedades.sub)}
+            </p>
           </div>
           <Link to="/propiedades" className="btn-text mt-4 inline-flex">
-            {t.sections.propiedades.verTodas}
+            {get('props_ver_todas', t.sections.propiedades.verTodas)}
           </Link>
         </div>
 
@@ -221,47 +339,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. Testimonios */}
-      <section style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)', paddingTop: 80, paddingBottom: 80 }}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-24">
-          <div>
-            <div className="section-label" style={{ marginBottom: 18 }}>{t.sections.testimonios.label}</div>
-            <h2 className="font-serif font-light" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
-              {get('testimonios_titulo', 'Palabras de nuestros clientes')}
-            </h2>
-            <div style={{ width: 40, height: 1, background: 'var(--green)', margin: '24px 0 14px' }} />
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>
-              {get('testimonios_subtitulo', t.sections.testimonios.sub)}
-            </p>
-          </div>
-          <div className="lg:col-span-2 flex flex-col gap-11">
-            {[
-              { num: '01', texto: get('testimonial_1_texto', TESTIMONIALS[0]?.quote || ''), autor: get('testimonial_1_autor', TESTIMONIALS[0]?.sig || ''), url: get('testimonial_1_url', '') },
-              { num: '02', texto: get('testimonial_2_texto', TESTIMONIALS[1]?.quote || ''), autor: get('testimonial_2_autor', TESTIMONIALS[1]?.sig || ''), url: get('testimonial_2_url', '') },
-              { num: '03', texto: get('testimonial_3_texto', TESTIMONIALS[2]?.quote || ''), autor: get('testimonial_3_autor', TESTIMONIALS[2]?.sig || ''), url: get('testimonial_3_url', '') },
-            ].filter(item => item.texto).map(item => (
-              <div key={item.num} className="grid gap-6 border-t pt-7" style={{ gridTemplateColumns: '56px 1fr', borderColor: 'var(--border)' }}>
-                <div className="font-serif" style={{ fontSize: 44, fontWeight: 300, color: 'var(--border)', lineHeight: 1 }}>{item.num}</div>
-                <div>
-                  <p className="font-serif italic font-light" style={{ fontSize: 17, color: 'var(--ink)', lineHeight: 1.7, marginBottom: 12 }}>
-                    "{item.texto}"
-                  </p>
-                  <div style={{ fontSize: 13, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>
-                    {item.autor}
-                  </div>
-                  {item.url && (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green)', paddingBottom: 2 }}
-                    >
-                      Conoce la historia →
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 7. Testimonios — Carrusel */}
+      <TestimoniosCarrusel get={get} t={t} />
 
       {/* 8. Contacto */}
       <ContactSection />

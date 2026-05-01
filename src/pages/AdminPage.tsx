@@ -1122,7 +1122,7 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
 function ContenidoAdmin() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved]   = useState(false)
-  const [pagina, setPagina] = useState<'inicio'|'quienes'|'servicios'|'asociados'|'blog'|'contacto'>('inicio')
+  const [pagina, setPagina] = useState<'inicio'|'testimonios'|'quienes'|'servicios'|'asociados'|'blog'|'contacto'>('inicio')
   const scrollPositions = useRef<Record<string, number>>({})
 
   const handlePaginaChange = (key: typeof pagina) => {
@@ -1151,8 +1151,27 @@ function ContenidoAdmin() {
     testimonial_3_texto: 'Su conocimiento del mercado y atención personalizada hicieron que el proceso fuera completamente libre de estrés.',
     testimonial_3_autor: 'Isabel Ríos · Viña del Mar, Chile',
     testimonial_3_url: '',
+    testimonial_4_texto: '',
+    testimonial_4_autor: '',
+    testimonial_4_url: '',
+    testimonial_5_texto: '',
+    testimonial_5_autor: '',
+    testimonial_5_url: '',
+    testimonial_6_texto: '',
+    testimonial_6_autor: '',
+    testimonial_6_url: '',
     testimonios_titulo: 'Palabras de nuestros clientes',
     testimonios_subtitulo: 'La satisfacción de nuestros clientes es nuestra mejor carta de presentación.',
+    testimonial_4_texto: '', testimonial_4_autor: '', testimonial_4_url: '',
+    testimonial_5_texto: '', testimonial_5_autor: '', testimonial_5_url: '',
+    testimonial_6_texto: '', testimonial_6_autor: '', testimonial_6_url: '',
+    testimonial_7_texto: '', testimonial_7_autor: '', testimonial_7_url: '',
+    testimonial_8_texto: '', testimonial_8_autor: '', testimonial_8_url: '',
+    props_label: 'Selección editorial',
+    props_titulo: 'Oportunidades',
+    props_titulo_em: 'en Chile',
+    props_sub: 'Propiedades curadas por nuestro equipo de expertos.',
+    props_ver_todas: 'Ver todas las propiedades',
     // Quiénes Somos
     qs_titulo: 'Tu socio estratégico en bienes raíces',
     qs_subtitulo: 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con oportunidades únicas.',
@@ -1231,9 +1250,10 @@ function ContenidoAdmin() {
   const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
 
   const PAGINAS = [
-    { key: 'inicio', label: '🏠 Inicio' }, { key: 'quienes', label: '👥 Quiénes Somos' },
-    { key: 'servicios', label: '💼 Servicios' }, { key: 'asociados', label: '🤝 Asociados' },
-    { key: 'blog', label: '📝 Blog' }, { key: 'contacto', label: '📍 Contacto y Redes' },
+    { key: 'inicio', label: '🏠 Inicio' }, { key: 'testimonios', label: '💬 Testimonios' },
+    { key: 'quienes', label: '👥 Quiénes Somos' }, { key: 'servicios', label: '💼 Servicios' },
+    { key: 'asociados', label: '🤝 Asociados' }, { key: 'blog', label: '📝 Blog' },
+    { key: 'contacto', label: '📍 Contacto y Redes' },
   ] as const
 
   return (
@@ -1312,10 +1332,24 @@ function ContenidoAdmin() {
             </Full>
           ))}
         </Sec>
+        <Sec title="🏠 Sección propiedades destacadas">
+          <Field label="Label (pequeño, ej: Selección editorial)"><Inp value={d.props_label} onChange={set('props_label')} /></Field>
+          <Field label="Título principal (ej: Oportunidades)"><Inp value={d.props_titulo} onChange={set('props_titulo')} /></Field>
+          <Field label="Título en cursiva (ej: en Chile)"><Inp value={d.props_titulo_em} onChange={set('props_titulo_em')} /></Field>
+          <Full><Field label="Subtítulo"><Inp value={d.props_sub} onChange={set('props_sub')} /></Field></Full>
+          <Field label="Texto del link"><Inp value={d.props_ver_todas} onChange={set('props_ver_todas')} /></Field>
+        </Sec>
+
+        <Sec title="💬 Testimonios">
+          <Full><p style={{ fontSize: 13, color: 'var(--muted)' }}>Los testimonios se editan en la pestaña <strong>💬 Testimonios</strong> de arriba.</p></Full>
+        </Sec>
+      </>}
+
+      {pagina === 'testimonios' && <>
         <Sec title="💬 Experiencias — Testimonios">
           <Full><Field label="Título de la sección"><Inp value={d.testimonios_titulo} onChange={set('testimonios_titulo')} /></Field></Full>
           <Full><Field label="Subtítulo de la sección"><Inp value={d.testimonios_subtitulo} onChange={set('testimonios_subtitulo')} /></Field></Full>
-          {[1,2,3].map(n => (
+          {[1,2,3,4,5,6,7,8].map(n => (
             <Full key={n}>
               <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Testimonio {n}</div>

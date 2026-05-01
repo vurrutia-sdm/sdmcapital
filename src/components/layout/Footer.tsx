@@ -115,17 +115,16 @@ export default function Footer() {
             <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
               Síguenos
             </div>
-            <div className="flex flex-col gap-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {SOCIALS.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 group" style={{ textDecoration: 'none' }}>
-                  <div className="w-8 h-8 flex items-center justify-center border border-[#e8edf2] rounded-full transition-all duration-200 group-hover:border-[#1C3D5C] group-hover:bg-[#1C3D5C] flex-shrink-0">
+                  style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e8edf2', borderRadius: '50%', flexShrink: 0 }}>
                     <SocialIcon s={s} />
                   </div>
-                  <span style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', transition: 'color 0.2s' }}
-                    onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--navy-dark)')}
-                    onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--muted)')}
-                  >{s.label}</span>
+                  <span style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
+                    {s.label}
+                  </span>
                 </a>
               ))}
             </div>
