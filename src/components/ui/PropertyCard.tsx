@@ -33,9 +33,11 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
     ? p.aConsultar
     : propiedad.precio_uf
     ? `UF ${propiedad.precio_uf.toLocaleString('es-CL')}`
+    : propiedad.precio_clp
+    ? `$ ${(propiedad.precio_clp as number).toLocaleString('es-CL')}`
     : propiedad.precio_usd
     ? `USD ${propiedad.precio_usd.toLocaleString()}`
-    : p.aConsultar
+    : '—'
 
   const priceLabel = propiedad.estado === 'en_venta' ? p.enVenta : p.enArriendo
 

@@ -200,7 +200,10 @@ export default function PropiedadDetailPage() {
             {(() => {
               const dossiers = prop.dossiers as string[] | undefined
               const legacy = prop.dossier_url
-              const all = [...(dossiers || []), ...(legacy && !dossiers?.includes(legacy) ? [legacy] : [])]
+              // Solo usar legacy si no hay array dossiers nuevo
+              const all = dossiers && dossiers.length > 0
+                ? dossiers
+                : legacy ? [legacy] : []
               if (!all.length) return null
               const getName = (url: string) => {
                 try { return decodeURIComponent(url.split('/').pop() || '').replace(/^\d+_/, '') }

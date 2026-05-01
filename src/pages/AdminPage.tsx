@@ -427,14 +427,11 @@ function PropiedadesAdmin() {
     await supabase.from('propiedades').delete().eq('id', id); load()
   }
 
-  const toggleDestacada = async (prop: Propiedad) => {
-    const destacadas = items.filter(p => p.destacada)
-    if (!prop.destacada && destacadas.length >= 6) {
-      alert('Ya tienes 6 propiedades destacadas. Quita una antes de destacar otra.')
-      return
-    }
-    await supabase.from('propiedades').update({ destacada: !prop.destacada }).eq('id', prop.id)
-    load()
+  const startEdit = (p: Propiedad) => {
+    setEditing({ ...p })
+    setTimeout(() => {
+      document.getElementById('prop-edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 80)
   }
 
   const save = async () => {
@@ -461,7 +458,7 @@ function PropiedadesAdmin() {
       </p>
 
       {editing && (
-        <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
+        <div id="prop-edit-form" className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar propiedad' : 'Nueva propiedad'}</h3>
 
           {/* Datos básicos */}
@@ -586,7 +583,6 @@ function PropiedadesAdmin() {
           </div>
 
           <div className="flex gap-6 mb-6">
-            <Chk label="Destacada (aparece en el Inicio)" checked={!!editing.destacada} onChange={v => setEditing(p => ({ ...p, destacada: v }))} />
             <Chk label="Internacional" checked={!!editing.internacional} onChange={v => setEditing(p => ({ ...p, internacional: v }))} />
           </div>
           <div className="flex gap-3">
@@ -600,7 +596,7 @@ function PropiedadesAdmin() {
         <table className="w-full border-collapse">
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['','#','★','Propiedad','Tipo','Estado','Precio','Dest.','Acciones'].map(h => (
+              {['','#','Propiedad','Tipo','Estado','Precio','','Acciones'].map(h => (
                 <th key={h} className="text-left pb-3 pr-4" style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>
               ))}
             </tr>
@@ -613,23 +609,12 @@ function PropiedadesAdmin() {
                 onDragStart={() => onDragStart(i)}
                 onDragEnter={() => onDragEnter(i)}
                 onDragEnd={onDragEnd}
-                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', background: p.destacada ? 'rgba(61,170,110,0.04)' : 'transparent' }}
+                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', background: i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
                 <td className="py-3 pr-2" style={{ color: 'var(--muted)', fontSize: 16, cursor: 'grab' }}>⠿</td>
                 <td className="py-3 pr-4">
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>{i + 1}</span>
-                </td>
-                {/* Estrella destacar */}
-                <td className="py-3 pr-4">
-                  <button
-                    onClick={() => toggleDestacada(p)}
-                    title={p.destacada ? 'Quitar de destacadas' : 'Destacar en el Inicio'}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '2px 4px', transition: 'transform 0.15s' }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                  >
-                    <span style={{ color: p.destacada ? '#F5A623' : '#ddd' }}>★</span>
-                  </button>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
+                  {i < 6 && <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--green)' }}>★</span>}
                 </td>
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-3">
@@ -645,11 +630,11 @@ function PropiedadesAdmin() {
                 </td>
                 <td className="py-3 pr-4" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.tipo}</td>
                 <td className="py-3 pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':'#999'} /></td>
-                <td className="py-3 pr-4" style={{ fontSize: 14 }}>{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString()}` : '—'}</td>
+                <td className="py-3 pr-4" style={{ fontSize: 14 }}>{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : (p as Record<string,unknown>).precio_clp ? `$${((p as Record<string,unknown>).precio_clp as number).toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
                 <td className="py-3 pr-4"><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
                 <td className="py-3">
                   <div className="flex gap-3">
-                    <button onClick={() => setEditing(p)} style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
+                    <button onClick={() => startEdit(p)} style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
                     <button onClick={() => del(p.id)} style={{ fontSize: 13, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
                   </div>
                 </td>
@@ -1138,6 +1123,15 @@ function ContenidoAdmin() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved]   = useState(false)
   const [pagina, setPagina] = useState<'inicio'|'quienes'|'servicios'|'asociados'|'blog'|'contacto'>('inicio')
+  const scrollPositions = useRef<Record<string, number>>({})
+
+  const handlePaginaChange = (key: typeof pagina) => {
+    scrollPositions.current[pagina] = window.scrollY
+    setPagina(key)
+    setTimeout(() => {
+      window.scrollTo({ top: scrollPositions.current[key] || 0 })
+    }, 50)
+  }
 
   const [d, setD] = useState({
     // Inicio
@@ -1150,10 +1144,15 @@ function ContenidoAdmin() {
     financiamiento_body: 'Gestionamos créditos de consumo, hipotecarios y bancarización para personas y empresas en Chile y el extranjero. Sin pagos adelantados.',
     testimonial_1_texto: 'SDM Capital hizo posible el sueño de mi familia de adquirir nuestra primera vivienda en Santiago.',
     testimonial_1_autor: 'María Sánchez · Santiago, Chile',
+    testimonial_1_url: '',
     testimonial_2_texto: 'Como inversionista internacional, SDM Capital simplificó todo el proceso.',
     testimonial_2_autor: 'Carlos González · Miami, Florida, EE. UU.',
+    testimonial_2_url: '',
     testimonial_3_texto: 'Su conocimiento del mercado y atención personalizada hicieron que el proceso fuera completamente libre de estrés.',
     testimonial_3_autor: 'Isabel Ríos · Viña del Mar, Chile',
+    testimonial_3_url: '',
+    testimonios_titulo: 'Palabras de nuestros clientes',
+    testimonios_subtitulo: 'La satisfacción de nuestros clientes es nuestra mejor carta de presentación.',
     // Quiénes Somos
     qs_titulo: 'Tu socio estratégico en bienes raíces',
     qs_subtitulo: 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con oportunidades únicas.',
@@ -1250,7 +1249,7 @@ function ContenidoAdmin() {
       {/* Page tabs */}
       <div className="flex flex-wrap gap-2 mb-8">
         {PAGINAS.map(p => (
-          <button key={p.key} onClick={() => setPagina(p.key)}
+          <button key={p.key} onClick={() => handlePaginaChange(p.key)}
             style={{ padding: '8px 16px', fontSize: 13, fontWeight: pagina === p.key ? 600 : 300, borderRadius: 2, border: pagina === p.key ? '2px solid var(--green)' : '1px solid var(--border)', background: pagina === p.key ? 'var(--green)' : '#fff', color: pagina === p.key ? '#fff' : 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
             {p.label}
           </button>
@@ -1313,13 +1312,25 @@ function ContenidoAdmin() {
             </Full>
           ))}
         </Sec>
-        <Sec title="💬 Testimonios">
-          <Field label="Testimonio 1 — Texto"><Txa value={d.testimonial_1_texto} onChange={set('testimonial_1_texto')} rows={2} /></Field>
-          <Field label="Testimonio 1 — Autor"><Inp value={d.testimonial_1_autor} onChange={set('testimonial_1_autor')} /></Field>
-          <Field label="Testimonio 2 — Texto"><Txa value={d.testimonial_2_texto} onChange={set('testimonial_2_texto')} rows={2} /></Field>
-          <Field label="Testimonio 2 — Autor"><Inp value={d.testimonial_2_autor} onChange={set('testimonial_2_autor')} /></Field>
-          <Field label="Testimonio 3 — Texto"><Txa value={d.testimonial_3_texto} onChange={set('testimonial_3_texto')} rows={2} /></Field>
-          <Field label="Testimonio 3 — Autor"><Inp value={d.testimonial_3_autor} onChange={set('testimonial_3_autor')} /></Field>
+        <Sec title="💬 Experiencias — Testimonios">
+          <Full><Field label="Título de la sección"><Inp value={d.testimonios_titulo} onChange={set('testimonios_titulo')} /></Field></Full>
+          <Full><Field label="Subtítulo de la sección"><Inp value={d.testimonios_subtitulo} onChange={set('testimonios_subtitulo')} /></Field></Full>
+          {[1,2,3].map(n => (
+            <Full key={n}>
+              <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Testimonio {n}</div>
+                <Field label="Texto del testimonio">
+                  <Txa value={(d as Record<string,string>)[`testimonial_${n}_texto`] || ''} onChange={set(`testimonial_${n}_texto`)} rows={3} />
+                </Field>
+                <Field label="Autor (Ej: María Sánchez · Santiago, Chile)">
+                  <Inp value={(d as Record<string,string>)[`testimonial_${n}_autor`] || ''} onChange={set(`testimonial_${n}_autor`)} />
+                </Field>
+                <Field label='URL historia (aparece como "Conoce la historia →")'>
+                  <Inp value={(d as Record<string,string>)[`testimonial_${n}_url`] || ''} onChange={set(`testimonial_${n}_url`)} placeholder="https://..." />
+                </Field>
+              </div>
+            </Full>
+          ))}
         </Sec>
       </>}
 

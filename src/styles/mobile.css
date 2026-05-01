@@ -77,10 +77,92 @@
     grid-template-columns: 1fr !important;
   }
 
+  /* ── Quiénes somos: margen lateral en cards de equipo ── */
+  .px-8.lg\:px-12,
+  .px-4.lg\:px-12 {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Grid equipo: agregar padding para que no pegue al borde */
+  [style*="grid-template-columns: repeat(2"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Páginas con padding px-8: forzar margen en mobile */
+  [class*="px-8"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
   /* ── Servicios: sin alternancia en mobile ── */
   .lg\:order-1,
   .lg\:order-2 {
     order: unset !important;
+  }
+
+  /* ────────────────────────────────────────────────────────── */
+  /* FIX 1 — Propiedades: margen derecho en grid de 2 columnas */
+  /* ────────────────────────────────────────────────────────── */
+  /* El grid de propiedades ocupa el ancho completo pero
+     las cards no tienen padding lateral — se pegan al borde */
+  [style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    margin: 0 12px !important;
+  }
+
+  /* ────────────────────────────────────────── */
+  /* FIX 2 — Blog: artículos no se cortan       */
+  /* ────────────────────────────────────────── */
+  /* El grid del blog en mobile cambia a 1 columna
+     y cada card no desborda su contenedor */
+  [style*="gridTemplateColumns"][style*="repeat(3"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Cards del blog: texto no desborda */
+  a.group.block {
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  /* Blog: forzar 1 columna */
+  [style*="repeat(2, minmax(300px"],
+  [style*="repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+    margin: 0 !important;
+  }
+
+  /* ──────────────────────────────────────────────── */
+  /* FIX 3 — Footer: Navegación y Servicios centrados */
+  /* ──────────────────────────────────────────────── */
+  footer .grid > div {
+    text-align: center !important;
+  }
+
+  footer .grid > div h3,
+  footer .grid > div p {
+    text-align: center !important;
+  }
+
+  /* Links de navegación y servicios: centrados pero en bloque */
+  footer .grid > div a {
+    display: block !important;
+    text-align: center !important;
+  }
+
+  /* Íconos de redes sociales: mantener flex horizontal, centrar */
+  footer .flex.items-center.gap-3 {
+    justify-content: center !important;
+    display: flex !important;
+  }
+
+  /* El texto dentro del flex de redes sociales NO va en bloque */
+  footer .flex.items-center.gap-3 span,
+  footer .flex.items-center.gap-3 a {
+    display: inline !important;
+    text-align: left !important;
   }
 }
 

@@ -222,29 +222,40 @@ export default function HomePage() {
       </section>
 
       {/* 7. Testimonios */}
-      <section className="px-8 lg:px-12 py-20 lg:py-24">
+      <section style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)', paddingTop: 80, paddingBottom: 80 }}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-24">
           <div>
             <div className="section-label" style={{ marginBottom: 18 }}>{t.sections.testimonios.label}</div>
-            <h2 className="font-serif font-light" style={{ fontSize: 40, color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
-              Palabras de nuestros<br /><em>clientes</em>
+            <h2 className="font-serif font-light" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
+              {get('testimonios_titulo', 'Palabras de nuestros clientes')}
             </h2>
             <div style={{ width: 40, height: 1, background: 'var(--green)', margin: '24px 0 14px' }} />
             <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>
-              {t.sections.testimonios.sub}
+              {get('testimonios_subtitulo', t.sections.testimonios.sub)}
             </p>
           </div>
           <div className="lg:col-span-2 flex flex-col gap-11">
-            {TESTIMONIALS.map(item => (
+            {[
+              { num: '01', texto: get('testimonial_1_texto', TESTIMONIALS[0]?.quote || ''), autor: get('testimonial_1_autor', TESTIMONIALS[0]?.sig || ''), url: get('testimonial_1_url', '') },
+              { num: '02', texto: get('testimonial_2_texto', TESTIMONIALS[1]?.quote || ''), autor: get('testimonial_2_autor', TESTIMONIALS[1]?.sig || ''), url: get('testimonial_2_url', '') },
+              { num: '03', texto: get('testimonial_3_texto', TESTIMONIALS[2]?.quote || ''), autor: get('testimonial_3_autor', TESTIMONIALS[2]?.sig || ''), url: get('testimonial_3_url', '') },
+            ].filter(item => item.texto).map(item => (
               <div key={item.num} className="grid gap-6 border-t pt-7" style={{ gridTemplateColumns: '56px 1fr', borderColor: 'var(--border)' }}>
                 <div className="font-serif" style={{ fontSize: 44, fontWeight: 300, color: 'var(--border)', lineHeight: 1 }}>{item.num}</div>
                 <div>
                   <p className="font-serif italic font-light" style={{ fontSize: 17, color: 'var(--ink)', lineHeight: 1.7, marginBottom: 12 }}>
-                    {item.quote}
+                    "{item.texto}"
                   </p>
                   <div style={{ fontSize: 13, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>
-                    {item.sig}
+                    {item.autor}
                   </div>
+                  {item.url && (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green)', paddingBottom: 2 }}
+                    >
+                      Conoce la historia →
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
