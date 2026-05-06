@@ -1,3 +1,4 @@
+// SDM Capital — ContactSection
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { MensajeContacto } from '@/types'
