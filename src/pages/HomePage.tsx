@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
 import HeroSection from '@/components/sections/HeroSection'
 import SearchBar from '@/components/sections/SearchBar'
-import ContactSection from '@/components/sections/ContactSection'
+import SEO from '@/components/SEO'
 import PropertyCard from '@/components/ui/PropertyCard'
 import type { Propiedad } from '@/types'
 
@@ -192,6 +192,11 @@ export default function HomePage() {
 
   return (
     <div>
+      <SEO
+        title="Inversión Inmobiliaria Chile & Internacional"
+        description="Tu socio estratégico en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el mundo. Financiamiento sin pagos adelantados."
+        url="/"
+      />
       {/* 1. Hero */}
       <HeroSection />
 

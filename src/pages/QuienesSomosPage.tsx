@@ -1,3 +1,4 @@
+import SEO from '@/components/SEO'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/hooks/useLang'
@@ -38,6 +39,7 @@ export default function QuienesSomosPage() {
 
   return (
     <div className="min-h-screen">
+      <SEO title="Quiénes Somos" description="SDM Capital — Más de 15 años conectando personas con oportunidades inmobiliarias. Conoce nuestro equipo de expertos en bienes raíces y financiamiento." url="/quienes-somos" />
 
       {/* Hero band */}
       <div style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--navy-dark)', borderBottom: '1px solid #e8edf2' }}>

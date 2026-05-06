@@ -4,6 +4,7 @@ import { MapPin, Home, Bath, Maximize2, X, ChevronLeft, ChevronRight } from 'luc
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import ContactSection from '@/components/sections/ContactSection'
+import SEO from '@/components/SEO'
 import type { Propiedad } from '@/types'
 
 export default function PropiedadDetailPage() {
@@ -52,6 +53,13 @@ export default function PropiedadDetailPage() {
 
   return (
     <div>
+      <SEO
+        title={titulo}
+        description={`${prop.tipo ? prop.tipo.charAt(0).toUpperCase() + prop.tipo.slice(1) : 'Propiedad'} en ${prop.comuna}, ${prop.region}. ${prop.a_consultar ? 'Precio a consultar.' : prop.precio_uf ? `UF ${prop.precio_uf.toLocaleString('es-CL')}.` : ''} ${prop.descripcion?.slice(0, 120) || ''}`}
+        image={prop.imagen_principal || prop.imagenes?.[0]}
+        url={`/propiedades/${prop.id}`}
+        type="article"
+      />
       {/* Breadcrumb */}
       <div className="px-8 lg:px-12 py-4 border-b border-[#e8edf2] flex items-center gap-2" style={{ fontSize: 13, color: 'var(--muted)' }}>
         <Link to="/propiedades" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Propiedades</Link>

@@ -1,3 +1,4 @@
+import SEO from '@/components/SEO'
 import { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { SlidersHorizontal, X } from 'lucide-react'
@@ -106,7 +107,7 @@ export default function PropiedadesPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Header band */}
+      <SEO title="Propiedades en Venta y Arriendo" description="Encuentra casas, departamentos, parcelas y propiedades comerciales en Chile. Catálogo actualizado con las mejores oportunidades inmobiliarias." url="/propiedades" />
       <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[#e8edf2]">
         <div className="section-label" style={{ marginBottom: 14 }}>
           {filtros.internacional ? 'Propiedades internacionales' : 'Catálogo'}

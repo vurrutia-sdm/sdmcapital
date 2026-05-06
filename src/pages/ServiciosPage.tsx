@@ -1,3 +1,4 @@
+import SEO from '@/components/SEO'
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useContenido } from '@/hooks/useContenido'
@@ -38,8 +39,7 @@ export default function ServiciosPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
+      <SEO title="Servicios" description="Inversión inmobiliaria en Chile e internacional, financiamiento hipotecario y bancarización. Soluciones integrales para personas y empresas." url="/servicios" />
         <div className="section-label section-label--light" style={{ marginBottom: 18 }}>Lo que hacemos</div>
         <h1 className="font-serif font-light" style={{ fontSize: 'clamp(40px,5vw,64px)', color: '#fff', lineHeight: 1.07, letterSpacing: '-0.5px' }}>
           Nuestros <em>servicios</em>
