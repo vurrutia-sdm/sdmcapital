@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SEO from '@/components/SEO'
 import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'

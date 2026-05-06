@@ -1,5 +1,5 @@
-import SEO from '@/components/SEO'
 import { useEffect, useState } from 'react'
+import SEO from '@/components/SEO'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/hooks/useLang'
 import { useContenido } from '@/hooks/useContenido'

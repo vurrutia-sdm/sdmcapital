@@ -1,5 +1,5 @@
-import SEO from '@/components/SEO'
 import { useEffect, useState, useRef } from 'react'
+import SEO from '@/components/SEO'
 import { useSearchParams } from 'react-router-dom'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { useLang } from '@/hooks/useLang'
