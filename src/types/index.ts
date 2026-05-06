@@ -40,6 +40,18 @@ export interface Propiedad {
   precio_anterior_uf?: number
   baja_precio?: boolean
   ano_construccion?: number
+  comision_porcentaje?: number
+  bodegas?: number
+  estado_conservacion?: string
+  bono_pie?: boolean
+  bono_pie_porcentaje?: number
+  activo?: boolean
+  comision_porcentaje?: number
+  bodegas?: number
+  estado_conservacion?: 'nuevo' | 'seminuevo'
+  bono_pie?: boolean
+  bono_pie_porcentaje?: number
+  activo?: boolean
   created_at: string
   updated_at: string
 }

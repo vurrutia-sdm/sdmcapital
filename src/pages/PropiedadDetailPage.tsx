@@ -119,13 +119,19 @@ export default function PropiedadDetailPage() {
           {/* ── Detalle ── */}
           <div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
-              {prop.destacada && (
-                <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 2, background: 'var(--green)', color: '#fff', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Destacada</span>
+              {(prop as Record<string,unknown>).bono_pie && (
+                <span style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, background: 'var(--green)', color: '#fff', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                  Bono Pie{(prop as Record<string,unknown>).bono_pie_porcentaje ? ` ${(prop as Record<string,unknown>).bono_pie_porcentaje}%` : ''}
+                </span>
               )}
               {prop.baja_precio && (
-                <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 2, background: '#E24B4A', color: '#fff', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>↓ Baja de precio</span>
+                <span style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, background: '#c0392b', color: '#fff', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                  Precio rebajado
+                </span>
               )}
-              <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 2, background: 'var(--navy-dark)', color: 'var(--sky)', fontWeight: 400, letterSpacing: '1px', textTransform: 'uppercase' }}>{prop.tipo}</span>
+              <span style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, border: '1px solid var(--border)', color: 'var(--muted)', fontWeight: 400, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                {prop.tipo}
+              </span>
             </div>
 
             <h1 className="font-serif font-light mb-4" style={{ fontSize: 40, color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
@@ -163,23 +169,53 @@ export default function PropiedadDetailPage() {
             {(() => {
               const p = prop as typeof prop & Record<string, unknown>
               const specs = [
-                prop.dormitorios   ? { icon: <Home size={22} style={{ color: 'var(--navy)' }} />,     val: prop.dormitorios,       label: 'Dorm.' }       : null,
-                prop.banos         ? { icon: <Bath size={22} style={{ color: 'var(--navy)' }} />,     val: prop.banos,             label: 'Baños' }       : null,
-                prop.superficie_total ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)' }} />, val: `${prop.superficie_total} m²`, label: 'Sup. total' } : null,
-                p.superficie_util  ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)', opacity: 0.6 }} />, val: `${p.superficie_util} m²`, label: 'Sup. construida' } : null,
-                prop.estacionamientos ? { icon: <span style={{ fontSize: 20 }}>🅿</span>, val: prop.estacionamientos, label: 'Estacion.' } : null,
-                prop.ano_construccion  ? { icon: <span style={{ fontSize: 20 }}>🏗</span>, val: prop.ano_construccion,  label: 'Año const.' } : null,
+                prop.dormitorios      ? { icon: <Home size={22} style={{ color: 'var(--navy)' }} />,         val: prop.dormitorios,            label: 'Dorm.' }          : null,
+                prop.banos            ? { icon: <Bath size={22} style={{ color: 'var(--navy)' }} />,         val: prop.banos,                  label: 'Baños' }          : null,
+                prop.superficie_total ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)' }} />,   val: `${prop.superficie_total} m²`, label: 'Sup. total' }     : null,
+                p.superficie_util     ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)', opacity: 0.6 }} />, val: `${p.superficie_util} m²`, label: 'Sup. construida' } : null,
+                prop.estacionamientos ? { icon: <span style={{ fontSize: 20 }}>🅿</span>, val: prop.estacionamientos, label: 'Estacionam.' } : null,
+                p.bodegas             ? { icon: <span style={{ fontSize: 20 }}>📦</span>,                   val: p.bodegas as number,         label: 'Bodegas' }         : null,
+                prop.ano_construccion ? { icon: <span style={{ fontSize: 20 }}>🏗</span>,                   val: prop.ano_construccion,       label: 'Año const.' }      : null,
               ].filter(Boolean)
 
               if (specs.length === 0) return null
               return (
-                <div className="flex gap-8 mb-8 pb-6 border-b border-[#e8edf2] flex-wrap">
+                <div className="flex gap-8 mb-6 pb-6 border-b border-[#e8edf2] flex-wrap items-start">
                   {specs.map((s, i) => s && (
-                    <div key={i} className="flex flex-col items-center gap-2">
-                      {s.icon}
-                      <div className="font-serif" style={{ fontSize: 26, fontWeight: 300, color: 'var(--navy-dark)' }}>{s.val}</div>
-                      <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>{s.label}</div>
+                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 60 }}>
+                      <div style={{ height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {s.icon}
+                      </div>
+                      <div className="font-serif" style={{ fontSize: 26, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>{s.val}</div>
+                      <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', textAlign: 'center' }}>{s.label}</div>
                     </div>
+                  ))}
+                </div>
+              )
+            })()}
+
+            {/* Estado conservación + Bono pie + Comisión */}
+            {(() => {
+              const p = prop as typeof prop & Record<string, unknown>
+              const tags: { label: string; dark?: boolean }[] = []
+              if (p.estado_conservacion) tags.push({ label: String(p.estado_conservacion).charAt(0).toUpperCase() + String(p.estado_conservacion).slice(1), dark: false })
+              if (p.comision_porcentaje) tags.push({ label: `Comisión corredora ${p.comision_porcentaje}%`, dark: true })
+              if (!tags.length) return null
+              return (
+                <div className="flex gap-3 mb-8 flex-wrap">
+                  {tags.map((tag, i) => (
+                    <span key={i} style={{
+                      fontSize: 11,
+                      padding: '6px 16px',
+                      borderRadius: 1,
+                      background: tag.dark ? '#4a4a4a' : 'var(--green)',
+                      color: '#fff',
+                      fontWeight: 500,
+                      letterSpacing: '2px',
+                      textTransform: 'uppercase',
+                    }}>
+                      {tag.label}
+                    </span>
                   ))}
                 </div>
               )

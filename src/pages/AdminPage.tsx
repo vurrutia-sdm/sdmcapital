@@ -160,7 +160,9 @@ function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (it
   const dragItem = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
 
-  useEffect(() => { setItems(initialItems) }, [initialItems.length])
+  // Actualizar cuando cambian los datos (no solo el largo)
+  const key = initialItems.map(i => i.id + (i as Record<string,unknown>).activo + (i as Record<string,unknown>).estado).join(',')
+  useEffect(() => { setItems(initialItems) }, [key])
 
   const onDragStart = (idx: number) => { dragItem.current = idx }
   const onDragEnter = (idx: number) => { dragOver.current = idx }
@@ -409,18 +411,54 @@ function PropImageManager({
 
 // ─── PROPIEDADES ──────────────────────────────────────────────────────────────
 function PropiedadesAdmin() {
-  const [items, setItems]     = useState<Propiedad[]>([])
-  const [editing, setEditing] = useState<Partial<Propiedad> | null>(null)
-  const [saving, setSaving]   = useState(false)
-  const load = () => supabase.from('propiedades').select('*').order('destacada', { ascending: false }).order('created_at', { ascending: false }).then(({ data }) => setItems(data || []))
+  const [items, setItems]         = useState<Propiedad[]>([])
+  const [editing, setEditing]     = useState<Partial<Propiedad> | null>(null)
+  const [saving, setSaving]       = useState(false)
+  const [sortField, setSortField] = useState<'tipo'|'estado'|'precio_uf'|null>(null)
+  const [sortDir, setSortDir]     = useState<'asc'|'desc'>('asc')
+  const [showInactive, setShowInactive] = useState(false)
+
+  const load = () => supabase.from('propiedades').select('*').order('created_at', { ascending: true }).then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
-  const { items: sorted, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
-    // Mark first 6 as destacada
+  const toggleSort = (field: typeof sortField) => {
+    if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortField(field); setSortDir('asc') }
+  }
+
+  const toggleActivo = async (p: Propiedad) => {
+    // null o true = activa, false = pausada
+    const isCurrentlyActive = p.activo !== false
+    const newVal = !isCurrentlyActive
+    setItems(prev => prev.map(item => item.id === p.id ? { ...item, activo: newVal } : item))
+    await supabase.from('propiedades').update({ activo: newVal }).eq('id', p.id)
+  }
+  useEffect(() => { load() }, [])
+
+  const { items: dragged, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
     const updates = reordered.map((p, i) => supabase.from('propiedades').update({ destacada: i < 6 }).eq('id', p.id))
     await Promise.all(updates)
     load()
   })
+
+  // Aplicar filtro y sort
+  const displayItems = [...dragged]
+    .filter(p => showInactive ? true : p.activo !== false)
+    .sort((a, b) => {
+      if (!sortField) return 0
+      const aVal = sortField === 'precio_uf' ? (a.precio_uf || 0) : (a as Record<string,unknown>)[sortField] as string || ''
+      const bVal = sortField === 'precio_uf' ? (b.precio_uf || 0) : (b as Record<string,unknown>)[sortField] as string || ''
+      if (aVal < bVal) return sortDir === 'asc' ? -1 : 1
+      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1
+      return 0
+    })
+
+  const SortBtn = ({ field, label }: { field: typeof sortField; label: string }) => (
+    <button onClick={() => toggleSort(field)}
+      style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: sortField === field ? 'var(--navy-dark)' : 'var(--muted)', fontWeight: sortField === field ? 600 : 400, display: 'flex', alignItems: 'center', gap: 3, padding: 0 }}>
+      {label} {sortField === field ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
+    </button>
+  )
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar esta propiedad?')) return
@@ -428,7 +466,16 @@ function PropiedadesAdmin() {
   }
 
   const startEdit = (p: Propiedad) => {
-    setEditing({ ...p })
+    const r = p as Record<string, unknown>
+    setEditing({
+      ...p,
+      activo:               r.activo !== false,
+      bono_pie:             !!r.bono_pie,
+      bono_pie_porcentaje:  r.bono_pie_porcentaje as number || 0,
+      bodegas:              r.bodegas as number || 0,
+      estado_conservacion:  r.estado_conservacion as string || '',
+      comision_porcentaje:  r.comision_porcentaje as number ?? 2,
+    })
     setTimeout(() => {
       document.getElementById('prop-edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 80)
@@ -437,15 +484,29 @@ function PropiedadesAdmin() {
   const save = async () => {
     if (!editing) return
     setSaving(true)
-    if (editing.id) {
-      await supabase.from('propiedades').update(editing).eq('id', editing.id)
-    } else {
-      await supabase.from('propiedades').insert([{ ...editing, imagenes: editing.imagenes || [], destacada: editing.destacada || false, internacional: editing.internacional || false, a_consultar: editing.a_consultar || false }])
+    const r = editing as Record<string, unknown>
+    const payload = {
+      ...editing,
+      activo:              editing.activo !== false,
+      bono_pie:            !!r.bono_pie,
+      bono_pie_porcentaje: r.bono_pie_porcentaje ? Number(r.bono_pie_porcentaje) : null,
+      bodegas:             Number(r.bodegas) || 0,
+      estado_conservacion: r.estado_conservacion || null,
+      comision_porcentaje: Number(r.comision_porcentaje) || 2,
     }
-    setSaving(false); setEditing(null); load()
+    if (editing.id) {
+      const { error } = await supabase.from('propiedades').update(payload).eq('id', editing.id)
+      if (error) { alert('Error al guardar: ' + error.message); setSaving(false); return }
+    } else {
+      const { error } = await supabase.from('propiedades').insert([{ ...payload, imagenes: editing.imagenes || [], destacada: false, internacional: false, a_consultar: editing.a_consultar || false }])
+      if (error) { alert('Error al crear: ' + error.message); setSaving(false); return }
+    }
+    setSaving(false)
+    setEditing(null)
+    load()
   }
 
-  const blank = (): Partial<Propiedad> => ({ titulo: '', descripcion: '', tipo: 'casa', estado: 'en_venta', a_consultar: false, region: 'R. Metropolitana', comuna: '', pais: 'Chile', imagenes: [], destacada: false, internacional: false })
+  const blank = (): Partial<Propiedad> => ({ titulo: '', descripcion: '', tipo: 'casa', estado: 'en_venta', a_consultar: false, region: 'R. Metropolitana', comuna: '', pais: 'Chile', imagenes: [], destacada: false, internacional: false, activo: true })
 
   return (
     <div>
@@ -453,9 +514,15 @@ function PropiedadesAdmin() {
         <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Propiedades</h2>
         <button className="btn-green" onClick={() => setEditing(blank())}>+ Nueva propiedad</button>
       </div>
-      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24, lineHeight: 1.7 }}>
-        🖱 <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6 propiedades</strong> se marcan automáticamente como Destacadas y aparecen en el Inicio.
-      </p>
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+          🖱 <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6</strong> aparecen en el Inicio.
+        </p>
+        <label className="flex items-center gap-2" style={{ fontSize: 13, color: 'var(--muted)', cursor: 'pointer' }}>
+          <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} />
+          Mostrar pausadas
+        </label>
+      </div>
 
       {editing && (
         <div id="prop-edit-form" className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
@@ -468,9 +535,19 @@ function PropiedadesAdmin() {
               <Sel value={editing.tipo || 'casa'} onChange={v => setEditing(p => ({ ...p, tipo: v as Propiedad['tipo'] }))}
                 options={[{value:'casa',label:'Casa'},{value:'departamento',label:'Departamento'},{value:'oficina',label:'Oficina'},{value:'parcela',label:'Parcela'},{value:'comercial',label:'Comercial'},{value:'hotel',label:'Hotel'},{value:'terreno',label:'Terreno'}]} />
             </Field>
-            <Field label="Estado">
+            <Field label="Estado de venta">
               <Sel value={editing.estado || 'en_venta'} onChange={v => setEditing(p => ({ ...p, estado: v as Propiedad['estado'] }))}
                 options={[{value:'en_venta',label:'En venta'},{value:'en_arriendo',label:'En arriendo'},{value:'vendida',label:'Vendida'},{value:'reservada',label:'Reservada'}]} />
+            </Field>
+            <Field label="Estado de publicación">
+              <Sel
+                value={editing.activo === false ? 'false' : 'true'}
+                onChange={v => setEditing(p => ({ ...p, activo: v === 'true' }))}
+                options={[
+                  { value: 'true',  label: '✅ Activa — visible en el sitio' },
+                  { value: 'false', label: '⏸ Inactiva — oculta del sitio' },
+                ]}
+              />
             </Field>
             <Field label="Región">
               <select
@@ -532,7 +609,34 @@ function PropiedadesAdmin() {
               <Field label="Superficie total m²"><Inp type="number" value={editing.superficie_total || ''} onChange={v => setEditing(p => ({ ...p, superficie_total: Number(v) }))} /></Field>
               <Field label="Superficie construida m²"><Inp type="number" value={editing.superficie_util || ''} onChange={v => setEditing(p => ({ ...p, superficie_util: Number(v) }))} /></Field>
               <Field label="Estacionamientos"><Inp type="number" value={editing.estacionamientos || ''} onChange={v => setEditing(p => ({ ...p, estacionamientos: Number(v) }))} placeholder="0" /></Field>
+              <Field label="Bodegas"><Inp type="number" value={(editing as Record<string,unknown>).bodegas as number || ''} onChange={v => setEditing(p => ({ ...p, bodegas: Number(v) }))} placeholder="0" /></Field>
               <Field label="Año de construcción"><Inp type="number" value={(editing as Record<string,unknown>).ano_construccion as number || ''} onChange={v => setEditing(p => ({ ...p, ano_construccion: Number(v) }))} placeholder="Ej: 2018" /></Field>
+              <Field label="Estado conservación">
+                <Sel value={(editing as Record<string,unknown>).estado_conservacion as string || ''}
+                  onChange={v => setEditing(p => ({ ...p, estado_conservacion: v as 'nuevo' | 'seminuevo' | '' }))}
+                  options={[{value:'',label:'No especificado'},{value:'nuevo',label:'Nuevo'},{value:'seminuevo',label:'Seminuevo'}]} />
+              </Field>
+            </div>
+          </div>
+
+          {/* Comisión y Bono Pie */}
+          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>💼 Comisión y Beneficios</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Field label="Comisión corredora (%)">
+                <Inp type="number" value={(editing as Record<string,unknown>).comision_porcentaje as number ?? 2}
+                  onChange={v => setEditing(p => ({ ...p, comision_porcentaje: Number(v) }))} placeholder="2" />
+              </Field>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Chk label="Bono Pie" checked={!!(editing as Record<string,unknown>).bono_pie}
+                  onChange={v => setEditing(p => ({ ...p, bono_pie: v }))} />
+                {(editing as Record<string,unknown>).bono_pie && (
+                  <Field label="% Bono Pie">
+                    <Inp type="number" value={(editing as Record<string,unknown>).bono_pie_porcentaje as number || ''}
+                      onChange={v => setEditing(p => ({ ...p, bono_pie_porcentaje: Number(v) }))} placeholder="Ej: 10" />
+                  </Field>
+                )}
+              </div>
             </div>
           </div>
 
@@ -582,9 +686,6 @@ function PropiedadesAdmin() {
             </Field>
           </div>
 
-          <div className="flex gap-6 mb-6">
-            <Chk label="Internacional" checked={!!editing.internacional} onChange={v => setEditing(p => ({ ...p, internacional: v }))} />
-          </div>
           <div className="flex gap-3">
             <SaveBtn onClick={save} loading={saving} />
             <button onClick={() => setEditing(null)} className="btn-primary" style={{ background: 'var(--muted)' }}>Cancelar</button>
@@ -596,20 +697,34 @@ function PropiedadesAdmin() {
         <table className="w-full border-collapse">
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['','#','Propiedad','Tipo','Estado','Precio','','Acciones'].map(h => (
-                <th key={h} className="text-left pb-3 pr-4" style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>
+              {[
+                { label: '', field: null },
+                { label: '#', field: null },
+                { label: 'Propiedad', field: null },
+                { label: 'Tipo', field: 'tipo' },
+                { label: 'Estado', field: 'estado' },
+                { label: 'Precio', field: 'precio_uf' },
+                { label: 'Activo', field: null },
+                { label: 'Acciones', field: null },
+              ].map(({ label, field }) => (
+                <th key={label} className="text-left pb-3 pr-4"
+                  style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: field ? 'var(--navy)' : 'var(--muted)', fontWeight: 400, cursor: field ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'nowrap' }}
+                  onClick={() => field && toggleSort(field)}
+                >
+                  {label}{field && sortField === field ? (sortDir === 'asc' ? ' ↑' : ' ↓') : field ? ' ↕' : ''}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {sorted.map((p, i) => (
+            {displayItems.map((p, i) => (
               <tr
                 key={p.id}
                 draggable
                 onDragStart={() => onDragStart(i)}
                 onDragEnter={() => onDragEnter(i)}
                 onDragEnd={onDragEnd}
-                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', background: i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
+                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', opacity: p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
                 <td className="py-3 pr-2" style={{ color: 'var(--muted)', fontSize: 16, cursor: 'grab' }}>⠿</td>
                 <td className="py-3 pr-4">
@@ -632,15 +747,28 @@ function PropiedadesAdmin() {
                 <td className="py-3 pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':'#999'} /></td>
                 <td className="py-3 pr-4" style={{ fontSize: 14 }}>{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : (p as Record<string,unknown>).precio_clp ? `$${((p as Record<string,unknown>).precio_clp as number).toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
                 <td className="py-3 pr-4"><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
-                <td className="py-3">
+                <td className="py-3 pr-4"
+                  draggable={false}
+                  onDragStart={e => e.preventDefault()}
+                >
+                  <button
+                    onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
+                    onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
+                    onPointerDown={e => e.stopPropagation()}
+                    title={p.activo === false ? 'Activar' : 'Pausar'}
+                    style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'block' }}>
+                    {p.activo === false ? '⏸ Pausada' : '✓ Activa'}
+                  </button>
+                </td>
+                <td className="py-3" draggable={false} onDragStart={e => e.preventDefault()}>
                   <div className="flex gap-3">
-                    <button onClick={() => startEdit(p)} style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-                    <button onClick={() => del(p.id)} style={{ fontSize: 13, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
+                    <button onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
+                    <button onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ fontSize: 13, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
                   </div>
                 </td>
               </tr>
             ))}
-            {sorted.length === 0 && <tr><td colSpan={8} className="py-12 text-center" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
+            {displayItems.length === 0 && <tr><td colSpan={8} className="py-12 text-center" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -1121,6 +1249,14 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
 
 function ContenidoAdmin() {
   const [saving, setSaving] = useState(false)
+  const [sortField, setSortField] = useState<string | null>(null)
+  const [sortDir, setSortDir] = useState<'asc'|'desc'>('asc')
+
+  const toggleSort = (field: string) => {
+    if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortField(field); setSortDir('asc') }
+  }
+
   const [saved, setSaved]   = useState(false)
   const [pagina, setPagina] = useState<'inicio'|'testimonios'|'quienes'|'servicios'|'asociados'|'blog'|'contacto'>('inicio')
   const scrollPositions = useRef<Record<string, number>>({})

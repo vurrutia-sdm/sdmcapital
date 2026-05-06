@@ -123,7 +123,15 @@ export default function QuienesSomosPage() {
                 <div className="p-6 lg:p-8">
                   <h3 className="font-serif font-light mb-1" style={{ fontSize: 24, color: 'var(--navy-dark)', lineHeight: 1.1 }}>{m.nombre}</h3>
                   <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 12 }}>{cargo}</div>
-                  {bio && <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85, marginBottom: 16 }}>{bio}</p>}
+                  {bio && (
+                    <div style={{ marginBottom: 20 }}>
+                      {bio.split('\n').filter(Boolean).map((parrafo, i) => (
+                        <p key={i} style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, marginBottom: 10 }}>
+                          {parrafo}
+                        </p>
+                      ))}
+                    </div>
+                  )}
                   {m.linkedin && (
                     <a href={m.linkedin} target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 mt-4 mr-4 text-[13px] tracking-[1.5px] uppercase border-b pb-0.5"

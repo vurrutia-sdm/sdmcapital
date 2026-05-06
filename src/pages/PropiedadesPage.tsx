@@ -53,12 +53,13 @@ export default function PropiedadesPage() {
 
   useEffect(() => {
     setLoading(true)
-    let q = supabase.from('propiedades').select('*')
+    let q = supabase.from('propiedades').select('*').or('activo.is.null,activo.eq.true')
     if (filtros.tipo)         q = q.eq('tipo', filtros.tipo)
     if (filtros.estado)       q = q.eq('estado', filtros.estado)
     if (filtros.region)       q = q.eq('region', filtros.region)
     if (filtros.comuna)       q = q.ilike('comuna', `%${filtros.comuna}%`)
     if (filtros.internacional) q = q.eq('internacional', true)
+    q = q.neq('activo', false) // excluir pausadas
     q.order('destacada', { ascending: false })
      .order('created_at', { ascending: false })
      .then(({ data }) => {

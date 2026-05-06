@@ -161,6 +161,7 @@ export default function HomePage() {
       .from('propiedades')
       .select('*')
       .eq('destacada', true)
+      .neq('activo', false)
       .limit(6)
       .then(({ data }) => { if (data && data.length > 0) setProps(data) })
   }, [])
@@ -257,88 +258,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 6. Internacional */}
-      <section className="px-4 lg:px-12 py-12 lg:py-24" style={{ background: 'var(--off)' }}>
-        {/* Header — centrado en mobile */}
-        <div className="text-center lg:text-left mb-3 lg:mb-0">
-          <div className="section-label justify-center lg:justify-start" style={{ marginBottom: 12 }}>
-            {t.sections.internacional.label}
-          </div>
-          <h2 className="font-serif font-light" style={{ fontSize: 'clamp(36px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
-            Explora el <em>mundo</em>
-          </h2>
-          <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>
-            {t.sections.internacional.sub}
-          </p>
-        </div>
-
-        {/* Ver todos — centrado debajo en mobile, a la derecha en desktop */}
-        <div className="flex justify-center lg:justify-end mb-8 mt-4 lg:mt-0 lg:-mt-12">
-          <Link to="/propiedades?internacional=true" className="btn-text">
-            {t.sections.internacional.verTodos}
-          </Link>
-        </div>
-
-        {/* Grid ciudades — 2 cols en mobile, layout original en desktop */}
-        <div
-          className="lg:grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 8,
-          }}
-        >
-          {/* Mobile: 2 columnas simples */}
-          <div className="lg:hidden contents">
-            {CITIES.map(city => (
-              <div key={city.name} className="relative overflow-hidden cursor-pointer rounded-sm" style={{ height: 140 }}>
-                {cityImgs[city.key]
-                  ? <img src={cityImgs[city.key]} alt={city.name} className="absolute inset-0 w-full h-full object-cover" />
-                  : <div className="absolute inset-0" style={{ background: city.bg }} />
-                }
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top,rgba(10,20,30,.9) 0%,rgba(10,20,30,.1) 60%)' }} />
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <div className="font-serif font-light" style={{ fontSize: 18, color: '#fff', lineHeight: 1.1, marginBottom: 2 }}>{city.name}</div>
-                  <div style={{ fontSize: 10, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(168,196,220,.85)' }}>{city.country}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop: layout original con span */}
-          <div
-            className="hidden lg:grid"
-            style={{
-              gridColumn: '1 / -1',
-              gridTemplateColumns: '1.6fr 1fr 1fr',
-              gridTemplateRows: '230px 170px',
-              gap: 1,
-              background: 'var(--border)',
-            }}
-          >
-            {CITIES.map(city => (
-              <div
-                key={city.name}
-                className="relative overflow-hidden cursor-pointer group"
-                style={{ gridRow: city.span2 ? 'span 2' : undefined }}
-              >
-                {cityImgs[city.key]
-                  ? <img src={cityImgs[city.key]} alt={city.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-                  : <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04]" style={{ background: city.bg }} />
-                }
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top,rgba(10,20,30,.85) 0%,rgba(10,20,30,.08) 55%)' }} />
-                <div className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-[16px] rounded-full" style={{ border: '1px solid rgba(255,255,255,.22)', color: 'rgba(255,255,255,.55)' }}>↗</div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <div className="font-serif font-light" style={{ fontSize: 22, color: '#fff', lineHeight: 1, marginBottom: 3 }}>{city.name}</div>
-                  <div style={{ fontSize: 13, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(168,196,220,.85)' }}>
-                    {city.country} · {city.count} {city.count !== '—' ? 'propiedades' : ''}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 6. Internacional — temporalmente oculta */}
 
       {/* 7. Testimonios — Carrusel */}
       <TestimoniosCarrusel get={get} t={t} />

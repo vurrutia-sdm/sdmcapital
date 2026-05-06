@@ -27,7 +27,9 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
     : propiedad.estado === 'reservada'
     ? { label: 'Reservada', style: { background: 'var(--navy)', color: 'var(--sky)' } }
     : propiedad.baja_precio
-    ? { label: '↓ Baja de precio', style: { background: '#E24B4A', color: '#fff' } }
+    ? { label: 'Precio rebajado', style: { background: '#c0392b', color: '#fff' } }
+    : propiedad.bono_pie
+    ? { label: `Bono Pie${propiedad.bono_pie_porcentaje ? ` ${propiedad.bono_pie_porcentaje}%` : ''}`, style: { background: 'var(--green)', color: '#fff' } }
     : null
 
   const priceDisplay = propiedad.a_consultar
@@ -78,15 +80,10 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
 
         {/* Badge — solo vendida, reservada o baja de precio */}
         {badge && (
-          <div
-            className="absolute top-3.5 left-3.5 text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1"
-            style={{ ...badge.style, borderRadius: 1 }}
-          >
+          <div className="absolute top-3.5 left-3.5 text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1" style={{ ...badge.style, borderRadius: 1 }}>
             {badge.label}
           </div>
         )}
-
-        {/* Badge baja de precio — ya incluido arriba */}
       </div>
 
       {/* Body */}
