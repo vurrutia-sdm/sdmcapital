@@ -1433,11 +1433,26 @@ function ContenidoAdmin() {
     qs_historia_3: 'Hoy somos referentes en gestión de financiamiento y asesoría inmobiliaria, con un equipo de expertos comprometidos con los resultados de cada cliente.',
     // Servicios
     servicios_intro: 'Soluciones integrales en inversión inmobiliaria y financiamiento, tanto en Chile como en el extranjero.',
+    servicio_inv_int_titulo: 'Inversión Internacional',
+    servicio_inv_int_visible: 'true',
     servicio_inv_int_desc: 'Accede a oportunidades inmobiliarias en EE.UU., España, República Dominicana, Uruguay y más.',
+    servicio_inv_int_tags: 'Estados Unidos,España,Rep. Dominicana,Uruguay',
+    servicio_inv_cl_titulo: 'Inversión en Chile',
+    servicio_inv_cl_visible: 'true',
     servicio_inv_cl_desc: 'Casas, departamentos, oficinas, parcelas y proyectos comerciales en todo Chile.',
+    servicio_inv_cl_tags: 'R. Metropolitana,Valparaíso,Coquimbo,Los Lagos',
+    servicio_fin_per_titulo: 'Financiamiento Personas',
+    servicio_fin_per_visible: 'true',
     servicio_fin_per_desc: 'Gestión de crédito hipotecario y consumo para personas naturales. Sin pagos adelantados.',
+    servicio_fin_per_tags: 'Chile,Internacional',
+    servicio_fin_emp_titulo: 'Financiamiento Empresas',
+    servicio_fin_emp_visible: 'true',
     servicio_fin_emp_desc: 'Soluciones de financiamiento corporativo y leasing inmobiliario para empresas de todos los tamaños.',
+    servicio_fin_emp_tags: 'Chile,Internacional',
+    servicio_banco_titulo: 'Bancarización en el Extranjero',
+    servicio_banco_visible: 'false',
     servicio_banco_desc: 'Te ayudamos a abrir cuentas bancarias y acceder a servicios financieros en el extranjero.',
+    servicio_banco_tags: 'EE.UU.,España,Uruguay,Rep. Dominicana',
     // Imágenes adicionales
     financiamiento_imagen: '',
     quienes_imagen_historia: '',
@@ -1661,28 +1676,49 @@ function ContenidoAdmin() {
         <Sec title="💼 Servicios — Introducción">
           <Full><Field label="Texto introductorio de la página"><Txa value={d.servicios_intro} onChange={set('servicios_intro')} rows={2} /></Field></Full>
         </Sec>
-        <Sec title="📄 Descripciones e imágenes de cada servicio">
-          <Full><Field label="Inversión Internacional — Descripción"><Txa value={d.servicio_inv_int_desc} onChange={set('servicio_inv_int_desc')} rows={3} /></Field></Full>
-          <Full><Field label="Inversión Internacional — Foto (columna derecha)">
-            <ImageUploader currentUrl={d.servicio_inv_int_imagen} folder="servicios" onUploaded={url => setD(p => ({ ...p, servicio_inv_int_imagen: url }))} />
-          </Field></Full>
-          <Full><Field label="Inversión en Chile — Descripción"><Txa value={d.servicio_inv_cl_desc} onChange={set('servicio_inv_cl_desc')} rows={3} /></Field></Full>
-          <Full><Field label="Inversión en Chile — Foto">
-            <ImageUploader currentUrl={d.servicio_inv_cl_imagen} folder="servicios" onUploaded={url => setD(p => ({ ...p, servicio_inv_cl_imagen: url }))} />
-          </Field></Full>
-          <Full><Field label="Financiamiento Personas — Descripción"><Txa value={d.servicio_fin_per_desc} onChange={set('servicio_fin_per_desc')} rows={3} /></Field></Full>
-          <Full><Field label="Financiamiento Personas — Foto">
-            <ImageUploader currentUrl={d.servicio_fin_per_imagen} folder="servicios" onUploaded={url => setD(p => ({ ...p, servicio_fin_per_imagen: url }))} />
-          </Field></Full>
-          <Full><Field label="Financiamiento Empresas — Descripción"><Txa value={d.servicio_fin_emp_desc} onChange={set('servicio_fin_emp_desc')} rows={3} /></Field></Full>
-          <Full><Field label="Financiamiento Empresas — Foto">
-            <ImageUploader currentUrl={d.servicio_fin_emp_imagen} folder="servicios" onUploaded={url => setD(p => ({ ...p, servicio_fin_emp_imagen: url }))} />
-          </Field></Full>
-          <Full><Field label="Bancarización Extranjero — Descripción"><Txa value={d.servicio_banco_desc} onChange={set('servicio_banco_desc')} rows={3} /></Field></Full>
-          <Full><Field label="Bancarización Extranjero — Foto">
-            <ImageUploader currentUrl={d.servicio_banco_imagen} folder="servicios" onUploaded={url => setD(p => ({ ...p, servicio_banco_imagen: url }))} />
-          </Field></Full>
-        </Sec>
+        {[
+          { key: 'inv_int', label: 'Inversión Internacional',        imgKey: 'servicio_inv_int_imagen' },
+          { key: 'inv_cl',  label: 'Inversión en Chile',             imgKey: 'servicio_inv_cl_imagen'  },
+          { key: 'fin_per', label: 'Financiamiento Personas',        imgKey: 'servicio_fin_per_imagen' },
+          { key: 'fin_emp', label: 'Financiamiento Empresas',        imgKey: 'servicio_fin_emp_imagen' },
+          { key: 'banco',   label: 'Bancarización en el Extranjero', imgKey: 'servicio_banco_imagen'   },
+        ].map(({ key, label, imgKey }) => {
+          const isVisible = (d as Record<string,string>)[`servicio_${key}_visible`] !== 'false'
+          return (
+          <Sec key={key} title={`${isVisible ? '👁' : '🚫'} ${label}`}>
+            {/* Switch visible/oculto */}
+            <Full>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: isVisible ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${isVisible ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
+                <button
+                  onClick={() => setD(p => ({ ...p, [`servicio_${key}_visible`]: isVisible ? 'false' : 'true' }))}
+                  style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: isVisible ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}
+                >
+                  <span style={{ position: 'absolute', top: 2, left: isVisible ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
+                </button>
+                <span style={{ fontSize: 13, fontWeight: 500, color: isVisible ? '#16a34a' : '#dc2626' }}>
+                  {isVisible ? '✓ Visible en el sitio web' : '⏸ Oculto del sitio web'}
+                </span>
+              </div>
+            </Full>
+            <Field label="Título">
+              <Inp value={(d as Record<string,string>)[`servicio_${key}_titulo`] || ''} onChange={set(`servicio_${key}_titulo`)} />
+            </Field>
+            <Full><Field label="Descripción">
+              <Txa value={(d as Record<string,string>)[`servicio_${key}_desc`] || ''} onChange={set(`servicio_${key}_desc`)} rows={3} />
+            </Field></Full>
+            <Full>
+              <Field label='Tags / chips (separados por coma, con link opcional: "Label|https://url")'>
+                <Txa value={(d as Record<string,string>)[`servicio_${key}_tags`] || ''} onChange={set(`servicio_${key}_tags`)} rows={2}
+                  placeholder="Ej: Estados Unidos, España|https://..., Uruguay" />
+              </Field>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>Sin URL → tag gris. Con URL → tag verde con enlace ↗</p>
+            </Full>
+            <Full><Field label="Foto (columna lateral)">
+              <ImageUploader currentUrl={(d as Record<string,string>)[imgKey] || ''} folder="servicios"
+                onUploaded={url => setD(p => ({ ...p, [imgKey]: url }))} />
+            </Field></Full>
+          </Sec>
+        )})}
       </>}
 
       {pagina === 'asociados' && <>
