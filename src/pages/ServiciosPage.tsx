@@ -1,27 +1,24 @@
-import SEO from '@/components/SEO'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
+import SEO from '@/components/SEO'
 
 const SLUGS = [
-  { slug: 'inversion-internacional', n: '01', key: 'inv_int', titulo: 'Inversión Internacional' },
-  { slug: 'inversion-chile',         n: '02', key: 'inv_cl',  titulo: 'Inversión en Chile' },
-  { slug: 'financiamiento-personas', n: '03', key: 'fin_per', titulo: 'Financiamiento Personas' },
-  { slug: 'financiamiento-empresas', n: '04', key: 'fin_emp', titulo: 'Financiamiento Empresas' },
-  { slug: 'bancarizacion-extranjero',n: '05', key: 'banco',   titulo: 'Bancarización en el Extranjero' },
+  { slug: 'inversion-internacional', key: 'inv_int', titulo: 'Inversión Internacional' },
+  { slug: 'inversion-chile',         key: 'inv_cl',  titulo: 'Inversión en Chile' },
+  { slug: 'financiamiento-personas', key: 'fin_per', titulo: 'Financiamiento Personas' },
+  { slug: 'financiamiento-empresas', key: 'fin_emp', titulo: 'Financiamiento Empresas' },
+  { slug: 'bancarizacion-extranjero',key: 'banco',   titulo: 'Bancarización en el Extranjero' },
 ]
 
 const GRADIENTS = ['#1a3d5c','#1a3528','#252535','#351a1a','#2a1a35']
 
-const scrollToContact = () => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })
-
-// Parsear tags: "Label|url, Label2|url2, Label3"
 function parseTags(raw: string): { label: string; url: string }[] {
-  if (!raw.trim()) return []
+  if (!raw || !raw.trim()) return []
   return raw.split(',').map(t => {
-    const [label, url] = t.trim().split('|')
-    return { label: label?.trim() || '', url: url?.trim() || '' }
+    const parts = t.trim().split('|')
+    return { label: parts[0]?.trim() || '', url: parts[1]?.trim() || '' }
   }).filter(t => t.label)
 }
 
@@ -37,10 +34,15 @@ export default function ServiciosPage() {
     }
   }, [slug])
 
+  const visible = SLUGS.filter(s => get('servicio_' + s.key + '_visible', 'true') !== 'false')
+
   return (
     <div>
-      <SEO title="Servicios" description="Inversión inmobiliaria en Chile e internacional, financiamiento hipotecario y bancarización. Soluciones integrales para personas y empresas." url="/servicios" />
-      {/* Header */}
+      <SEO
+        title="Servicios"
+        description="Inversión inmobiliaria en Chile e internacional, financiamiento hipotecario y bancarización."
+        url="/servicios"
+      />
       <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 18 }}>Lo que hacemos</div>
         <h1 className="font-serif font-light" style={{ fontSize: 'clamp(40px,5vw,64px)', color: '#fff', lineHeight: 1.07, letterSpacing: '-0.5px' }}>
@@ -50,74 +52,41 @@ export default function ServiciosPage() {
           Soluciones integrales en inversión inmobiliaria y financiamiento, tanto en Chile como en el extranjero.
         </p>
       </div>
-
       <div>
-        {SLUGS
-          .filter(s => get(`servicio_${s.key}_visible`, 'true') !== 'false')
-          .map((s, i) => {
-          const desc  = get(`servicio_${s.key}_desc`,    '')
-          const img   = get(`servicio_${s.key}_imagen`,  '')
-          const titulo = get(`servicio_${s.key}_titulo`, s.titulo)
-          const tagsRaw = get(`servicio_${s.key}_tags`,  '')
-          const tags = parseTags(tagsRaw)
-
+        {visible.map((s, i) => {
+          const titulo = get('servicio_' + s.key + '_titulo', s.titulo)
+          const desc   = get('servicio_' + s.key + '_desc', '')
+          const img    = get('servicio_' + s.key + '_imagen', '')
+          const tags   = parseTags(get('servicio_' + s.key + '_tags', ''))
+          const num    = String(i + 1).padStart(2, '0')
+          const flip   = i % 2 !== 0
           return (
             <div key={s.slug} id={s.slug}
               className="grid grid-cols-1 lg:grid-cols-2 gap-px border-b border-[#e8edf2]"
-              style={{ background: 'var(--border)', scrollMarginTop: 80 }}
-            >
-              {/* Text side */}
-              <div className={`bg-white px-8 lg:px-14 py-14 ${i % 2 !== 0 ? 'lg:order-2' : ''}`}>
-                <div className="font-serif mb-5" style={{ fontSize: 44, fontWeight: 300, color: 'var(--border)', lineHeight: 1 }}>
-                  {String(i + 1).padStart(2, '0')}
-                </div>
+              style={{ background: 'var(--border)', scrollMarginTop: 80 }}>
+              <div className={'bg-white px-8 lg:px-14 py-14' + (flip ? ' lg:order-2' : '')}>
+                <div className="font-serif mb-5" style={{ fontSize: 44, fontWeight: 300, color: 'var(--border)', lineHeight: 1 }}>{num}</div>
                 <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-                <h2 className="font-serif font-light mb-4" style={{ fontSize: 36, color: 'var(--navy-dark)', lineHeight: 1.15, letterSpacing: '-0.3px' }}>
-                  {titulo}
-                </h2>
-                {desc && (
-                  <p className="font-light mb-8" style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 420 }}>
-                    {desc}
-                  </p>
-                )}
-
-                {tags.length > 0 && (
+                <h2 className="font-serif font-light mb-4" style={{ fontSize: 36, color: 'var(--navy-dark)', lineHeight: 1.15, letterSpacing: '-0.3px' }}>{titulo}</h2>
+                {desc ? <p className="font-light mb-8" style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 420 }}>{desc}</p> : null}
+                {tags.length > 0 ? (
                   <div className="flex flex-wrap gap-2 mb-8">
-                    {tags.map((tag, ti) => (
-                      tag.url
-                        ? <a key={ti} href={tag.url} target="_blank" rel="noopener noreferrer"
-                            className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border transition-colors"
-                            style={{ borderColor: 'var(--green)', color: 'var(--green)', borderRadius: 1, textDecoration: 'none' }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.color = '#fff' }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--green)' }}>
-                            {tag.label} ↗
-                          </a>
-                        : <span key={ti} className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border"
-                            style={{ borderColor: 'var(--border)', color: 'var(--muted)', borderRadius: 1 }}>
-                            {tag.label}
-                          </span>
-                    ))}
+                    {tags.map((tag, ti) => tag.url
+                      ? <a key={ti} href={tag.url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border" style={{ borderColor: 'var(--green)', color: 'var(--green)', borderRadius: 1, textDecoration: 'none' }}>{tag.label} ↗</a>
+                      : <span key={ti} className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border" style={{ borderColor: 'var(--border)', color: 'var(--muted)', borderRadius: 1 }}>{tag.label}</span>
+                    )}
                   </div>
-                )}
-
-                <button onClick={scrollToContact} className="btn-primary inline-flex">
-                  Más información →
-                </button>
+                ) : null}
+                <button onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })} className="btn-primary inline-flex">Más información →</button>
               </div>
-
-              {/* Image side */}
-              <div className={`flex items-center justify-center overflow-hidden ${i % 2 !== 0 ? 'lg:order-1' : ''}`}
-                style={{ minHeight: 340, background: `linear-gradient(160deg,${GRADIENTS[i]},#0d2035)` }}>
-                {img
-                  ? <img src={img} alt={titulo} className="w-full h-full object-cover" style={{ minHeight: 340 }} />
-                  : <span className="font-serif italic" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }}>{titulo}</span>
-                }
+              <div className={'flex items-center justify-center overflow-hidden' + (flip ? ' lg:order-1' : '')}
+                style={{ minHeight: 340, background: 'linear-gradient(160deg,' + (GRADIENTS[i] || '#1a3d5c') + ',#0d2035)' }}>
+                {img ? <img src={img} alt={titulo} className="w-full h-full object-cover" style={{ minHeight: 340 }} /> : <span className="font-serif italic" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }}>{titulo}</span>}
               </div>
             </div>
           )
         })}
       </div>
-
       <ContactSection />
     </div>
   )
