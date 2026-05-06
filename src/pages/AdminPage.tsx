@@ -1247,6 +1247,121 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
   )
 }
 
+// ── Selector de propiedades destacadas en el Home ─────────────────────────────
+function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [allProps, setAllProps] = useState<Propiedad[]>([])
+  const [selected, setSelected] = useState<Propiedad[]>([])
+  const dragIdx  = useRef<number | null>(null)
+  const dragOver = useRef<number | null>(null)
+
+  useEffect(() => {
+    supabase.from('propiedades').select('id,titulo,imagen_principal,imagenes,precio_uf,a_consultar,activo,tipo,comuna')
+      .neq('activo', false).order('created_at', { ascending: false })
+      .then(({ data }) => setAllProps((data || []) as Propiedad[]))
+  }, [])
+
+  useEffect(() => {
+    try {
+      const ids: string[] = JSON.parse(value || '[]')
+      const ordered = ids.map(id => allProps.find(p => p.id === id)).filter(Boolean) as Propiedad[]
+      setSelected(ordered)
+    } catch { setSelected([]) }
+  }, [value, allProps])
+
+  const ids = selected.map(p => p.id)
+
+  const add = (p: Propiedad) => {
+    if (selected.length >= 6 || ids.includes(p.id)) return
+    const next = [...selected, p]
+    setSelected(next)
+    onChange(JSON.stringify(next.map(x => x.id)))
+  }
+
+  const remove = (id: string) => {
+    const next = selected.filter(p => p.id !== id)
+    setSelected(next)
+    onChange(JSON.stringify(next.map(x => x.id)))
+  }
+
+  const onDragStart = (i: number) => { dragIdx.current = i }
+  const onDragEnter = (i: number) => { dragOver.current = i }
+  const onDragEnd   = () => {
+    if (dragIdx.current === null || dragOver.current === null) return
+    const next = [...selected]
+    const [moved] = next.splice(dragIdx.current, 1)
+    next.splice(dragOver.current, 0, moved)
+    dragIdx.current = null; dragOver.current = null
+    setSelected(next)
+    onChange(JSON.stringify(next.map(x => x.id)))
+  }
+
+  const thumb = (p: Propiedad) => p.imagen_principal || p.imagenes?.[0] || ''
+  const precio = (p: Propiedad) => p.a_consultar ? 'A consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : '—'
+  const available = allProps.filter(p => !ids.includes(p.id))
+
+  return (
+    <div>
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+        Elige hasta <strong>6 propiedades</strong> que aparecerán en la sección destacada del Inicio. Arrastra para reordenar.
+      </p>
+
+      {/* Seleccionadas */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>
+          Seleccionadas ({selected.length}/6)
+        </div>
+        {selected.length === 0 && (
+          <div style={{ padding: '16px', background: 'var(--off)', borderRadius: 4, fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>
+            Aún no hay propiedades seleccionadas. Agrega desde la lista de abajo.
+          </div>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {selected.map((p, i) => (
+            <div key={p.id} draggable
+              onDragStart={() => onDragStart(i)}
+              onDragEnter={() => onDragEnter(i)}
+              onDragEnd={onDragEnd}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#fff', border: '1px solid var(--border)', borderRadius: 4, cursor: 'grab' }}>
+              <span style={{ color: 'var(--muted)', fontSize: 16 }}>⠿</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)', minWidth: 20 }}>{i + 1}</span>
+              {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)' }}>{p.comuna} · {precio(p)}</div>
+              </div>
+              <button onClick={() => remove(p.id)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E24B4A', fontSize: 18, lineHeight: 1, padding: '0 4px' }}>×</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Disponibles */}
+      {selected.length < 6 && (
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>
+            Propiedades disponibles — clic para agregar
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 400, overflowY: 'auto', padding: 4 }}>
+            {available.map(p => (
+              <div key={p.id} onClick={() => add(p)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: 'var(--off)', border: '1px solid transparent', borderRadius: 4, cursor: 'pointer', transition: 'all 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--green)'; e.currentTarget.style.background = '#f0faf4' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'var(--off)' }}>
+                {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 40, height: 32, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>{precio(p)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ContenidoAdmin() {
   const [saving, setSaving] = useState(false)
   const [sortField, setSortField] = useState<string | null>(null)
@@ -1304,6 +1419,8 @@ function ContenidoAdmin() {
     testimonial_7_texto: '', testimonial_7_autor: '', testimonial_7_url: '',
     testimonial_8_texto: '', testimonial_8_autor: '', testimonial_8_url: '',
     props_label: 'Selección editorial',
+    catalogo_orden: 'manual',
+    home_destacadas_ids: '[]',
     props_titulo: 'Oportunidades',
     props_titulo_em: 'en Chile',
     props_sub: 'Propiedades curadas por nuestro equipo de expertos.',
@@ -1435,12 +1552,30 @@ function ContenidoAdmin() {
           <Field label="Países"><Inp type="number" value={d.stats_paises} onChange={set('stats_paises')} /></Field>
           <Field label="Clientes satisfechos"><Inp type="number" value={d.stats_clientes} onChange={set('stats_clientes')} /></Field>
         </Sec>
-        <Sec title="🏠 Sección propiedades destacadas">
-          <Field label="Label (pequeño, ej: Selección editorial)"><Inp value={d.props_label} onChange={set('props_label')} /></Field>
-          <Field label="Título principal (ej: Oportunidades)"><Inp value={d.props_titulo} onChange={set('props_titulo')} /></Field>
-          <Field label="Título en cursiva (ej: en Chile)"><Inp value={d.props_titulo_em} onChange={set('props_titulo_em')} /></Field>
-          <Full><Field label="Subtítulo"><Inp value={d.props_sub} onChange={set('props_sub')} /></Field></Full>
-          <Field label="Texto del link"><Inp value={d.props_ver_todas} onChange={set('props_ver_todas')} /></Field>
+        <Sec title="🗂 Orden del catálogo de propiedades">
+          <Full>
+            <Field label="¿Cómo se ordenan las propiedades en el catálogo?">
+              <Sel
+                value={d.catalogo_orden || 'manual'}
+                onChange={set('catalogo_orden')}
+                options={[
+                  { value: 'manual',      label: 'Manual — según el orden que elijo en el admin (arrastrando filas)' },
+                  { value: 'precio_alto', label: 'Precio: más alto primero (A consultar al inicio)' },
+                  { value: 'precio_bajo', label: 'Precio: más bajo primero (A consultar al final)' },
+                  { value: 'aleatorio',   label: 'Aleatorio — cambia en cada visita' },
+                ]}
+              />
+            </Field>
+            <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>
+              El orden "Manual" respeta exactamente el orden de filas que ves en el panel de Propiedades (arrastra para reordenar).
+            </p>
+          </Full>
+        </Sec>
+
+        <Sec title="🏠 Propiedades destacadas en el Inicio">
+          <Full>
+            <HomeDestacadasSelector value={d.home_destacadas_ids || '[]'} onChange={v => setD(p => ({ ...p, home_destacadas_ids: v }))} />
+          </Full>
         </Sec>
         <Sec title="💰 Sección Financiamiento">
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>

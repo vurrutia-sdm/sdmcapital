@@ -157,13 +157,25 @@ export default function HomePage() {
   const [props, setProps] = useState<Propiedad[]>(SAMPLE_PROPS)
 
   useEffect(() => {
-    supabase
-      .from('propiedades')
-      .select('*')
-      .eq('destacada', true)
-      .neq('activo', false)
-      .limit(6)
-      .then(({ data }) => { if (data && data.length > 0) setProps(data) })
+    // Intentar cargar por IDs manuales guardados en contenido_sitio
+    supabase.from('contenido_sitio').select('valor').eq('clave', 'home_destacadas_ids').single()
+      .then(async ({ data }) => {
+        if (data?.valor) {
+          const ids: string[] = JSON.parse(data.valor)
+          if (ids.length > 0) {
+            const { data: props } = await supabase.from('propiedades').select('*').in('id', ids).neq('activo', false)
+            if (props && props.length > 0) {
+              // Respetar el orden de los IDs guardados
+              const ordered = ids.map(id => props.find(p => p.id === id)).filter(Boolean) as Propiedad[]
+              setProps(ordered)
+              return
+            }
+          }
+        }
+        // Fallback: cargar las que tienen destacada=true
+        supabase.from('propiedades').select('*').eq('destacada', true).neq('activo', false).limit(6)
+          .then(({ data }) => { if (data && data.length > 0) setProps(data) })
+      })
   }, [])
 
   const finImg = get('financiamiento_imagen', '')
