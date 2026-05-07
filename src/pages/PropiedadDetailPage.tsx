@@ -5,6 +5,7 @@ import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import ContactSection from '@/components/sections/ContactSection'
 import SEO from '@/components/SEO'
+import PropertyMap from '@/components/ui/PropertyMap'
 import type { Propiedad } from '@/types'
 
 export default function PropiedadDetailPage() {
@@ -377,6 +378,19 @@ export default function PropiedadDetailPage() {
           </div>
         ) : null
       })()}
+
+      {/* Mapa */}
+      {(prop.map_address || prop.comuna) && (
+        <div className="px-8 lg:px-12 py-10 border-t border-[#e8edf2]">
+          <PropertyMap
+            address={(prop as Record<string,unknown>).map_address as string}
+            lat={(prop as Record<string,unknown>).map_lat as number}
+            lng={(prop as Record<string,unknown>).map_lng as number}
+            comuna={prop.comuna}
+            region={prop.region}
+          />
+        </div>
+      )}
 
       <ContactSection />
     </div>

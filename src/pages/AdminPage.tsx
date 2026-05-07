@@ -3,6 +3,7 @@ import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto } from '@/types'
+import MapPicker from '@/components/ui/MapPicker'
 
 type Tab = 'propiedades' | 'blog' | 'equipo' | 'asociados' | 'mensajes' | 'contenido' | 'fotos'
 
@@ -617,6 +618,17 @@ function PropiedadesAdmin() {
                   options={[{value:'',label:'No especificado'},{value:'nuevo',label:'Nuevo'},{value:'seminuevo',label:'Seminuevo'}]} />
               </Field>
             </div>
+          </div>
+
+          {/* Ubicación en mapa */}
+          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📍 Ubicación en mapa</div>
+            <MapPicker
+              address={(editing as Record<string,unknown>).map_address as string || ''}
+              lat={(editing as Record<string,unknown>).map_lat as number | undefined}
+              lng={(editing as Record<string,unknown>).map_lng as number | undefined}
+              onUpdate={({ address, lat, lng }) => setEditing(p => ({ ...p, map_address: address, map_lat: lat, map_lng: lng }))}
+            />
           </div>
 
           {/* Comisión y Bono Pie */}
@@ -1413,6 +1425,8 @@ function ContenidoAdmin() {
     testimonial_6_url: '',
     testimonios_titulo: 'Palabras de nuestros clientes',
     testimonios_subtitulo: 'La satisfacción de nuestros clientes es nuestra mejor carta de presentación.',
+    testimonial_7_texto: '', testimonial_7_autor: '', testimonial_7_url: '',
+    testimonial_8_texto: '', testimonial_8_autor: '', testimonial_8_url: '',
     props_label: 'Selección editorial',
     catalogo_orden: 'manual',
     home_destacadas_ids: '[]',

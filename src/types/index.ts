@@ -46,12 +46,9 @@ export interface Propiedad {
   bono_pie?: boolean
   bono_pie_porcentaje?: number
   activo?: boolean
-  comision_porcentaje?: number
-  bodegas?: number
-  estado_conservacion?: 'nuevo' | 'seminuevo'
-  bono_pie?: boolean
-  bono_pie_porcentaje?: number
-  activo?: boolean
+  map_address?: string
+  map_lat?: number
+  map_lng?: number
   created_at: string
   updated_at: string
 }
