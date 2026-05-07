@@ -7,7 +7,6 @@ const SERVICES = [
   { slug: 'inversion-chile',         label: 'Inversión en Chile' },
   { slug: 'financiamiento-personas', label: 'Financiamiento Personas' },
   { slug: 'financiamiento-empresas', label: 'Financiamiento Empresas' },
-  { slug: 'bancarizacion-extranjero',label: 'Bancarización Extranjero' },
 ]
 
 export default function Header() {
