@@ -11,6 +11,7 @@ import AsociadosPage from '@/pages/AsociadosPage'
 import BlogPage from '@/pages/BlogPage'
 import BlogPostPage from '@/pages/BlogPostPage'
 import AdminPage from '@/pages/AdminPage'
+import PoliticaPrivacidadPage from '@/pages/PoliticaPrivacidadPage'
 
 function NotFound() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/asociados" element={<AsociadosPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
+            <Route path="/politica-de-privacidad" element={<PoliticaPrivacidadPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
