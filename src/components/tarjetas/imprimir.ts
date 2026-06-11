@@ -10,6 +10,11 @@ html,body{ margin:0; padding:0; background:#fff; }
 .sdm-art{ position:absolute; left:7mm; top:7mm; width:96mm; height:56mm; overflow:hidden; font-size:2.55mm; }
 .sdm-art .sdm-f2{ padding:calc(3em + 3mm); }
 .sdm-crop{ position:absolute; background:#000; }
+/* html-to-image rasteriza el centrado por flex (align-items:center) de estos
+   textos con letter-spacing ligeramente desplazado a la izquierda (no ocurre
+   en la vista previa en pantalla). Forzamos centrado por texto en ancho
+   completo solo para la captura, donde sí rasteriza pixel-perfect. */
+.sdm-kick, .sdm-tag{ width:100%; text-align:center; }
 `
 
 const PAGE_W_MM = 110
