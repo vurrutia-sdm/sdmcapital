@@ -32,13 +32,15 @@ export default function BlogPostPage() {
 
   const titulo    = lang === 'en' && post.titulo_en    ? post.titulo_en    : post.titulo
   const contenido = lang === 'en' && post.contenido_en ? post.contenido_en : post.contenido
-  const fecha = new Date(post.created_at).toLocaleDateString('es-CL', { year:'numeric', month:'long', day:'numeric' })
+  const fecha = new Date(post.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div>
       {/* Breadcrumb */}
       <div className="px-8 lg:px-12 py-5 border-b border-[#e8edf2] flex items-center gap-2">
-        <Link to="/blog" className="flex items-center gap-1.5 text-[13px] tracking-wide uppercase transition-colors"
+        <Link
+          to="/blog"
+          className="flex items-center gap-1.5 text-[13px] tracking-wide uppercase transition-colors"
           style={{ color: 'var(--muted)', textDecoration: 'none' }}
           onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
           onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
@@ -50,10 +52,7 @@ export default function BlogPostPage() {
       </div>
 
       {/* Hero */}
-      <div
-        className="px-8 lg:px-12 py-16 border-b border-[#e8edf2]"
-        style={{ background: 'var(--navy-dark)' }}
-      >
+      <div className="px-8 lg:px-12 py-16 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="flex items-center gap-4 mb-6">
           <span style={{ fontSize: 13, color: 'var(--green)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>{post.categoria}</span>
           <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>{fecha}</span>
@@ -79,24 +78,30 @@ export default function BlogPostPage() {
 
       {/* Cover image */}
       {post.imagen_portada && (
-        <div style={{ height: 420, overflow: 'hidden' }}>
-          <img src={post.imagen_portada} alt={titulo} className="w-full h-full object-cover" />
+        <div style={{ width: '100%', background: 'var(--off)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 0', maxHeight: 600, overflow: 'hidden' }}>
+          <img src={post.imagen_portada} alt={titulo} style={{ maxWidth: '100%', maxHeight: 552, objectFit: 'contain', display: 'block' }} />
         </div>
       )}
 
       {/* Content */}
       <div className="px-8 lg:px-12 py-16">
         <div className="max-w-3xl mx-auto">
+
+          {/* ─── RICH TEXT CONTENT ─── */}
           <div
             className="prose-sdm"
-            style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.9, color: 'var(--ink)' }}
-            dangerouslySetInnerHTML={{ __html: contenido.replace(/\n/g, '<br/>') }}
+            style={{ fontSize: 15, fontWeight: 300, color: 'var(--ink)' }}
+            dangerouslySetInnerHTML={{ __html: contenido }}
           />
 
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t" style={{ borderColor: 'var(--border)' }}>
               {post.tags.map(tag => (
-                <span key={tag} className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border" style={{ borderColor: 'var(--border)', color: 'var(--muted)', borderRadius: 1 }}>
+                <span
+                  key={tag}
+                  className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border"
+                  style={{ borderColor: 'var(--border)', color: 'var(--muted)', borderRadius: 1 }}
+                >
                   {tag}
                 </span>
               ))}
@@ -104,12 +109,11 @@ export default function BlogPostPage() {
           )}
 
           <div className="mt-8 pt-8 border-t flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
-            <Link to="/blog" className="btn-text">
-              ← Volver al Blog
-            </Link>
+            <Link to="/blog" className="btn-text">← Volver al Blog</Link>
             <a
-              href={`https://wa.me/56931038954?text=Vi el artículo: ${titulo}`}
-              target="_blank" rel="noopener noreferrer"
+              href={`https://wa.me/56937478846?text=Vi el artículo: ${titulo}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-green text-[13px] py-2.5 px-5"
             >
               Consultar por WhatsApp

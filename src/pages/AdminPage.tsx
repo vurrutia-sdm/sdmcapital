@@ -1,11 +1,24 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link as RouterLink } from 'react-router-dom'
+import { FileText, Users, MessageCircle } from 'lucide-react'
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import Underline from '@tiptap/extension-underline'
+import TextAlign from '@tiptap/extension-text-align'
+import { TextStyle } from '@tiptap/extension-text-style'
+import Color from '@tiptap/extension-color'
+import { Image } from '@tiptap/extension-image'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
-import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto } from '@/types'
+import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
+import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto, DossierItem } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
+import { CotizacionesAdmin } from '@/components/cotizaciones/CotizacionesAdmin'
+import { TarjetasEquipo } from '@/components/tarjetas/TarjetasEquipo'
 
-type Tab = 'propiedades' | 'blog' | 'equipo' | 'asociados' | 'mensajes' | 'contenido' | 'fotos'
+type Tab = 'propiedades' | 'blog' | 'equipo' | 'asociados' | 'mensajes' | 'contenido' | 'fotos' | 'barranco' | 'cotizaciones' | 'tarjetas' | 'legal' | 'rental' | 'vende'
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -59,16 +72,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return <div className="flex flex-col gap-2"><label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</label>{children}</div>
 }
 
-// Inp y Txa usan estado LOCAL para evitar pérdida de foco en cada keystroke.
-// Solo actualizan el padre en onBlur (cuando el usuario sale del campo).
-function Inp({ value, onChange, type = 'text', placeholder = '' }: {
+function Inp({ value, onChange, type = 'text', placeholder = '', min, max }: {
   value: string | number
   onChange: (v: string) => void
   type?: string
   placeholder?: string
+  min?: number
+  max?: number
 }) {
   const [local, setLocal] = useState(String(value ?? ''))
-  // Sincronizar si el valor externo cambia (ej: al abrir otro registro)
   const prevValue = useRef(String(value ?? ''))
   useEffect(() => {
     const str = String(value ?? '')
@@ -82,6 +94,8 @@ function Inp({ value, onChange, type = 'text', placeholder = '' }: {
       type={type}
       value={local}
       placeholder={placeholder}
+      min={min}
+      max={max}
       className="input-line"
       onChange={e => setLocal(e.target.value)}
       onBlur={() => { prevValue.current = local; onChange(local) }}
@@ -125,6 +139,43 @@ function Badge({ label, color }: { label: string; color: string }) {
   return <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 2, background: color, color: '#fff' }}>{label}</span>
 }
 
+// ─── PROYECTOS NUEVOS — opciones ───────────────────────────────────────────────
+const FECHA_ENTREGA_OPTIONS = [
+  { value: '', label: 'Seleccionar...' },
+  { value: '2026', label: '2026' },
+  { value: '2027', label: '2027' },
+  { value: '2028', label: '2028' },
+  { value: '2029', label: '2029' },
+  { value: '2030', label: '2030' },
+]
+
+const AVANCE_OBRA_OPTIONS = [
+  { value: '', label: 'Seleccionar...' },
+  ...Array.from({ length: 21 }, (_, i) => ({ value: String(i * 5), label: `${i * 5}%` })),
+]
+
+const SUBSIDIO_OPTIONS = [
+  { value: 'DS49', label: 'DS49 — Fondo Solidario de Elección de Vivienda' },
+  { value: 'DS1_T1', label: 'DS1 Tramo 1 — Sectores Medios' },
+  { value: 'DS1_T2', label: 'DS1 Tramo 2 — Sectores Medios' },
+  { value: 'DS1_T3', label: 'DS1 Tramo 3 — Sectores Medios' },
+  { value: 'DS19', label: 'DS19 — Integración Social y Territorial' },
+  { value: 'DS52', label: 'DS52 — Subsidio de Arriendo Regular' },
+  { value: 'DS52_especial', label: 'DS52 Especial — Personas Mayores y Discapacidad' },
+  { value: 'sitio_propio', label: 'Construcción en Sitio Propio (DS1/DS49)' },
+  { value: 'pequenos_condominios', label: 'Pequeños Condominios — Densificación Predial' },
+  { value: 'DS10', label: 'DS10 — Habitabilidad Rural' },
+  { value: 'DS27_mejoramiento', label: 'DS27 — Mejoramiento de Vivienda (Hogar Mejor)' },
+  { value: 'DS27_ampliacion', label: 'DS27 — Ampliación de Vivienda (Hogar Mejor)' },
+  { value: 'DS27_eficiencia', label: 'DS27 — Eficiencia Energética (Paneles/Colectores)' },
+  { value: 'DS27_termico', label: 'DS27 — Acondicionamiento Térmico' },
+  { value: 'condominios_sociales', label: 'Reparación de Condominios Sociales' },
+  { value: 'pavimentacion', label: 'Programa de Pavimentación Participativa' },
+  { value: 'leasing', label: 'Leasing Habitacional' },
+  { value: 'FOGAES', label: 'FOGAES — Garantía Estatal' },
+  { value: 'subsidio_tasa', label: 'Subsidio a la Tasa de Interés' },
+]
+
 // ─── IMAGE UPLOADER ───────────────────────────────────────────────────────────
 function ImageUploader({ currentUrl, onUploaded, folder = 'general' }: { currentUrl?: string; onUploaded: (url: string) => void; folder?: string }) {
   const [uploading, setUploading] = useState(false)
@@ -161,7 +212,6 @@ function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (it
   const dragItem = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
 
-  // Actualizar cuando cambian los datos (no solo el largo)
   const key = initialItems.map(i => i.id + (i as Record<string,unknown>).activo + (i as Record<string,unknown>).estado).join(',')
   useEffect(() => { setItems(initialItems) }, [key])
 
@@ -178,52 +228,56 @@ function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (it
   return { items, setItems, onDragStart, onDragEnter, onDragEnd }
 }
 
-// ─── DOSSIER UPLOADER — múltiples archivos ───────────────────────────────────
-function DossierUploader({ urls, onChanged }: { urls: string[]; onChanged: (urls: string[]) => void }) {
+// ─── DOSSIER UPLOADER ────────────────────────────────────────────────────────
+function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged: (items: DossierItem[]) => void }) {
   const [uploading, setUploading] = useState(false)
 
   const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files?.length) return
     setUploading(true)
-    const newUrls: string[] = []
+    const newItems: DossierItem[] = []
     for (const file of Array.from(files)) {
-      const ext  = file.name.split('.').pop()
       const name = `dossiers/${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`
       const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
       if (!error) {
         const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
-        newUrls.push(data.publicUrl)
+        newItems.push({ url: data.publicUrl })
       }
     }
-    onChanged([...urls, ...newUrls])
+    onChanged([...items, ...newItems])
     setUploading(false)
     e.target.value = ''
   }
 
   const remove = (url: string) => {
     if (!confirm('¿Eliminar este archivo?')) return
-    onChanged(urls.filter(u => u !== url))
+    onChanged(items.filter(d => d.url !== url))
   }
 
-  const fileName = (url: string) => {
-    try { return decodeURIComponent(url.split('/').pop() || url).replace(/^\d+_/, '') }
-    catch { return url.split('/').pop() || url }
+  const setTitulo = (url: string, titulo: string) => {
+    onChanged(items.map(d => d.url === url ? { ...d, titulo } : d))
   }
 
   return (
     <div>
-      {/* Lista de archivos existentes */}
-      {urls.length > 0 && (
+      {items.length > 0 && (
         <div className="flex flex-col gap-2 mb-3">
-          {urls.map((url, i) => (
+          {items.map((d, i) => (
             <div key={i} className="flex items-center gap-3 p-3 rounded-sm" style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)' }}>
               <span style={{ fontSize: 18 }}>📄</span>
-              <a href={url} target="_blank" rel="noopener noreferrer"
-                style={{ flex: 1, fontSize: 13, color: 'var(--navy)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {fileName(url)}
+              <a href={d.url} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160, flexShrink: 0 }}>
+                {dossierFileName(d.url)}
               </a>
-              <button onClick={() => remove(url)}
+              <input
+                type="text"
+                value={d.titulo || ''}
+                placeholder="Título a mostrar (opcional)"
+                onChange={e => setTitulo(d.url, e.target.value)}
+                style={{ flex: 1, fontSize: 13, padding: '6px 10px', border: '1px solid var(--sky)', borderRadius: 2, background: '#fff', color: 'var(--ink)' }}
+              />
+              <button onClick={() => remove(d.url)}
                 style={{ fontSize: 11, color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
                 Eliminar
               </button>
@@ -231,18 +285,16 @@ function DossierUploader({ urls, onChanged }: { urls: string[]; onChanged: (urls
           ))}
         </div>
       )}
-
-      {/* Botón subir */}
       <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
-        {uploading ? 'Subiendo…' : `📎 Agregar archivos (${urls.length} subido${urls.length !== 1 ? 's' : ''})`}
+        {uploading ? 'Subiendo…' : `📎 Agregar archivos (${items.length} subido${items.length !== 1 ? 's' : ''})`}
         <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style={{ display: 'none' }} disabled={uploading} onChange={upload} />
       </label>
-      <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PDF, Word, Excel. Puedes subir varios a la vez.</p>
+      <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PDF, Word, Excel. Puedes subir varios a la vez. Si dejas el título vacío, se muestra el nombre del archivo.</p>
     </div>
   )
 }
 
-// ─── PROP IMAGE MANAGER — galería multi-foto con drag & drop ─────────────────
+// ─── PROP IMAGE MANAGER ───────────────────────────────────────────────────────
 function PropImageManager({
   imagenes, imagenPrincipal, onChange,
 }: {
@@ -255,13 +307,12 @@ function PropImageManager({
   const dragIdx  = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
 
-  // Comprime imagen a max 1200px y calidad 82% antes de subir
   const compressImage = (file: File): Promise<Blob> =>
     new Promise((resolve) => {
       const img = new Image()
       const url = URL.createObjectURL(file)
       img.onload = () => {
-        const MAX = 1200
+        const MAX = 800
         let { width, height } = img
         if (width > MAX || height > MAX) {
           if (width > height) { height = Math.round(height * MAX / width); width = MAX }
@@ -271,22 +322,20 @@ function PropImageManager({
         canvas.width = width; canvas.height = height
         canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
         URL.revokeObjectURL(url)
-        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.82)
+        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.72)
       }
       img.src = url
     })
 
-  const upload = async (files: FileList) => {
+const upload = async (files: FileList) => {
     setUploading(true)
     const newUrls: string[] = []
     const list = Array.from(files).slice(0, 20 - imagenes.length)
     for (let idx = 0; idx < list.length; idx++) {
       const file = list[idx]
-      setProgress(`Comprimiendo ${idx + 1}/${list.length}…`)
-      const compressed = await compressImage(file)
-      const name = `propiedades/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`
+      const name = `propiedades/${Date.now()}_${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`
       setProgress(`Subiendo ${idx + 1}/${list.length}…`)
-      const { error } = await supabase.storage.from('imagenes').upload(name, compressed, { upsert: true, contentType: 'image/jpeg' })
+      const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true, contentType: file.type })
       if (!error) {
         const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
         newUrls.push(data.publicUrl)
@@ -314,26 +363,21 @@ function PropImageManager({
     const dragged = next.splice(dragIdx.current, 1)[0]
     next.splice(dragOver.current, 0, dragged)
     dragIdx.current = null; dragOver.current = null
-    // La portada siempre se puede elegir manualmente — no la cambiamos al arrastrar
     onChange(next, imagenPrincipal || next[0] || '')
   }
 
   return (
     <div>
-      {/* Instrucción clara */}
       {imagenes.length > 0 && (
         <div style={{ fontSize: 13, color: 'var(--navy-dark)', background: 'var(--sky-pale)', border: '1px solid var(--sky)', borderRadius: 4, padding: '8px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 16 }}>📷</span>
           <span>Haz clic en <strong>"Portada"</strong> debajo de la foto que quieres como imagen principal.</span>
         </div>
       )}
-
-      {/* Grid de fotos */}
       {imagenes.length > 0 && (
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-3">
           {imagenes.map((url, i) => (
             <div key={url + i}>
-              {/* Thumbnail */}
               <div
                 draggable
                 onDragStart={() => onDragStart(i)}
@@ -348,15 +392,11 @@ function PropImageManager({
                 }}
               >
                 <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-
-                {/* Badge portada */}
                 {url === imagenPrincipal && (
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'center', padding: '4px 0' }}>
                     ★ PORTADA
                   </div>
                 )}
-
-                {/* Grip */}
                 <div style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.45)', borderRadius: 2, padding: '2px 3px' }}>
                   <svg width="7" height="10" viewBox="0 0 7 10" fill="white" opacity="0.7">
                     <circle cx="1.5" cy="1.5" r="1.2"/><circle cx="5.5" cy="1.5" r="1.2"/>
@@ -364,16 +404,12 @@ function PropImageManager({
                     <circle cx="1.5" cy="8.5" r="1.2"/><circle cx="5.5" cy="8.5" r="1.2"/>
                   </svg>
                 </div>
-
-                {/* Botón eliminar */}
                 <button
                   onClick={() => remove(i)}
                   title="Eliminar foto"
                   style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
                 >✕</button>
               </div>
-
-              {/* Botón Portada — debajo de la foto, grande y claro */}
               <button
                 onClick={() => setPrincipal(url)}
                 style={{
@@ -393,8 +429,6 @@ function PropImageManager({
           ))}
         </div>
       )}
-
-      {/* Upload button */}
       {imagenes.length < 20 && (
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
           {uploading ? (progress || 'Procesando…') : `+ Agregar fotos (${imagenes.length}/20)`}
@@ -402,10 +436,144 @@ function PropImageManager({
             onChange={e => { if (e.target.files?.length) upload(e.target.files) }} />
         </label>
       )}
-
       <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, lineHeight: 1.6 }}>
         Arrastra para reordenar · ★ para elegir la imagen principal (borde verde) · ✕ para eliminar
       </p>
+    </div>
+  )
+}
+
+// ─── RICH TEXT EDITOR (TipTap) ────────────────────────────────────────────────
+function TBtn({ onClick, active, title, children }: {
+  onClick: () => void; active?: boolean; title?: string; children: React.ReactNode
+}) {
+  return (
+    <button
+      onMouseDown={e => { e.preventDefault(); onClick() }}
+      title={title}
+      style={{
+        padding: '4px 8px', borderRadius: 3, border: 'none', cursor: 'pointer',
+        fontFamily: 'inherit', fontSize: 13, lineHeight: 1,
+        background: active ? 'var(--navy-dark)' : 'transparent',
+        color: active ? '#fff' : 'var(--muted)',
+        fontWeight: active ? 700 : 400,
+        transition: 'all 0.1s',
+      }}
+      onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--border)' }}
+      onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
+    >
+      {children}
+    </button>
+  )
+}
+
+function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TextStyle,
+      Color,
+      Link.configure({ openOnClick: false, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Image.configure({ inline: false, allowBase64: false }),
+    ],
+    content: value || '',
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    editorProps: {
+      attributes: {
+        style: [
+          'min-height: 320px',
+          'padding: 16px',
+          'outline: none',
+          'font-size: 15px',
+          'line-height: 1.8',
+          'color: var(--ink)',
+          'font-weight: 300',
+        ].join(';'),
+      },
+    },
+  })
+
+  if (!editor) return null
+
+  const addLink = () => {
+    const url = window.prompt('URL del enlace:')
+    if (!url) return
+    editor.chain().focus().setLink({ href: url }).run()
+  }
+
+  const addImage = () => {
+    const url = window.prompt('URL de la imagen:')
+    if (!url) return
+    editor.chain().focus().setImage({ src: url }).run()
+  }
+
+  const groups = [
+    [
+      <TBtn key="h2" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} title="Título H2">H2</TBtn>,
+      <TBtn key="h3" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} title="Título H3">H3</TBtn>,
+    ],
+    [
+      <TBtn key="b" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Negrita"><strong>B</strong></TBtn>,
+      <TBtn key="i" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="Cursiva"><em>I</em></TBtn>,
+      <TBtn key="u" onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} title="Subrayado"><span style={{ textDecoration: 'underline' }}>U</span></TBtn>,
+      <TBtn key="s" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Tachado"><s>S</s></TBtn>,
+    ],
+    [
+      <TBtn key="al" onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Izquierda">⬅</TBtn>,
+      <TBtn key="ac" onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Centrar">☰</TBtn>,
+      <TBtn key="ar" onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Derecha">➡</TBtn>,
+    ],
+    [
+      <TBtn key="ul" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Lista">• Lista</TBtn>,
+      <TBtn key="ol" onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="Lista numerada">1. Lista</TBtn>,
+      <TBtn key="bq" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Cita">❝</TBtn>,
+      <TBtn key="hr" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Separador">—</TBtn>,
+    ],
+    [
+      <TBtn key="link" onClick={addLink} active={editor.isActive('link')} title="Insertar enlace">🔗</TBtn>,
+      <TBtn key="unlink" onClick={() => editor.chain().focus().unsetLink().run()} title="Quitar enlace">🔗̸</TBtn>,
+      <TBtn key="img" onClick={addImage} title="Insertar imagen (URL)">🖼</TBtn>,
+    ],
+    [
+      <TBtn key="undo" onClick={() => editor.chain().focus().undo().run()} title="Deshacer">↩</TBtn>,
+      <TBtn key="redo" onClick={() => editor.chain().focus().redo().run()} title="Rehacer">↪</TBtn>,
+    ],
+  ]
+
+  return (
+    <div style={{ border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden', background: '#fff' }}>
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: 2, padding: '8px 10px',
+        borderBottom: '1px solid var(--border)', background: 'var(--off)',
+        alignItems: 'center',
+      }}>
+        {groups.map((group, gi) => (
+          <div key={gi} style={{ display: 'flex', gap: 1, marginRight: gi < groups.length - 1 ? 6 : 0, borderRight: gi < groups.length - 1 ? '1px solid var(--border)' : 'none', paddingRight: gi < groups.length - 1 ? 6 : 0 }}>
+            {group}
+          </div>
+        ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 4, paddingLeft: 6, borderLeft: '1px solid var(--border)' }}>
+          <span style={{ fontSize: 12, color: 'var(--muted)' }}>Color:</span>
+          <input type="color" onChange={e => editor.chain().focus().setColor(e.target.value).run()} title="Color del texto"
+            style={{ width: 26, height: 26, borderRadius: 3, border: '1px solid var(--border)', padding: 2, cursor: 'pointer', background: 'none' }} />
+        </div>
+      </div>
+      <EditorContent editor={editor} />
+      <style>{`
+        .ProseMirror h2 { font-size: 22px; font-weight: 500; color: var(--navy-dark); margin: 20px 0 8px; font-family: 'Cormorant Garamond', Georgia, serif; }
+        .ProseMirror h3 { font-size: 17px; font-weight: 600; color: var(--navy-dark); margin: 16px 0 6px; }
+        .ProseMirror p  { margin: 0 0 12px; }
+        .ProseMirror ul, .ProseMirror ol { padding-left: 22px; margin: 0 0 12px; }
+        .ProseMirror li { margin-bottom: 4px; }
+        .ProseMirror blockquote { border-left: 3px solid var(--sky); padding-left: 16px; margin: 16px 0; color: var(--muted); font-style: italic; }
+        .ProseMirror hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+        .ProseMirror a { color: var(--navy); text-decoration: underline; }
+        .ProseMirror strong { font-weight: 700; }
+        .ProseMirror em { font-style: italic; }
+        .ProseMirror s { text-decoration: line-through; }
+      `}</style>
     </div>
   )
 }
@@ -428,7 +596,6 @@ function PropiedadesAdmin() {
   }
 
   const toggleActivo = async (p: Propiedad) => {
-    // null o true = activa, false = pausada
     const isCurrentlyActive = p.activo !== false
     const newVal = !isCurrentlyActive
     setItems(prev => prev.map(item => item.id === p.id ? { ...item, activo: newVal } : item))
@@ -442,7 +609,6 @@ function PropiedadesAdmin() {
     load()
   })
 
-  // Aplicar filtro y sort
   const displayItems = [...dragged]
     .filter(p => showInactive ? true : p.activo !== false)
     .sort((a, b) => {
@@ -453,13 +619,6 @@ function PropiedadesAdmin() {
       if (aVal > bVal) return sortDir === 'asc' ? 1 : -1
       return 0
     })
-
-  const SortBtn = ({ field, label }: { field: typeof sortField; label: string }) => (
-    <button onClick={() => toggleSort(field)}
-      style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: sortField === field ? 'var(--navy-dark)' : 'var(--muted)', fontWeight: sortField === field ? 600 : 400, display: 'flex', alignItems: 'center', gap: 3, padding: 0 }}>
-      {label} {sortField === field ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
-    </button>
-  )
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar esta propiedad?')) return
@@ -476,6 +635,12 @@ function PropiedadesAdmin() {
       bodegas:              r.bodegas as number || 0,
       estado_conservacion:  r.estado_conservacion as string || '',
       comision_porcentaje:  r.comision_porcentaje as number ?? 2,
+      etapa_construccion:   r.etapa_construccion as Propiedad['etapa_construccion'] || undefined,
+      fecha_entrega:        r.fecha_entrega as string || '',
+      avance_obra:          r.avance_obra as number ?? undefined,
+      subsidios:            Array.isArray(r.subsidios) ? r.subsidios as string[] : [],
+      dossiers:             normalizeDossiers(r.dossiers),
+      mostrar_boton_flow:   r.mostrar_boton_flow !== false,
     })
     setTimeout(() => {
       document.getElementById('prop-edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -493,7 +658,11 @@ function PropiedadesAdmin() {
       bono_pie_porcentaje: r.bono_pie_porcentaje ? Number(r.bono_pie_porcentaje) : null,
       bodegas:             Number(r.bodegas) || 0,
       estado_conservacion: r.estado_conservacion || null,
-      comision_porcentaje: Number(r.comision_porcentaje) || 2,
+      comision_porcentaje: Number(r.comision_porcentaje ?? 2),
+      etapa_construccion:  editing.etapa_construccion ?? null,
+      fecha_entrega:       editing.fecha_entrega || null,
+      avance_obra:         editing.avance_obra ?? null,
+      subsidios:           editing.subsidios ?? [],
     }
     if (editing.id) {
       const { error } = await supabase.from('propiedades').update(payload).eq('id', editing.id)
@@ -507,7 +676,7 @@ function PropiedadesAdmin() {
     load()
   }
 
-  const blank = (): Partial<Propiedad> => ({ titulo: '', descripcion: '', tipo: 'casa', estado: 'en_venta', a_consultar: false, region: 'R. Metropolitana', comuna: '', pais: 'Chile', imagenes: [], destacada: false, internacional: false, activo: true })
+  const blank = (): Partial<Propiedad> => ({ titulo: '', descripcion: '', tipo: 'casa', estado: 'en_venta', categoria: 'usada', a_consultar: false, region: 'R. Metropolitana', comuna: '', pais: 'Chile', imagenes: [], destacada: false, internacional: false, activo: true, etapa_construccion: undefined, fecha_entrega: '', avance_obra: undefined, subsidios: [], dossiers: [], mostrar_boton_flow: true })
 
   return (
     <div>
@@ -528,17 +697,25 @@ function PropiedadesAdmin() {
       {editing && (
         <div id="prop-edit-form" className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar propiedad' : 'Nueva propiedad'}</h3>
-
-          {/* Datos básicos */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Título"><Inp value={editing.titulo || ''} onChange={v => setEditing(p => ({ ...p, titulo: v }))} /></Field>
             <Field label="Tipo">
               <Sel value={editing.tipo || 'casa'} onChange={v => setEditing(p => ({ ...p, tipo: v as Propiedad['tipo'] }))}
                 options={[{value:'casa',label:'Casa'},{value:'departamento',label:'Departamento'},{value:'oficina',label:'Oficina'},{value:'parcela',label:'Parcela'},{value:'comercial',label:'Comercial'},{value:'hotel',label:'Hotel'},{value:'terreno',label:'Terreno'}]} />
             </Field>
+            <Field label="Categoría">
+              <Sel value={editing.categoria || 'usada'} onChange={v => {
+                if (v === 'proyecto_nuevo') {
+                  setEditing(p => ({ ...p, categoria: v as Propiedad['categoria'], comision_porcentaje: 0 }))
+                } else {
+                  setEditing(p => ({ ...p, categoria: v as Propiedad['categoria'] }))
+                }
+              }}
+                options={[{value:'usada',label:'Propiedad Usada'},{value:'proyecto_nuevo',label:'Proyecto Nuevo'}]} />
+            </Field>
             <Field label="Estado de venta">
               <Sel value={editing.estado || 'en_venta'} onChange={v => setEditing(p => ({ ...p, estado: v as Propiedad['estado'] }))}
-                options={[{value:'en_venta',label:'En venta'},{value:'en_arriendo',label:'En arriendo'},{value:'vendida',label:'Vendida'},{value:'reservada',label:'Reservada'}]} />
+                options={[{value:'en_venta',label:'En venta'},{value:'en_arriendo',label:'En arriendo'},{value:'vendida',label:'Vendida'},{value:'reservada',label:'Reservada'},{value:'arrendada',label:'Arrendada'}]} />
             </Field>
             <Field label="Estado de publicación">
               <Sel
@@ -576,21 +753,16 @@ function PropiedadesAdmin() {
             <Field label="País"><Inp value={editing.pais || 'Chile'} onChange={v => setEditing(p => ({ ...p, pais: v }))} /></Field>
           </div>
 
-          {/* Precios */}
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Precio</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Precio UF"><Inp type="number" value={editing.precio_uf || ''} onChange={v => setEditing(p => ({ ...p, precio_uf: Number(v) }))} placeholder="Ej: 3500" /></Field>
-              <Field label="Precio CLP (Pesos Chilenos)"><Inp type="number" value={(editing as Record<string,unknown>).precio_clp as number || ''} onChange={v => setEditing(p => ({ ...p, precio_clp: Number(v) }))} placeholder="Ej: 120000000" /></Field>
+              <Field label="Precio CLP"><Inp type="number" value={(editing as Record<string,unknown>).precio_clp as number || ''} onChange={v => setEditing(p => ({ ...p, precio_clp: Number(v) }))} placeholder="Ej: 120000000" /></Field>
               <Field label="Precio USD"><Inp type="number" value={editing.precio_usd || ''} onChange={v => setEditing(p => ({ ...p, precio_usd: Number(v) }))} placeholder="Opcional" /></Field>
             </div>
             <div className="mt-4 flex gap-6 flex-wrap">
-              <Chk label="Precio a consultar (oculta los valores)" checked={!!editing.a_consultar} onChange={v => setEditing(p => ({ ...p, a_consultar: v }))} />
-              <Chk
-                label="↓ Baja de precio (muestra badge rojo)"
-                checked={!!(editing as Record<string,unknown>).baja_precio}
-                onChange={v => setEditing(p => ({ ...p, baja_precio: v }))}
-              />
+              <Chk label="Precio a consultar" checked={!!editing.a_consultar} onChange={v => setEditing(p => ({ ...p, a_consultar: v }))} />
+              <Chk label="↓ Baja de precio" checked={!!(editing as Record<string,unknown>).baja_precio} onChange={v => setEditing(p => ({ ...p, baja_precio: v }))} />
             </div>
             {(editing as Record<string,unknown>).baja_precio && (
               <div className="mt-4">
@@ -601,7 +773,6 @@ function PropiedadesAdmin() {
             )}
           </div>
 
-          {/* Características */}
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Características</div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -611,7 +782,7 @@ function PropiedadesAdmin() {
               <Field label="Superficie construida m²"><Inp type="number" value={editing.superficie_util || ''} onChange={v => setEditing(p => ({ ...p, superficie_util: Number(v) }))} /></Field>
               <Field label="Estacionamientos"><Inp type="number" value={editing.estacionamientos || ''} onChange={v => setEditing(p => ({ ...p, estacionamientos: Number(v) }))} placeholder="0" /></Field>
               <Field label="Bodegas"><Inp type="number" value={(editing as Record<string,unknown>).bodegas as number || ''} onChange={v => setEditing(p => ({ ...p, bodegas: Number(v) }))} placeholder="0" /></Field>
-              <Field label="Año de construcción"><Inp type="number" value={(editing as Record<string,unknown>).ano_construccion as number || ''} onChange={v => setEditing(p => ({ ...p, ano_construccion: Number(v) }))} placeholder="Ej: 2018" /></Field>
+              <Field label="Año construcción"><Inp type="number" value={(editing as Record<string,unknown>).ano_construccion as number || ''} onChange={v => setEditing(p => ({ ...p, ano_construccion: Number(v) }))} placeholder="Ej: 2018" /></Field>
               <Field label="Estado conservación">
                 <Sel value={(editing as Record<string,unknown>).estado_conservacion as string || ''}
                   onChange={v => setEditing(p => ({ ...p, estado_conservacion: v as 'nuevo' | 'seminuevo' | '' }))}
@@ -620,7 +791,55 @@ function PropiedadesAdmin() {
             </div>
           </div>
 
-          {/* Ubicación en mapa */}
+          {editing.categoria === 'proyecto_nuevo' && (
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Información del Proyecto</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Field label="Etapa de construcción">
+                  <Sel value={(editing as Record<string,unknown>).etapa_construccion as string || ''}
+                    onChange={v => setEditing(p => ({ ...p, etapa_construccion: v as Propiedad['etapa_construccion'] }))}
+                    options={[
+                      { value: '', label: 'Seleccionar...' },
+                      { value: 'en_blanco', label: 'En Blanco' },
+                      { value: 'en_verde', label: 'En Verde' },
+                      { value: 'planos', label: 'En Planos' },
+                      { value: 'inicio', label: 'Inicio de obras' },
+                      { value: 'avanzado', label: 'Obra avanzada' },
+                      { value: 'proxima_entrega', label: 'Próxima entrega' },
+                      { value: 'entrega_inmediata', label: 'Entrega inmediata' },
+                    ]} />
+                </Field>
+                <Field label="Fecha estimada de entrega">
+                  <Sel value={(editing as Record<string,unknown>).fecha_entrega as string || '2026'}
+                    onChange={v => setEditing(p => ({ ...p, fecha_entrega: v }))}
+                    options={FECHA_ENTREGA_OPTIONS} />
+                </Field>
+                <Field label="% Avance de obra">
+                  <Sel value={(editing as Record<string,unknown>).avance_obra !== undefined && (editing as Record<string,unknown>).avance_obra !== null ? String((editing as Record<string,unknown>).avance_obra) : ''}
+                    onChange={v => setEditing(p => ({ ...p, avance_obra: v === '' ? undefined : Number(v) }))}
+                    options={AVANCE_OBRA_OPTIONS} />
+                </Field>
+                <div className="md:col-span-2">
+                  <Field label="Subsidios aplicables">
+                    <div style={{ border: '1px solid var(--border)', borderRadius: 4, padding: '12px 16px', maxHeight: 220, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {SUBSIDIO_OPTIONS.map(opt => {
+                        const selected = editing.subsidios || []
+                        return (
+                          <Chk key={opt.value} label={opt.label} checked={selected.includes(opt.value)}
+                            onChange={checked => setEditing(p => {
+                              const current = p?.subsidios || []
+                              const next = checked ? [...current, opt.value] : current.filter(v => v !== opt.value)
+                              return { ...p, subsidios: next }
+                            })} />
+                        )
+                      })}
+                    </div>
+                  </Field>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📍 Ubicación en mapa</div>
             <MapPicker
@@ -631,7 +850,6 @@ function PropiedadesAdmin() {
             />
           </div>
 
-          {/* Comisión y Bono Pie */}
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>💼 Comisión y Beneficios</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -652,9 +870,8 @@ function PropiedadesAdmin() {
             </div>
           </div>
 
-          {/* Galería */}
           <div className="mb-6">
-            <Field label="Galería de imágenes (hasta 20 fotos — arrastra para reordenar)">
+            <Field label="Galería de imágenes (hasta 20 fotos)">
               <PropImageManager
                 imagenes={editing.imagenes || []}
                 imagenPrincipal={editing.imagen_principal || ''}
@@ -663,37 +880,35 @@ function PropiedadesAdmin() {
             </Field>
           </div>
 
-          {/* Video YouTube */}
           <div className="mb-6">
-            <Field label="🎥 Link de YouTube (video tour de la propiedad)">
+            <Field label="🎥 Link de YouTube">
               <Inp
                 value={(editing as Record<string,unknown>).youtube_url as string || ''}
                 onChange={v => setEditing(p => ({ ...p, youtube_url: v }))}
-                placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..."
+                placeholder="https://www.youtube.com/watch?v=..."
               />
             </Field>
-            <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>Pega la URL completa de YouTube. El video se mostrará incrustado en la página de la propiedad.</p>
           </div>
 
-          {/* Dossier */}
           <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📄 Dossiers / Fichas técnicas</div>
             <DossierUploader
-              urls={(editing as Record<string,unknown>).dossiers as string[] || []}
-              onChanged={urls => setEditing(p => ({ ...p, dossiers: urls }))}
+              items={(editing as Record<string,unknown>).dossiers as DossierItem[] || []}
+              onChanged={items => setEditing(p => ({ ...p, dossiers: items }))}
             />
           </div>
 
-          {/* Descripción — ahora con textarea que respeta párrafos */}
+          <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
+            <Chk label="Mostrar botón de pago Flow (Reserva esta propiedad)"
+              checked={(editing as Record<string,unknown>).mostrar_boton_flow !== false}
+              onChange={v => setEditing(p => ({ ...p, mostrar_boton_flow: v }))} />
+          </div>
+
           <div className="mb-6">
-            <Field label="Descripción (Enter para nuevos párrafos, emojis permitidos ✅)">
-              <textarea
+            <Field label="Descripción">
+              <RichTextEditor
                 value={editing.descripcion || ''}
-                onChange={e => setEditing(p => ({ ...p, descripcion: e.target.value }))}
-                className="input-line resize-y"
-                rows={8}
-                style={{ height: 'auto', whiteSpace: 'pre-wrap' }}
-                placeholder={"Describe la propiedad...\n\nPuedes escribir varios párrafos separados.\n\n✅ Se permiten emojis y saltos de línea."}
+                onChange={v => setEditing(p => ({ ...p, descripcion: v }))}
               />
             </Field>
           </div>
@@ -721,7 +936,7 @@ function PropiedadesAdmin() {
               ].map(({ label, field }) => (
                 <th key={label} className="text-left pb-3 pr-4"
                   style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: field ? 'var(--navy)' : 'var(--muted)', fontWeight: 400, cursor: field ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'nowrap' }}
-                  onClick={() => field && toggleSort(field)}
+                  onClick={() => field && toggleSort(field as typeof sortField)}
                 >
                   {label}{field && sortField === field ? (sortDir === 'asc' ? ' ↑' : ' ↓') : field ? ' ↕' : ''}
                 </th>
@@ -738,7 +953,7 @@ function PropiedadesAdmin() {
                 onDragEnd={onDragEnd}
                 style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', opacity: p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
-                <td className="py-3 pr-2" style={{ color: 'var(--muted)', fontSize: 16, cursor: 'grab' }}>⠿</td>
+                <td className="py-3 pr-2" style={{ color: 'var(--muted)', fontSize: 16 }}>⠿</td>
                 <td className="py-3 pr-4">
                   <span style={{ fontSize: 12, fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
                   {i < 6 && <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--green)' }}>★</span>}
@@ -756,18 +971,14 @@ function PropiedadesAdmin() {
                   </div>
                 </td>
                 <td className="py-3 pr-4" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.tipo}</td>
-                <td className="py-3 pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':'#999'} /></td>
+                <td className="py-3 pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'#c0392b':p.estado==='reservada'?'#d97706':p.estado==='arrendada'?'#2563eb':'#999'} /></td>
                 <td className="py-3 pr-4" style={{ fontSize: 14 }}>{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : (p as Record<string,unknown>).precio_clp ? `$${((p as Record<string,unknown>).precio_clp as number).toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
                 <td className="py-3 pr-4"><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
-                <td className="py-3 pr-4"
-                  draggable={false}
-                  onDragStart={e => e.preventDefault()}
-                >
+                <td className="py-3 pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
                   <button
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
                     onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
                     onPointerDown={e => e.stopPropagation()}
-                    title={p.activo === false ? 'Activar' : 'Pausar'}
                     style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'block' }}>
                     {p.activo === false ? '⏸ Pausada' : '✓ Activa'}
                   </button>
@@ -834,8 +1045,20 @@ function BlogAdmin() {
                 onUploaded={url => setEditing(p => ({ ...p, imagen_portada: url }))} />
             </Field>
           </div>
-          <div className="mb-4"><Field label="Resumen"><Txa rows={2} value={editing.resumen || ''} onChange={v => setEditing(p => ({ ...p, resumen: v }))} /></Field></div>
-          <Field label="Contenido completo"><Txa rows={12} value={editing.contenido || ''} onChange={v => setEditing(p => ({ ...p, contenido: v }))} /></Field>
+          <div className="mb-4">
+            <Field label="Resumen"><Txa rows={2} value={editing.resumen || ''} onChange={v => setEditing(p => ({ ...p, resumen: v }))} /></Field>
+          </div>
+
+          {/* ─── RICH TEXT EDITOR ─── */}
+          <div className="mb-6">
+            <Field label="Contenido completo">
+              <RichTextEditor
+                value={editing.contenido || ''}
+                onChange={v => setEditing(p => ({ ...p, contenido: v }))}
+              />
+            </Field>
+          </div>
+
           <div className="flex gap-6 mt-4 mb-6">
             <Chk label="Publicado" checked={!!editing.publicado} onChange={v => setEditing(p => ({ ...p, publicado: v }))} />
             <Chk label="Destacado" checked={!!editing.destacado} onChange={v => setEditing(p => ({ ...p, destacado: v }))} />
@@ -901,13 +1124,11 @@ function EquipoAdmin() {
         <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Equipo</h2>
         <button className="btn-green" onClick={() => setEditing({ nombre: '', cargo: '', bio: '', orden: items.length + 1, activo: true })}>+ Nuevo miembro</button>
       </div>
-      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}>🖱 Arrastra las filas para cambiar el orden de aparición en la página.</p>
+      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}>🖱 Arrastra las filas para cambiar el orden de aparición.</p>
 
       {editing && (
         <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar miembro' : 'Nuevo miembro'}</h3>
-          
-          {/* Foto del miembro */}
           <div className="mb-6 p-6 rounded-sm" style={{ background: 'var(--off)', border: '1px solid var(--border)' }}>
             <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16 }}>📷 Foto del miembro</div>
             <div className="flex items-center gap-6">
@@ -921,7 +1142,6 @@ function EquipoAdmin() {
               </div>
             </div>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Nombre completo"><Inp value={editing.nombre || ''} onChange={v => setEditing(p => ({ ...p, nombre: v }))} /></Field>
             <Field label="Cargo"><Inp value={editing.cargo || ''} onChange={v => setEditing(p => ({ ...p, cargo: v }))} placeholder="Ej: Director General" /></Field>
@@ -942,17 +1162,10 @@ function EquipoAdmin() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sorted.map((m, i) => (
-          <div
-            key={m.id}
-            draggable
-            onDragStart={() => onDragStart(i)}
-            onDragEnter={() => onDragEnter(i)}
-            onDragEnd={onDragEnd}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab"
-            style={{ borderTop: '3px solid var(--green)' }}
-          >
+          <div key={m.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
+            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab" style={{ borderTop: '3px solid var(--green)' }}>
             <div className="flex items-center gap-4 mb-4">
-              <span style={{ color: 'var(--muted)', fontSize: 20, cursor: 'grab' }}>⠿</span>
+              <span style={{ color: 'var(--muted)', fontSize: 20 }}>⠿</span>
               {m.foto
                 ? <img src={m.foto} alt={m.nombre} className="w-14 h-14 object-cover rounded-full" style={{ border: '2px solid var(--border)' }} />
                 : <div className="w-14 h-14 rounded-full flex items-center justify-center font-serif flex-shrink-0" style={{ background: 'var(--navy)', color: 'var(--sky)', fontSize: 18 }}>{m.nombre.split(' ').map(n => n[0]).join('').slice(0,2)}</div>
@@ -1009,13 +1222,11 @@ function AsociadosAdmin() {
         <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2>
         <button className="btn-green" onClick={() => setEditing({ nombre: '', logo: '', url: '', orden: items.length + 1, activo: true })}>+ Nuevo asociado</button>
       </div>
-      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}>🖱 Arrastra las tarjetas para cambiar el orden de aparición.</p>
+      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}>🖱 Arrastra las tarjetas para cambiar el orden.</p>
 
       {editing && (
         <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar asociado' : 'Nuevo asociado'}</h3>
-
-          {/* Logo del asociado */}
           <div className="mb-6 p-6 rounded-sm" style={{ background: 'var(--off)', border: '1px solid var(--border)' }}>
             <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16 }}>🏢 Logo de la empresa</div>
             <div className="flex items-center gap-6">
@@ -1025,11 +1236,10 @@ function AsociadosAdmin() {
               }
               <div className="flex-1">
                 <ImageUploader currentUrl={editing.logo} folder="asociados" onUploaded={url => setEditing(p => ({ ...p, logo: url }))} />
-                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>Sube el logo en PNG con fondo transparente para mejor resultado.</p>
+                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>PNG con fondo transparente para mejor resultado.</p>
               </div>
             </div>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Nombre de la empresa"><Inp value={editing.nombre || ''} onChange={v => setEditing(p => ({ ...p, nombre: v }))} /></Field>
             <Field label="URL del sitio web"><Inp value={editing.url || ''} onChange={v => setEditing(p => ({ ...p, url: v }))} placeholder="https://..." /></Field>
@@ -1046,14 +1256,8 @@ function AsociadosAdmin() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {sorted.map((a, i) => (
-          <div
-            key={a.id}
-            draggable
-            onDragStart={() => onDragStart(i)}
-            onDragEnter={() => onDragEnter(i)}
-            onDragEnd={onDragEnd}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab flex flex-col items-center text-center"
-          >
+          <div key={a.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
+            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab flex flex-col items-center text-center">
             <span style={{ color: 'var(--muted)', fontSize: 18, marginBottom: 8, display: 'block' }}>⠿</span>
             {a.logo
               ? <img src={a.logo} alt={a.nombre} style={{ height: 44, objectFit: 'contain', maxWidth: '100%', marginBottom: 10 }} />
@@ -1118,7 +1322,6 @@ function MensajesAdmin() {
 }
 
 // ─── CONTENIDO ────────────────────────────────────────────────────────────────
-// ─── CAROUSEL PHOTO MANAGER ──────────────────────────────────────────────────
 const HERO_KEYS = ['hero_imagen_url','hero_imagen_url_2','hero_imagen_url_3','hero_imagen_url_4','hero_imagen_url_5'] as const
 const HERO_POS_KEYS = ['hero_pos_1','hero_pos_2','hero_pos_3','hero_pos_4','hero_pos_5'] as const
 
@@ -1164,23 +1367,23 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
       const img = new Image()
       const url = URL.createObjectURL(file)
       img.onload = () => {
-        const MAX = 1920
+        const MAX = 1280
         let { width, height } = img
         if (width > MAX) { height = Math.round(height * MAX / width); width = MAX }
         const canvas = document.createElement('canvas')
         canvas.width = width; canvas.height = height
         canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
         URL.revokeObjectURL(url)
-        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85)
+        canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.75)
       }
       img.src = url
     })
 
   const upload = async (i: number, file: File) => {
     setUploading(i)
-    const compressed = await compressImage(file)
-    const name = `hero/${Date.now()}_${i}.jpg`
-    const { error } = await supabase.storage.from('imagenes').upload(name, compressed, { upsert: true, contentType: 'image/jpeg' })
+    const ext = file.name.split('.').pop()
+    const name = `hero/${Date.now()}_${i}.${ext}`
+    const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true, contentType: file.type })
     if (!error) {
       const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
       const next = [...urls]; next[i] = data.publicUrl; setUrls(next)
@@ -1212,15 +1415,9 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
               {url ? (
                 <>
                   <img src={url} alt={`Foto ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: d[HERO_POS_KEYS[i]] || 'center center', display: 'block' }} />
-                  <div style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 11, fontWeight: 700, width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {i + 1}
-                  </div>
+                  <div style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 11, fontWeight: 700, width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
                   <div style={{ position: 'absolute', top: 6, right: 28, background: 'rgba(0,0,0,0.5)', borderRadius: 3, padding: '2px 4px' }}>
-                    <svg width="8" height="12" viewBox="0 0 8 12" fill="white" opacity="0.8">
-                      <circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/>
-                      <circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/>
-                      <circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/>
-                    </svg>
+                    <svg width="8" height="12" viewBox="0 0 8 12" fill="white" opacity="0.8"><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
                   </div>
                   <button onClick={() => remove(i)} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.85)', border: 'none', borderRadius: 3, color: '#fff', width: 20, height: 20, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>✕</button>
                 </>
@@ -1228,17 +1425,12 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
                 <label style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: 4 }}>
                   {uploading === i
                     ? <span style={{ fontSize: 11, color: 'var(--muted)' }}>Subiendo…</span>
-                    : <>
-                        <span style={{ fontSize: 20, color: 'var(--muted)' }}>+</span>
-                        <span style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>Foto {i + 1}</span>
-                      </>
+                    : <><span style={{ fontSize: 20, color: 'var(--muted)' }}>+</span><span style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>Foto {i + 1}</span></>
                   }
-                  <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading !== null}
-                    onChange={e => { const f = e.target.files?.[0]; if (f) upload(i, f) }} />
+                  <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading !== null} onChange={e => { const f = e.target.files?.[0]; if (f) upload(i, f) }} />
                 </label>
               )}
             </div>
-            {/* Selector de posición — solo si tiene foto */}
             {url && (
               <select
                 value={d[HERO_POS_KEYS[i]] || 'center center'}
@@ -1253,13 +1445,12 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
       </div>
       {filled.length === 0
         ? <p style={{ fontSize: 13, color: 'var(--muted)', fontStyle: 'italic' }}>Sube al menos una foto para activar el carrusel.</p>
-        : <p style={{ fontSize: 12, color: 'var(--muted)' }}>{filled.length} foto{filled.length > 1 ? 's' : ''} en el carrusel · Arrastra para reordenar · Clic en ✕ para eliminar</p>
+        : <p style={{ fontSize: 12, color: 'var(--muted)' }}>{filled.length} foto{filled.length > 1 ? 's' : ''} en el carrusel · Arrastra para reordenar</p>
       }
     </div>
   )
 }
 
-// ── Selector de propiedades destacadas en el Home ─────────────────────────────
 function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [allProps, setAllProps] = useState<Propiedad[]>([])
   const [selected, setSelected] = useState<Propiedad[]>([])
@@ -1313,26 +1504,13 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
 
   return (
     <div>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
-        Elige hasta <strong>6 propiedades</strong> que aparecerán en la sección destacada del Inicio. Arrastra para reordenar.
-      </p>
-
-      {/* Seleccionadas */}
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>Elige hasta <strong>6 propiedades</strong> para el Inicio. Arrastra para reordenar.</p>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>
-          Seleccionadas ({selected.length}/6)
-        </div>
-        {selected.length === 0 && (
-          <div style={{ padding: '16px', background: 'var(--off)', borderRadius: 4, fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>
-            Aún no hay propiedades seleccionadas. Agrega desde la lista de abajo.
-          </div>
-        )}
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Seleccionadas ({selected.length}/6)</div>
+        {selected.length === 0 && <div style={{ padding: '16px', background: 'var(--off)', borderRadius: 4, fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>Aún no hay propiedades seleccionadas.</div>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {selected.map((p, i) => (
-            <div key={p.id} draggable
-              onDragStart={() => onDragStart(i)}
-              onDragEnter={() => onDragEnter(i)}
-              onDragEnd={onDragEnd}
+            <div key={p.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#fff', border: '1px solid var(--border)', borderRadius: 4, cursor: 'grab' }}>
               <span style={{ color: 'var(--muted)', fontSize: 16 }}>⠿</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)', minWidth: 20 }}>{i + 1}</span>
@@ -1341,19 +1519,14 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
                 <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)' }}>{p.comuna} · {precio(p)}</div>
               </div>
-              <button onClick={() => remove(p.id)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E24B4A', fontSize: 18, lineHeight: 1, padding: '0 4px' }}>×</button>
+              <button onClick={() => remove(p.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E24B4A', fontSize: 18, lineHeight: 1, padding: '0 4px' }}>×</button>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Disponibles */}
       {selected.length < 6 && (
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>
-            Propiedades disponibles — clic para agregar
-          </div>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Disponibles — clic para agregar</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 400, overflowY: 'auto', padding: 4 }}>
             {available.map(p => (
               <div key={p.id} onClick={() => add(p)}
@@ -1376,14 +1549,6 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
 
 function ContenidoAdmin() {
   const [saving, setSaving] = useState(false)
-  const [sortField, setSortField] = useState<string | null>(null)
-  const [sortDir, setSortDir] = useState<'asc'|'desc'>('asc')
-
-  const toggleSort = (field: string) => {
-    if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
-    else { setSortField(field); setSortDir('asc') }
-  }
-
   const [saved, setSaved]   = useState(false)
   const [pagina, setPagina] = useState<'inicio'|'testimonios'|'quienes'|'servicios'|'asociados'|'blog'|'contacto'>('inicio')
   const scrollPositions = useRef<Record<string, number>>({})
@@ -1391,14 +1556,12 @@ function ContenidoAdmin() {
   const handlePaginaChange = (key: typeof pagina) => {
     scrollPositions.current[pagina] = window.scrollY
     setPagina(key)
-    setTimeout(() => {
-      window.scrollTo({ top: scrollPositions.current[key] || 0 })
-    }, 50)
+    setTimeout(() => { window.scrollTo({ top: scrollPositions.current[key] || 0 }) }, 50)
   }
 
   const [d, setD] = useState({
-    // Inicio
-    hero_imagen_url: '', hero_imagen_url_2: '', hero_imagen_url_3: '', hero_imagen_url_4: '', hero_imagen_url_5: '', hero_kicker: 'Inversión inmobiliaria · Chile & el mundo',
+    hero_imagen_url: '', hero_imagen_url_2: '', hero_imagen_url_3: '', hero_imagen_url_4: '', hero_imagen_url_5: '',
+    hero_kicker: 'Inversión inmobiliaria · Chile & el mundo',
     hero_titulo_1: 'Tu socio', hero_titulo_2: 'en bienes', hero_titulo_3: 'raíces',
     hero_subtitulo: 'Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el extranjero. Financiamiento sin pagos adelantados.',
     hero_location: 'Las Condes · Santiago · Chile',
@@ -1406,89 +1569,58 @@ function ContenidoAdmin() {
     financiamiento_titulo: '¿Necesitas financiamiento?',
     financiamiento_body: 'Gestionamos créditos de consumo, hipotecarios y bancarización para personas y empresas en Chile y el extranjero. Sin pagos adelantados.',
     testimonial_1_texto: 'SDM Capital hizo posible el sueño de mi familia de adquirir nuestra primera vivienda en Santiago.',
-    testimonial_1_autor: 'María Sánchez · Santiago, Chile',
-    testimonial_1_url: '',
+    testimonial_1_autor: 'María Sánchez · Santiago, Chile', testimonial_1_url: '',
     testimonial_2_texto: 'Como inversionista internacional, SDM Capital simplificó todo el proceso.',
-    testimonial_2_autor: 'Carlos González · Miami, Florida, EE. UU.',
-    testimonial_2_url: '',
+    testimonial_2_autor: 'Carlos González · Miami, Florida, EE. UU.', testimonial_2_url: '',
     testimonial_3_texto: 'Su conocimiento del mercado y atención personalizada hicieron que el proceso fuera completamente libre de estrés.',
-    testimonial_3_autor: 'Isabel Ríos · Viña del Mar, Chile',
-    testimonial_3_url: '',
-    testimonial_4_texto: '',
-    testimonial_4_autor: '',
-    testimonial_4_url: '',
-    testimonial_5_texto: '',
-    testimonial_5_autor: '',
-    testimonial_5_url: '',
-    testimonial_6_texto: '',
-    testimonial_6_autor: '',
-    testimonial_6_url: '',
-    testimonios_titulo: 'Palabras de nuestros clientes',
-    testimonios_subtitulo: 'La satisfacción de nuestros clientes es nuestra mejor carta de presentación.',
+    testimonial_3_autor: 'Isabel Ríos · Viña del Mar, Chile', testimonial_3_url: '',
+    testimonial_4_texto: '', testimonial_4_autor: '', testimonial_4_url: '',
+    testimonial_5_texto: '', testimonial_5_autor: '', testimonial_5_url: '',
+    testimonial_6_texto: '', testimonial_6_autor: '', testimonial_6_url: '',
     testimonial_7_texto: '', testimonial_7_autor: '', testimonial_7_url: '',
     testimonial_8_texto: '', testimonial_8_autor: '', testimonial_8_url: '',
-    props_label: 'Selección editorial',
-    catalogo_orden: 'manual',
-    home_destacadas_ids: '[]',
-    props_titulo: 'Oportunidades',
-    props_titulo_em: 'en Chile',
+    testimonios_titulo: 'Palabras de nuestros clientes',
+    testimonios_subtitulo: 'La satisfacción de nuestros clientes es nuestra mejor carta de presentación.',
+    props_label: 'Selección editorial', catalogo_orden: 'manual', home_destacadas_ids: '[]',
+    props_titulo: 'Oportunidades', props_titulo_em: 'en Chile',
     props_sub: 'Propiedades curadas por nuestro equipo de expertos.',
     props_ver_todas: 'Ver todas las propiedades',
-    // Quiénes Somos
     qs_titulo: 'Tu socio estratégico en bienes raíces',
     qs_subtitulo: 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con oportunidades únicas.',
     qs_historia_1: 'SDM Capital nació con una visión clara: democratizar el acceso a inversiones inmobiliarias de calidad para personas y empresas en Chile.',
     qs_historia_2: 'A lo largo de más de 15 años, hemos construido una red de socios y alianzas estratégicas que nos permite ofrecer oportunidades únicas en Chile y en más de 10 países del mundo.',
     qs_historia_3: 'Hoy somos referentes en gestión de financiamiento y asesoría inmobiliaria, con un equipo de expertos comprometidos con los resultados de cada cliente.',
-    // Servicios
     servicios_intro: 'Soluciones integrales en inversión inmobiliaria y financiamiento, tanto en Chile como en el extranjero.',
-    servicio_inv_int_titulo: 'Inversión Internacional',
-    servicio_inv_int_visible: 'true',
+    servicio_inv_int_titulo: 'Inversión Internacional', servicio_inv_int_visible: 'true',
     servicio_inv_int_desc: 'Accede a oportunidades inmobiliarias en EE.UU., España, República Dominicana, Uruguay y más.',
     servicio_inv_int_tags: 'Estados Unidos,España,Rep. Dominicana,Uruguay',
-    servicio_inv_cl_titulo: 'Inversión en Chile',
-    servicio_inv_cl_visible: 'true',
+    servicio_inv_cl_titulo: 'Inversión en Chile', servicio_inv_cl_visible: 'true',
     servicio_inv_cl_desc: 'Casas, departamentos, oficinas, parcelas y proyectos comerciales en todo Chile.',
     servicio_inv_cl_tags: 'R. Metropolitana,Valparaíso,Coquimbo,Los Lagos',
-    servicio_fin_per_titulo: 'Financiamiento Personas',
-    servicio_fin_per_visible: 'true',
+    servicio_fin_per_titulo: 'Financiamiento Personas', servicio_fin_per_visible: 'true',
     servicio_fin_per_desc: 'Gestión de crédito hipotecario y consumo para personas naturales. Sin pagos adelantados.',
     servicio_fin_per_tags: 'Chile,Internacional',
-    servicio_fin_emp_titulo: 'Financiamiento Empresas',
-    servicio_fin_emp_visible: 'true',
+    servicio_fin_emp_titulo: 'Financiamiento Empresas', servicio_fin_emp_visible: 'true',
     servicio_fin_emp_desc: 'Soluciones de financiamiento corporativo y leasing inmobiliario para empresas de todos los tamaños.',
     servicio_fin_emp_tags: 'Chile,Internacional',
-    servicio_banco_titulo: 'Bancarización en el Extranjero',
-    servicio_banco_visible: 'false',
+    servicio_banco_titulo: 'Bancarización en el Extranjero', servicio_banco_visible: 'false',
     servicio_banco_desc: 'Te ayudamos a abrir cuentas bancarias y acceder a servicios financieros en el extranjero.',
     servicio_banco_tags: 'EE.UU.,España,Uruguay,Rep. Dominicana',
-    // Imágenes adicionales
-    financiamiento_imagen: '',
-    quienes_imagen_historia: '',
-    servicio_inv_int_imagen: '',
-    servicio_inv_cl_imagen: '',
-    servicio_fin_per_imagen: '',
-    servicio_fin_emp_imagen: '',
-    servicio_banco_imagen: '',
-    // Imágenes destinos internacionales
-    dest_miami_img: '',
-    dest_punta_cana_img: '',
-    dest_orlando_img: '',
-    dest_espana_img: '',
-    dest_uruguay_img: '',
-    dest_nueva_york_img: '',
-    // Asociados
+    financiamiento_imagen: '', quienes_imagen_historia: '',
+    servicio_inv_int_imagen: '', servicio_inv_cl_imagen: '',
+    servicio_fin_per_imagen: '', servicio_fin_emp_imagen: '', servicio_banco_imagen: '',
+    dest_miami_img: '', dest_punta_cana_img: '', dest_orlando_img: '',
+    dest_espana_img: '', dest_uruguay_img: '', dest_nueva_york_img: '',
     asociados_intro: 'Trabajamos con una red selecta de socios estratégicos que nos permiten ofrecer a nuestros clientes el mejor servicio integral en cada etapa del proceso inmobiliario y financiero.',
     asociados_cta: 'Si tu empresa comparte nuestros valores de excelencia y transparencia, nos encantaría explorar una colaboración estratégica.',
-    // Blog
     blog_titulo: 'Blog SDM Capital',
     blog_subtitulo: 'Noticias, análisis y tendencias del mercado inmobiliario en Chile y el mundo.',
-    // Contacto
     empresa_nombre: 'SDM Capital', tagline: 'Tu socio confiable en el mundo de los bienes raíces.',
+    footer_tagline: 'Tu socio confiable en el mundo de los bienes raíces.',
     direccion: 'Av. Apoquindo 5583, Las Condes, Santiago',
     telefono_1: '+56 9 3103 8954', telefono_2: '+56 9 6191 2281',
     email: 'contacto@sdmcapital.cl', horario: 'Lunes a Viernes · 09:00 – 18:00',
-    whatsapp: '56931038954',
+    whatsapp: '56937478846',
     facebook: 'https://www.facebook.com/sdmcapitalrestate',
     instagram: 'https://instagram.com/sdmcapital',
     tiktok: 'https://www.tiktok.com/@sdmcapital_realestate',
@@ -1497,7 +1629,6 @@ function ContenidoAdmin() {
 
   const set = (k: string) => (v: string) => setD(prev => ({ ...prev, [k]: v }))
 
-  // Cargar datos existentes de Supabase al montar
   useEffect(() => {
     supabase.from('contenido_sitio').select('clave, valor').then(({ data }) => {
       if (data && data.length > 0) {
@@ -1543,7 +1674,6 @@ function ContenidoAdmin() {
         </div>
       </div>
 
-      {/* Page tabs */}
       <div className="flex flex-wrap gap-2 mb-8">
         {PAGINAS.map(p => (
           <button key={p.key} onClick={() => handlePaginaChange(p.key)}
@@ -1554,17 +1684,15 @@ function ContenidoAdmin() {
       </div>
 
       {pagina === 'inicio' && <>
-        <Sec title="🖼 Fotos del hero — Carrusel (cambian automáticamente)">
+        <Sec title="🖼 Fotos del hero — Carrusel">
           <Full>
-            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
-              Sube hasta 5 fotos. Se muestran en secuencia cada 5 segundos. <strong>Arrastra las tarjetas para cambiar el orden.</strong>
-            </p>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>Sube hasta 5 fotos. <strong>Arrastra para reordenar.</strong></p>
             <CarouselPhotoManager d={d as unknown as Record<string, string>} setD={setD as unknown as (fn: (prev: Record<string, string>) => Record<string, string>) => void} />
           </Full>
         </Sec>
         <Sec title="📝 Título y subtítulo del hero">
-          <Field label="Línea 1 del título"><Inp value={d.hero_titulo_1} onChange={set('hero_titulo_1')} /></Field>
-          <Field label="Línea 2 del título"><Inp value={d.hero_titulo_2} onChange={set('hero_titulo_2')} /></Field>
+          <Field label="Línea 1"><Inp value={d.hero_titulo_1} onChange={set('hero_titulo_1')} /></Field>
+          <Field label="Línea 2"><Inp value={d.hero_titulo_2} onChange={set('hero_titulo_2')} /></Field>
           <Field label="Línea 3 (negrita)"><Inp value={d.hero_titulo_3} onChange={set('hero_titulo_3')} /></Field>
           <Field label="Kicker superior"><Inp value={d.hero_kicker} onChange={set('hero_kicker')} /></Field>
           <Full><Field label="Subtítulo"><Txa value={d.hero_subtitulo} onChange={set('hero_subtitulo')} rows={2} /></Field></Full>
@@ -1576,86 +1704,49 @@ function ContenidoAdmin() {
           <Field label="Países"><Inp type="number" value={d.stats_paises} onChange={set('stats_paises')} /></Field>
           <Field label="Clientes satisfechos"><Inp type="number" value={d.stats_clientes} onChange={set('stats_clientes')} /></Field>
         </Sec>
-        <Sec title="🗂 Orden del catálogo de propiedades">
+        <Sec title="🗂 Orden del catálogo">
           <Full>
-            <Field label="¿Cómo se ordenan las propiedades en el catálogo?">
-              <Sel
-                value={d.catalogo_orden || 'manual'}
-                onChange={set('catalogo_orden')}
+            <Field label="¿Cómo se ordenan las propiedades?">
+              <Sel value={d.catalogo_orden || 'manual'} onChange={set('catalogo_orden')}
                 options={[
-                  { value: 'manual',      label: 'Manual — según el orden que elijo en el admin (arrastrando filas)' },
-                  { value: 'precio_alto', label: 'Precio: más alto primero (A consultar al inicio)' },
-                  { value: 'precio_bajo', label: 'Precio: más bajo primero (A consultar al final)' },
+                  { value: 'manual',      label: 'Manual — según el orden que elijo (arrastrando filas)' },
+                  { value: 'precio_alto', label: 'Precio: más alto primero' },
+                  { value: 'precio_bajo', label: 'Precio: más bajo primero' },
                   { value: 'aleatorio',   label: 'Aleatorio — cambia en cada visita' },
-                ]}
-              />
+                ]} />
             </Field>
-            <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>
-              El orden "Manual" respeta exactamente el orden de filas que ves en el panel de Propiedades (arrastra para reordenar).
-            </p>
           </Full>
         </Sec>
-
         <Sec title="🏠 Propiedades destacadas en el Inicio">
-          <Full>
-            <HomeDestacadasSelector value={d.home_destacadas_ids || '[]'} onChange={v => setD(p => ({ ...p, home_destacadas_ids: v }))} />
-          </Full>
+          <Full><HomeDestacadasSelector value={d.home_destacadas_ids || '[]'} onChange={v => setD(p => ({ ...p, home_destacadas_ids: v }))} /></Full>
         </Sec>
         <Sec title="💰 Sección Financiamiento">
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>
           <Full><Field label="Descripción"><Txa value={d.financiamiento_body} onChange={set('financiamiento_body')} rows={3} /></Field></Full>
-          <Full>
-            <Field label="Foto de apoyo (columna derecha)">
-              <ImageUploader currentUrl={d.financiamiento_imagen} folder="paginas"
-                onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} />
-            </Field>
-          </Full>
+          <Full><Field label="Foto de apoyo"><ImageUploader currentUrl={d.financiamiento_imagen} folder="paginas" onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} /></Field></Full>
         </Sec>
         <Sec title="🌎 Fotos de destinos internacionales">
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8, gridColumn: '1/-1', lineHeight: 1.7 }}>
-            Estas fotos aparecen en los destinos del Home. Sin foto se muestra un fondo de color. Recomendado: fotos de ciudad, 16:9 horizontal.
-          </p>
           {[
-            { key: 'dest_miami_img',      label: '🏙 Miami' },
-            { key: 'dest_punta_cana_img', label: '🏖 Punta Cana' },
-            { key: 'dest_orlando_img',    label: '🎡 Orlando' },
-            { key: 'dest_espana_img',     label: '🇪🇸 España' },
-            { key: 'dest_uruguay_img',    label: '🇺🇾 Uruguay' },
-            { key: 'dest_nueva_york_img', label: '🗽 Nueva York' },
+            { key: 'dest_miami_img', label: '🏙 Miami' }, { key: 'dest_punta_cana_img', label: '🏖 Punta Cana' },
+            { key: 'dest_orlando_img', label: '🎡 Orlando' }, { key: 'dest_espana_img', label: '🇪🇸 España' },
+            { key: 'dest_uruguay_img', label: '🇺🇾 Uruguay' }, { key: 'dest_nueva_york_img', label: '🗽 Nueva York' },
           ].map(({ key, label }) => (
-            <Full key={key}>
-              <Field label={label}>
-                <ImageUploader
-                  currentUrl={(d as Record<string,string>)[key] || ''}
-                  folder="destinos"
-                  onUploaded={url => setD(p => ({ ...p, [key]: url }))}
-                />
-              </Field>
-            </Full>
+            <Full key={key}><Field label={label}><ImageUploader currentUrl={(d as Record<string,string>)[key] || ''} folder="destinos" onUploaded={url => setD(p => ({ ...p, [key]: url }))} /></Field></Full>
           ))}
-        </Sec>
-        <Sec title="💬 Testimonios">
-          <Full><p style={{ fontSize: 13, color: 'var(--muted)' }}>Los testimonios se editan en la pestaña <strong>💬 Testimonios</strong> de arriba.</p></Full>
         </Sec>
       </>}
 
       {pagina === 'testimonios' && <>
-        <Sec title="💬 Experiencias — Testimonios">
-          <Full><Field label="Título de la sección"><Inp value={d.testimonios_titulo} onChange={set('testimonios_titulo')} /></Field></Full>
-          <Full><Field label="Subtítulo de la sección"><Inp value={d.testimonios_subtitulo} onChange={set('testimonios_subtitulo')} /></Field></Full>
+        <Sec title="💬 Testimonios">
+          <Full><Field label="Título"><Inp value={d.testimonios_titulo} onChange={set('testimonios_titulo')} /></Field></Full>
+          <Full><Field label="Subtítulo"><Inp value={d.testimonios_subtitulo} onChange={set('testimonios_subtitulo')} /></Field></Full>
           {[1,2,3,4,5,6,7,8].map(n => (
             <Full key={n}>
               <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Testimonio {n}</div>
-                <Field label="Texto del testimonio">
-                  <Txa value={(d as Record<string,string>)[`testimonial_${n}_texto`] || ''} onChange={set(`testimonial_${n}_texto`)} rows={3} />
-                </Field>
-                <Field label="Autor (Ej: María Sánchez · Santiago, Chile)">
-                  <Inp value={(d as Record<string,string>)[`testimonial_${n}_autor`] || ''} onChange={set(`testimonial_${n}_autor`)} />
-                </Field>
-                <Field label='URL historia (aparece como "Conoce la historia →")'>
-                  <Inp value={(d as Record<string,string>)[`testimonial_${n}_url`] || ''} onChange={set(`testimonial_${n}_url`)} placeholder="https://..." />
-                </Field>
+                <Field label="Texto"><Txa value={(d as Record<string,string>)[`testimonial_${n}_texto`] || ''} onChange={set(`testimonial_${n}_texto`)} rows={3} /></Field>
+                <Field label="Autor"><Inp value={(d as Record<string,string>)[`testimonial_${n}_autor`] || ''} onChange={set(`testimonial_${n}_autor`)} /></Field>
+                <Field label='URL historia'><Inp value={(d as Record<string,string>)[`testimonial_${n}_url`] || ''} onChange={set(`testimonial_${n}_url`)} placeholder="https://..." /></Field>
               </div>
             </Full>
           ))}
@@ -1663,27 +1754,19 @@ function ContenidoAdmin() {
       </>}
 
       {pagina === 'quienes' && <>
-        <Sec title="👥 Quiénes Somos — Banner principal">
+        <Sec title="👥 Quiénes Somos">
           <Field label="Título principal"><Inp value={d.qs_titulo} onChange={set('qs_titulo')} /></Field>
           <Full><Field label="Subtítulo"><Txa value={d.qs_subtitulo} onChange={set('qs_subtitulo')} rows={3} /></Field></Full>
-        </Sec>
-        <Sec title="📖 Historia de la empresa">
           <Full><Field label="Párrafo 1"><Txa value={d.qs_historia_1} onChange={set('qs_historia_1')} rows={3} /></Field></Full>
           <Full><Field label="Párrafo 2"><Txa value={d.qs_historia_2} onChange={set('qs_historia_2')} rows={3} /></Field></Full>
           <Full><Field label="Párrafo 3"><Txa value={d.qs_historia_3} onChange={set('qs_historia_3')} rows={3} /></Field></Full>
-          <Full>
-            <Field label="📷 Foto oficina / equipo (columna derecha de la historia)">
-              <ImageUploader currentUrl={d.quienes_imagen_historia} folder="paginas"
-                onUploaded={url => setD(p => ({ ...p, quienes_imagen_historia: url }))} />
-              <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>Recomendado: foto horizontal de la oficina o el equipo trabajando.</p>
-            </Field>
-          </Full>
+          <Full><Field label="📷 Foto oficina / equipo"><ImageUploader currentUrl={d.quienes_imagen_historia} folder="paginas" onUploaded={url => setD(p => ({ ...p, quienes_imagen_historia: url }))} /></Field></Full>
         </Sec>
       </>}
 
       {pagina === 'servicios' && <>
         <Sec title="💼 Servicios — Introducción">
-          <Full><Field label="Texto introductorio de la página"><Txa value={d.servicios_intro} onChange={set('servicios_intro')} rows={2} /></Field></Full>
+          <Full><Field label="Texto introductorio"><Txa value={d.servicios_intro} onChange={set('servicios_intro')} rows={2} /></Field></Full>
         </Sec>
         {[
           { key: 'inv_int', label: 'Inversión Internacional',        imgKey: 'servicio_inv_int_imagen' },
@@ -1694,44 +1777,27 @@ function ContenidoAdmin() {
         ].map(({ key, label, imgKey }) => {
           const isVisible = (d as Record<string,string>)[`servicio_${key}_visible`] !== 'false'
           return (
-          <Sec key={key} title={`${isVisible ? '👁' : '🚫'} ${label}`}>
-            {/* Switch visible/oculto */}
-            <Full>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: isVisible ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${isVisible ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
-                <button
-                  onClick={() => setD(p => ({ ...p, [`servicio_${key}_visible`]: isVisible ? 'false' : 'true' }))}
-                  style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: isVisible ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}
-                >
-                  <span style={{ position: 'absolute', top: 2, left: isVisible ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
-                </button>
-                <span style={{ fontSize: 13, fontWeight: 500, color: isVisible ? '#16a34a' : '#dc2626' }}>
-                  {isVisible ? '✓ Visible en el sitio web' : '⏸ Oculto del sitio web'}
-                </span>
-              </div>
-            </Full>
-            <Field label="Título">
-              <Inp value={(d as Record<string,string>)[`servicio_${key}_titulo`] || ''} onChange={set(`servicio_${key}_titulo`)} />
-            </Field>
-            <Full><Field label="Descripción">
-              <Txa value={(d as Record<string,string>)[`servicio_${key}_desc`] || ''} onChange={set(`servicio_${key}_desc`)} rows={3} />
-            </Field></Full>
-            <Full>
-              <Field label='Tags / chips (separados por coma, con link opcional: "Label|https://url")'>
-                <Txa value={(d as Record<string,string>)[`servicio_${key}_tags`] || ''} onChange={set(`servicio_${key}_tags`)} rows={2}
-                  placeholder="Ej: Estados Unidos, España|https://..., Uruguay" />
-              </Field>
-              <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>Sin URL → tag gris. Con URL → tag verde con enlace ↗</p>
-            </Full>
-            <Full><Field label="Foto (columna lateral)">
-              <ImageUploader currentUrl={(d as Record<string,string>)[imgKey] || ''} folder="servicios"
-                onUploaded={url => setD(p => ({ ...p, [imgKey]: url }))} />
-            </Field></Full>
-          </Sec>
-        )})}
+            <Sec key={key} title={`${isVisible ? '👁' : '🚫'} ${label}`}>
+              <Full>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: isVisible ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${isVisible ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
+                  <button onClick={() => setD(p => ({ ...p, [`servicio_${key}_visible`]: isVisible ? 'false' : 'true' }))}
+                    style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: isVisible ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                    <span style={{ position: 'absolute', top: 2, left: isVisible ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
+                  </button>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: isVisible ? '#16a34a' : '#dc2626' }}>{isVisible ? '✓ Visible' : '⏸ Oculto'}</span>
+                </div>
+              </Full>
+              <Field label="Título"><Inp value={(d as Record<string,string>)[`servicio_${key}_titulo`] || ''} onChange={set(`servicio_${key}_titulo`)} /></Field>
+              <Full><Field label="Descripción"><Txa value={(d as Record<string,string>)[`servicio_${key}_desc`] || ''} onChange={set(`servicio_${key}_desc`)} rows={3} /></Field></Full>
+              <Full><Field label='Tags (separados por coma)'><Txa value={(d as Record<string,string>)[`servicio_${key}_tags`] || ''} onChange={set(`servicio_${key}_tags`)} rows={2} /></Field></Full>
+              <Full><Field label="Foto"><ImageUploader currentUrl={(d as Record<string,string>)[imgKey] || ''} folder="servicios" onUploaded={url => setD(p => ({ ...p, [imgKey]: url }))} /></Field></Full>
+            </Sec>
+          )
+        })}
       </>}
 
       {pagina === 'asociados' && <>
-        <Sec title="🤝 Asociados — Textos de la página">
+        <Sec title="🤝 Asociados">
           <Full><Field label="Párrafo introductorio"><Txa value={d.asociados_intro} onChange={set('asociados_intro')} rows={3} /></Field></Full>
           <Full><Field label="CTA para nuevos socios"><Txa value={d.asociados_cta} onChange={set('asociados_cta')} rows={2} /></Field></Full>
         </Sec>
@@ -1739,15 +1805,15 @@ function ContenidoAdmin() {
 
       {pagina === 'blog' && <>
         <Sec title="📝 Blog — Encabezado">
-          <Field label="Título de la página"><Inp value={d.blog_titulo} onChange={set('blog_titulo')} /></Field>
-          <Field label="Subtítulo / descripción"><Inp value={d.blog_subtitulo} onChange={set('blog_subtitulo')} /></Field>
+          <Field label="Título"><Inp value={d.blog_titulo} onChange={set('blog_titulo')} /></Field>
+          <Field label="Subtítulo"><Inp value={d.blog_subtitulo} onChange={set('blog_subtitulo')} /></Field>
         </Sec>
       </>}
 
       {pagina === 'contacto' && <>
         <Sec title="🏢 Datos de la empresa">
           <Field label="Nombre empresa"><Inp value={d.empresa_nombre} onChange={set('empresa_nombre')} /></Field>
-          <Field label="Tagline (footer)"><Inp value={d.tagline} onChange={set('tagline')} /></Field>
+          <Full><Field label="Texto del footer"><Txa value={d.footer_tagline} onChange={set('footer_tagline')} rows={2} /></Field></Full>
           <Field label="Dirección"><Inp value={d.direccion} onChange={set('direccion')} /></Field>
           <Field label="Horario"><Inp value={d.horario} onChange={set('horario')} /></Field>
           <Field label="Teléfono 1"><Inp value={d.telefono_1} onChange={set('telefono_1')} /></Field>
@@ -1756,10 +1822,10 @@ function ContenidoAdmin() {
           <Field label="WhatsApp (solo números)"><Inp value={d.whatsapp} onChange={set('whatsapp')} placeholder="56931038954" /></Field>
         </Sec>
         <Sec title="📱 Redes sociales">
-          <Field label="Facebook"><Inp value={d.facebook} onChange={set('facebook')} placeholder="https://facebook.com/..." /></Field>
-          <Field label="Instagram"><Inp value={d.instagram} onChange={set('instagram')} placeholder="https://instagram.com/..." /></Field>
-          <Field label="TikTok"><Inp value={d.tiktok} onChange={set('tiktok')} placeholder="https://tiktok.com/@..." /></Field>
-          <Field label="LinkedIn"><Inp value={d.linkedin} onChange={set('linkedin')} placeholder="https://linkedin.com/company/..." /></Field>
+          <Field label="Facebook"><Inp value={d.facebook} onChange={set('facebook')} /></Field>
+          <Field label="Instagram"><Inp value={d.instagram} onChange={set('instagram')} /></Field>
+          <Field label="TikTok"><Inp value={d.tiktok} onChange={set('tiktok')} /></Field>
+          <Field label="LinkedIn"><Inp value={d.linkedin} onChange={set('linkedin')} /></Field>
         </Sec>
       </>}
 
@@ -1809,9 +1875,7 @@ function FotosAdmin() {
       </div>
       <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-8">
         <h3 style={{ fontSize: 18, fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 8 }}>Subir nueva imagen</h3>
-        <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
-          Sube fotos de propiedades, del equipo, asociados o el hero. Copia la URL y úsala donde necesites.
-        </p>
+        <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>Sube fotos y copia la URL para usarla donde necesites.</p>
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '11px 24px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
           {uploading ? 'Subiendo…' : '+ Seleccionar imagen'}
           <input type="file" accept="image/*" onChange={upload} style={{ display: 'none' }} disabled={uploading} />
@@ -1842,15 +1906,744 @@ function FotosAdmin() {
   )
 }
 
-// ─── SIDEBAR DRAG ─────────────────────────────────────────────────────────────
+// ─── BARRANCO ADMIN ───────────────────────────────────────────────────────────
+function BarrancoAdmin() {
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved]   = useState(false)
+  const [d, setD] = useState<Record<string, string>>({
+    // ── Hero ──
+    hero_titulo: 'Hotel El Barranco',
+    hero_subtitulo: 'Where the river meets the mountains', hero_subtitulo_es: '',
+    hero_tagline: "A fully operational boutique hotel and restaurant with 25 years of history, positioned at the gateway to one of the world's premier adventure destinations. Offered turnkey — ready to continue, ready to grow.",
+    hero_tagline_es: '',
+    banner_foto: '', banner_detalle_foto: '', destination_foto: '',
+    hero_img_1: '', hero_img_2: '', hero_img_3: '', hero_img_4: '',
+    // ── Destination ──
+    destination_p1: 'Nested deep within Chilean Patagonia, Futaleufú is a name whispered among adventurers across the globe. Its river — a torrent of glacial turquoise — carries Class V+ rapids through valleys of impossible beauty. The kind of place that changes people.',
+    destination_p1_es: '',
+    destination_p2: 'El Barranco has welcomed guests at the center of it all for over two decades. Anglers from Montana, kayakers from Europe, families discovering Patagonia for the first time. The destination does the marketing. The hotel delivers the experience.',
+    destination_p2_es: '',
+    dest_eyebrow: 'The Destination', dest_eyebrow_es: '',
+    dest_titulo: 'Futaleufú — A world unto itself', dest_titulo_es: '',
+    dest_stat1_num: '25+', dest_stat1_label: 'Years in operation',
+    dest_stat2_num: 'Class V+', dest_stat2_label: 'River rating',
+    dest_stat3_num: '10', dest_stat3_label: 'Hotel rooms',
+    dest_stat_1_label: 'Years in operation', dest_stat_1_label_es: '',
+    dest_stat_2_label: 'River rating', dest_stat_2_label_es: '',
+    dest_stat_3_label: 'Hotel rooms', dest_stat_3_label_es: '',
+    // ── Activities ──
+    act_1_img: '', actividad_1_titulo: 'Whitewater Rafting', actividad_1_titulo_es: '', actividad_1_sub: 'Class V+ · Río Futaleufú', actividad_1_sub_es: '',
+    act_2_img: '', actividad_2_titulo: 'Fly Fishing',         actividad_2_titulo_es: '', actividad_2_sub: 'World-class trout · Patagonia', actividad_2_sub_es: '',
+    act_3_img: '', actividad_3_titulo: 'Trekking & Riding',   actividad_3_titulo_es: '', actividad_3_sub: 'Valle Las Escalas · Glaciers',  actividad_3_sub_es: '',
+    exp_eyebrow: 'The Experience', exp_eyebrow_es: '',
+    exp_titulo: 'Adventures at your doorstep', exp_titulo_es: '',
+    act_p: "Beyond the river: guided fly fishing on Lago Lonconao and Río Espolón, family floating, horseback riding through Valle Las Escalas, trekking to hidden glacier lakes, and kayaking across Patagonia's most pristine waterways.",
+    act_p_es: '',
+    // ── Property ──
+    prop_eyebrow: 'The Property', prop_eyebrow_es: '',
+    prop_titulo: 'Rooms, Restaurant & Amenities', prop_titulo_es: '',
+    propiedad_desc: 'Designed in mountain architecture, El Barranco offers 10 fully equipped rooms — each approximately 24 m² with en-suite bathroom — alongside a 40-seat restaurant rooted in Patagonian cuisine. Lamb, trout, regional produce. The kind of table guests remember.',
+    propiedad_desc_es: '',
+    prop_foto1: '', prop_foto2: '', prop_foto3: '', prop_foto4: '',
+    // ── Amenidades ──
+    amenidad_1_titulo: '10 Rooms',         amenidad_1_titulo_es: '', amenidad_1_desc: '24 m² each, en-suite, fully furnished',          amenidad_1_desc_es: '',
+    amenidad_2_titulo: 'Restaurant',       amenidad_2_titulo_es: '', amenidad_2_desc: '40 covers, full bar, liquor license',             amenidad_2_desc_es: '',
+    amenidad_3_titulo: 'Wellness',         amenidad_3_titulo_es: '', amenidad_3_desc: 'Pool 5×7, sauna, massage room',                   amenidad_3_desc_es: '',
+    amenidad_4_titulo: 'Residence',        amenidad_4_titulo_es: '', amenidad_4_desc: "Separate 2BD/2BA owner's house + office",         amenidad_4_desc_es: '',
+    amenidad_5_titulo: 'Infrastructure',   amenidad_5_titulo_es: '', amenidad_5_desc: '17kW generator, pellet boiler, laundry',          amenidad_5_desc_es: '',
+    amenidad_6_titulo: 'Parking',          amenidad_6_titulo_es: '', amenidad_6_desc: '5 vehicle capacity on-site',                      amenidad_6_desc_es: '',
+    amenidad_7_titulo: 'Turnkey Sale',     amenidad_7_titulo_es: '', amenidad_7_desc: 'All furniture & equipment included',              amenidad_7_desc_es: '',
+    amenidad_8_titulo: 'Registered Brand', amenidad_8_titulo_es: '', amenidad_8_desc: 'El Barranco — INAPI certified',                   amenidad_8_desc_es: '',
+    // ── Investment Brief — The Story ──
+    story_p1: "A business that runs itself for half the year — imagine what you could do with the other half.", story_p1_es: '',
+    story_p2: "El Barranco currently operates only during peak season (6 months) due to the health of its current owners. The infrastructure is complete, the brand is established, the market is ready. A new operator stepping in with full-year ambition faces no capital expenditure barrier — only upside.", story_p2_es: '',
+    story_p3: "Futaleufú's position as a year-round destination is growing. Winter fly fishing, wellness retreats, and off-season adventure travel represent untapped revenue lines that the existing installation can absorb immediately.", story_p3_es: '',
+    opp_eyebrow: 'The Opportunity', opp_eyebrow_es: '',
+    opp_titulo: 'An asset built to scale', opp_titulo_es: '',
+    opp_tab_story: 'The Story', opp_tab_story_es: '',
+    opp_tab_brief: 'Investment Brief', opp_tab_brief_es: '',
+    brief_precio: 'USD 3M', brief_revenue: '$181M', brief_meses: '6 → 12', brief_guests: '1,975', brief_terreno: '1,100 m²',
+    brief_note1: 'UF 68,000 — all assets, inventory, brand & IP included',
+    brief_note2: '2022 — operating only 6 months of the year',
+    brief_note3: 'Current vs. full-year potential with no additional capex',
+    brief_note4: '2022 — from a 10-room boutique hotel',
+    brief_note5: '650 m² built · established 2000 · north orientation',
+    brief_note6: 'SDM Capital Real Estate · +56 9 3103 8954',
+    brief_upside_titulo: 'The growth path is clear', brief_upside_titulo_es: '',
+    brief_upside_texto: 'Extend operations to 8–12 months · Develop winter and wellness programming · Partner with international adventure operators already active in the region · Leverage 25 years of brand equity and an established digital presence.', brief_upside_texto_es: '',
+    brief_legal_titulo: 'Legal standing', brief_legal_titulo_es: '',
+    brief_legal_texto: 'Property documentation current · Active commercial restaurant license (including spirits) · Hotel operating license · INAPI registered brand · Tax ID Rol 33-006 · Minor areas pending regularization: massage room, sauna, laundry (standard process, no operational impact). Staff of 6–7 available to continue with new ownership.', brief_legal_texto_es: '',
+    // ── Ficha Técnica — Infrastructure (7 filas) ──
+    ficha_infra_1_key: 'Land area',           ficha_infra_1_key_es: '', ficha_infra_1_val: '1,100 m²',                   ficha_infra_1_val_es: '',
+    ficha_infra_2_key: 'Built area',          ficha_infra_2_key_es: '', ficha_infra_2_val: '~650 m²',                    ficha_infra_2_val_es: '',
+    ficha_infra_3_key: 'Year built',          ficha_infra_3_key_es: '', ficha_infra_3_val: '2000',                       ficha_infra_3_val_es: '',
+    ficha_infra_4_key: 'Orientation',         ficha_infra_4_key_es: '', ficha_infra_4_val: 'North',                      ficha_infra_4_val_es: '',
+    ficha_infra_5_key: 'Rooms',               ficha_infra_5_key_es: '', ficha_infra_5_val: '10 (24 m² + en-suite each)', ficha_infra_5_val_es: '',
+    ficha_infra_6_key: 'Restaurant capacity', ficha_infra_6_key_es: '', ficha_infra_6_val: '40 guests',                  ficha_infra_6_val_es: '',
+    ficha_infra_7_key: 'Pool',                ficha_infra_7_key_es: '', ficha_infra_7_val: '5 × 7 m',                   ficha_infra_7_val_es: '',
+    // ── Ficha Técnica — Equipment (7 filas) ──
+    ficha_equip_1_key: 'Kitchen',      ficha_equip_1_key_es: '', ficha_equip_1_val: 'Industrial ovens, range, blast chiller', ficha_equip_1_val_es: '',
+    ficha_equip_2_key: 'Cold storage', ficha_equip_2_key_es: '', ficha_equip_2_val: 'Walk-in fridges & freezers',             ficha_equip_2_val_es: '',
+    ficha_equip_3_key: 'Dishwashing',  ficha_equip_3_key_es: '', ficha_equip_3_val: 'Industrial dishwasher + dough mixer',    ficha_equip_3_val_es: '',
+    ficha_equip_4_key: 'Laundry',      ficha_equip_4_key_es: '', ficha_equip_4_val: 'Washers, dryer, industrial press',       ficha_equip_4_val_es: '',
+    ficha_equip_5_key: 'Energy',       ficha_equip_5_key_es: '', ficha_equip_5_val: 'Pellet boiler + 17kW generator',         ficha_equip_5_val_es: '',
+    ficha_equip_6_key: 'Amenities',    ficha_equip_6_key_es: '', ficha_equip_6_val: 'Pool equipment, sauna, massage room',    ficha_equip_6_val_es: '',
+    ficha_equip_7_key: 'Furniture',    ficha_equip_7_key_es: '', ficha_equip_7_val: 'All rooms, restaurant, common areas',    ficha_equip_7_val_es: '',
+    // ── Ficha Técnica — Legal (6 filas) ──
+    ficha_legal_1_key: 'Title deed',          ficha_legal_1_key_es: '', ficha_legal_1_val: 'Current',                      ficha_legal_1_val_es: '',
+    ficha_legal_2_key: 'Restaurant license',  ficha_legal_2_key_es: '', ficha_legal_2_val: 'Active (incl. spirits)',         ficha_legal_2_val_es: '',
+    ficha_legal_3_key: 'Hotel license',       ficha_legal_3_key_es: '', ficha_legal_3_val: 'Active',                        ficha_legal_3_val_es: '',
+    ficha_legal_4_key: 'Brand registration',  ficha_legal_4_key_es: '', ficha_legal_4_val: 'INAPI — El Barranco',            ficha_legal_4_val_es: '',
+    ficha_legal_5_key: 'Tax ID (Rol)',         ficha_legal_5_key_es: '', ficha_legal_5_val: '33-006',                        ficha_legal_5_val_es: '',
+    ficha_legal_6_key: 'Address',             ficha_legal_6_key_es: '', ficha_legal_6_val: "B. O'Higgins 172, Futaleufú",   ficha_legal_6_val_es: '',
+    // ── Ficha Técnica — Operations (6 filas) ──
+    ficha_ops_1_key: 'Current season',    ficha_ops_1_key_es: '', ficha_ops_1_val: '6 months/year (peak)',         ficha_ops_1_val_es: '',
+    ficha_ops_2_key: 'Potential season',  ficha_ops_2_key_es: '', ficha_ops_2_val: '8–12 months/year',             ficha_ops_2_val_es: '',
+    ficha_ops_3_key: 'Staff',             ficha_ops_3_key_es: '', ficha_ops_3_val: '6–7 people',                   ficha_ops_3_val_es: '',
+    ficha_ops_4_key: 'Sale type',         ficha_ops_4_key_es: '', ficha_ops_4_val: 'Turnkey — immediate takeover', ficha_ops_4_val_es: '',
+    ficha_ops_5_key: "Owner's residence", ficha_ops_5_key_es: '', ficha_ops_5_val: 'Separate 2BD/2BA house',       ficha_ops_5_val_es: '',
+    ficha_ops_6_key: 'Asking price',      ficha_ops_6_key_es: '', ficha_ops_6_val: 'UF 68,000 (~USD 3,000,000)',  ficha_ops_6_val_es: '',
+    // ── Gallery ──
+    details_eyebrow: 'Property Details', details_eyebrow_es: '',
+    details_titulo: 'Technical overview', details_titulo_es: '',
+    details_tab_infra: 'Infrastructure', details_tab_infra_es: '',
+    details_tab_equip: 'Equipment Included', details_tab_equip_es: '',
+    details_tab_legal: 'Legal', details_tab_legal_es: '',
+    details_tab_ops: 'Operations', details_tab_ops_es: '',
+    gallery_eyebrow: 'Gallery', gallery_eyebrow_es: '',
+    gallery_titulo: 'The property in images', gallery_titulo_es: '',
+    gallery_1: '', gallery_2: '', gallery_3: '', gallery_4: '',
+    gallery_5: '', gallery_6: '', gallery_7: '',
+    // ── Contact ──
+    contact_eyebrow: 'Exclusive Listing', contact_eyebrow_es: '',
+    contact_titulo: 'Begin your conversation', contact_titulo_es: '',
+    precio_display: 'USD 3,000,000',
+    precio_sub: 'UF 68,000 · Turnkey · Futaleufú, Chile', precio_sub_es: '',
+    contacto_parrafo: 'Boutique hospitality assets with validated operations, a registered brand, and full infrastructure in world-class adventure destinations do not come to market often.', contacto_parrafo_es: '',
+    contacto_telefono: '+56 9 3103 8954',
+    contacto_empresa: 'SDM Capital Real Estate',
+  })
+
+  const set = (k: string) => (v: string) => setD(prev => ({ ...prev, [k]: v }))
+
+  useEffect(() => {
+    supabase.from('showcase_barranco').select('clave, valor').then(({ data }) => {
+      if (data) {
+        const loaded: Record<string, string> = {}
+        data.forEach(({ clave, valor }: { clave: string; valor: string }) => { loaded[clave] = valor })
+        setD(prev => ({ ...prev, ...loaded }))
+      }
+    })
+  }, [])
+
+  const save = async () => {
+    setSaving(true)
+    const { error } = await supabase.from('showcase_barranco').upsert(
+      Object.entries(d).map(([clave, valor]) => ({ clave, valor })),
+      { onConflict: 'clave' }
+    )
+    setSaving(false)
+    if (error) { alert('Error al guardar: ' + error.message); return }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
+      <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+    </div>
+  )
+  const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
+
+  // Render helpers — EN 🇬🇧 / ES 🇨🇱 side by side
+  const bi = (keyEn: string, keyEs: string, label: string) => (
+    <>
+      <Field label={`${label} EN 🇬🇧`}><Inp value={d[keyEn] ?? ''} onChange={set(keyEn)} /></Field>
+      <Field label={`${label} ES 🇨🇱`}><Inp value={d[keyEs] ?? ''} onChange={set(keyEs)} placeholder="Vacío = usa EN" /></Field>
+    </>
+  )
+  const biTxa = (keyEn: string, keyEs: string, label: string, rows = 3) => (
+    <>
+      <Full><Field label={`${label} EN 🇬🇧`}><Txa rows={rows} value={d[keyEn] ?? ''} onChange={set(keyEn)} /></Field></Full>
+      <Full><Field label={`${label} ES 🇨🇱`}><Txa rows={rows} value={d[keyEs] ?? ''} onChange={set(keyEs)} placeholder="Vacío = usa EN" /></Field></Full>
+    </>
+  )
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>🏨 El Barranco — Showcase</h2>
+        <div className="flex items-center gap-4">
+          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
+          <SaveBtn onClick={save} loading={saving} />
+        </div>
+      </div>
+
+      {/* ── Hero ── */}
+      <Sec title="🎬 Hero">
+        <Field label="Título (igual EN/ES)"><Inp value={d.hero_titulo} onChange={set('hero_titulo')} /></Field>
+        <div />
+        {bi('hero_subtitulo', 'hero_subtitulo_es', 'Subtítulo')}
+        {biTxa('hero_tagline', 'hero_tagline_es', 'Tagline / descripción')}
+        <Full><Field label="Foto sección Destino">
+          <ImageUploader currentUrl={d.destination_foto} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, destination_foto: url }))} />
+        </Field></Full>
+        <Full><Field label="Foto banner principal (showcase)">
+          <ImageUploader currentUrl={d.banner_foto} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, banner_foto: url }))} />
+        </Field></Full>
+        <Full><Field label="Foto banner en página de propiedad">
+          <ImageUploader currentUrl={d.banner_detalle_foto} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, banner_detalle_foto: url }))} />
+        </Field></Full>
+      </Sec>
+
+      {/* ── Carousel ── */}
+      <Sec title="🖼 Carousel Hero (4 fotos)">
+        {(['hero_img_1', 'hero_img_2', 'hero_img_3', 'hero_img_4'] as const).map((k, i) => (
+          <Full key={k}><Field label={`Foto carousel ${i + 1}`}>
+            <ImageUploader currentUrl={d[k]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [k]: url }))} />
+          </Field></Full>
+        ))}
+      </Sec>
+
+      {/* ── Destino ── */}
+      <Sec title="🌊 Sección Destino">
+        {bi('dest_eyebrow', 'dest_eyebrow_es', 'Eyebrow / kicker')}
+        {bi('dest_titulo', 'dest_titulo_es', 'Título de sección')}
+        {biTxa('destination_p1', 'destination_p1_es', 'Párrafo 1')}
+        {biTxa('destination_p2', 'destination_p2_es', 'Párrafo 2')}
+        <Field label="Stat 1 — Número"><Inp value={d.dest_stat1_num}   onChange={set('dest_stat1_num')}   placeholder="25+" /></Field>
+        <div />
+        {bi('dest_stat_1_label', 'dest_stat_1_label_es', 'Stat 1 — Etiqueta')}
+        <Field label="Stat 2 — Número"><Inp value={d.dest_stat2_num}   onChange={set('dest_stat2_num')}   placeholder="Class V+" /></Field>
+        <div />
+        {bi('dest_stat_2_label', 'dest_stat_2_label_es', 'Stat 2 — Etiqueta')}
+        <Field label="Stat 3 — Número"><Inp value={d.dest_stat3_num}   onChange={set('dest_stat3_num')}   placeholder="10" /></Field>
+        <div />
+        {bi('dest_stat_3_label', 'dest_stat_3_label_es', 'Stat 3 — Etiqueta')}
+      </Sec>
+
+      {/* ── Actividades ── */}
+      <Sec title="🏄 Actividades (3 cards)">
+        {bi('exp_eyebrow', 'exp_eyebrow_es', 'Eyebrow / kicker')}
+        {bi('exp_titulo', 'exp_titulo_es', 'Título de sección')}
+        {([1, 2, 3] as const).map(n => (
+          <Full key={n}>
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Actividad {n}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {bi(`actividad_${n}_titulo`, `actividad_${n}_titulo_es`, 'Título')}
+                {bi(`actividad_${n}_sub`, `actividad_${n}_sub_es`, 'Subtítulo')}
+                <Full><Field label="Foto">
+                  <ImageUploader currentUrl={d[`act_${n}_img`]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [`act_${n}_img`]: url }))} />
+                </Field></Full>
+              </div>
+            </div>
+          </Full>
+        ))}
+        {biTxa('act_p', 'act_p_es', "Párrafo 'Beyond the river'")}
+      </Sec>
+
+      {/* ── La Propiedad ── */}
+      <Sec title="🏨 La Propiedad">
+        {bi('prop_eyebrow', 'prop_eyebrow_es', 'Eyebrow / kicker')}
+        {bi('prop_titulo', 'prop_titulo_es', 'Título de sección')}
+        {biTxa('propiedad_desc', 'propiedad_desc_es', 'Descripción introductoria', 4)}
+        {(['prop_foto1', 'prop_foto2', 'prop_foto3', 'prop_foto4'] as const).map((k, i) => (
+          <Full key={k}><Field label={`Foto propiedad ${i + 1} (grid 2×2)`}>
+            <ImageUploader currentUrl={d[k]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [k]: url }))} />
+          </Field></Full>
+        ))}
+      </Sec>
+
+      {/* ── Amenidades ── */}
+      <Sec title="🛏 Amenidades (8 cards)">
+        {([1, 2, 3, 4, 5, 6, 7, 8] as const).map(n => (
+          <Full key={n}>
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '14px 18px', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Amenidad {n}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {bi(`amenidad_${n}_titulo`, `amenidad_${n}_titulo_es`, 'Título')}
+                {bi(`amenidad_${n}_desc`, `amenidad_${n}_desc_es`, 'Descripción')}
+              </div>
+            </div>
+          </Full>
+        ))}
+      </Sec>
+
+      {/* ── La Oportunidad ── */}
+      <Sec title="💡 La Oportunidad — Encabezado y tabs">
+        {bi('opp_eyebrow', 'opp_eyebrow_es', 'Eyebrow / kicker')}
+        {bi('opp_titulo', 'opp_titulo_es', 'Título de sección')}
+        {bi('opp_tab_story', 'opp_tab_story_es', 'Tab — The Story')}
+        {bi('opp_tab_brief', 'opp_tab_brief_es', 'Tab — Investment Brief')}
+      </Sec>
+
+      {/* ── Investment Brief — Números ── */}
+      <Sec title="📊 Investment Brief — Números">
+        <Field label="Precio (num grande)"><Inp value={d.brief_precio}  onChange={set('brief_precio')}  placeholder="USD 3M" /></Field>
+        <Field label="Revenue peak (CLP)"><Inp value={d.brief_revenue} onChange={set('brief_revenue')} placeholder="$181M" /></Field>
+        <Field label="Meses operación"><Inp   value={d.brief_meses}   onChange={set('brief_meses')}   placeholder="6 → 12" /></Field>
+        <Field label="Huéspedes mejor año"><Inp value={d.brief_guests} onChange={set('brief_guests')} placeholder="1,975" /></Field>
+        <Field label="Terreno total"><Inp       value={d.brief_terreno} onChange={set('brief_terreno')} placeholder="1,100 m²" /></Field>
+        <div />
+        <Field label="Nota card 1 (precio)"><Inp     value={d.brief_note1} onChange={set('brief_note1')} /></Field>
+        <Field label="Nota card 2 (revenue)"><Inp    value={d.brief_note2} onChange={set('brief_note2')} /></Field>
+        <Field label="Nota card 3 (meses)"><Inp      value={d.brief_note3} onChange={set('brief_note3')} /></Field>
+        <Field label="Nota card 4 (huéspedes)"><Inp  value={d.brief_note4} onChange={set('brief_note4')} /></Field>
+        <Field label="Nota card 5 (terreno)"><Inp    value={d.brief_note5} onChange={set('brief_note5')} /></Field>
+        <Field label="Nota card 6 (comisión)"><Inp   value={d.brief_note6} onChange={set('brief_note6')} /></Field>
+        {bi('brief_upside_titulo', 'brief_upside_titulo_es', 'Upside box — título')}
+        {biTxa('brief_upside_texto', 'brief_upside_texto_es', 'Upside box — texto')}
+        {bi('brief_legal_titulo', 'brief_legal_titulo_es', 'Legal standing — título')}
+        {biTxa('brief_legal_texto', 'brief_legal_texto_es', 'Legal standing — texto', 4)}
+      </Sec>
+
+      {/* ── The Story ── */}
+      <Sec title="📖 The Story">
+        {biTxa('story_p1', 'story_p1_es', 'Párrafo 1 (azul destacado)', 3)}
+        {biTxa('story_p2', 'story_p2_es', 'Párrafo 2', 4)}
+        {biTxa('story_p3', 'story_p3_es', 'Párrafo 3', 4)}
+      </Sec>
+
+      {/* ── Property Details — Encabezado y tabs ── */}
+      <Sec title="📋 Property Details — Encabezado y tabs">
+        {bi('details_eyebrow', 'details_eyebrow_es', 'Eyebrow / kicker')}
+        {bi('details_titulo', 'details_titulo_es', 'Título de sección')}
+        {bi('details_tab_infra', 'details_tab_infra_es', 'Tab — Infrastructure')}
+        {bi('details_tab_equip', 'details_tab_equip_es', 'Tab — Equipment')}
+        {bi('details_tab_legal', 'details_tab_legal_es', 'Tab — Legal')}
+        {bi('details_tab_ops', 'details_tab_ops_es', 'Tab — Operations')}
+      </Sec>
+
+      {/* ── Ficha Técnica — Infrastructure ── */}
+      <Sec title="📋 Ficha — Infrastructure (7 filas)">
+        {([1,2,3,4,5,6,7] as const).map(n => (
+          <Full key={n}>
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {bi(`ficha_infra_${n}_key`, `ficha_infra_${n}_key_es`, 'Etiqueta')}
+                {bi(`ficha_infra_${n}_val`, `ficha_infra_${n}_val_es`, 'Valor')}
+              </div>
+            </div>
+          </Full>
+        ))}
+      </Sec>
+
+      {/* ── Ficha Técnica — Equipment ── */}
+      <Sec title="📋 Ficha — Equipment Included (7 filas)">
+        {([1,2,3,4,5,6,7] as const).map(n => (
+          <Full key={n}>
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {bi(`ficha_equip_${n}_key`, `ficha_equip_${n}_key_es`, 'Etiqueta')}
+                {bi(`ficha_equip_${n}_val`, `ficha_equip_${n}_val_es`, 'Valor')}
+              </div>
+            </div>
+          </Full>
+        ))}
+      </Sec>
+
+      {/* ── Ficha Técnica — Legal ── */}
+      <Sec title="📋 Ficha — Legal (6 filas)">
+        {([1,2,3,4,5,6] as const).map(n => (
+          <Full key={n}>
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {bi(`ficha_legal_${n}_key`, `ficha_legal_${n}_key_es`, 'Etiqueta')}
+                {bi(`ficha_legal_${n}_val`, `ficha_legal_${n}_val_es`, 'Valor')}
+              </div>
+            </div>
+          </Full>
+        ))}
+      </Sec>
+
+      {/* ── Ficha Técnica — Operations ── */}
+      <Sec title="📋 Ficha — Operations (6 filas)">
+        {([1,2,3,4,5,6] as const).map(n => (
+          <Full key={n}>
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {bi(`ficha_ops_${n}_key`, `ficha_ops_${n}_key_es`, 'Etiqueta')}
+                {bi(`ficha_ops_${n}_val`, `ficha_ops_${n}_val_es`, 'Valor')}
+              </div>
+            </div>
+          </Full>
+        ))}
+      </Sec>
+
+      {/* ── Gallery ── */}
+      <Sec title="🖼 Galería (7 fotos)">
+        {bi('gallery_eyebrow', 'gallery_eyebrow_es', 'Eyebrow / kicker')}
+        {bi('gallery_titulo', 'gallery_titulo_es', 'Título de sección')}
+        <Full><Field label="Foto 1 — grande 2×2 (izquierda)">
+          <ImageUploader currentUrl={d.gallery_1} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, gallery_1: url }))} />
+        </Field></Full>
+        {(['gallery_2', 'gallery_3', 'gallery_4', 'gallery_5', 'gallery_6', 'gallery_7'] as const).map((k, i) => (
+          <Full key={k}><Field label={`Foto ${i + 2}`}>
+            <ImageUploader currentUrl={d[k]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [k]: url }))} />
+          </Field></Full>
+        ))}
+      </Sec>
+
+      {/* ── Contacto ── */}
+      <Sec title="💰 Contacto — Precio y datos">
+        {bi('contact_eyebrow', 'contact_eyebrow_es', 'Eyebrow / kicker')}
+        {bi('contact_titulo', 'contact_titulo_es', 'Título de sección')}
+        <Field label="Precio principal (grande, sin traducir)"><Inp value={d.precio_display} onChange={set('precio_display')} placeholder="USD 3,000,000" /></Field>
+        <div />
+        {bi('precio_sub', 'precio_sub_es', 'Precio subtexto')}
+        {biTxa('contacto_parrafo', 'contacto_parrafo_es', 'Párrafo descriptivo')}
+        <Field label="Teléfono"><Inp value={d.contacto_telefono} onChange={set('contacto_telefono')} /></Field>
+        <Field label="Nombre empresa"><Inp value={d.contacto_empresa} onChange={set('contacto_empresa')} /></Field>
+      </Sec>
+
+      <div className="flex justify-end mt-4">
+        <SaveBtn onClick={save} loading={saving} />
+      </div>
+    </div>
+  )
+}
+
+// ─── PÁGINAS LEGALES ──────────────────────────────────────────────────────────
+const LEGAL_PAGES: { slug: string; label: string; ruta: string }[] = [
+  { slug: 'politica-de-privacidad',   label: 'Política de Privacidad',   ruta: '/politica-de-privacidad' },
+  { slug: 'condiciones-del-servicio', label: 'Condiciones del Servicio', ruta: '/condiciones-del-servicio' },
+  { slug: 'eliminacion-de-datos',     label: 'Eliminación de Datos',     ruta: '/eliminacion-de-datos' },
+]
+
+function PaginasLegalesAdmin() {
+  const [activeSlug, setActiveSlug] = useState(LEGAL_PAGES[0].slug)
+  const active = LEGAL_PAGES.find(p => p.slug === activeSlug) || LEGAL_PAGES[0]
+
+  const [contenido, setContenido] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    setLoading(true); setSaved(false); setError('')
+    supabase.from('paginas_legales').select('contenido').eq('slug', activeSlug).maybeSingle()
+      .then(({ data, error }) => {
+        if (error) setError('No se pudo cargar el contenido: ' + error.message)
+        else setContenido(data?.contenido || '')
+        setLoading(false)
+      })
+  }, [activeSlug])
+
+  const save = async () => {
+    setSaving(true); setError(''); setSaved(false)
+    const { error } = await supabase.from('paginas_legales').upsert(
+      { slug: activeSlug, contenido, updated_at: new Date().toISOString() },
+      { onConflict: 'slug' }
+    )
+    setSaving(false)
+    if (error) { setError('Error al guardar: ' + error.message); return }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Páginas Legales</h2>
+        <div className="flex items-center gap-4">
+          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
+          <SaveBtn onClick={save} loading={saving} />
+        </div>
+      </div>
+
+      <div className="flex gap-2 mb-6">
+        {LEGAL_PAGES.map(p => (
+          <button key={p.slug} onClick={() => setActiveSlug(p.slug)}
+            className="rounded-sm"
+            style={{
+              padding: '9px 18px', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
+              border: `1px solid ${activeSlug === p.slug ? 'var(--navy-dark)' : '#e8edf2'}`,
+              background: activeSlug === p.slug ? 'var(--navy-dark)' : '#fff',
+              color: activeSlug === p.slug ? '#fff' : 'var(--muted)',
+            }}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {error && <p style={{ fontSize: 13, color: '#E24B4A', marginBottom: 16 }}>{error}</p>}
+
+      <div className="bg-white border border-[#e8edf2] rounded-sm p-8">
+        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
+          Este texto se muestra públicamente en <code>{active.ruta}</code>. Usa los títulos (H2) para separar las secciones, igual que en el resto del sitio.
+        </p>
+        {loading
+          ? <p style={{ fontSize: 14, color: 'var(--muted)' }}>Cargando…</p>
+          : <RichTextEditor key={activeSlug} value={contenido} onChange={setContenido} />}
+      </div>
+    </div>
+  )
+}
+
+// ─── RENTAL ───────────────────────────────────────────────────────────────────
+function RentalAdmin() {
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved]   = useState(false)
+
+  const [d, setD] = useState({
+    rental_hero_img: '',
+    rental_hero_titulo: 'Tu propiedad, sin preocupaciones',
+    rental_hero_subtitulo: 'SDM Rental se encarga de todo: buscamos arrendatarios, cobramos las rentas y administramos tu propiedad mes a mes. Tú solo recibes los resultados.',
+    rental_quienes_titulo: '20 años de experiencia a tu servicio',
+    rental_quienes_somos: 'Contamos con más de 20 años de experiencia en el sector comercial bancario e inmobiliario. Somos especialistas en soluciones adaptadas a cada cliente, con respaldo legal en todas nuestras operaciones y una red de marketing digital que posiciona tu propiedad donde los arrendatarios te buscan.',
+    rental_prop_titulo: 'Arrienda sin complicaciones',
+    rental_prop_subtitulo: 'Nos encargamos de cada etapa del proceso de arriendo para que tú no tengas que preocuparte de nada.',
+    rental_check_1: 'Buscamos y seleccionamos arrendatarios con evaluación completa.',
+    rental_check_2: 'Redactamos y formalizamos el contrato de arriendo.',
+    rental_check_3: 'Cobramos las rentas y te transferimos mensualmente.',
+    rental_check_4: 'Gestionamos mantenciones e incidencias por ti.',
+    rental_check_5: 'Informes mensuales de tu propiedad.',
+    rental_comision_trad_pct: '50%',
+    rental_comision_trad_desc: 'de un mes de arriendo · pago único',
+    rental_comision_adm_pct: '50% + 7%',
+    rental_comision_adm_desc: 'pago único + 7% mensual sobre el arriendo',
+    rental_arr_titulo: 'Encuentra tu próximo hogar',
+    rental_arr_subtitulo: 'Tenemos propiedades disponibles en arriendo en Santiago y sus alrededores. Proceso simple, transparente y sin costos ocultos.',
+    rental_comp_titulo: 'Compara tus opciones',
+    rental_comp1_tipo: 'Arriendo Tradicional',
+    rental_comp1_def: 'Tú mantienes el control directo de tu propiedad y la relación con el arrendatario.',
+    rental_comp1_dur: 'Período fijo (ej. 1 año), renovable.',
+    rental_comp1_ges: 'El propietario gestiona directamente.',
+    rental_comp1_com: '50% de un mes de arriendo (única vez).',
+    rental_comp2_tipo: 'Administración de Arriendo',
+    rental_comp2_def: 'SDM Rental gestiona todo en tu nombre: inquilinos, cobros, mantención e incidencias.',
+    rental_comp2_dur: 'Indefinida, hasta que cualquiera de las partes decida finalizar.',
+    rental_comp2_ges: 'SDM Rental opera el inmueble por completo.',
+    rental_comp2_com: '50% de un mes de arriendo (única vez) + 7% mensual sobre el arriendo.',
+  })
+
+  const set = (k: string) => (v: string) => setD(prev => ({ ...prev, [k]: v }))
+
+  useEffect(() => {
+    supabase.from('contenido_sitio').select('clave, valor').then(({ data }) => {
+      if (data && data.length > 0) {
+        const loaded: Record<string, string> = {}
+        data.forEach(({ clave, valor }) => { loaded[clave] = valor })
+        setD(prev => ({ ...prev, ...loaded }))
+      }
+    })
+  }, [])
+
+  const save = async () => {
+    setSaving(true)
+    await supabase.from('contenido_sitio').upsert(
+      Object.entries(d).map(([clave, valor]) => ({ clave, valor })),
+      { onConflict: 'clave' }
+    )
+    invalidateContenidoCache()
+    setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500)
+  }
+
+  const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
+      <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+    </div>
+  )
+  const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>SDM Rental</h2>
+        <div className="flex items-center gap-4">
+          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
+          <SaveBtn onClick={save} loading={saving} />
+        </div>
+      </div>
+
+      <Sec title="🖼 Hero">
+        <Full><Field label="Imagen de fondo"><ImageUploader currentUrl={d.rental_hero_img} folder="rental" onUploaded={url => setD(p => ({ ...p, rental_hero_img: url }))} /></Field></Full>
+        <Full><Field label="Título"><Inp value={d.rental_hero_titulo} onChange={set('rental_hero_titulo')} /></Field></Full>
+        <Full><Field label="Subtítulo"><Txa value={d.rental_hero_subtitulo} onChange={set('rental_hero_subtitulo')} rows={3} /></Field></Full>
+      </Sec>
+
+      <Sec title="👥 Quiénes Somos Rental">
+        <Field label="Título"><Inp value={d.rental_quienes_titulo} onChange={set('rental_quienes_titulo')} /></Field>
+        <Full><Field label="Texto"><Txa value={d.rental_quienes_somos} onChange={set('rental_quienes_somos')} rows={5} /></Field></Full>
+      </Sec>
+
+      <Sec title="🏠 Para Propietarios">
+        <Field label="Título"><Inp value={d.rental_prop_titulo} onChange={set('rental_prop_titulo')} /></Field>
+        <Full><Field label="Subtítulo"><Txa value={d.rental_prop_subtitulo} onChange={set('rental_prop_subtitulo')} rows={2} /></Field></Full>
+        <Full><Field label="Ítem 1"><Inp value={d.rental_check_1} onChange={set('rental_check_1')} /></Field></Full>
+        <Full><Field label="Ítem 2"><Inp value={d.rental_check_2} onChange={set('rental_check_2')} /></Field></Full>
+        <Full><Field label="Ítem 3"><Inp value={d.rental_check_3} onChange={set('rental_check_3')} /></Field></Full>
+        <Full><Field label="Ítem 4"><Inp value={d.rental_check_4} onChange={set('rental_check_4')} /></Field></Full>
+        <Full><Field label="Ítem 5"><Inp value={d.rental_check_5} onChange={set('rental_check_5')} /></Field></Full>
+      </Sec>
+
+      <Sec title="💰 Comisiones">
+        <Field label="Arriendo Tradicional — %"><Inp value={d.rental_comision_trad_pct} onChange={set('rental_comision_trad_pct')} /></Field>
+        <Field label="Arriendo Tradicional — descripción"><Inp value={d.rental_comision_trad_desc} onChange={set('rental_comision_trad_desc')} /></Field>
+        <Field label="Administración Completa — %"><Inp value={d.rental_comision_adm_pct} onChange={set('rental_comision_adm_pct')} /></Field>
+        <Field label="Administración Completa — descripción"><Inp value={d.rental_comision_adm_desc} onChange={set('rental_comision_adm_desc')} /></Field>
+      </Sec>
+
+      <Sec title="🔑 Para Arrendatarios">
+        <Field label="Título"><Inp value={d.rental_arr_titulo} onChange={set('rental_arr_titulo')} /></Field>
+        <Full><Field label="Subtítulo"><Txa value={d.rental_arr_subtitulo} onChange={set('rental_arr_subtitulo')} rows={2} /></Field></Full>
+      </Sec>
+
+      <Sec title="⚖️ Comparativo">
+        <Full><Field label="Título de la sección"><Inp value={d.rental_comp_titulo} onChange={set('rental_comp_titulo')} /></Field></Full>
+
+        <Full>
+          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 1</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field label="Tipo"><Inp value={d.rental_comp1_tipo} onChange={set('rental_comp1_tipo')} /></Field>
+              <Field label="Gestión"><Inp value={d.rental_comp1_ges} onChange={set('rental_comp1_ges')} /></Field>
+              <Full><Field label="Definición"><Txa value={d.rental_comp1_def} onChange={set('rental_comp1_def')} rows={2} /></Field></Full>
+              <Field label="Duración"><Inp value={d.rental_comp1_dur} onChange={set('rental_comp1_dur')} /></Field>
+              <Field label="Comisión"><Inp value={d.rental_comp1_com} onChange={set('rental_comp1_com')} /></Field>
+            </div>
+          </div>
+        </Full>
+
+        <Full>
+          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 2 (Recomendado)</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field label="Tipo"><Inp value={d.rental_comp2_tipo} onChange={set('rental_comp2_tipo')} /></Field>
+              <Field label="Gestión"><Inp value={d.rental_comp2_ges} onChange={set('rental_comp2_ges')} /></Field>
+              <Full><Field label="Definición"><Txa value={d.rental_comp2_def} onChange={set('rental_comp2_def')} rows={2} /></Field></Full>
+              <Field label="Duración"><Inp value={d.rental_comp2_dur} onChange={set('rental_comp2_dur')} /></Field>
+              <Field label="Comisión"><Inp value={d.rental_comp2_com} onChange={set('rental_comp2_com')} /></Field>
+            </div>
+          </div>
+        </Full>
+      </Sec>
+
+      <div className="flex justify-end mt-4">
+        <SaveBtn onClick={save} loading={saving} />
+      </div>
+    </div>
+  )
+}
+
+// ─── VENDE CON NOSOTROS ───────────────────────────────────────────────────────
+function VendeAdmin() {
+  const [saved, setSaved] = useState(false)
+
+  const [d, setD] = useState({
+    vende_hero_titulo: 'Ponemos tu propiedad en venta',
+    vende_hero_subtitulo: 'Somos expertos en soluciones inmobiliarias con más de 20 años de experiencia. Tenemos todas las herramientas para garantizar una venta ágil, segura y al mejor precio.',
+    vende_pilares_titulo: 'Vende con el respaldo de un equipo especializado',
+    vende_pilar1_num: '01', vende_pilar1_titulo: 'Experiencia', vende_pilar1_desc: 'Profesionales con más de 20 años en banca e inversión inmobiliaria, orientados 100% al cliente.',
+    vende_pilar2_num: '02', vende_pilar2_titulo: 'Marketing', vende_pilar2_desc: 'Publicamos tu propiedad en Yapo, TocToc, Portal, Mercado Libre, Google Ads y Meta para maximizar la exposición.',
+    vende_pilar3_num: '03', vende_pilar3_titulo: 'Respaldo Legal', vende_pilar3_desc: 'Acompañamos todo el proceso: desde el estudio de títulos hasta la inscripción en el Conservador de Bienes Raíces.',
+    vende_proceso_titulo: 'Cómo trabajamos',
+    vende_paso_1: 'Análisis previo de tu propiedad y diagnóstico personalizado',
+    vende_paso_2: 'Publicación estratégica en portales y redes sociales',
+    vende_paso_3: 'Base de datos de compradores con crédito hipotecario aprobado',
+    vende_paso_4: 'Acompañamiento en tasación y estudio de títulos',
+    vende_paso_5: 'Redacción del borrador de escritura',
+    vende_paso_6: 'Inscripción final en el Conservador de Bienes Raíces',
+    vende_form_titulo: 'Comencemos el proceso',
+    vende_form_subtitulo: 'Cuéntanos sobre tu propiedad',
+    vende_hero_img: '',
+  })
+
+  useEffect(() => {
+    supabase.from('contenido_sitio').select('clave, valor').then(({ data }) => {
+      if (data && data.length > 0) {
+        const loaded: Record<string, string> = {}
+        data.forEach(({ clave, valor }) => { loaded[clave] = valor })
+        setD(prev => ({ ...prev, ...loaded }))
+      }
+    })
+  }, [])
+
+  const set = (k: string) => (v: string) => {
+    setD(prev => ({ ...prev, [k]: v }))
+    supabase.from('contenido_sitio').upsert({ clave: k, valor: v }, { onConflict: 'clave' }).then(() => {
+      invalidateContenidoCache()
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    })
+  }
+
+  const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
+      <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+    </div>
+  )
+  const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Vende con Nosotros</h2>
+        {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
+      </div>
+
+      <Sec title="🖼 Hero">
+        <Full><Field label="Imagen de fondo Hero"><ImageUploader currentUrl={d.vende_hero_img} folder="vende" onUploaded={url => set('vende_hero_img')(url)} /></Field></Full>
+        <Full><Field label="Título"><Inp value={d.vende_hero_titulo} onChange={set('vende_hero_titulo')} /></Field></Full>
+        <Full><Field label="Subtítulo"><Txa value={d.vende_hero_subtitulo} onChange={set('vende_hero_subtitulo')} rows={3} /></Field></Full>
+      </Sec>
+
+      <Sec title="🏛 Pilares">
+        <Full><Field label="Título de la sección"><Inp value={d.vende_pilares_titulo} onChange={set('vende_pilares_titulo')} /></Field></Full>
+
+        {[1, 2, 3].map(n => (
+          <Full key={n}>
+            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Pilar {n}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Field label="Número"><Inp value={(d as Record<string,string>)[`vende_pilar${n}_num`]} onChange={set(`vende_pilar${n}_num`)} /></Field>
+                <Field label="Título"><Inp value={(d as Record<string,string>)[`vende_pilar${n}_titulo`]} onChange={set(`vende_pilar${n}_titulo`)} /></Field>
+                <Full><Field label="Descripción"><Txa value={(d as Record<string,string>)[`vende_pilar${n}_desc`]} onChange={set(`vende_pilar${n}_desc`)} rows={3} /></Field></Full>
+              </div>
+            </div>
+          </Full>
+        ))}
+      </Sec>
+
+      <Sec title="🔁 Proceso">
+        <Full><Field label="Título de la sección"><Inp value={d.vende_proceso_titulo} onChange={set('vende_proceso_titulo')} /></Field></Full>
+        {[1, 2, 3, 4, 5, 6].map(n => (
+          <Full key={n}><Field label={`Paso ${n}`}><Inp value={(d as Record<string,string>)[`vende_paso_${n}`]} onChange={set(`vende_paso_${n}`)} /></Field></Full>
+        ))}
+      </Sec>
+
+      <Sec title="📝 Formulario">
+        <Field label="Título"><Inp value={d.vende_form_titulo} onChange={set('vende_form_titulo')} /></Field>
+        <Field label="Subtítulo (etiqueta superior)"><Inp value={d.vende_form_subtitulo} onChange={set('vende_form_subtitulo')} /></Field>
+      </Sec>
+    </div>
+  )
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 const DEFAULT_TABS: { key: Tab; label: string; icon: string }[] = [
-  { key: 'propiedades', label: 'Propiedades',    icon: '🏠' },
-  { key: 'blog',        label: 'Blog',            icon: '📝' },
-  { key: 'equipo',      label: 'Equipo',          icon: '👥' },
-  { key: 'asociados',   label: 'Asociados',       icon: '🤝' },
-  { key: 'mensajes',    label: 'Mensajes',        icon: '💬' },
-  { key: 'contenido',   label: 'Textos del sitio',icon: '✏️' },
-  { key: 'fotos',       label: 'Imágenes',        icon: '🖼' },
+  { key: 'propiedades',  label: 'Propiedades',     icon: '🏠' },
+  { key: 'cotizaciones', label: 'Cotizaciones',    icon: '📋' },
+  { key: 'blog',         label: 'Blog',            icon: '📝' },
+  { key: 'equipo',       label: 'Equipo',          icon: '👥' },
+  { key: 'asociados',    label: 'Asociados',       icon: '🤝' },
+  { key: 'mensajes',     label: 'Mensajes',        icon: '💬' },
+  { key: 'contenido',    label: 'Textos del sitio',icon: '✏️' },
+  { key: 'fotos',        label: 'Imágenes',        icon: '🖼' },
+  { key: 'barranco',     label: 'El Barranco',     icon: '🏨' },
+  { key: 'tarjetas',     label: 'Tarjetas',        icon: '💳' },
+  { key: 'legal',        label: 'Páginas Legales', icon: '🔒' },
+  { key: 'rental',       label: 'Rental',          icon: '🏘' },
+  { key: 'vende',        label: 'Vende con nosotros', icon: '🏷' },
 ]
 
 const STORAGE_KEY = 'sdm_admin_tab_order'
@@ -1860,16 +2653,10 @@ function loadTabOrder() {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (!saved) return DEFAULT_TABS
     const order: string[] = JSON.parse(saved)
-    // Reorder DEFAULT_TABS based on saved order, preserving any new tabs
-    const sorted = order
-      .map(key => DEFAULT_TABS.find(t => t.key === key))
-      .filter(Boolean) as typeof DEFAULT_TABS
-    // Add any tabs not in saved order (new features added later)
+    const sorted = order.map(key => DEFAULT_TABS.find(t => t.key === key)).filter(Boolean) as typeof DEFAULT_TABS
     DEFAULT_TABS.forEach(t => { if (!sorted.find(s => s.key === t.key)) sorted.push(t) })
     return sorted
-  } catch {
-    return DEFAULT_TABS
-  }
+  } catch { return DEFAULT_TABS }
 }
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
@@ -1889,7 +2676,6 @@ export default function AdminPage() {
     next.splice(dragOverTab.current, 0, dragged)
     dragTab.current = null; dragOverTab.current = null
     setTabs(next)
-    // Persist to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next.map(t => t.key)))
   }
 
@@ -1898,7 +2684,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--off)' }}>
-      {/* Top bar */}
       <div className="bg-white border-b border-[#e8edf2] px-8 py-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <div className="logo-stripes"><div className="logo-stripe logo-stripe--sky"/><div className="logo-stripe logo-stripe--green"/><div className="logo-stripe logo-stripe--navy"/></div>
@@ -1913,56 +2698,62 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="flex">
-        {/* Sidebar — draggable */}
-        <aside className="w-56 min-h-[calc(100vh-57px)] bg-white border-r border-[#e8edf2] py-6 flex-shrink-0 sticky top-[57px] self-start">
+      <div className="flex overflow-visible">
+        <aside className="w-56 h-[calc(100vh-57px)] overflow-y-auto bg-white border-r border-[#e8edf2] py-6 flex-shrink-0 fixed top-[57px] left-0 z-30">
           <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <svg width="10" height="14" viewBox="0 0 10 14" fill="var(--muted)">
-              <circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/>
-              <circle cx="2" cy="7" r="1.5"/><circle cx="8" cy="7" r="1.5"/>
-              <circle cx="2" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/>
-            </svg>
+            <svg width="10" height="14" viewBox="0 0 10 14" fill="var(--muted)"><circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/><circle cx="2" cy="7" r="1.5"/><circle cx="8" cy="7" r="1.5"/><circle cx="2" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/></svg>
             Arrastra para ordenar
           </div>
           {tabs.map((t, i) => (
-            <div
-              key={t.key}
-              draggable
-              onDragStart={() => onTabDragStart(i)}
-              onDragEnter={() => onTabDragEnter(i)}
-              onDragEnd={onTabDragEnd}
-              onClick={() => setTab(t.key)}
-              className="flex items-center gap-3 transition-all duration-150"
-              style={{
-                padding: '11px 16px', fontSize: 13,
-                fontWeight: tab === t.key ? 600 : 300,
-                color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)',
-                background: tab === t.key ? 'var(--sky-pale)' : 'transparent',
-                borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent',
-                cursor: 'grab', userSelect: 'none',
-              }}
-            >
-              {/* Grip dots */}
-              <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" style={{ opacity: 0.3, flexShrink: 0 }}>
-                <circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/>
-                <circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/>
-                <circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/>
-              </svg>
+            <div key={t.key} draggable onDragStart={() => onTabDragStart(i)} onDragEnter={() => onTabDragEnter(i)} onDragEnd={onTabDragEnd}
+              onClick={() => setTab(t.key)} className="flex items-center gap-3 transition-all duration-150"
+              style={{ padding: '11px 16px', fontSize: 13, fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none' }}>
+              <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" style={{ opacity: 0.3, flexShrink: 0 }}><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
               <span style={{ fontSize: 16 }}>{t.icon}</span>
               {t.label}
             </div>
           ))}
+          {/* ── Herramientas ── */}
+          <div style={{ borderTop: '1px solid var(--border)', marginTop: 12, paddingTop: 12 }}>
+            <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 8px' }}>Herramientas</div>
+            <RouterLink to="/admin/ficha-cliente"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+              <FileText size={15} style={{ flexShrink: 0 }} />
+              Ficha para cliente
+            </RouterLink>
+            <RouterLink to="/admin/agentes"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+              <Users size={15} style={{ flexShrink: 0 }} />
+              Agentes
+            </RouterLink>
+            <RouterLink to="/admin/captacion"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+              <MessageCircle size={15} style={{ flexShrink: 0 }} />
+              Captación
+            </RouterLink>
+          </div>
         </aside>
 
-        {/* Content */}
-        <main className="flex-1 p-8 lg:p-10 min-w-0">
-          {tab === 'propiedades' && <PropiedadesAdmin />}
-          {tab === 'blog'        && <BlogAdmin />}
-          {tab === 'equipo'      && <EquipoAdmin />}
-          {tab === 'asociados'   && <AsociadosAdmin />}
-          {tab === 'mensajes'    && <MensajesAdmin />}
-          {tab === 'contenido'   && <ContenidoAdmin />}
-          {tab === 'fotos'       && <FotosAdmin />}
+        <main className="flex-1 p-8 lg:p-10 min-w-0 ml-56">
+          {tab === 'propiedades'  && <PropiedadesAdmin />}
+          {tab === 'cotizaciones' && <CotizacionesAdmin />}
+          {tab === 'blog'         && <BlogAdmin />}
+          {tab === 'equipo'       && <EquipoAdmin />}
+          {tab === 'asociados'    && <AsociadosAdmin />}
+          {tab === 'mensajes'     && <MensajesAdmin />}
+          {tab === 'contenido'    && <ContenidoAdmin />}
+          {tab === 'fotos'        && <FotosAdmin />}
+          {tab === 'barranco'     && <BarrancoAdmin />}
+          {tab === 'tarjetas'     && <TarjetasEquipo />}
+          {tab === 'legal'        && <PaginasLegalesAdmin />}
+          {tab === 'rental'       && <RentalAdmin />}
+          {tab === 'vende'        && <VendeAdmin />}
         </main>
       </div>
     </div>

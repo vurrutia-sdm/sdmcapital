@@ -3,21 +3,25 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X, ChevronDown } from 'lucide-react'
 
 const SERVICES = [
-  { slug: 'inversion-internacional', label: 'Inversión Internacional' },
-  { slug: 'inversion-chile',         label: 'Inversión en Chile' },
   { slug: 'financiamiento-personas', label: 'Financiamiento Personas' },
   { slug: 'financiamiento-empresas', label: 'Financiamiento Empresas' },
+  { slug: 'inversion-internacional', label: 'Inversión Internacional' },
 ]
+
+// Umbral de scroll a partir del cual el header pasa a vidrio esmerilado (≈ alto del hero)
+const SCROLL_THRESHOLD = 90
 
 export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [scrolled, setScrolled]         = useState(false)
-  const [mobileOpen, setMobileOpen]     = useState(false)
-  const [servicesOpen, setServicesOpen] = useState(false)
+  const [scrolled, setScrolled]             = useState(false)
+  const [mobileOpen, setMobileOpen]         = useState(false)
+  const [servicesOpen, setServicesOpen]     = useState(false)
+  const [propiedadesOpen, setPropiedadesOpen] = useState(false)
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 10)
+    const fn = () => setScrolled(window.scrollY > SCROLL_THRESHOLD)
+    fn()
     window.addEventListener('scroll', fn, { passive: true })
     return () => window.removeEventListener('scroll', fn)
   }, [])
@@ -45,7 +49,7 @@ export default function Header() {
   })
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-[0_1px_0_#e8edf2]' : 'bg-white border-b border-[#e8edf2]'}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/55 backdrop-blur-md border-b border-transparent shadow-[0_1px_12px_rgba(15,37,53,0.06)]' : 'bg-white border-b border-[#e8edf2]'}`}>
       <nav className="flex items-center justify-between px-8 lg:px-12 h-16">
 
         {/* Logo */}
@@ -66,13 +70,47 @@ export default function Header() {
           {[
             { to: '/',             label: 'Inicio' },
             { to: '/quienes-somos',label: 'Quiénes Somos' },
-            { to: '/propiedades',  label: 'Propiedades' },
+            { to: '/rental',       label: 'SDM Rental' },
           ].map(l => (
             <Link key={l.to} to={l.to} style={navLinkStyle(isActive(l.to))}
               onMouseEnter={e => { if (!isActive(l.to)) e.currentTarget.style.color = 'var(--navy-dark)' }}
               onMouseLeave={e => { if (!isActive(l.to)) e.currentTarget.style.color = 'var(--muted)' }}
             >{l.label}</Link>
           ))}
+
+          {/* Propiedades Usadas dropdown */}
+          <div className="relative" onMouseEnter={() => setPropiedadesOpen(true)} onMouseLeave={() => setPropiedadesOpen(false)}>
+            <Link to="/propiedades-usadas" style={{ ...navLinkStyle(isActive('/propiedades-usadas')), display: 'flex', alignItems: 'center', gap: 4 }}>
+              Propiedades Usadas
+              <ChevronDown size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+            </Link>
+            {propiedadesOpen && (
+              <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
+                <Link to="/propiedades-usadas?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                >En Venta</Link>
+                <Link to="/propiedades-usadas?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                >En Arriendo</Link>
+                <Link to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                >Ver todas</Link>
+                <Link to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                >Vende con nosotros</Link>
+              </div>
+            )}
+          </div>
+
+          {/* Proyectos Nuevos */}
+          <Link to="/proyectos-nuevos" style={navLinkStyle(isActive('/proyectos-nuevos'))}
+            onMouseEnter={e => { if (!isActive('/proyectos-nuevos')) e.currentTarget.style.color = 'var(--navy-dark)' }}
+            onMouseLeave={e => { if (!isActive('/proyectos-nuevos')) e.currentTarget.style.color = 'var(--muted)' }}
+          >Proyectos Nuevos</Link>
 
           {/* Servicios dropdown — entre Propiedades y Asociados */}
           <div className="relative" onMouseEnter={() => setServicesOpen(true)} onMouseLeave={() => setServicesOpen(false)}>
@@ -91,16 +129,6 @@ export default function Header() {
               </div>
             )}
           </div>
-
-          {[
-            { to: '/asociados', label: 'Asociados' },
-            { to: '/blog',      label: 'Blog' },
-          ].map(l => (
-            <Link key={l.to} to={l.to} style={navLinkStyle(isActive(l.to))}
-              onMouseEnter={e => { if (!isActive(l.to)) e.currentTarget.style.color = 'var(--navy-dark)' }}
-              onMouseLeave={e => { if (!isActive(l.to)) e.currentTarget.style.color = 'var(--muted)' }}
-            >{l.label}</Link>
-          ))}
 
           <button onClick={handleContacto}
             style={{ fontSize: 11, fontWeight: 400, letterSpacing: '1.2px', textTransform: 'uppercase', padding: '8px 12px', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
@@ -121,10 +149,31 @@ export default function Header() {
           {[
             { to: '/', label: 'Inicio' },
             { to: '/quienes-somos', label: 'Quiénes Somos' },
+          ].map(l => (
+            <Link key={l.to} to={l.to} style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+              {l.label}
+            </Link>
+          ))}
+
+          {/* Propiedades Usadas */}
+          <Link to="/propiedades-usadas" style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            Propiedades Usadas
+          </Link>
+          <Link to="/propiedades-usadas?estado=en_venta" style={{ fontSize: 13, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+            → En Venta
+          </Link>
+          <Link to="/propiedades-usadas?estado=en_arriendo" style={{ fontSize: 13, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+            → En Arriendo
+          </Link>
+
+          {/* Proyectos Nuevos */}
+          <Link to="/proyectos-nuevos" style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            Proyectos Nuevos
+          </Link>
+
+          {[
             { to: '/servicios', label: 'Servicios' },
-            { to: '/propiedades', label: 'Propiedades' },
-            { to: '/asociados', label: 'Asociados' },
-            { to: '/blog', label: 'Blog' },
+            { to: '/rental',    label: 'SDM Rental' },
           ].map(l => (
             <Link key={l.to} to={l.to} style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
               {l.label}

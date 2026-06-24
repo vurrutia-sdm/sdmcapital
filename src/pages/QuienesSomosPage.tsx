@@ -114,7 +114,7 @@ export default function QuienesSomosPage() {
             const bio   = m.bio
             return (
               <div key={m.id} className="bg-white group">
-                <div style={{ height: 400, background: '#f4f6f8', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden' }}>
+                <div style={{ height: 'clamp(240px, 40vw, 400px)', background: '#f4f6f8', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden' }}>
                   {m.foto
                     ? <img src={m.foto} alt={m.nombre} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center bottom', display: 'block' }} />
                     : <div className="flex items-center justify-center w-full h-full" style={{ background: 'linear-gradient(160deg,#1a3d5c,#0d2035)' }}>
@@ -157,6 +157,20 @@ export default function QuienesSomosPage() {
             )
           })}
         </div>
+      </section>
+
+      <section style={{ paddingLeft: 'clamp(16px, 5vw, 48px)', paddingRight: 'clamp(16px, 5vw, 48px)', paddingTop: 80, paddingBottom: 80, borderTop: '1px solid #e8edf2' }}>
+        <div className="section-label" style={{ marginBottom: 20 }}>Red de Asociados</div>
+        <h2 className="font-serif font-light mb-6" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
+          Nuestros <em>asociados</em>
+        </h2>
+        <p style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>
+          Trabajamos con una red de socios estratégicos en Chile y el extranjero para ofrecer las mejores oportunidades a nuestros clientes.
+        </p>
+        <a href="/asociados" style={{ display: 'inline-block', fontSize: 11, fontWeight: 400, letterSpacing: '2px', textTransform: 'uppercase', padding: '12px 28px', border: '1px solid var(--navy-dark)', color: 'var(--navy-dark)', textDecoration: 'none', borderRadius: 2, transition: 'all 0.2s' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--navy-dark)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--navy-dark)'; }}
+        >Ver todos los asociados</a>
       </section>
 
       <ContactSection />

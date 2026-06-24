@@ -38,12 +38,6 @@
     grid-template-columns: 1fr !important;
   }
 
-  /* ── Sección financiamiento: ocultar columna imagen en mobile ── */
-  .lg\:grid-cols-2 > div:last-child:has(img),
-  .lg\:grid-cols-2 > div:last-child:empty {
-    display: none;
-  }
-
   /* ── Footer: 2 columnas en mobile ── */
   footer .grid {
     grid-template-columns: 1fr 1fr !important;

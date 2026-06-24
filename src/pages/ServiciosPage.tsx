@@ -1,14 +1,14 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import SEO from '@/components/SEO'
+import SolicitudCreditoModal from '@/components/credito/SolicitudCreditoModal'
 
 const SLUGS = [
-  { slug: 'inversion-internacional', key: 'inv_int', titulo: 'Inversión Internacional' },
-  { slug: 'inversion-chile',         key: 'inv_cl',  titulo: 'Inversión en Chile' },
   { slug: 'financiamiento-personas', key: 'fin_per', titulo: 'Financiamiento Personas' },
   { slug: 'financiamiento-empresas', key: 'fin_emp', titulo: 'Financiamiento Empresas' },
+  { slug: 'inversion-internacional', key: 'inv_int', titulo: 'Inversión Internacional' },
   { slug: 'bancarizacion-extranjero',key: 'banco',   titulo: 'Bancarización en el Extranjero' },
 ]
 
@@ -25,6 +25,7 @@ function parseTags(raw: string): { label: string; url: string }[] {
 export default function ServiciosPage() {
   const { slug } = useParams<{ slug?: string }>()
   const { get } = useContenido()
+  const [creditoOpen, setCreditoOpen] = useState(false)
 
   useEffect(() => {
     if (slug) {
@@ -60,6 +61,7 @@ export default function ServiciosPage() {
           const tags   = parseTags(get('servicio_' + s.key + '_tags', ''))
           const num    = String(i + 1).padStart(2, '0')
           const flip   = i % 2 !== 0
+          const isCredito = s.slug === 'financiamiento-personas' || s.slug === 'financiamiento-empresas'
           return (
             <div key={s.slug} id={s.slug}
               className="grid grid-cols-1 lg:grid-cols-2 gap-px border-b border-[#e8edf2]"
@@ -77,7 +79,14 @@ export default function ServiciosPage() {
                     )}
                   </div>
                 ) : null}
-                <button onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })} className="btn-primary inline-flex">Más información →</button>
+                <button
+                  onClick={() => isCredito
+                    ? setCreditoOpen(true)
+                    : document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
+                  className={(isCredito ? 'btn-evaluacion' : 'btn-primary') + ' inline-flex'}
+                >
+                  {isCredito ? 'Solicita una evaluación gratuita →' : 'Más información →'}
+                </button>
               </div>
               <div className={'flex items-center justify-center overflow-hidden' + (flip ? ' lg:order-1' : '')}
                 style={{ minHeight: 340, background: 'linear-gradient(160deg,' + (GRADIENTS[i] || '#1a3d5c') + ',#0d2035)' }}>
@@ -88,6 +97,7 @@ export default function ServiciosPage() {
         })}
       </div>
       <ContactSection />
+      {creditoOpen && <SolicitudCreditoModal onClose={() => setCreditoOpen(false)} />}
     </div>
   )
 }

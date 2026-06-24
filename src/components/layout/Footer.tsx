@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useContenido } from '@/hooks/useContenido'
 
 const SOCIALS = [
   {
@@ -48,6 +49,7 @@ function SocialIcon({ s, size = 13 }: { s: typeof SOCIALS[0]; size?: number }) {
 }
 
 export default function Footer() {
+  const { get } = useContenido()
 
   return (
     <footer className="bg-white border-t border-[#e8edf2]">
@@ -68,7 +70,7 @@ export default function Footer() {
               </div>
             </div>
             <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.9, color: 'var(--muted)', maxWidth: 220 }}>
-              Tu socio confiable en el mundo de los bienes raíces.
+              {get('footer_tagline', 'Tu socio confiable en el mundo de los bienes raíces.')}
             </p>
           </div>
 
@@ -82,8 +84,16 @@ export default function Footer() {
               { to: '/quienes-somos', label: 'Quiénes Somos' },
               { to: '/propiedades',   label: 'Propiedades' },
               { to: '/blog',          label: 'Blog' },
-              { to: '/asociados',     label: 'Asociados' },
-            ].map(l => (
+              { to: '/rental',        label: 'SDM Rental' },
+              { to: '/vende-con-nosotros', label: 'Vende con nosotros' },
+              { to: 'https://www.flow.cl/uri/gHSdT2jVv', label: 'Reserva tu propiedad', external: true },
+            ].map(l => l.external ? (
+              <a key={l.to} href={l.to} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'block', fontSize: 15, fontWeight: 300, marginBottom: 10, color: 'var(--navy-dark)', textDecoration: 'none', letterSpacing: '0.5px' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
+              >{l.label}</a>
+            ) : (
               <Link key={l.to} to={l.to} style={{ display: 'block', fontSize: 15, fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
@@ -97,11 +107,9 @@ export default function Footer() {
               Servicios
             </div>
             {[
-              { to: '/servicios/inversion-internacional', label: 'Inversión Internacional' },
-              { to: '/servicios/inversion-chile',         label: 'Inversión en Chile' },
               { to: '/servicios/financiamiento-personas', label: 'Financiamiento Personas' },
               { to: '/servicios/financiamiento-empresas', label: 'Financiamiento Empresas' },
-              { to: '/servicios/bancarizacion-extranjero',label: 'Bancarización Extranjero' },
+              { to: '/servicios/inversion-internacional', label: 'Inversión Internacional' },
             ].map(l => (
               <Link key={l.to} to={l.to} style={{ display: 'block', fontSize: 15, fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
@@ -140,6 +148,24 @@ export default function Footer() {
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
             >HaikuFlow.com</a>
+            {' '}·{' '}
+            <Link to="/politica-de-privacidad"
+              style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+            >Política de Privacidad</Link>
+            {' '}·{' '}
+            <Link to="/condiciones-del-servicio"
+              style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+            >Condiciones del Servicio</Link>
+            {' '}·{' '}
+            <Link to="/eliminacion-de-datos"
+              style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+            >Eliminación de Datos</Link>
           </p>
           <p style={{ fontSize: 12, fontWeight: 300, color: 'var(--border)', letterSpacing: '2px', textTransform: 'uppercase', textAlign: 'center' }}>
             Las Condes · Santiago · Chile

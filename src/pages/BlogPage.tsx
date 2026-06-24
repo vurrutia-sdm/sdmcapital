@@ -66,10 +66,10 @@ export default function BlogPage() {
                   className="group block bg-white"
                   style={{ textDecoration: 'none' }}
                 >
-                  <div style={{ height: 220, background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', overflow: 'hidden', position: 'relative' }}>
+                  <div style={{ aspectRatio: '4/3', background: 'var(--off)', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {post.imagen_portada
-                      ? <img src={post.imagen_portada} alt={titulo} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
-                      : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic" style={{ fontSize: 15, color: 'rgba(255,255,255,0.2)' }}>{post.categoria}</span></div>
+                      ? <img src={post.imagen_portada} alt={titulo} loading="lazy" decoding="async" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} className="transition-transform duration-500 group-hover:scale-[1.03]" />
+                      : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic" style={{ fontSize: 15, color: 'var(--muted)' }}>{post.categoria}</span></div>
                     }
                     {post.destacado && (
                       <div className="absolute top-3 left-3 text-[13px] tracking-[2px] uppercase px-2.5 py-1" style={{ background: 'var(--green)', color: '#fff', borderRadius: 1 }}>

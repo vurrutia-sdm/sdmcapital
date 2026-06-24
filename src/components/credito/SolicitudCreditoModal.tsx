@@ -1,0 +1,120 @@
+import { useEffect } from 'react'
+import { X, Check } from 'lucide-react'
+import SolicitudCreditoForm from './SolicitudCreditoForm'
+
+export default function SolicitudCreditoModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [onClose])
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      style={{ position: 'fixed', inset: 0, background: 'rgba(15,37,53,0.72)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+      onClick={onClose}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        className="w-full grid grid-cols-1 md:grid-cols-[2fr_3fr]"
+        style={{ maxWidth: 980, maxHeight: '92vh', overflowY: 'auto', borderRadius: 2, position: 'relative', backgroundColor: '#FFFFFF' }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Cerrar"
+          style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        >
+          <X size={20} color="#0F2535" />
+        </button>
+
+        {/* ── Panel izquierdo: información del servicio ── */}
+        <div style={{ backgroundColor: '#1C2B3A', color: '#FFFFFF', padding: '48px 36px 48px 36px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, backgroundColor: 'transparent' }}>
+            <span style={{ display: 'block', width: 24, height: 1, backgroundColor: 'rgba(168,196,220,0.85)' }} />
+            <span style={{ fontSize: 13, fontWeight: 400, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(168,196,220,0.85)', backgroundColor: 'transparent' }}>
+              Financiamiento Personas
+            </span>
+          </div>
+
+          <h2 className="font-serif font-light" style={{ fontSize: 28, lineHeight: 1.15, marginBottom: 6, backgroundColor: 'transparent', color: '#FFFFFF' }}>
+            Asesoría Hipotecaria <em style={{ backgroundColor: 'transparent', color: 'inherit' }}>Integral</em>
+          </h2>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', marginBottom: 24, backgroundColor: 'transparent' }}>
+            Roberto Urrutia · Director Comercial SDM Capital · +20 años en banca
+          </p>
+
+          <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.85)', marginBottom: 28, backgroundColor: 'transparent' }}>
+            Acompañamos todo el proceso de obtención de tu crédito hipotecario, desde la preevaluación
+            hasta la inscripción en el Conservador de Bienes Raíces. Sin pagos adelantados.
+          </p>
+
+          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--sky)', marginBottom: 14, backgroundColor: 'transparent' }}>
+            Lo que incluye
+          </div>
+          <ul style={{ marginBottom: 28, listStyle: 'none', backgroundColor: 'transparent' }}>
+            {[
+              'Revisión de antecedentes financieros y comerciales',
+              'Preparación de carpeta de evaluación crediticia',
+              'Gestión ante múltiples instituciones financieras',
+              'Coordinación de tasación y estudio de títulos',
+              'Acompañamiento en firma de escrituras',
+              'Seguimiento hasta la inscripción de dominio',
+            ].map(item => (
+              <li key={item} className="flex items-start gap-2" style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.6, color: 'rgba(255,255,255,0.85)', marginBottom: 10, backgroundColor: 'transparent' }}>
+                <Check size={15} color="#3DAA6E" style={{ marginTop: 3, flexShrink: 0, backgroundColor: 'transparent' }} />
+                <span style={{ backgroundColor: 'transparent', color: 'inherit' }}>{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid #5C9B7E', padding: '1rem', borderRadius: '6px', marginBottom: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
+              Honorarios
+            </div>
+            <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: '#FFFFFF', margin: 0, backgroundColor: 'transparent' }}>
+              Nuestros honorarios se pagan únicamente contra el éxito de la operación.
+              Sin cobros anticipados en ninguna etapa del proceso.
+            </p>
+          </div>
+
+          <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid #5C9B7E', padding: '1rem', borderRadius: '6px', marginBottom: 24 }}>
+            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
+              Preevaluación gratuita
+            </div>
+            <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: '#FFFFFF', margin: 0, backgroundColor: 'transparent' }}>
+              Realizamos una preevaluación hipotecaria sin costo. Resultado en aprox. 5 días hábiles.
+            </p>
+          </div>
+
+          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#5C9B7E', marginBottom: 12, backgroundColor: 'transparent' }}>
+            Documentos necesarios (trabajador dependiente)
+          </div>
+          <ul style={{ listStyle: 'none', backgroundColor: 'transparent' }}>
+            {[
+              'Cédula de identidad vigente (ambos lados)',
+              'Últimas 3 liquidaciones de sueldo (renta fija) o 6 (renta variable)',
+              'Certificado de cotizaciones AFP últimos 24 meses (con RUT empleador)',
+              'Certificado de deudas CMF actualizado (con Clave Única)',
+            ].map(item => (
+              <li key={item} style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, color: '#CBD5E1', marginBottom: 6, backgroundColor: 'transparent' }}>
+                — {item}
+              </li>
+            ))}
+          </ul>
+          <div style={{ height: '3rem', backgroundColor: 'transparent' }} />
+        </div>
+
+        {/* ── Panel derecho: formulario ── */}
+        <div style={{ padding: '48px 36px', backgroundColor: '#FFFFFF', color: '#1C2B3A' }}>
+          <SolicitudCreditoForm successAction={<button onClick={onClose} className="btn-primary">Cerrar</button>} />
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
 import type { Propiedad } from '@/types'
@@ -12,6 +13,22 @@ const GRADIENTS = [
   'linear-gradient(140deg,#2a1a35,#1a0d28)',
 ]
 
+const ESTADO_BADGES: Record<string, { label: string; style: { background: string; color: string } }> = {
+  vendida:   { label: 'Vendida',   style: { background: '#c0392b', color: '#fff' } },
+  reservada: { label: 'Reservada', style: { background: '#d97706', color: '#fff' } },
+  arrendada: { label: 'Arrendada', style: { background: '#2563eb', color: '#fff' } },
+}
+
+const ETAPA_LABELS: Record<string, string> = {
+  en_blanco: 'En Blanco',
+  en_verde: 'En Verde',
+  planos: 'En Planos',
+  inicio: 'Inicio de obras',
+  avanzado: 'Obra avanzada',
+  proxima_entrega: 'Próxima entrega',
+  entrega_inmediata: 'Entrega inmediata',
+}
+
 interface Props {
   propiedad: Propiedad
   index?: number
@@ -20,13 +37,12 @@ interface Props {
 export default function PropertyCard({ propiedad, index = 0 }: Props) {
   const { t, lang } = useLang()
   const p = t.prop
+  // Imágenes cuadradas (foto + texto SDM) deben verse completas; fotos normales mantienen el recorte cover
+  const [isSquareImg, setIsSquareImg] = useState(false)
 
-  // Solo mostrar badge cuando hay info útil: vendida o reservada
-  const badge = propiedad.estado === 'vendida'
-    ? { label: 'Vendida', style: { background: '#888', color: '#fff' } }
-    : propiedad.estado === 'reservada'
-    ? { label: 'Reservada', style: { background: 'var(--navy)', color: 'var(--sky)' } }
-    : propiedad.baja_precio
+  // Badge de estado (vendida/reservada/arrendada) y badge secundario (precio rebajado o bono pie) — pueden coexistir
+  const estadoBadge = ESTADO_BADGES[propiedad.estado] || null
+  const secundarioBadge = propiedad.baja_precio
     ? { label: 'Precio rebajado', style: { background: '#c0392b', color: '#fff' } }
     : propiedad.bono_pie
     ? { label: `Bono Pie${propiedad.bono_pie_porcentaje ? ` ${propiedad.bono_pie_porcentaje}%` : ''}`, style: { background: 'var(--green)', color: '#fff' } }
@@ -53,7 +69,7 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
       style={{ textDecoration: 'none' }}
     >
       {/* Image */}
-      <div className="relative overflow-hidden" style={{ height: 210 }}>
+      <div style={{ aspectRatio: '4/3', overflow: 'hidden', position: 'relative', background: 'linear-gradient(160deg,#1a3d5c,#0d2035)' }}>
         {(() => {
           const imgSrc = propiedad.imagen_principal || propiedad.imagenes?.[0] || ''
           return (
@@ -67,7 +83,17 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
                   alt={titulo}
                   loading="lazy"
                   decoding="async"
-                  style={{ objectFit: 'cover', objectPosition: 'center center', display: 'block', width: '100%', height: '100%' }}
+                  onLoad={e => {
+                    const { naturalWidth, naturalHeight } = e.currentTarget
+                    setIsSquareImg(naturalHeight > 0 && Math.abs(naturalWidth / naturalHeight - 1) < 0.1)
+                  }}
+                  style={{
+                    objectFit: isSquareImg ? 'contain' : 'cover',
+                    objectPosition: isSquareImg ? 'center' : 'center top',
+                    display: 'block',
+                    width: '100%',
+                    height: '100%',
+                  }}
                 />
               ) : (
                 <span className="font-serif italic" style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>
@@ -78,10 +104,19 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
           )
         })()}
 
-        {/* Badge — solo vendida, reservada o baja de precio */}
-        {badge && (
-          <div className="absolute top-3.5 left-3.5 text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1" style={{ ...badge.style, borderRadius: 1 }}>
-            {badge.label}
+        {/* Badges — estado (vendida/reservada/arrendada) y/o precio rebajado / bono pie, apilados */}
+        {(estadoBadge || secundarioBadge) && (
+          <div className="absolute top-3.5 left-3.5 flex flex-col items-start gap-1.5">
+            {estadoBadge && (
+              <div className="text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1" style={{ ...estadoBadge.style, borderRadius: 1 }}>
+                {estadoBadge.label}
+              </div>
+            )}
+            {secundarioBadge && (
+              <div className="text-[13px] font-normal tracking-[2px] uppercase px-2.5 py-1" style={{ ...secundarioBadge.style, borderRadius: 1 }}>
+                {secundarioBadge.label}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -138,6 +173,16 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
             </div>
           )}
         </div>
+
+        {/* Info de proyecto nuevo — etapa y fecha de entrega */}
+        {propiedad.categoria === 'proyecto_nuevo' && (propiedad.etapa_construccion || propiedad.fecha_entrega) && (
+          <div className="mt-2.5 pt-2.5 border-t" style={{ borderColor: 'var(--border)', fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>
+            {[
+              propiedad.etapa_construccion ? ETAPA_LABELS[propiedad.etapa_construccion] : null,
+              propiedad.fecha_entrega ? `Entrega: ${propiedad.fecha_entrega}` : null,
+            ].filter(Boolean).join(' · ')}
+          </div>
+        )}
       </div>
     </Link>
   )

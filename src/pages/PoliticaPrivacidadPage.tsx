@@ -1,11 +1,48 @@
+import { useEffect, useState } from 'react'
 import SEO from '@/components/SEO'
 import { useLang } from '@/hooks/useLang'
+import { supabase } from '@/lib/supabase'
 
 const P = '48px'
+
+// Respaldo: se usa si la fila 'politica-de-privacidad' aún no existe en
+// Supabase o si la consulta falla, para no dejar la página en blanco.
+const FALLBACK_ES = `
+<p>En SDM Capital SpA ("SDM Capital", "nosotros") respetamos tu privacidad y nos comprometemos a proteger los datos personales que compartes con nosotros a través de nuestro sitio web sdmcapital.cl y de nuestros canales de contacto, incluido WhatsApp.</p>
+<p>Esta política explica qué información recopilamos, cómo la usamos y qué derechos tienes sobre ella, en conformidad con la Ley N° 19.628 sobre Protección de la Vida Privada de Chile y su normativa vigente.</p>
+<h2>Información que recopilamos</h2>
+<p>Podemos recopilar la información que nos entregas directamente, como tu nombre, correo electrónico, número de teléfono y los detalles de tu consulta, cuando completas un formulario de contacto, solicitas información sobre una propiedad, o nos escribes por WhatsApp u otros canales. Cuando nos contactas por WhatsApp, también podemos registrar el contenido de los mensajes que nos envías (de texto o de voz) con el fin de atender tu solicitud.</p>
+<h2>Uso de un asistente automatizado</h2>
+<p>Para atender consultas de manera más rápida y a cualquier hora, una parte de nuestra atención inicial por WhatsApp es gestionada por un asistente virtual automatizado. Este asistente recopila la información que nos compartes para orientar tu consulta y derivarla a un asesor de nuestro equipo cuando corresponde. En cualquier momento puedes solicitar ser atendido directamente por una persona de nuestro equipo.</p>
+<h2>Cómo usamos tu información</h2>
+<p>Usamos tus datos para responder tus consultas, ponerte en contacto con nuestro equipo de asesores, ofrecerte información sobre propiedades y servicios de tu interés, coordinar visitas, y mejorar la experiencia que ofrecemos. No vendemos tu información, ni la compartimos con terceros para fines de marketing sin tu consentimiento. Podemos compartir datos con proveedores de servicios que nos ayudan a operar (por ejemplo, plataformas de mensajería y de gestión de la información), los cuales solo pueden usarlos para prestarnos dichos servicios.</p>
+<h2>Cómo protegemos tu información</h2>
+<p>Adoptamos medidas razonables de seguridad para proteger tus datos personales contra accesos no autorizados, pérdida o uso indebido. El acceso a esta información está limitado a las personas de nuestro equipo que lo necesitan para atender tu solicitud.</p>
+<h2>Conservación de los datos</h2>
+<p>Conservamos tus datos personales solo durante el tiempo necesario para cumplir con las finalidades descritas en esta política, o mientras exista una relación comercial o de contacto contigo. Luego, pueden ser eliminados o anonimizados.</p>
+<h2>Tus derechos</h2>
+<p>De acuerdo con la legislación chilena, puedes solicitarnos en cualquier momento el acceso, la rectificación (corrección), la cancelación (eliminación) o la oposición al uso de tus datos personales. Para ejercer estos derechos, escríbenos a través de nuestros canales de contacto disponibles en el sitio y atenderemos tu solicitud.</p>
+<h2>Cambios a esta política</h2>
+<p>Podemos actualizar esta política de privacidad ocasionalmente. La versión vigente siempre estará disponible en nuestro sitio web, con su fecha de última actualización.</p>
+<h2>Contacto</h2>
+<p>Si tienes preguntas sobre esta política o sobre cómo tratamos tus datos, contáctanos a través de los medios indicados en nuestro sitio web sdmcapital.cl.</p>
+<p>Última actualización: junio de 2026.</p>
+`
 
 export default function PoliticaPrivacidadPage() {
   const { lang } = useLang()
   const sp = { paddingLeft: `clamp(16px, 5vw, ${P})`, paddingRight: `clamp(16px, 5vw, ${P})` }
+
+  const [contenido, setContenido] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase.from('paginas_legales').select('contenido').eq('slug', 'politica-de-privacidad').maybeSingle()
+      .then(({ data, error }) => {
+        if (!error && data?.contenido) setContenido(data.contenido)
+        setLoading(false)
+      })
+  }, [])
 
   return (
     <div className="min-h-screen">
@@ -28,50 +65,15 @@ export default function PoliticaPrivacidadPage() {
 
       <div style={{ ...sp, paddingTop: 64, paddingBottom: 96, maxWidth: 760, margin: '0 auto' }}>
         {lang === 'es' ? (
-          <div style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}>
-            <p style={{ marginBottom: 24 }}>
-              En SDM Capital ("nosotros") respetamos tu privacidad y nos comprometemos a proteger los datos personales que nos compartes a través de nuestro sitio web sdmcapital.cl y nuestros canales de contacto.
-            </p>
-
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
-              Información que recopilamos
-            </h2>
-            <p style={{ marginBottom: 24 }}>
-              Podemos recopilar información que tú nos entregas directamente, como tu nombre, correo electrónico, número de teléfono y los detalles de tu consulta, cuando completas un formulario de contacto, solicitas información sobre una propiedad o nos escribes por WhatsApp u otros canales.
-            </p>
-
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
-              Cómo usamos tu información
-            </h2>
-            <p style={{ marginBottom: 24 }}>
-              Usamos tus datos para responder tus consultas, ponerte en contacto con nuestro equipo de asesores, ofrecerte información sobre propiedades y servicios de tu interés, y mejorar la experiencia que ofrecemos en nuestro sitio. No vendemos ni compartimos tu información con terceros para fines de marketing sin tu consentimiento.
-            </p>
-
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
-              Cómo protegemos tu información
-            </h2>
-            <p style={{ marginBottom: 24 }}>
-              Adoptamos medidas razonables para proteger tus datos personales contra accesos no autorizados, pérdida o uso indebido. El acceso a esta información está limitado a las personas de nuestro equipo que lo necesitan para atender tu solicitud.
-            </p>
-
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
-              Tus derechos
-            </h2>
-            <p style={{ marginBottom: 24 }}>
-              Puedes solicitarnos en cualquier momento el acceso, la corrección o la eliminación de tus datos personales, escribiéndonos a través de nuestros canales de contacto disponibles en el sitio.
-            </p>
-
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
-              Contacto
-            </h2>
-            <p style={{ marginBottom: 24 }}>
-              Si tienes preguntas sobre esta política de privacidad o sobre cómo tratamos tus datos, contáctanos a través de los medios indicados en nuestro sitio web sdmcapital.cl.
-            </p>
-
-            <p style={{ fontSize: 14, color: 'var(--border)', marginTop: 48 }}>
-              Última actualización: junio de 2026.
-            </p>
-          </div>
+          loading ? (
+            <p style={{ fontSize: 15, color: 'var(--muted)' }}>Cargando…</p>
+          ) : (
+            <div
+              className="prose-sdm"
+              style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}
+              dangerouslySetInnerHTML={{ __html: contenido || FALLBACK_ES }}
+            />
+          )
         ) : (
           <div style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}>
             <p style={{ marginBottom: 24 }}>

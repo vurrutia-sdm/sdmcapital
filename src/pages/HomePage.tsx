@@ -1,4 +1,3 @@
-import ContactSection from "@/components/sections/ContactSection"
 import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
@@ -7,7 +6,10 @@ import { useContenido } from '@/hooks/useContenido'
 import HeroSection from '@/components/sections/HeroSection'
 import SearchBar from '@/components/sections/SearchBar'
 import SEO from '@/components/SEO'
+import ContactSection from '@/components/sections/ContactSection'
+import BlogPreviewSection from '@/components/sections/BlogPreviewSection'
 import PropertyCard from '@/components/ui/PropertyCard'
+import SolicitudCreditoModal from '@/components/credito/SolicitudCreditoModal'
 import type { Propiedad } from '@/types'
 
 // ─── Sample data for empty DB ──────────────────────────────────────────────
@@ -156,6 +158,7 @@ export default function HomePage() {
   const { t } = useLang()
   const { get } = useContenido()
   const [props, setProps] = useState<Propiedad[]>(SAMPLE_PROPS)
+  const [creditoOpen, setCreditoOpen] = useState(false)
 
   useEffect(() => {
     // Intentar cargar por IDs manuales guardados en contenido_sitio
@@ -253,16 +256,27 @@ export default function HomePage() {
               <br /><em style={{ color: 'var(--sky)' }}>financiamiento</em>?
             </h2>
             <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.9, color: 'rgba(255,255,255,0.5)', marginTop: 20 }}>
-              {t.sections.financiamiento.body}
+              {get('financiamiento_body', t.sections.financiamiento.body)}
             </p>
           </div>
           <div className="flex gap-3 mt-8 justify-center lg:justify-start">
             <Link to="/servicios/financiamiento-personas" className="btn-green">
               {t.sections.financiamiento.personas}
             </Link>
-            <Link to="/servicios/financiamiento-empresas" className="btn-outline">
+            <Link
+              to="/servicios/financiamiento-empresas"
+              className="btn-outline"
+              style={{ background: 'transparent', color: '#FFFFFF', border: '1.5px solid #FFFFFF' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
               {t.sections.financiamiento.empresas}
             </Link>
+          </div>
+          <div className="flex mt-3 justify-center lg:justify-start">
+            <button onClick={() => setCreditoOpen(true)} className="btn-evaluacion">
+              Solicita una evaluación gratuita →
+            </button>
           </div>
         </div>
         <div
@@ -281,8 +295,12 @@ export default function HomePage() {
       {/* 7. Testimonios — Carrusel */}
       <TestimoniosCarrusel get={get} t={t} />
 
-      {/* 8. Contacto */}
+      {/* 8. Blog preview */}
+      <BlogPreviewSection />
+
+      {/* 9. Contacto */}
       <ContactSection />
+      {creditoOpen && <SolicitudCreditoModal onClose={() => setCreditoOpen(false)} />}
     </div>
   )
 }

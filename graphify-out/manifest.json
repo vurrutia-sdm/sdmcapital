@@ -1,0 +1,342 @@
+{
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/package.json": {
+    "mtime": 1781141831.003428,
+    "ast_hash": "a04795ce7c654446adf01155784d9f35",
+    "semantic_hash": "a04795ce7c654446adf01155784d9f35"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/postcss.config.js": {
+    "mtime": 1777481094.0,
+    "ast_hash": "ef3ba2a81ba19f8ea5ddf625521e96f0",
+    "semantic_hash": "ef3ba2a81ba19f8ea5ddf625521e96f0"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/App.tsx": {
+    "mtime": 1781221717.861852,
+    "ast_hash": "a76d6a7c8a3cea90795f1a57843c074b",
+    "semantic_hash": "a76d6a7c8a3cea90795f1a57843c074b"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/SEO.tsx": {
+    "mtime": 1778094678.0,
+    "ast_hash": "5a6c4b9a3c8fbd8adf00ad58daf433cd",
+    "semantic_hash": "5a6c4b9a3c8fbd8adf00ad58daf433cd"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/cotizaciones/CotizacionPDF.tsx": {
+    "mtime": 1780279566.0704339,
+    "ast_hash": "f1c23deacdc9b4d25b18ce961c1219a4",
+    "semantic_hash": "f1c23deacdc9b4d25b18ce961c1219a4"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/cotizaciones/CotizacionesAdmin.tsx": {
+    "mtime": 1780329982.6191688,
+    "ast_hash": "a9e542394b8f709aeecc1c49433f0a5e",
+    "semantic_hash": "a9e542394b8f709aeecc1c49433f0a5e"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/layout/FloatingButtons.tsx": {
+    "mtime": 1777599009.4820907,
+    "ast_hash": "03f938b27e2298339afad1ebb532561d",
+    "semantic_hash": "03f938b27e2298339afad1ebb532561d"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/layout/Footer.tsx": {
+    "mtime": 1781202484.1085393,
+    "ast_hash": "64a8b7313f3fbe57be71f68b396351bc",
+    "semantic_hash": "64a8b7313f3fbe57be71f68b396351bc"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/layout/Header.tsx": {
+    "mtime": 1781221808.438954,
+    "ast_hash": "d576b075b573130de8d184f63091828d",
+    "semantic_hash": "d576b075b573130de8d184f63091828d"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/layout/Layout.tsx": {
+    "mtime": 1777505130.0,
+    "ast_hash": "6f8bb71e35597f3c77cb9b7602fc15d7",
+    "semantic_hash": "6f8bb71e35597f3c77cb9b7602fc15d7"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/layout/ScrollToTop.tsx": {
+    "mtime": 1777550878.0,
+    "ast_hash": "754c0132bc98f551f65571b32cc58ae9",
+    "semantic_hash": "754c0132bc98f551f65571b32cc58ae9"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/sections/ContactSection.tsx": {
+    "mtime": 1778106943.0049806,
+    "ast_hash": "f79250f42dd6d99b40d0fa9df016295f",
+    "semantic_hash": "f79250f42dd6d99b40d0fa9df016295f"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/sections/HeroSection.tsx": {
+    "mtime": 1780945451.8173845,
+    "ast_hash": "f1daafc6db0bf234aff2ad5ce0d77543",
+    "semantic_hash": "f1daafc6db0bf234aff2ad5ce0d77543"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/sections/SearchBar.tsx": {
+    "mtime": 1781221833.327721,
+    "ast_hash": "add621bd77f87831b8c3e6696f6ecb31",
+    "semantic_hash": "add621bd77f87831b8c3e6696f6ecb31"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/tarjetas/TarjetaCard.tsx": {
+    "mtime": 1781139290.6338623,
+    "ast_hash": "73bbcd017fd49e14934d6c71a925b2e2",
+    "semantic_hash": "73bbcd017fd49e14934d6c71a925b2e2"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/tarjetas/TarjetasEquipo.tsx": {
+    "mtime": 1781139381.5862863,
+    "ast_hash": "f7fe811596c85a3d9812b1b194668421",
+    "semantic_hash": "f7fe811596c85a3d9812b1b194668421"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/tarjetas/imprimir.ts": {
+    "mtime": 1781183213.3066597,
+    "ast_hash": "fac38df50f120220cdb2b98ec29da235",
+    "semantic_hash": "fac38df50f120220cdb2b98ec29da235"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/tarjetas/markup.ts": {
+    "mtime": 1781139240.550939,
+    "ast_hash": "48d262f02c64e32dd04a0640269e3815",
+    "semantic_hash": "48d262f02c64e32dd04a0640269e3815"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/ui/ElBarrancoBanner.tsx": {
+    "mtime": 1780104184.4927652,
+    "ast_hash": "6c35b76f8077eb56f1460acb5864d187",
+    "semantic_hash": "6c35b76f8077eb56f1460acb5864d187"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/ui/MapPicker.tsx": {
+    "mtime": 1778169699.3609657,
+    "ast_hash": "0a9b84a8b7ce62411ca70f1e46a5028b",
+    "semantic_hash": "0a9b84a8b7ce62411ca70f1e46a5028b"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/ui/PropertyCard.tsx": {
+    "mtime": 1781224281.4780781,
+    "ast_hash": "00415cee8e0690b086c5ad41841107de",
+    "semantic_hash": "00415cee8e0690b086c5ad41841107de"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/components/ui/PropertyMap.tsx": {
+    "mtime": 1778168518.8655512,
+    "ast_hash": "751e6c63cf2817ae79886696021fd1f4",
+    "semantic_hash": "751e6c63cf2817ae79886696021fd1f4"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/data/comunas-chile.ts": {
+    "mtime": 1777587306.0269792,
+    "ast_hash": "606858648a9e931898ca232271719d85",
+    "semantic_hash": "606858648a9e931898ca232271719d85"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/hooks/useContenido.ts": {
+    "mtime": 1777552765.0,
+    "ast_hash": "a7cc78194ebed044bc097a31de9e956a",
+    "semantic_hash": "a7cc78194ebed044bc097a31de9e956a"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/hooks/useLang.tsx": {
+    "mtime": 1777572666.5474656,
+    "ast_hash": "9e78ced0ca23a69ab072e1a23626830b",
+    "semantic_hash": "9e78ced0ca23a69ab072e1a23626830b"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/hooks/useScrollTop.ts": {
+    "mtime": 1777505131.0,
+    "ast_hash": "729bcb8bab4882c1baf95d954f23a55f",
+    "semantic_hash": "729bcb8bab4882c1baf95d954f23a55f"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/lib/i18n.ts": {
+    "mtime": 1777505130.0,
+    "ast_hash": "715c26818361303d136cca5e03ede342",
+    "semantic_hash": "715c26818361303d136cca5e03ede342"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/lib/supabase.ts": {
+    "mtime": 1777572644.962493,
+    "ast_hash": "0d5547852ec7a6604161cbf40c38e4a6",
+    "semantic_hash": "0d5547852ec7a6604161cbf40c38e4a6"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/main.tsx": {
+    "mtime": 1778106575.1821592,
+    "ast_hash": "b5821dd15b951a9d99041fb0d5682324",
+    "semantic_hash": "b5821dd15b951a9d99041fb0d5682324"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/AdminPage.tsx": {
+    "mtime": 1781225516.7259762,
+    "ast_hash": "bfae6836a67c5d7883459f755ba128d5",
+    "semantic_hash": "bfae6836a67c5d7883459f755ba128d5"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/AsociadosPage.tsx": {
+    "mtime": 1780945451.8185396,
+    "ast_hash": "db921d31799cd112ffe0fcac7e5204a8",
+    "semantic_hash": "db921d31799cd112ffe0fcac7e5204a8"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/BlogPage.tsx": {
+    "mtime": 1778106748.9809275,
+    "ast_hash": "8b7404d44441556d557ca4dd3f58e9c5",
+    "semantic_hash": "8b7404d44441556d557ca4dd3f58e9c5"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/BlogPostPage.tsx": {
+    "mtime": 1780945451.8187964,
+    "ast_hash": "5b9c1b46e691cfc1065a65dd541d389b",
+    "semantic_hash": "5b9c1b46e691cfc1065a65dd541d389b"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/CondicionesServicioPage.tsx": {
+    "mtime": 1781202424.3633306,
+    "ast_hash": "eeb5bd5d2fd7c4db587c99d813cf0363",
+    "semantic_hash": "eeb5bd5d2fd7c4db587c99d813cf0363"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/ElBarrancoShowcase.tsx": {
+    "mtime": 1780585398.1569088,
+    "ast_hash": "3b0125acd2f048f0825c0afdcabf3710",
+    "semantic_hash": "3b0125acd2f048f0825c0afdcabf3710"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/EliminacionDatosPage.tsx": {
+    "mtime": 1781202463.8100958,
+    "ast_hash": "405db2fa2adbd7e18750d2ed4d4db5ad",
+    "semantic_hash": "405db2fa2adbd7e18750d2ed4d4db5ad"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/HomePage.tsx": {
+    "mtime": 1780945451.8190084,
+    "ast_hash": "40948de4f0857f232dbb0f8342cac9b6",
+    "semantic_hash": "40948de4f0857f232dbb0f8342cac9b6"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/PoliticaPrivacidadPage.tsx": {
+    "mtime": 1781200969.2039638,
+    "ast_hash": "973452a88311718810ccb8382bed74e7",
+    "semantic_hash": "973452a88311718810ccb8382bed74e7"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/PropiedadDetailPage.tsx": {
+    "mtime": 1781225581.443171,
+    "ast_hash": "461447f71ac30ba1ad9a7dfdcc5cb9a0",
+    "semantic_hash": "461447f71ac30ba1ad9a7dfdcc5cb9a0"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/PropiedadesPage.tsx": {
+    "mtime": 1781228136.1786482,
+    "ast_hash": "e2e91935a3ddce47222aa140fd06e9a4",
+    "semantic_hash": "e2e91935a3ddce47222aa140fd06e9a4"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/QuienesSomosPage.tsx": {
+    "mtime": 1780945451.8195565,
+    "ast_hash": "a814d2b4f01e99f89b7588f199466296",
+    "semantic_hash": "a814d2b4f01e99f89b7588f199466296"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/ServiciosPage.tsx": {
+    "mtime": 1778106491.9222896,
+    "ast_hash": "13f6effea9fbdcb855fccea5a5d5efc0",
+    "semantic_hash": "13f6effea9fbdcb855fccea5a5d5efc0"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/admin/Agentes.tsx": {
+    "mtime": 1780685921.3673458,
+    "ast_hash": "1c749fc8d1148cbbfe3fd357a4a48290",
+    "semantic_hash": "1c749fc8d1148cbbfe3fd357a4a48290"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/admin/Captacion.tsx": {
+    "mtime": 1781189241.8422086,
+    "ast_hash": "8def9b8c225c537926243d56f2fc64e1",
+    "semantic_hash": "8def9b8c225c537926243d56f2fc64e1"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/admin/FichaClienteDetalle.tsx": {
+    "mtime": 1780682551.9612236,
+    "ast_hash": "329a27f2f9ffc59e0af66d2f8efc6a5f",
+    "semantic_hash": "329a27f2f9ffc59e0af66d2f8efc6a5f"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/admin/FichaClienteEditar.tsx": {
+    "mtime": 1780686038.382122,
+    "ast_hash": "ccca21b6fa55f9188fb2cfb2c5961db4",
+    "semantic_hash": "ccca21b6fa55f9188fb2cfb2c5961db4"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/admin/FichaClienteNueva.tsx": {
+    "mtime": 1780686002.3612525,
+    "ast_hash": "846f6e7411eb993900d226824b514adf",
+    "semantic_hash": "846f6e7411eb993900d226824b514adf"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/admin/FichaClienteVer.tsx": {
+    "mtime": 1780683177.7687335,
+    "ast_hash": "c3b4e98c43aa6bd9f44903ccb0e882c8",
+    "semantic_hash": "c3b4e98c43aa6bd9f44903ccb0e882c8"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/pages/admin/FichaClientesLista.tsx": {
+    "mtime": 1780674293.8569674,
+    "ast_hash": "adcc3c190c030eb69b68f7f059827078",
+    "semantic_hash": "adcc3c190c030eb69b68f7f059827078"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/src/types/index.ts": {
+    "mtime": 1781225340.404185,
+    "ast_hash": "4fe667f78a6c344f339de7c7ffa4b57a",
+    "semantic_hash": "4fe667f78a6c344f339de7c7ffa4b57a"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/supabase-schema.sql": {
+    "mtime": 1777490745.0,
+    "ast_hash": "915052a8bcd170f01df0ccbe84df2ccb",
+    "semantic_hash": "915052a8bcd170f01df0ccbe84df2ccb"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/supabase/functions/notify-contact/index.ts": {
+    "mtime": 1777580397.423131,
+    "ast_hash": "4ce16c91f5b1d678091a749d6bfc58fc",
+    "semantic_hash": "4ce16c91f5b1d678091a749d6bfc58fc"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/supabase/migrations/ficha_clientes.sql": {
+    "mtime": 1780673783.2923353,
+    "ast_hash": "0ffab5512d2d7623faad6fc9aceae980",
+    "semantic_hash": "0ffab5512d2d7623faad6fc9aceae980"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/supabase/migrations/paginas_legales.sql": {
+    "mtime": 1781190587.8523562,
+    "ast_hash": "9420bf288d2d3d272b4c89385a4549d4",
+    "semantic_hash": "9420bf288d2d3d272b4c89385a4549d4"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/supabase/migrations/paginas_legales_extra.sql": {
+    "mtime": 1781202627.8619745,
+    "ast_hash": "47f434856d822abfc66678c2d5779b07",
+    "semantic_hash": "47f434856d822abfc66678c2d5779b07"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/supabase/migrations/tarjetas_equipo.sql": {
+    "mtime": 1781136822.061231,
+    "ast_hash": "c69f5136d3c4d0b6d39c1cc9b310cd56",
+    "semantic_hash": "c69f5136d3c4d0b6d39c1cc9b310cd56"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/supabase/migrations/travel_guide.sql": {
+    "mtime": 1780796010.637801,
+    "ast_hash": "0b30f29b9e088b027aeffa2ecb746962",
+    "semantic_hash": "0b30f29b9e088b027aeffa2ecb746962"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/tailwind.config.js": {
+    "mtime": 1777481091.0,
+    "ast_hash": "0b8295fea45b267a47a7601f1f9e4e3b",
+    "semantic_hash": "0b8295fea45b267a47a7601f1f9e4e3b"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/tsconfig.json": {
+    "mtime": 1777572685.0955944,
+    "ast_hash": "b2061fda33348f1a610d5e38f76f8da3",
+    "semantic_hash": "b2061fda33348f1a610d5e38f76f8da3"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/tsconfig.node.json": {
+    "mtime": 1777481080.0,
+    "ast_hash": "767b2e9abe6452170cdc399ca052cfbc",
+    "semantic_hash": "767b2e9abe6452170cdc399ca052cfbc"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/vite.config.ts": {
+    "mtime": 1780945451.8202462,
+    "ast_hash": "5b188f16c3f66a62da6df8a575b76ad4",
+    "semantic_hash": "5b188f16c3f66a62da6df8a575b76ad4"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/README.md": {
+    "mtime": 1777490776.0,
+    "ast_hash": "5d151649ef97f7cfce9dc1a9bb239135",
+    "semantic_hash": "5d151649ef97f7cfce9dc1a9bb239135"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/index.html": {
+    "mtime": 1781141489.4357853,
+    "ast_hash": "8ff344329d2cf507bafadfef4f4aa31d",
+    "semantic_hash": "8ff344329d2cf507bafadfef4f4aa31d"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/public/robots.txt": {
+    "mtime": 1778094678.0,
+    "ast_hash": "5919f09230fc705deef7194769a0cc8d",
+    "semantic_hash": "5919f09230fc705deef7194769a0cc8d"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/public/favicon.svg": {
+    "mtime": 1778094678.0,
+    "ast_hash": "273f26dcaa881a5885f99315483fc67e",
+    "semantic_hash": "273f26dcaa881a5885f99315483fc67e"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/public/logo-sdm.png": {
+    "mtime": 1780674959.4467993,
+    "ast_hash": "6fd45c2411284733a3470892bee66f11",
+    "semantic_hash": "6fd45c2411284733a3470892bee66f11"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/public/og-image.png": {
+    "mtime": 1778114572.310799,
+    "ast_hash": "f3fc6231b8166f575d8116b1d75f24e0",
+    "semantic_hash": "f3fc6231b8166f575d8116b1d75f24e0"
+  },
+  "/Users/chimera/Desktop/SDM /WEBSITES CHILE Y PY/WEB SDM CHILE/SDM WEBSITE/sdm-capital/public/og-image.svg": {
+    "mtime": 1778094678.0,
+    "ast_hash": "73fe42442f2c1fa81f3214fcc81e6ab9",
+    "semantic_hash": "73fe42442f2c1fa81f3214fcc81e6ab9"
+  }
+}

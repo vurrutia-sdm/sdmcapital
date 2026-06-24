@@ -42,7 +42,7 @@ export default function AsociadosPage() {
 
       {/* Texto editorial */}
       <section className="px-8 lg:px-12 py-16 border-b border-[#e8edf2]" style={{ background: 'var(--off)' }}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16" style={{ padding: '0 clamp(16px,5vw,0px)' }}>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
             <h3 className="font-serif font-light mb-4" style={{ fontSize: 24, color: 'var(--navy-dark)', lineHeight: 1.25 }}>

@@ -1,12 +1,218 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { MapPin, Home, Bath, Maximize2, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MapPin, Home, Bath, Maximize2, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import ContactSection from '@/components/sections/ContactSection'
+import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
 import SEO from '@/components/SEO'
 import PropertyMap from '@/components/ui/PropertyMap'
+import { normalizeDossiers, dossierTitle } from '@/lib/dossiers'
 import type { Propiedad } from '@/types'
+
+// ── ShareButtons ──────────────────────────────────────────────────────────────
+
+const SHARE_NETWORKS = [
+  { key: 'whatsapp', label: 'WhatsApp',    color: '#25D366', symbol: 'WA', getHref: (url: string, text: string) => `https://wa.me/?text=${text}%20${url}` },
+  { key: 'facebook', label: 'Facebook',    color: '#1877F2', symbol: 'f',  getHref: (url: string) => `https://www.facebook.com/sharer/sharer.php?u=${url}` },
+  { key: 'twitter',  label: 'X / Twitter', color: '#000000', symbol: '𝕏', getHref: (url: string, text: string) => `https://twitter.com/intent/tweet?url=${url}&text=${text}` },
+  { key: 'linkedin', label: 'LinkedIn',    color: '#0A66C2', symbol: 'in', getHref: (url: string, text: string) => `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${text}` },
+  { key: 'email',    label: 'Email',       color: '#4B5563', symbol: '✉',  getHref: (url: string, text: string) => `mailto:?subject=${text}&body=${url}` },
+]
+
+function ShareButtons({ titulo }: { titulo: string }) {
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    if (open) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const pageUrl = encodeURIComponent(window.location.href)
+  const pageText = encodeURIComponent(titulo)
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setOpen(false)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div ref={wrapperRef} style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
+      {/* Trigger */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 7,
+          padding: '8px 16px',
+          background: '#fff',
+          border: `1px solid ${copied ? '#3DAA6E' : '#e8edf2'}`,
+          borderRadius: 2,
+          color: copied ? '#3DAA6E' : '#0F2535',
+          fontSize: 13,
+          fontFamily: 'Inter, sans-serif',
+          fontWeight: 500,
+          letterSpacing: '0.2px',
+          cursor: 'pointer',
+          transition: 'border-color 0.15s, color 0.15s',
+        }}
+        onMouseEnter={e => { if (!copied) { e.currentTarget.style.borderColor = '#3DAA6E'; e.currentTarget.style.color = '#3DAA6E' } }}
+        onMouseLeave={e => { if (!copied) { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.color = '#0F2535' } }}
+      >
+        <Share2 size={14} />
+        {copied ? '¡Enlace copiado!' : 'Compartir'}
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 6px)',
+          left: 0,
+          background: '#fff',
+          border: '1px solid #e8edf2',
+          borderRadius: 4,
+          boxShadow: '0 8px 28px rgba(15,37,53,0.13)',
+          zIndex: 60,
+          minWidth: 188,
+          overflow: 'hidden',
+        }}>
+          {SHARE_NETWORKS.map(net => (
+            <a
+              key={net.key}
+              href={net.getHref(pageUrl, pageText)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 11,
+                padding: '9px 14px',
+                fontSize: 14,
+                color: '#0F2535',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 400,
+                textDecoration: 'none',
+                transition: 'background 0.1s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#f4f8fb' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+            >
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                background: net.color,
+                color: '#fff',
+                fontSize: net.symbol === '𝕏' ? 11 : net.symbol === 'in' ? 9 : 11,
+                fontWeight: 700,
+                flexShrink: 0,
+                letterSpacing: '-0.5px',
+              }}>
+                {net.symbol}
+              </span>
+              {net.label}
+            </a>
+          ))}
+
+          {/* Divider */}
+          <div style={{ height: 1, background: '#e8edf2', margin: '2px 0' }} />
+
+          {/* Copy link */}
+          <button
+            onClick={copyLink}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 11,
+              padding: '9px 14px',
+              fontSize: 14,
+              color: '#0F2535',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 400,
+              background: 'transparent',
+              border: 'none',
+              width: '100%',
+              cursor: 'pointer',
+              transition: 'background 0.1s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#f4f8fb' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+          >
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 24,
+              height: 24,
+              borderRadius: '50%',
+              background: '#6B7280',
+              color: '#fff',
+              fontSize: 13,
+              flexShrink: 0,
+            }}>
+              🔗
+            </span>
+            Copiar enlace
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const ETAPA_LABELS: Record<string, string> = {
+  en_blanco: 'En Blanco',
+  en_verde: 'En Verde',
+  planos: 'En Planos',
+  inicio: 'Inicio de obras',
+  avanzado: 'Obra avanzada',
+  proxima_entrega: 'Próxima entrega',
+  entrega_inmediata: 'Entrega inmediata',
+}
+
+const SUBSIDIO_LABELS: Record<string, string> = {
+  DS49: 'DS49 Fondo Solidario',
+  DS1_T1: 'DS1 Tramo 1',
+  DS1_T2: 'DS1 Tramo 2',
+  DS1_T3: 'DS1 Tramo 3',
+  DS19: 'DS19 Integración Social',
+  DS52: 'DS52 Arriendo',
+  DS52_especial: 'DS52 Especial',
+  sitio_propio: 'Sitio Propio',
+  pequenos_condominios: 'Pequeños Condominios',
+  DS10: 'DS10 Rural',
+  DS27_mejoramiento: 'Hogar Mejor',
+  DS27_ampliacion: 'DS27 Ampliación',
+  DS27_eficiencia: 'Eficiencia Energética',
+  DS27_termico: 'Acondicionamiento Térmico',
+  condominios_sociales: 'Condominios Sociales',
+  pavimentacion: 'Pavimentación',
+  leasing: 'Leasing Habitacional',
+  FOGAES: 'FOGAES',
+  subsidio_tasa: 'Subsidio a la Tasa',
+}
+
+// Estados de resultado — banner destacado cerca del precio/título
+const ESTADO_DESTACADO: Record<string, { label: string; sub: string; bg: string }> = {
+  vendida:   { label: 'Vendida',   sub: 'Esta propiedad ya no está disponible', bg: '#c0392b' },
+  arrendada: { label: 'Arrendada', sub: 'Esta propiedad ya no está disponible', bg: '#2563eb' },
+  reservada: { label: 'Reservada', sub: 'Esta propiedad tiene una reserva en curso', bg: '#d97706' },
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function PropiedadDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -50,7 +256,9 @@ export default function PropiedadDetailPage() {
 
   const titulo = lang === 'en' && prop.titulo_en ? prop.titulo_en : prop.titulo
 
-  const estado = prop.estado === 'en_venta' ? 'En venta' : prop.estado === 'en_arriendo' ? 'En arriendo' : prop.estado === 'vendida' ? 'Vendida' : 'Reservada'
+  const estado = prop.estado === 'en_venta' ? 'En venta' : prop.estado === 'en_arriendo' ? 'En arriendo' : prop.estado === 'vendida' ? 'Vendida' : prop.estado === 'arrendada' ? 'Arrendada' : 'Reservada'
+  const destacado = ESTADO_DESTACADO[prop.estado]
+  const noDisponible = prop.estado === 'vendida' || prop.estado === 'arrendada'
 
   return (
     <div>
@@ -67,6 +275,9 @@ export default function PropiedadDetailPage() {
         <span>›</span>
         <span style={{ color: 'var(--navy-dark)', fontSize: 13 }}>{titulo}</span>
       </div>
+
+      {/* ── Banner Showcase El Barranco ── */}
+      {id === 'eccfd92d-713e-4e0a-a074-ff76daffd81e' && <ElBarrancoBanner />}
 
       <div className="px-8 lg:px-12 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
@@ -143,14 +354,29 @@ export default function PropiedadDetailPage() {
               </span>
             </div>
 
+            {/* Banner destacado de estado — vendida / reservada / arrendada */}
+            {destacado && (
+              <div className="mb-5 px-5 py-3" style={{ background: destacado.bg, borderRadius: 2 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#fff' }}>
+                  {destacado.label}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginTop: 2 }}>
+                  {destacado.sub}
+                </div>
+              </div>
+            )}
+
             <h1 className="font-serif font-light mb-4" style={{ fontSize: 40, color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
               {titulo}
             </h1>
 
-            <div className="flex items-center gap-2 mb-6" style={{ color: 'var(--muted)', fontSize: 15 }}>
+            <div className="flex items-center gap-2 mb-4" style={{ color: 'var(--muted)', fontSize: 15 }}>
               <MapPin size={14} style={{ color: 'var(--green)', flexShrink: 0 }} />
               {prop.comuna}, {prop.region}
             </div>
+
+            {/* ── Compartir ── */}
+            <ShareButtons titulo={titulo} />
 
             {(prop.a_consultar || prop.precio_uf || prop.precio_usd || prop.precio_clp) && (
               <div className="mb-6 pb-6 border-b border-[#e8edf2]">
@@ -208,7 +434,7 @@ export default function PropiedadDetailPage() {
               const p = prop as typeof prop & Record<string, unknown>
               const tags: { label: string; dark?: boolean }[] = []
               if (p.estado_conservacion) tags.push({ label: String(p.estado_conservacion).charAt(0).toUpperCase() + String(p.estado_conservacion).slice(1), dark: false })
-              if (p.comision_porcentaje) tags.push({ label: `Comisión corredora ${p.comision_porcentaje}%`, dark: true })
+              if (p.comision_porcentaje && prop.categoria !== 'proyecto_nuevo') tags.push({ label: `Comisión corredora ${p.comision_porcentaje}%`, dark: true })
               if (!tags.length) return null
               return (
                 <div className="flex gap-3 mb-8 flex-wrap">
@@ -232,41 +458,73 @@ export default function PropiedadDetailPage() {
 
             {/* Descripción */}
             {prop.descripcion && (
-              <div style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, marginBottom: 24 }}>
-                {prop.descripcion.split('\n').map((line, i) =>
-                  line.trim() === ''
-                    ? <br key={i} />
-                    : <p key={i} style={{ marginBottom: 8 }}>{line}</p>
-                )}
-              </div>
+              <div
+                className="prose-sdm"
+                style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', marginBottom: 24 }}
+                dangerouslySetInnerHTML={{ __html: prop.descripcion }}
+              />
             )}
+
+            {/* Información del Proyecto — solo proyectos nuevos */}
+            {prop.categoria === 'proyecto_nuevo' && (() => {
+              const items: { label: string; value: string }[] = []
+              if (prop.etapa_construccion && ETAPA_LABELS[prop.etapa_construccion]) items.push({ label: 'Etapa', value: ETAPA_LABELS[prop.etapa_construccion] })
+              if (prop.fecha_entrega) items.push({ label: 'Fecha estimada de entrega', value: prop.fecha_entrega })
+              if (prop.avance_obra !== undefined && prop.avance_obra !== null) items.push({ label: 'Avance de obra', value: `${prop.avance_obra}%` })
+              const subsidios = prop.subsidios || []
+              if (!items.length && !subsidios.length) return null
+              return (
+                <div className="mb-6 pb-6 border-b border-[#e8edf2]">
+                  <h2 className="font-serif font-light mb-4" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>
+                    Información del Proyecto
+                  </h2>
+                  {items.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      {items.map((item, i) => (
+                        <div key={i}>
+                          <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>{item.label}</div>
+                          <div style={{ fontSize: 16, fontWeight: 300, color: 'var(--ink)' }}>{item.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {subsidios.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>Subsidios aplicables</div>
+                      <div className="flex flex-wrap gap-2">
+                        {subsidios.map(value => (
+                          <span key={value} style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, background: 'var(--navy)', color: '#fff', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                            {SUBSIDIO_LABELS[value] || value}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Dossiers múltiples */}
             {(() => {
-              const dossiers = prop.dossiers as string[] | undefined
+              const dossiers = normalizeDossiers(prop.dossiers)
               const legacy = prop.dossier_url
-              // Solo usar legacy si no hay array dossiers nuevo
-              const all = dossiers && dossiers.length > 0
+              const all = dossiers.length > 0
                 ? dossiers
-                : legacy ? [legacy] : []
+                : legacy ? [{ url: legacy }] : []
               if (!all.length) return null
-              const getName = (url: string) => {
-                try { return decodeURIComponent(url.split('/').pop() || '').replace(/^\d+_/, '') }
-                catch { return 'Documento' }
-              }
               return (
                 <div className="mb-6">
                   <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>Documentos adjuntos</div>
                   <div className="flex flex-col gap-2">
-                    {all.map((url, i) => (
-                      <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                    {all.map((d, i) => (
+                      <a key={i} href={d.url} target="_blank" rel="noopener noreferrer"
                         className="inline-flex items-center gap-3 px-4 py-3 rounded-sm"
                         style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)', textDecoration: 'none', fontSize: 14, color: 'var(--navy)', transition: 'background 0.15s' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#dbeaf5'}
                         onMouseLeave={e => e.currentTarget.style.background = 'var(--sky-pale)'}
                       >
                         <span style={{ fontSize: 18 }}>📄</span>
-                        <span style={{ flex: 1 }}>{getName(url)}</span>
+                        <span style={{ flex: 1 }}>{dossierTitle(d)}</span>
                         <span style={{ fontSize: 12, color: 'var(--muted)' }}>Descargar ↗</span>
                       </a>
                     ))}
@@ -276,20 +534,69 @@ export default function PropiedadDetailPage() {
             })()}
 
             <div className="flex gap-3 flex-wrap">
-              <a
-                href={`https://wa.me/56931038954?text=Hola, me interesa la propiedad: ${titulo}`}
-                target="_blank" rel="noopener noreferrer"
-                className="btn-green inline-flex"
-              >
-                Consultar por WhatsApp
-              </a>
-              <button
-                onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
-                className="btn-primary inline-flex"
-              >
-                Contactar agente
-              </button>
+              {noDisponible ? (
+                <div
+                  className="inline-flex items-center"
+                  style={{ padding: '13px 24px', borderRadius: 6, background: 'var(--sky-pale)', color: 'var(--muted)', fontSize: 13, fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase' }}
+                >
+                  Esta propiedad ya no está disponible
+                </div>
+              ) : (
+                <>
+                  <a
+                    href={`https://wa.me/56937478846?text=Hola, me interesa la propiedad: ${titulo}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="btn-green inline-flex"
+                  >
+                    Consultar por WhatsApp
+                  </a>
+                  <button
+                    onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="btn-primary inline-flex"
+                  >
+                    Contactar agente
+                  </button>
+                </>
+              )}
             </div>
+
+            {prop.mostrar_boton_flow !== false && !destacado && (
+              <a
+                href="https://www.flow.cl/uri/gHSdT2jVv"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  marginTop: '12px',
+                  padding: '13px 24px',
+                  border: '1px solid var(--navy-dark)',
+                  borderRadius: '6px',
+                  color: 'var(--navy-dark)',
+                  fontSize: '13px',
+                  fontWeight: 400,
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background = 'var(--navy-dark)';
+                  el.style.color = 'white';
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background = 'transparent';
+                  el.style.color = 'var(--navy-dark)';
+                }}
+              >
+                <img src="/FLOW-HORIZONTAL-LOGO.png" alt="Flow" style={{ height: '20px', objectFit: 'contain' }} />
+                <span>Reserva esta propiedad</span>
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -378,6 +685,9 @@ export default function PropiedadDetailPage() {
           </div>
         ) : null
       })()}
+
+      {/* ── Banner Showcase El Barranco (inferior) ── */}
+      {id === 'eccfd92d-713e-4e0a-a074-ff76daffd81e' && <ElBarrancoBanner clave="banner_foto" />}
 
       {/* Mapa */}
       {(prop.map_address || prop.comuna) && (

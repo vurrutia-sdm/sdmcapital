@@ -1,8 +1,15 @@
 // ─── Propiedad ───────────────────────────────────────────────────────────────
-export type EstadoPropiedad = 'en_venta' | 'en_arriendo' | 'vendida' | 'reservada'
+export type EstadoPropiedad = 'en_venta' | 'en_arriendo' | 'vendida' | 'reservada' | 'arrendada'
 export type TipoPropiedad =
   | 'casa' | 'departamento' | 'oficina' | 'parcela'
   | 'comercial' | 'hotel' | 'terreno' | 'otro'
+export type CategoriaPropiedad = 'usada' | 'proyecto_nuevo'
+export type EtapaConstruccion = 'en_blanco' | 'en_verde' | 'planos' | 'inicio' | 'avanzado' | 'proxima_entrega' | 'entrega_inmediata'
+
+export interface DossierItem {
+  url: string
+  titulo?: string
+}
 
 export interface Propiedad {
   id: string
@@ -12,6 +19,7 @@ export interface Propiedad {
   descripcion_en?: string
   tipo: TipoPropiedad
   estado: EstadoPropiedad
+  categoria?: CategoriaPropiedad
   precio_uf?: number
   precio_clp?: number
   precio_usd?: number
@@ -36,7 +44,8 @@ export interface Propiedad {
   agente_id?: string
   youtube_url?: string
   dossier_url?: string
-  dossiers?: string[]
+  dossiers?: DossierItem[]
+  mostrar_boton_flow?: boolean
   precio_anterior_uf?: number
   baja_precio?: boolean
   ano_construccion?: number
@@ -45,6 +54,10 @@ export interface Propiedad {
   estado_conservacion?: string
   bono_pie?: boolean
   bono_pie_porcentaje?: number
+  etapa_construccion?: EtapaConstruccion
+  fecha_entrega?: string
+  avance_obra?: number
+  subsidios?: string[]
   activo?: boolean
   map_address?: string
   map_lat?: number
@@ -61,9 +74,12 @@ export interface BlogPost {
   slug: string
   resumen: string
   resumen_en?: string
+  extracto?: string
+  extracto_en?: string
   contenido: string
   contenido_en?: string
   imagen_portada?: string
+  autor?: string
   autor_id?: string
   autor_nombre: string
   categoria: string
@@ -141,6 +157,74 @@ export interface FiltrosPropiedades {
   precio_max_uf?: number
   internacional?: boolean
   busqueda?: string
+}
+
+// ─── Cotizaciones ─────────────────────────────────────────────────────────────
+export type EstadoCotizacion = 'borrador' | 'enviada' | 'aceptada' | 'rechazada'
+export type FormaPago        = 'contado' | 'credito' | 'leasing' | 'mixto'
+
+export interface Cotizacion {
+  id: string
+  numero: number
+  estado: EstadoCotizacion
+
+  // Paso 1 – cliente
+  cliente_nombre:    string
+  cliente_rut?:      string
+  cliente_email?:    string
+  cliente_telefono?: string
+  cliente_empresa?:  string
+
+  // Paso 2 – propiedad (snapshot)
+  propiedad_id?:          string
+  prop_titulo:            string
+  prop_tipo?:             string
+  prop_direccion?:        string
+  prop_comuna?:           string
+  prop_region?:           string
+  prop_dormitorios?:      number
+  prop_banos?:            number
+  prop_sup_total?:        number
+  prop_sup_util?:         number
+  prop_estacionamientos?: number
+  prop_bodegas?:          number
+  prop_amenidades?:       string[]
+  prop_imagen_url?:       string
+  prop_pais?:             string
+  prop_ciudad?:           string
+
+  // Paso 3 – precios
+  valor_uf:          number
+  precio_uf?:        number
+  precio_clp?:       number
+  precio_usd?:       number
+  descuento_pct?:    number
+  precio_final_uf?:  number
+  precio_final_clp?: number
+
+  // Paso 4 – forma de pago
+  forma_pago?:   FormaPago
+  pie_pct?:      number
+  pie_uf?:       number
+  credito_uf?:   number
+  plazo_anos?:   number
+  tasa_anual?:   number
+  dividendo_uf?: number
+
+  // Paso 5 – ejecutivo y observaciones
+  ejecutivo_nombre?:   string
+  ejecutivo_email?:    string
+  ejecutivo_telefono?: string
+  ejecutivo_cargo?:    string
+  observaciones?:      string
+  vigencia_dias?:      number
+
+  created_at: string
+  updated_at: string
+}
+
+export type CotizacionDraft = Omit<Cotizacion, 'id' | 'numero' | 'created_at' | 'updated_at'> & {
+  id?: string
 }
 
 // ─── Lang ────────────────────────────────────────────────────────────────────

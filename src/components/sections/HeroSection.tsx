@@ -236,9 +236,6 @@ export default function HeroSection() {
                 {location}
               </span>
             </div>
-            <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', border: '1px solid rgba(61,170,110,0.4)', padding: '5px 14px', borderRadius: 2, zIndex: 4 }}>
-              Propiedades disponibles
-            </div>
           </div>
         </div>
       </div>

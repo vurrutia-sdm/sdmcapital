@@ -1,7 +1,7 @@
 import { ChevronUp } from 'lucide-react'
 import { useScrollTop } from '@/hooks/useScrollTop'
 
-const WA_NUMBER = '56931038954'
+const WA_NUMBER = '56937478846'
 
 export default function FloatingButtons() {
   const { show, scrollTop } = useScrollTop(300)

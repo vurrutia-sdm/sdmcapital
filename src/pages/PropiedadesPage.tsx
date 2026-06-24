@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import SEO from '@/components/SEO'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, useLocation, Link } from 'react-router-dom'
 import { SlidersHorizontal, X, Map, Grid } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getComunas } from '@/data/comunas-chile'
@@ -13,8 +13,29 @@ declare global { interface Window { google: typeof google } }
 
 const TIPOS   = [{ value: '', label: 'Todos los tipos' },{ value: 'casa', label: 'Casa' },{ value: 'departamento', label: 'Departamento' },{ value: 'oficina', label: 'Oficina' },{ value: 'parcela', label: 'Parcela' },{ value: 'comercial', label: 'Comercial' },{ value: 'hotel', label: 'Hotel / Inversión' }]
 const REGIONES = [{ value: '', label: 'Todas las regiones' },{ value: 'R. Metropolitana', label: 'R. Metropolitana' },{ value: 'Valparaíso', label: 'Valparaíso' },{ value: 'Coquimbo', label: 'Coquimbo' },{ value: 'Biobío', label: 'Biobío' },{ value: 'Los Lagos', label: 'Los Lagos' }]
-const ESTADOS  = [{ value: '', label: 'Todos' },{ value: 'en_venta', label: 'En venta' },{ value: 'en_arriendo', label: 'En arriendo' }]
+const ESTADOS  = [{ value: '', label: 'Todos' },{ value: 'en_venta', label: 'En venta' },{ value: 'en_arriendo', label: 'En arriendo' },{ value: 'vendida', label: 'Vendida' },{ value: 'reservada', label: 'Reservada' },{ value: 'arrendada', label: 'Arrendada' }]
 const PRECIOS  = [{ value: '', label: 'Sin límite' },{ value: '2000', label: 'Hasta UF 2.000' },{ value: '3500', label: 'Hasta UF 3.500' },{ value: '5000', label: 'Hasta UF 5.000' },{ value: '8000', label: 'Hasta UF 8.000' },{ value: '10000', label: 'Hasta UF 10.000' },{ value: '15000', label: 'Hasta UF 15.000' }]
+
+const ETIQUETAS_FILTRO: Record<string, string> = {
+  // Estado
+  en_venta: 'En Venta',
+  en_arriendo: 'En Arriendo',
+  vendida: 'Vendida',
+  reservada: 'Reservada',
+  arrendada: 'Arrendada',
+  // Tipo
+  casa: 'Casa',
+  departamento: 'Departamento',
+  oficina: 'Oficina',
+  parcela: 'Parcela',
+  comercial: 'Comercial',
+  hotel: 'Hotel',
+  terreno: 'Terreno',
+  otro: 'Otro',
+  // Categoría
+  usada: 'Propiedad Usada',
+  proyecto_nuevo: 'Proyecto Nuevo',
+}
 
 function applyCatalogOrder(props: Propiedad[], mode: string): Propiedad[] {
   const copy = [...props]
@@ -113,18 +134,23 @@ function MapView({ props }: { props: Propiedad[] }) {
 
 // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
 export default function PropiedadesPage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
+  const categoria =
+    location.pathname === '/propiedades-usadas' ? 'usada' :
+    location.pathname === '/proyectos-nuevos'   ? 'proyecto_nuevo' :
+    ''
+  const pageTitle =
+    categoria === 'usada'          ? 'Propiedades Usadas' :
+    categoria === 'proyecto_nuevo' ? 'Proyectos Nuevos' :
+    'Propiedades'
   const [props, setProps] = useState<Propiedad[]>([])
   const [loading, setLoading] = useState(true)
   const [ordenCatalogo, setOrdenCatalogo] = useState('manual')
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
   const [comunaInput, setComunaInput] = useState(searchParams.get('comuna') || '')
   const [filtros, setFiltros] = useState<FiltrosPropiedades>({
-    tipo:          (searchParams.get('tipo') as FiltrosPropiedades['tipo']) || '',
-    estado:        (searchParams.get('estado') as FiltrosPropiedades['estado']) || '',
-    region:        searchParams.get('region') || '',
-    comuna:        searchParams.get('comuna') || '',
-    internacional: searchParams.get('internacional') === 'true',
+    tipo: '', estado: '', region: '', comuna: '', internacional: false,
   })
   const [panelOpen, setPanelOpen] = useState(false)
 
@@ -134,19 +160,43 @@ export default function PropiedadesPage() {
   }, [])
 
   useEffect(() => {
+    let ignore = false
+
+    const filtrosActuales: FiltrosPropiedades = {
+      tipo:          (searchParams.get('tipo') as FiltrosPropiedades['tipo']) || '',
+      estado:        (searchParams.get('estado') as FiltrosPropiedades['estado']) || '',
+      region:        searchParams.get('region') || '',
+      comuna:        searchParams.get('comuna') || '',
+      internacional: searchParams.get('internacional') === 'true',
+    }
+
+    setFiltros(filtrosActuales)
     setLoading(true)
+
     let q = supabase.from('propiedades').select('*').or('activo.is.null,activo.eq.true')
-    if (filtros.tipo)          q = q.eq('tipo', filtros.tipo)
-    if (filtros.estado)        q = q.eq('estado', filtros.estado)
-    if (filtros.region)        q = q.eq('region', filtros.region)
-    if (filtros.comuna)        q = q.ilike('comuna', `%${filtros.comuna}%`)
-    if (filtros.internacional) q = q.eq('internacional', true)
+    if (categoria)                      q = q.eq('categoria', categoria)
+    if (filtrosActuales.tipo)           q = q.eq('tipo', filtrosActuales.tipo)
+    if (filtrosActuales.estado)         q = q.eq('estado', filtrosActuales.estado)
+    if (filtrosActuales.region)         q = q.eq('region', filtrosActuales.region)
+    if (filtrosActuales.comuna)         q = q.ilike('comuna', `%${filtrosActuales.comuna}%`)
+    if (filtrosActuales.internacional)  q = q.eq('internacional', true)
+
     q.neq('activo', false).order('orden', { ascending: true, nullsFirst: false })
-      .then(({ data }) => { setProps(data || []); setLoading(false) })
-  }, [filtros])
+      .then(({ data, error }) => {
+        if (ignore) return
+        if (!error) setProps(data || [])
+        setLoading(false)
+      })
+
+    return () => { ignore = true }
+  }, [searchParams, categoria])
 
   const displayProps = applyCatalogOrder(props, ordenCatalogo)
-  const clearFiltro  = (key: keyof FiltrosPropiedades) => setFiltros(f => ({ ...f, [key]: '' }))
+  const clearFiltro  = (key: keyof FiltrosPropiedades) => {
+    const nuevos = new URLSearchParams(searchParams)
+    nuevos.delete(key)
+    setSearchParams(nuevos, { replace: true })
+  }
   const activeFiltros = Object.entries(filtros).filter(([, v]) => v && v !== false && v !== '')
 
   return (
@@ -158,7 +208,7 @@ export default function PropiedadesPage() {
         <div className="section-label" style={{ marginBottom: 14 }}>Catálogo</div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <h1 className="font-serif font-light" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.05, letterSpacing: '-0.5px' }}>
-            Propiedades
+            {pageTitle}
           </h1>
           <div className="flex items-center gap-3 mt-2">
             {/* View toggle */}
@@ -193,7 +243,13 @@ export default function PropiedadesPage() {
               <div key={f.key}>
                 <label style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>{f.label}</label>
                 <select value={(filtros as Record<string,unknown>)[f.key] as string || ''}
-                  onChange={e => setFiltros(prev => ({ ...prev, [f.key]: e.target.value, ...(f.key === 'region' ? { comuna: '' } : {}) }))}
+                  onChange={e => {
+                    const nuevos = new URLSearchParams(searchParams)
+                    if (e.target.value) nuevos.set(f.key, e.target.value)
+                    else nuevos.delete(f.key)
+                    if (f.key === 'region') nuevos.delete('comuna')
+                    setSearchParams(nuevos, { replace: true })
+                  }}
                   style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontSize: 14, fontFamily: 'inherit', color: 'var(--ink)', background: 'transparent', outline: 'none', cursor: 'pointer' }}>
                   {f.opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
@@ -204,7 +260,12 @@ export default function PropiedadesPage() {
               <label style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Comuna</label>
               <select
                 value={filtros.comuna || ''}
-                onChange={e => setFiltros(f => ({ ...f, comuna: e.target.value }))}
+                onChange={e => {
+                  const nuevos = new URLSearchParams(searchParams)
+                  if (e.target.value) nuevos.set('comuna', e.target.value)
+                  else nuevos.delete('comuna')
+                  setSearchParams(nuevos, { replace: true })
+                }}
                 disabled={!filtros.region}
                 style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontSize: 14, fontFamily: 'inherit', color: filtros.region ? 'var(--ink)' : 'var(--muted)', background: 'transparent', outline: 'none', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
               >
@@ -221,10 +282,13 @@ export default function PropiedadesPage() {
         {activeFiltros.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
             {activeFiltros.map(([key, val]) => (
-              <span key={key} className="flex items-center gap-1.5 px-3 py-1 rounded-full cursor-pointer"
-                style={{ fontSize: 12, background: 'var(--off)', border: '1px solid var(--border)', color: 'var(--muted)' }}
-                onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}>
-                {String(val)} <X size={11} />
+              <span key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer"
+                style={{ fontSize: 12, fontWeight: 400, background: '#fff', border: '1px solid var(--border)', color: 'var(--ink)', transition: 'border-color 0.2s, background 0.2s' }}
+                onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--off)'; e.currentTarget.style.borderColor = 'var(--muted)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'var(--border)' }}>
+                {ETIQUETAS_FILTRO[String(val)] ?? String(val)}
+                <X size={11} style={{ color: 'var(--muted)' }} />
               </span>
             ))}
           </div>
