@@ -610,7 +610,6 @@ function PropiedadesAdmin() {
     setItems(prev => prev.map(item => item.id === p.id ? { ...item, activo: newVal } : item))
     await supabase.from('propiedades').update({ activo: newVal }).eq('id', p.id)
   }
-  useEffect(() => { load() }, [])
 
   const { items: dragged, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
     const updates = reordered.map((p, i) => supabase.from('propiedades').update({ destacada: i < 6 }).eq('id', p.id))

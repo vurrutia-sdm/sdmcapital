@@ -13,12 +13,14 @@
     --sky-light: #D4E6F1;
     --sky-pale: #EDF4F9;
     --ink: #1a1a1a;
-    --muted: #7a8a96;
+    --muted: #5F7183;
     --border: #e8edf2;
     --off: #F9FAFB;
   }
 
   * { box-sizing: border-box; }
+
+  *:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
   html {
     scroll-behavior: smooth;
@@ -129,7 +131,7 @@
     color: var(--ink);
     font-family: 'Inter', system-ui, sans-serif;
   }
-  .input-line::placeholder { color: #d0d8de; }
+  .input-line::placeholder { color: #9AA8B4; }
   .input-line:focus { border-color: var(--green); }
 
   .prop-card { @apply bg-white overflow-hidden cursor-pointer; }

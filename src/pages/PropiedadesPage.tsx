@@ -112,7 +112,7 @@ function MapView({ props }: { props: Propiedad[] }) {
       {selected && (
         <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', width: 300, background: '#fff', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', overflow: 'hidden', zIndex: 10 }}>
           {(selected.imagen_principal || selected.imagenes?.[0]) && (
-            <img src={selected.imagen_principal || selected.imagenes[0]} alt={selected.titulo} style={{ width: '100%', height: 140, objectFit: 'cover' }} />
+            <img src={selected.imagen_principal || selected.imagenes[0]} alt={selected.titulo} loading="lazy" decoding="async" style={{ width: '100%', height: 140, objectFit: 'cover' }} />
           )}
           <div style={{ padding: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 4 }}>{selected.titulo}</div>

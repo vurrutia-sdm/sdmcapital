@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { MapPin, Home, Bath, Maximize2, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
+import DOMPurify from 'dompurify'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
@@ -483,7 +484,7 @@ export default function PropiedadDetailPage() {
               <div
                 className="prose-sdm"
                 style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', marginBottom: 24 }}
-                dangerouslySetInnerHTML={{ __html: prop.descripcion }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(prop.descripcion) }}
               />
             )}
 
@@ -676,7 +677,7 @@ export default function PropiedadDetailPage() {
               {allImgs.map((img, i) => (
                 <div key={i} onClick={e => { e.stopPropagation(); setImgIdx(i) }}
                   style={{ width: 60, height: 44, borderRadius: 2, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', outline: i === imgIdx ? '2px solid var(--green)' : '2px solid transparent', opacity: i === imgIdx ? 1 : 0.55, transition: 'all 0.15s' }}>
-                  <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={img} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               ))}
             </div>
