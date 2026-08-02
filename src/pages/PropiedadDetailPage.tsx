@@ -10,6 +10,7 @@ import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
 import SEO from '@/components/SEO'
 import PropertyMap from '@/components/ui/PropertyMap'
 import { normalizeDossiers, dossierTitle } from '@/lib/dossiers'
+import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad } from '@/types'
 
 // ── ShareButtons ──────────────────────────────────────────────────────────────
@@ -352,7 +353,7 @@ export default function PropiedadDetailPage() {
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {allImgs.map((img, i) => (
                   <div key={i} onClick={() => setImgIdx(i)} className="flex-shrink-0 cursor-pointer" style={{ width: 76, height: 56, borderRadius: 2, overflow: 'hidden', outline: i === imgIdx ? '2px solid var(--green)' : '2px solid transparent', transition: 'outline 0.15s', background: '#0d1e2e' }}>
-                    <img src={img} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <img src={thumbUrl(img)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   </div>
                 ))}
               </div>
@@ -362,9 +363,9 @@ export default function PropiedadDetailPage() {
           {/* ── Detalle ── */}
           <div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
-              {(prop as Record<string,unknown>).bono_pie && (
+              {prop.bono_pie && (
                 <span style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, background: 'var(--green)', color: '#fff', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                  Bono Pie{(prop as Record<string,unknown>).bono_pie_porcentaje ? ` ${(prop as Record<string,unknown>).bono_pie_porcentaje}%` : ''}
+                  Bono Pie{prop.bono_pie_porcentaje ? ` ${prop.bono_pie_porcentaje}%` : ''}
                 </span>
               )}
               {prop.baja_precio && (
@@ -677,7 +678,7 @@ export default function PropiedadDetailPage() {
               {allImgs.map((img, i) => (
                 <div key={i} onClick={e => { e.stopPropagation(); setImgIdx(i) }}
                   style={{ width: 60, height: 44, borderRadius: 2, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', outline: i === imgIdx ? '2px solid var(--green)' : '2px solid transparent', opacity: i === imgIdx ? 1 : 0.55, transition: 'all 0.15s' }}>
-                  <img src={img} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={thumbUrl(img)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               ))}
             </div>
@@ -716,9 +717,9 @@ export default function PropiedadDetailPage() {
       {(prop.map_address || prop.comuna) && (
         <div className="px-8 lg:px-12 py-10 border-t border-[#e8edf2]">
           <PropertyMap
-            address={(prop as Record<string,unknown>).map_address as string}
-            lat={(prop as Record<string,unknown>).map_lat as number}
-            lng={(prop as Record<string,unknown>).map_lng as number}
+            address={prop.map_address}
+            lat={prop.map_lat}
+            lng={prop.map_lng}
             comuna={prop.comuna}
             region={prop.region}
           />

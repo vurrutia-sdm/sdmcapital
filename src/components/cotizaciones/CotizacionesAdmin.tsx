@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { supabase } from '@/lib/supabase'
+import { subirImagen } from '@/lib/subirImagen'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import type { Cotizacion, CotizacionDraft, EstadoCotizacion, FormaPago, Propiedad } from '@/types'
 import { CotizacionPDF } from './CotizacionPDF'
@@ -86,13 +87,8 @@ function ImageUploader({
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const ext  = file.name.split('.').pop()
-    const name = `${folder}/${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
-    if (!error) {
-      const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
-      onUploaded(data.publicUrl)
-    }
+    const r = await subirImagen(file, folder)
+    if (r) onUploaded(r.url)
     setUploading(false)
   }
 

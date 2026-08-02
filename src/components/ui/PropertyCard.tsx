@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
 import type { Propiedad } from '@/types'
+import { thumbUrl } from '@/lib/imagenes'
 
 // Gradient backgrounds for placeholder images
 const GRADIENTS = [
@@ -71,7 +72,8 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
       {/* Image */}
       <div style={{ aspectRatio: '4/3', overflow: 'hidden', position: 'relative', background: 'linear-gradient(160deg,#1a3d5c,#0d2035)' }}>
         {(() => {
-          const imgSrc = propiedad.imagen_principal || propiedad.imagenes?.[0] || ''
+          // Tarjeta de ~350px: usa la miniatura de 400px, no el original
+          const imgSrc = thumbUrl(propiedad.imagen_principal || propiedad.imagenes?.[0] || '')
           return (
             <div
               className="w-full h-full transition-transform duration-500 group-hover:scale-[1.03] flex items-center justify-center"

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { subirImagen } from '@/lib/subirImagen'
 
 type Agente = { id: string; nombre: string; telefono: string | null; correo: string | null }
 
@@ -185,12 +186,9 @@ export default function FichaClienteEditar() {
     for (let i = 0; i < items.length; i++) {
       const ext = items[i].file.name.split('.').pop() || 'jpg'
       const path = `${clienteId}/${timestamp}/edit_${i}.${ext}`
-      const { error } = await supabase.storage
-        .from('fichas-fotos')
-        .upload(path, items[i].file, { upsert: true, contentType: items[i].file.type })
-      if (error) throw new Error(`Error subiendo foto ${i + 1}: ${error.message}`)
-      const { data } = supabase.storage.from('fichas-fotos').getPublicUrl(path)
-      urls.push(data.publicUrl)
+      const r = await subirImagen(items[i].file, 'fichas', `fichas/${path}`)
+      if (!r) throw new Error(`Error subiendo foto ${i + 1}`)
+      urls.push(r.url)
     }
     return urls
   }

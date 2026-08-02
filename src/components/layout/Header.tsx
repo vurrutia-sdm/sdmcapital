@@ -8,23 +8,12 @@ const SERVICES = [
   { slug: 'inversion-internacional', label: 'Inversión Internacional' },
 ]
 
-// Umbral de scroll a partir del cual el header pasa a vidrio esmerilado (≈ alto del hero)
-const SCROLL_THRESHOLD = 90
-
 export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [scrolled, setScrolled]             = useState(false)
   const [mobileOpen, setMobileOpen]         = useState(false)
   const [servicesOpen, setServicesOpen]     = useState(false)
   const [propiedadesOpen, setPropiedadesOpen] = useState(false)
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > SCROLL_THRESHOLD)
-    fn()
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
-  }, [])
 
   useEffect(() => { setMobileOpen(false) }, [location])
 
@@ -49,7 +38,7 @@ export default function Header() {
   })
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/55 backdrop-blur-md border-b border-transparent shadow-[0_1px_12px_rgba(15,37,53,0.06)]' : 'bg-white border-b border-[#e8edf2]'}`}>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e8edf2]">
       <nav className="flex items-center justify-between px-8 lg:px-12 h-16">
 
         {/* Logo */}

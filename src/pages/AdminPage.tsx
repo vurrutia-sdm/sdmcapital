@@ -3,14 +3,13 @@ import { Link as RouterLink } from 'react-router-dom'
 import { FileText, Users, MessageCircle } from 'lucide-react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import Link from '@tiptap/extension-link'
-import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import { Image } from '@tiptap/extension-image'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
+import { subirImagen, subirArchivo } from '@/lib/subirImagen'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto, DossierItem } from '@/types'
@@ -103,10 +102,11 @@ function Inp({ value, onChange, type = 'text', placeholder = '', min, max }: {
   )
 }
 
-function Txa({ value, onChange, rows = 3 }: {
+function Txa({ value, onChange, rows = 3, placeholder }: {
   value: string
   onChange: (v: string) => void
   rows?: number
+  placeholder?: string
 }) {
   const [local, setLocal] = useState(value ?? '')
   const prevValue = useRef(value ?? '')
@@ -120,6 +120,7 @@ function Txa({ value, onChange, rows = 3 }: {
     <textarea
       value={local}
       rows={rows}
+      placeholder={placeholder}
       className="input-line resize-none"
       onChange={e => setLocal(e.target.value)}
       onBlur={() => { prevValue.current = local; onChange(local) }}
@@ -183,13 +184,8 @@ function ImageUploader({ currentUrl, onUploaded, folder = 'general' }: { current
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const name = `${folder}/${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
-    if (!error) {
-      const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
-      onUploaded(data.publicUrl)
-    }
+    const r = await subirImagen(file, folder)
+    if (r) onUploaded(r.url)
     setUploading(false)
   }
   return (
@@ -238,12 +234,8 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
     setUploading(true)
     const newItems: DossierItem[] = []
     for (const file of Array.from(files)) {
-      const name = `dossiers/${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`
-      const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
-      if (!error) {
-        const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
-        newItems.push({ url: data.publicUrl })
-      }
+      const r = await subirArchivo(file, 'dossiers')
+      if (r) newItems.push({ url: r.url })
     }
     onChanged([...items, ...newItems])
     setUploading(false)
@@ -309,7 +301,7 @@ function PropImageManager({
 
   const compressImage = (file: File): Promise<Blob> =>
     new Promise((resolve) => {
-      const img = new Image()
+      const img = new window.Image()
       const url = URL.createObjectURL(file)
       img.onload = () => {
         const MAX = 800
@@ -333,13 +325,9 @@ const upload = async (files: FileList) => {
     const list = Array.from(files).slice(0, 20 - imagenes.length)
     for (let idx = 0; idx < list.length; idx++) {
       const file = list[idx]
-      const name = `propiedades/${Date.now()}_${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`
       setProgress(`Subiendo ${idx + 1}/${list.length}…`)
-      const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true, contentType: file.type })
-      if (!error) {
-        const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
-        newUrls.push(data.publicUrl)
-      }
+      const r = await subirImagen(file, 'propiedades')
+      if (r) newUrls.push(r.url)
     }
     const next = [...imagenes, ...newUrls]
     onChange(next, imagenPrincipal || next[0] || '')
@@ -470,11 +458,13 @@ function TBtn({ onClick, active, title, children }: {
 function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Underline,
+      // StarterKit 3.x ya trae link y underline. Registrarlos aparte los duplica
+      // y TipTap avisa por consola; Link se configura desde el propio StarterKit.
+      StarterKit.configure({
+        link: { openOnClick: false, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } },
+      }),
       TextStyle,
       Color,
-      Link.configure({ openOnClick: false, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Image.configure({ inline: false, allowBase64: false }),
     ],
@@ -621,8 +611,8 @@ function PropiedadesAdmin() {
     .filter(p => showInactive ? true : p.activo !== false)
     .sort((a, b) => {
       if (!sortField) return 0
-      const aVal = sortField === 'precio_uf' ? (a.precio_uf || 0) : (a as Record<string,unknown>)[sortField] as string || ''
-      const bVal = sortField === 'precio_uf' ? (b.precio_uf || 0) : (b as Record<string,unknown>)[sortField] as string || ''
+      const aVal = sortField === 'precio_uf' ? (a.precio_uf || 0) : a[sortField] || ''
+      const bVal = sortField === 'precio_uf' ? (b.precio_uf || 0) : b[sortField] || ''
       if (aVal < bVal) return sortDir === 'asc' ? -1 : 1
       if (aVal > bVal) return sortDir === 'asc' ? 1 : -1
       return 0
@@ -634,21 +624,20 @@ function PropiedadesAdmin() {
   }
 
   const startEdit = (p: Propiedad) => {
-    const r = p as Record<string, unknown>
     setEditing({
       ...p,
-      activo:               r.activo !== false,
-      bono_pie:             !!r.bono_pie,
-      bono_pie_porcentaje:  r.bono_pie_porcentaje as number || 0,
-      bodegas:              r.bodegas as number || 0,
-      estado_conservacion:  r.estado_conservacion as string || '',
-      comision_porcentaje:  r.comision_porcentaje as number ?? 2,
-      etapa_construccion:   r.etapa_construccion as Propiedad['etapa_construccion'] || undefined,
-      fecha_entrega:        r.fecha_entrega as string || '',
-      avance_obra:          r.avance_obra as number ?? undefined,
-      subsidios:            Array.isArray(r.subsidios) ? r.subsidios as string[] : [],
-      dossiers:             normalizeDossiers(r.dossiers),
-      mostrar_boton_flow:   r.mostrar_boton_flow !== false,
+      activo:               p.activo !== false,
+      bono_pie:             !!p.bono_pie,
+      bono_pie_porcentaje:  p.bono_pie_porcentaje || 0,
+      bodegas:              p.bodegas || 0,
+      estado_conservacion:  p.estado_conservacion || '',
+      comision_porcentaje:  p.comision_porcentaje ?? 2,
+      etapa_construccion:   p.etapa_construccion || undefined,
+      fecha_entrega:        p.fecha_entrega || '',
+      avance_obra:          p.avance_obra ?? undefined,
+      subsidios:            Array.isArray(p.subsidios) ? p.subsidios : [],
+      dossiers:             normalizeDossiers(p.dossiers),
+      mostrar_boton_flow:   p.mostrar_boton_flow !== false,
     })
     setTimeout(() => {
       document.getElementById('prop-edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -658,16 +647,15 @@ function PropiedadesAdmin() {
   const save = async () => {
     if (!editing) return
     setSaving(true)
-    const r = editing as Record<string, unknown>
     const payload = {
       ...editing,
       activo:              editing.activo !== false,
       slug:                editing.slug || slugify(editing.titulo || '', editing.comuna, editing.dormitorios),
-      bono_pie:            !!r.bono_pie,
-      bono_pie_porcentaje: r.bono_pie_porcentaje ? Number(r.bono_pie_porcentaje) : null,
-      bodegas:             Number(r.bodegas) || 0,
-      estado_conservacion: r.estado_conservacion || null,
-      comision_porcentaje: Number(r.comision_porcentaje ?? 2),
+      bono_pie:            !!editing.bono_pie,
+      bono_pie_porcentaje: editing.bono_pie_porcentaje ? Number(editing.bono_pie_porcentaje) : null,
+      bodegas:             Number(editing.bodegas) || 0,
+      estado_conservacion: editing.estado_conservacion || null,
+      comision_porcentaje: Number(editing.comision_porcentaje ?? 2),
       etapa_construccion:  editing.etapa_construccion ?? null,
       fecha_entrega:       editing.fecha_entrega || null,
       avance_obra:         editing.avance_obra ?? null,
@@ -766,17 +754,17 @@ function PropiedadesAdmin() {
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Precio</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Precio UF"><Inp type="number" value={editing.precio_uf || ''} onChange={v => setEditing(p => ({ ...p, precio_uf: Number(v) }))} placeholder="Ej: 3500" /></Field>
-              <Field label="Precio CLP"><Inp type="number" value={(editing as Record<string,unknown>).precio_clp as number || ''} onChange={v => setEditing(p => ({ ...p, precio_clp: Number(v) }))} placeholder="Ej: 120000000" /></Field>
+              <Field label="Precio CLP"><Inp type="number" value={editing.precio_clp || ''} onChange={v => setEditing(p => ({ ...p, precio_clp: Number(v) }))} placeholder="Ej: 120000000" /></Field>
               <Field label="Precio USD"><Inp type="number" value={editing.precio_usd || ''} onChange={v => setEditing(p => ({ ...p, precio_usd: Number(v) }))} placeholder="Opcional" /></Field>
             </div>
             <div className="mt-4 flex gap-6 flex-wrap">
               <Chk label="Precio a consultar" checked={!!editing.a_consultar} onChange={v => setEditing(p => ({ ...p, a_consultar: v }))} />
-              <Chk label="↓ Baja de precio" checked={!!(editing as Record<string,unknown>).baja_precio} onChange={v => setEditing(p => ({ ...p, baja_precio: v }))} />
+              <Chk label="↓ Baja de precio" checked={!!editing.baja_precio} onChange={v => setEditing(p => ({ ...p, baja_precio: v }))} />
             </div>
-            {(editing as Record<string,unknown>).baja_precio && (
+            {editing.baja_precio && (
               <div className="mt-4">
                 <Field label="Precio anterior UF (aparece tachado)">
-                  <Inp type="number" value={(editing as Record<string,unknown>).precio_anterior_uf as number || ''} onChange={v => setEditing(p => ({ ...p, precio_anterior_uf: Number(v) }))} placeholder="Ej: 4200" />
+                  <Inp type="number" value={editing.precio_anterior_uf || ''} onChange={v => setEditing(p => ({ ...p, precio_anterior_uf: Number(v) }))} placeholder="Ej: 4200" />
                 </Field>
               </div>
             )}
@@ -790,10 +778,10 @@ function PropiedadesAdmin() {
               <Field label="Superficie total m²"><Inp type="number" value={editing.superficie_total || ''} onChange={v => setEditing(p => ({ ...p, superficie_total: Number(v) }))} /></Field>
               <Field label="Superficie construida m²"><Inp type="number" value={editing.superficie_util || ''} onChange={v => setEditing(p => ({ ...p, superficie_util: Number(v) }))} /></Field>
               <Field label="Estacionamientos"><Inp type="number" value={editing.estacionamientos || ''} onChange={v => setEditing(p => ({ ...p, estacionamientos: Number(v) }))} placeholder="0" /></Field>
-              <Field label="Bodegas"><Inp type="number" value={(editing as Record<string,unknown>).bodegas as number || ''} onChange={v => setEditing(p => ({ ...p, bodegas: Number(v) }))} placeholder="0" /></Field>
-              <Field label="Año construcción"><Inp type="number" value={(editing as Record<string,unknown>).ano_construccion as number || ''} onChange={v => setEditing(p => ({ ...p, ano_construccion: Number(v) }))} placeholder="Ej: 2018" /></Field>
+              <Field label="Bodegas"><Inp type="number" value={editing.bodegas || ''} onChange={v => setEditing(p => ({ ...p, bodegas: Number(v) }))} placeholder="0" /></Field>
+              <Field label="Año construcción"><Inp type="number" value={editing.ano_construccion || ''} onChange={v => setEditing(p => ({ ...p, ano_construccion: Number(v) }))} placeholder="Ej: 2018" /></Field>
               <Field label="Estado conservación">
-                <Sel value={(editing as Record<string,unknown>).estado_conservacion as string || ''}
+                <Sel value={editing.estado_conservacion || ''}
                   onChange={v => setEditing(p => ({ ...p, estado_conservacion: v as 'nuevo' | 'seminuevo' | '' }))}
                   options={[{value:'',label:'No especificado'},{value:'nuevo',label:'Nuevo'},{value:'seminuevo',label:'Seminuevo'}]} />
               </Field>
@@ -805,7 +793,7 @@ function PropiedadesAdmin() {
               <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Información del Proyecto</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Field label="Etapa de construcción">
-                  <Sel value={(editing as Record<string,unknown>).etapa_construccion as string || ''}
+                  <Sel value={editing.etapa_construccion || ''}
                     onChange={v => setEditing(p => ({ ...p, etapa_construccion: v as Propiedad['etapa_construccion'] }))}
                     options={[
                       { value: '', label: 'Seleccionar...' },
@@ -819,12 +807,12 @@ function PropiedadesAdmin() {
                     ]} />
                 </Field>
                 <Field label="Fecha estimada de entrega">
-                  <Sel value={(editing as Record<string,unknown>).fecha_entrega as string || '2026'}
+                  <Sel value={editing.fecha_entrega || '2026'}
                     onChange={v => setEditing(p => ({ ...p, fecha_entrega: v }))}
                     options={FECHA_ENTREGA_OPTIONS} />
                 </Field>
                 <Field label="% Avance de obra">
-                  <Sel value={(editing as Record<string,unknown>).avance_obra !== undefined && (editing as Record<string,unknown>).avance_obra !== null ? String((editing as Record<string,unknown>).avance_obra) : ''}
+                  <Sel value={editing.avance_obra !== undefined && editing.avance_obra !== null ? String(editing.avance_obra) : ''}
                     onChange={v => setEditing(p => ({ ...p, avance_obra: v === '' ? undefined : Number(v) }))}
                     options={AVANCE_OBRA_OPTIONS} />
                 </Field>
@@ -852,9 +840,9 @@ function PropiedadesAdmin() {
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📍 Ubicación en mapa</div>
             <MapPicker
-              address={(editing as Record<string,unknown>).map_address as string || ''}
-              lat={(editing as Record<string,unknown>).map_lat as number | undefined}
-              lng={(editing as Record<string,unknown>).map_lng as number | undefined}
+              address={editing.map_address || ''}
+              lat={editing.map_lat}
+              lng={editing.map_lng}
               onUpdate={({ address, lat, lng }) => setEditing(p => ({ ...p, map_address: address, map_lat: lat, map_lng: lng }))}
             />
           </div>
@@ -863,15 +851,15 @@ function PropiedadesAdmin() {
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>💼 Comisión y Beneficios</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Comisión corredora (%)">
-                <Inp type="number" value={(editing as Record<string,unknown>).comision_porcentaje as number ?? 2}
+                <Inp type="number" value={editing.comision_porcentaje ?? 2}
                   onChange={v => setEditing(p => ({ ...p, comision_porcentaje: Number(v) }))} placeholder="2" />
               </Field>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <Chk label="Bono Pie" checked={!!(editing as Record<string,unknown>).bono_pie}
+                <Chk label="Bono Pie" checked={!!editing.bono_pie}
                   onChange={v => setEditing(p => ({ ...p, bono_pie: v }))} />
-                {(editing as Record<string,unknown>).bono_pie && (
+                {editing.bono_pie && (
                   <Field label="% Bono Pie">
-                    <Inp type="number" value={(editing as Record<string,unknown>).bono_pie_porcentaje as number || ''}
+                    <Inp type="number" value={editing.bono_pie_porcentaje || ''}
                       onChange={v => setEditing(p => ({ ...p, bono_pie_porcentaje: Number(v) }))} placeholder="Ej: 10" />
                   </Field>
                 )}
@@ -892,7 +880,7 @@ function PropiedadesAdmin() {
           <div className="mb-6">
             <Field label="🎥 Link de YouTube">
               <Inp
-                value={(editing as Record<string,unknown>).youtube_url as string || ''}
+                value={editing.youtube_url || ''}
                 onChange={v => setEditing(p => ({ ...p, youtube_url: v }))}
                 placeholder="https://www.youtube.com/watch?v=..."
               />
@@ -902,14 +890,14 @@ function PropiedadesAdmin() {
           <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📄 Dossiers / Fichas técnicas</div>
             <DossierUploader
-              items={(editing as Record<string,unknown>).dossiers as DossierItem[] || []}
+              items={editing.dossiers || []}
               onChanged={items => setEditing(p => ({ ...p, dossiers: items }))}
             />
           </div>
 
           <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
             <Chk label="Mostrar botón de pago Flow (Reserva esta propiedad)"
-              checked={(editing as Record<string,unknown>).mostrar_boton_flow !== false}
+              checked={editing.mostrar_boton_flow !== false}
               onChange={v => setEditing(p => ({ ...p, mostrar_boton_flow: v }))} />
           </div>
 
@@ -981,7 +969,7 @@ function PropiedadesAdmin() {
                 </td>
                 <td className="py-3 pr-4" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.tipo}</td>
                 <td className="py-3 pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'#c0392b':p.estado==='reservada'?'#d97706':p.estado==='arrendada'?'#2563eb':'#999'} /></td>
-                <td className="py-3 pr-4" style={{ fontSize: 14 }}>{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : (p as Record<string,unknown>).precio_clp ? `$${((p as Record<string,unknown>).precio_clp as number).toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
+                <td className="py-3 pr-4" style={{ fontSize: 14 }}>{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : p.precio_clp ? `$${p.precio_clp.toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
                 <td className="py-3 pr-4"><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
                 <td className="py-3 pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
                   <button
@@ -1373,7 +1361,7 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
 
   const compressImage = (file: File): Promise<Blob> =>
     new Promise((resolve) => {
-      const img = new Image()
+      const img = new window.Image()
       const url = URL.createObjectURL(file)
       img.onload = () => {
         const MAX = 1280
@@ -1390,13 +1378,8 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
 
   const upload = async (i: number, file: File) => {
     setUploading(i)
-    const ext = file.name.split('.').pop()
-    const name = `hero/${Date.now()}_${i}.${ext}`
-    const { error } = await supabase.storage.from('imagenes').upload(name, file, { upsert: true, contentType: file.type })
-    if (!error) {
-      const { data } = supabase.storage.from('imagenes').getPublicUrl(name)
-      const next = [...urls]; next[i] = data.publicUrl; setUrls(next)
-    }
+    const r = await subirImagen(file, 'hero')
+    if (r) { const next = [...urls]; next[i] = r.url; setUrls(next) }
     setUploading(null)
   }
 
@@ -1861,9 +1844,7 @@ function FotosAdmin() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const name = `${Date.now()}.${ext}`
-    await supabase.storage.from('imagenes').upload(name, file, { upsert: true })
+    await subirImagen(file, 'general')
     setUploading(false); load()
   }
 

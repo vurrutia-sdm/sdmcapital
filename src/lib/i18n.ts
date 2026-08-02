@@ -1,4 +1,6 @@
-export const translations = {
+import type { Lang } from '@/types'
+
+const translationsRaw = {
   es: {
     nav: {
       inicio: 'Inicio',
@@ -211,6 +213,11 @@ export const translations = {
       verPropiedad: 'View property',
     },
   },
-} as const
+}
+
+// El español es la fuente de verdad del tipo; el inglés se valida contra él.
+export type Translations = typeof translationsRaw['es']
+
+export const translations: Record<Lang, Translations> = translationsRaw
 
 export type TranslationKey = keyof typeof translations

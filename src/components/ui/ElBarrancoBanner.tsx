@@ -13,8 +13,7 @@ export default function ElBarrancoBanner({ clave = 'banner_detalle_foto' }: { cl
       .select('valor')
       .eq('clave', clave)
       .maybeSingle()
-      .then(({ data }) => { if (data?.valor) setBgUrl(data.valor) })
-      .catch(() => {})
+      .then(({ data }) => { if (data?.valor) setBgUrl(data.valor) }, () => {})
   }, [clave])
 
   return (

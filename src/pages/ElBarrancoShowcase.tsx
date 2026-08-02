@@ -134,7 +134,6 @@ const S: Record<string, React.CSSProperties> = {
   amenityCard: { padding: '36px 28px', background: C.bgCard, borderTop: `1px solid ${C.border}` },
   amenityTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: 19, fontWeight: 400, color: C.cream, margin: '14px 0 6px' },
   amenityDesc: { fontSize: 13, fontWeight: 300, color: C.muted, lineHeight: 1.65 },
-  investTab: (active: boolean): React.CSSProperties => ({ padding: '12px 28px', background: 'transparent', border: 'none', borderBottom: active ? `1px solid ${C.green}` : '1px solid transparent', color: active ? C.cream : C.muted, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: -1, transition: 'all 0.2s' }),
   briefCard: { padding: '40px 32px', background: C.bgCard, borderTop: `1px solid ${C.borderGreen}` },
   briefNum: { fontFamily: "'Cormorant Garamond', serif", fontSize: 52, fontWeight: 300, color: C.navyLight, lineHeight: 1, marginBottom: 8 },
   briefLabel: { fontSize: 10, fontWeight: 300, letterSpacing: '0.3em', textTransform: 'uppercase', color: C.muted, marginBottom: 12 },
@@ -153,6 +152,9 @@ const S: Record<string, React.CSSProperties> = {
   formInput: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 15, outline: 'none', boxSizing: 'border-box' as const },
   formTextarea: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 15, outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const, minHeight: 80 },
 }
+
+// Estilo dinámico — fuera de S porque es una función, no un CSSProperties.
+const investTabStyle = (active: boolean): React.CSSProperties => ({ padding: '12px 28px', background: 'transparent', border: 'none', borderBottom: active ? `1px solid ${C.green}` : '1px solid transparent', color: active ? C.cream : C.muted, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: -1, transition: 'all 0.2s' })
 
 export default function ElBarrancoShowcase() {
   const navigate = useNavigate()
@@ -205,7 +207,7 @@ export default function ElBarrancoShowcase() {
         setCms(loaded)
       }
       setCmsLoading(false)
-    }).catch(() => setCmsLoading(false))
+    }, () => setCmsLoading(false))
   }, [])
 
   useEffect(() => {
@@ -360,8 +362,8 @@ export default function ElBarrancoShowcase() {
         <hr style={S.divider} />
 
         <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, marginBottom: 56 }}>
-          <button style={S.investTab(investTab === 'story')} onClick={() => setInvestTab('story')}>{t('opp_tab_story', 'The Story')}</button>
-          <button style={S.investTab(investTab === 'brief')} onClick={() => setInvestTab('brief')}>{t('opp_tab_brief', 'Investment Brief')}</button>
+          <button style={investTabStyle(investTab === 'story')} onClick={() => setInvestTab('story')}>{t('opp_tab_story', 'The Story')}</button>
+          <button style={investTabStyle(investTab === 'brief')} onClick={() => setInvestTab('brief')}>{t('opp_tab_brief', 'Investment Brief')}</button>
         </div>
 
         {investTab === 'story' && (

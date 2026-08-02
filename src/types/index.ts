@@ -60,6 +60,7 @@ export interface Propiedad {
   avance_obra?: number
   subsidios?: string[]
   activo?: boolean
+  orden?: number
   map_address?: string
   map_lat?: number
   map_lng?: number
@@ -230,13 +231,3 @@ export type CotizacionDraft = Omit<Cotizacion, 'id' | 'numero' | 'created_at' | 
 
 // ─── Lang ────────────────────────────────────────────────────────────────────
 export type Lang = 'es' | 'en'
-
-// Extended fields added for SDM Capital
-declare module './index' {
-  interface Propiedad {
-    precio_clp?: number
-    superficie_util?: number
-    youtube_url?: string
-    dossier_url?: string
-  }
-}

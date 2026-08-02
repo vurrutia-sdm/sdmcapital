@@ -42,7 +42,7 @@ function applyCatalogOrder(props: Propiedad[], mode: string): Propiedad[] {
   if (mode === 'precio_alto') { const c = copy.filter(p => p.a_consultar); const r = copy.filter(p => !p.a_consultar).sort((a,b) => (b.precio_uf||0)-(a.precio_uf||0)); return [...c,...r] }
   if (mode === 'precio_bajo') { const c = copy.filter(p => p.a_consultar); const r = copy.filter(p => !p.a_consultar).sort((a,b) => (a.precio_uf||0)-(b.precio_uf||0)); return [...r,...c] }
   if (mode === 'aleatorio')   return copy.sort(() => Math.random() - 0.5)
-  return copy.sort((a,b) => { const ao = (a as Record<string,unknown>).orden as number ?? 9999; const bo = (b as Record<string,unknown>).orden as number ?? 9999; return ao - bo })
+  return copy.sort((a,b) => { const ao = a.orden ?? 9999; const bo = b.orden ?? 9999; return ao - bo })
 }
 
 // ── MAP VIEW ─────────────────────────────────────────────────────────────────
@@ -79,9 +79,8 @@ function MapView({ props }: { props: Propiedad[] }) {
     const geocoder = new window.google.maps.Geocoder()
 
     props.forEach(p => {
-      const r = p as Record<string,unknown>
-      const lat = r.map_lat as number
-      const lng = r.map_lng as number
+      const lat = p.map_lat
+      const lng = p.map_lng
 
       const addMarker = (pos: google.maps.LatLng | google.maps.LatLngLiteral) => {
         const marker = new window.google.maps.Marker({
@@ -98,7 +97,7 @@ function MapView({ props }: { props: Propiedad[] }) {
       if (lat && lng) {
         addMarker({ lat, lng })
       } else {
-        const addr = (r.map_address as string) || `${p.comuna}, ${p.region}, Chile`
+        const addr = p.map_address || `${p.comuna}, ${p.region}, Chile`
         geocoder.geocode({ address: addr }, (results, status) => {
           if (status === 'OK' && results?.[0]) addMarker(results[0].geometry.location)
         })

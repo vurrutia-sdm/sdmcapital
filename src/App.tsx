@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { LangProvider } from '@/hooks/useLang'
 import Layout from '@/components/layout/Layout'
@@ -10,22 +11,34 @@ import PropiedadDetailPage from '@/pages/PropiedadDetailPage'
 import AsociadosPage from '@/pages/AsociadosPage'
 import BlogPage from '@/pages/BlogPage'
 import BlogPostPage from '@/pages/BlogPostPage'
-import AdminPage from '@/pages/AdminPage'
-import FichaClientesLista from '@/pages/admin/FichaClientesLista'
-import FichaClienteDetalle from '@/pages/admin/FichaClienteDetalle'
-import FichaClienteNueva from '@/pages/admin/FichaClienteNueva'
-import FichaClienteVer from '@/pages/admin/FichaClienteVer'
-import FichaClienteEditar from '@/pages/admin/FichaClienteEditar'
-import Agentes from '@/pages/admin/Agentes'
-import Captacion from '@/pages/admin/Captacion'
-import ElBarrancoShowcase from '@/pages/ElBarrancoShowcase'
-import ReservaConfirmacionPage from '@/pages/ReservaConfirmacionPage'
 import RentalPage from '@/pages/RentalPage'
 import VendeConNosotrosPage from '@/pages/VendeConNosotrosPage'
 import PoliticaPrivacidadPage from '@/pages/PoliticaPrivacidadPage'
 import CondicionesServicioPage from '@/pages/CondicionesServicioPage'
 import EliminacionDatosPage from '@/pages/EliminacionDatosPage'
 import EvaluacionGratuitaPage from '@/pages/EvaluacionGratuitaPage'
+
+// ─── Cargadas bajo demanda ────────────────────────────────────────────────────
+// El admin arrastra el editor TipTap, el generador de PDF y html2canvas: en
+// total la mayor parte del bundle. Ningún visitante del sitio público entra
+// ahí, así que no tiene por qué descargarlo. El showcase es igual de pesado y
+// solo lo abre quien llega por su enlace.
+const AdminPage           = lazy(() => import('@/pages/AdminPage'))
+const FichaClientesLista  = lazy(() => import('@/pages/admin/FichaClientesLista'))
+const FichaClienteDetalle = lazy(() => import('@/pages/admin/FichaClienteDetalle'))
+const FichaClienteNueva   = lazy(() => import('@/pages/admin/FichaClienteNueva'))
+const FichaClienteVer     = lazy(() => import('@/pages/admin/FichaClienteVer'))
+const FichaClienteEditar  = lazy(() => import('@/pages/admin/FichaClienteEditar'))
+const Agentes             = lazy(() => import('@/pages/admin/Agentes'))
+const Captacion           = lazy(() => import('@/pages/admin/Captacion'))
+const ElBarrancoShowcase  = lazy(() => import('@/pages/ElBarrancoShowcase'))
+const ReservaConfirmacionPage = lazy(() => import('@/pages/ReservaConfirmacionPage'))
+
+// Se ve solo el instante que tarda en llegar el chunk. Sin texto: un mensaje
+// de "cargando" que parpadea 200 ms molesta más de lo que informa.
+function Cargando() {
+  return <div style={{ minHeight: '100vh', background: '#fff' }} />
+}
 
 function NotFound() {
   return (
@@ -47,6 +60,7 @@ export default function App() {
     <LangProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <Suspense fallback={<Cargando />}>
         <Routes>
           {/* Admin — sin layout público */}
           <Route path="/admin" element={<AdminPage />} />
@@ -88,6 +102,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </LangProvider>
   )
