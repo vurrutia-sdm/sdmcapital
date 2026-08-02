@@ -579,6 +579,15 @@ function RichTextEditor({ value, onChange }: { value: string; onChange: (html: s
 }
 
 // ─── PROPIEDADES ──────────────────────────────────────────────────────────────
+function slugify(titulo: string, comuna?: string, dormitorios?: number) {
+  const base = `${titulo}-${comuna || ''}${dormitorios ? `-${dormitorios}d` : ''}`
+  return base
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 function PropiedadesAdmin() {
   const [items, setItems]         = useState<Propiedad[]>([])
   const [editing, setEditing]     = useState<Partial<Propiedad> | null>(null)
@@ -654,6 +663,7 @@ function PropiedadesAdmin() {
     const payload = {
       ...editing,
       activo:              editing.activo !== false,
+      slug:                editing.slug || slugify(editing.titulo || '', editing.comuna, editing.dormitorios),
       bono_pie:            !!r.bono_pie,
       bono_pie_porcentaje: r.bono_pie_porcentaje ? Number(r.bono_pie_porcentaje) : null,
       bodegas:             Number(r.bodegas) || 0,

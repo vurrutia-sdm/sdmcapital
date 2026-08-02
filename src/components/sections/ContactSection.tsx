@@ -1,18 +1,27 @@
 // SDM Capital — ContactSection
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useContenido } from '@/hooks/useContenido'
 import type { MensajeContacto } from '@/types'
 
-const CONTACT_INFO = [
-  { label: 'Dirección', lines: ['Av. Apoquindo 5583', 'Las Condes, Santiago'] },
-  { label: 'Teléfono',  lines: ['+56 9 3103 8954', '+56 9 6191 2281'] },
-  { label: 'Email',     lines: ['contacto@sdmcapital.cl'] },
-  { label: 'Horario',   lines: ['Lunes a Viernes', '09:00 – 18:00'] },
-]
-
 export default function ContactSection() {
+  const { get } = useContenido()
   const [form, setForm] = useState<MensajeContacto>({ nombre: '', email: '', telefono: '', mensaje: '' })
   const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle')
+
+  const direccion = get('direccion', 'Av. Apoquindo 5583, Las Condes, Santiago')
+  const comaIdx = direccion.indexOf(',')
+  const horario = get('horario', 'Lunes a Viernes · 09:00 – 18:00')
+
+  const CONTACT_INFO = [
+    {
+      label: 'Dirección',
+      lines: comaIdx >= 0 ? [direccion.slice(0, comaIdx), direccion.slice(comaIdx + 1).trim()] : [direccion],
+    },
+    { label: 'Teléfono', lines: [get('telefono_1', '+56 9 3103 8954'), get('telefono_2', '+56 9 6191 2281')].filter(Boolean) },
+    { label: 'Email',    lines: [get('email', 'contacto@sdmcapital.cl')] },
+    { label: 'Horario',  lines: horario.split('·').map(s => s.trim()).filter(Boolean) },
+  ]
 
   const set = (k: keyof MensajeContacto) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }))

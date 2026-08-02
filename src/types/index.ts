@@ -13,6 +13,7 @@ export interface DossierItem {
 
 export interface Propiedad {
   id: string
+  slug?: string
   titulo: string
   titulo_en?: string
   descripcion: string

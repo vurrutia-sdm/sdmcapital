@@ -1,16 +1,17 @@
 import { ChevronUp } from 'lucide-react'
 import { useScrollTop } from '@/hooks/useScrollTop'
-
-const WA_NUMBER = '56937478846'
+import { useContenido } from '@/hooks/useContenido'
 
 export default function FloatingButtons() {
   const { show, scrollTop } = useScrollTop(300)
+  const { get } = useContenido()
+  const waNumber = get('whatsapp', '56937478846')
 
   return (
     <div className="fixed bottom-6 right-5 z-50 flex flex-col gap-2.5 items-center">
       {/* WhatsApp */}
       <a
-        href={`https://wa.me/${WA_NUMBER}`}
+        href={`https://wa.me/${waNumber}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="WhatsApp"

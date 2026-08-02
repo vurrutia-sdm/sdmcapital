@@ -76,7 +76,7 @@ export default function App() {
             <Route path="/propiedades" element={<PropiedadesPage />} />
             <Route path="/propiedades-usadas" element={<PropiedadesPage />} />
             <Route path="/proyectos-nuevos" element={<PropiedadesPage />} />
-            <Route path="/propiedades/:id" element={<PropiedadDetailPage />} />
+            <Route path="/propiedades/:slug" element={<PropiedadDetailPage />} />
             <Route path="/asociados" element={<AsociadosPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />

@@ -64,7 +64,7 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
 
   return (
     <Link
-      to={`/propiedades/${propiedad.id}`}
+      to={`/propiedades/${propiedad.slug || propiedad.id}`}
       className="group block bg-white overflow-hidden"
       style={{ textDecoration: 'none' }}
     >

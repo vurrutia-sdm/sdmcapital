@@ -3,12 +3,14 @@ import { useParams, Link } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
+import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import type { BlogPost } from '@/types'
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
   const { lang } = useLang()
+  const { get } = useContenido()
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -111,7 +113,7 @@ export default function BlogPostPage() {
           <div className="mt-8 pt-8 border-t flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
             <Link to="/blog" className="btn-text">← Volver al Blog</Link>
             <a
-              href={`https://wa.me/56937478846?text=Vi el artículo: ${titulo}`}
+              href={`https://wa.me/${get('whatsapp', '56937478846')}?text=Vi el artículo: ${titulo}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-green text-[13px] py-2.5 px-5"

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { MapPin, Home, Bath, Maximize2, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
+import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
 import SEO from '@/components/SEO'
@@ -212,26 +213,47 @@ const ESTADO_DESTACADO: Record<string, { label: string; sub: string; bg: string 
   reservada: { label: 'Reservada', sub: 'Esta propiedad tiene una reserva en curso', bg: '#d97706' },
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+const EL_BARRANCO_ID = 'eccfd92d-713e-4e0a-a074-ff76daffd81e'
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function PropiedadDetailPage() {
-  const { id } = useParams<{ id: string }>()
+  const { slug } = useParams<{ slug: string }>()
   const { lang } = useLang()
+  const { get } = useContenido()
   const [prop, setProp] = useState<Propiedad | null>(null)
   const [loading, setLoading] = useState(true)
+
   const [imgIdx, setImgIdx] = useState(0)
   const [lightbox, setLightbox] = useState(false)
 
   useEffect(() => {
-    if (!id) return
+    if (!slug) return
     setLoading(true)
-    supabase.from('propiedades').select('*').eq('id', id).single()
+
+    // Links viejos con UUID → resolver el slug actual y redirigir 301
+    if (UUID_REGEX.test(slug)) {
+      supabase.from('propiedades').select('slug').eq('id', slug).single()
+        .then(({ data, error }) => {
+          if (!error && data?.slug) {
+            window.location.replace(`/propiedades/${data.slug}`)
+          } else {
+            setProp(null)
+            setLoading(false)
+          }
+        })
+      return
+    }
+
+    supabase.from('propiedades').select('*').eq('slug', slug).single()
       .then(({ data, error }) => {
         if (error) console.error('Error cargando propiedad:', error)
         setProp(data)
         setLoading(false)
       })
-  }, [id])
+  }, [slug])
 
   const allImgs: string[] = prop ? [
     ...(prop.imagen_principal ? [prop.imagen_principal] : []),
@@ -266,7 +288,7 @@ export default function PropiedadDetailPage() {
         title={titulo}
         description={`${prop.tipo ? prop.tipo.charAt(0).toUpperCase() + prop.tipo.slice(1) : 'Propiedad'} en ${prop.comuna}, ${prop.region}. ${prop.a_consultar ? 'Precio a consultar.' : prop.precio_uf ? `UF ${prop.precio_uf.toLocaleString('es-CL')}.` : ''} ${prop.descripcion?.slice(0, 120) || ''}`}
         image={prop.imagen_principal || prop.imagenes?.[0]}
-        url={`/propiedades/${prop.id}`}
+        url={`/propiedades/${prop.slug || prop.id}`}
         type="article"
       />
       {/* Breadcrumb */}
@@ -277,7 +299,7 @@ export default function PropiedadDetailPage() {
       </div>
 
       {/* ── Banner Showcase El Barranco ── */}
-      {id === 'eccfd92d-713e-4e0a-a074-ff76daffd81e' && <ElBarrancoBanner />}
+      {prop.id === EL_BARRANCO_ID && <ElBarrancoBanner />}
 
       <div className="px-8 lg:px-12 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
@@ -329,7 +351,7 @@ export default function PropiedadDetailPage() {
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {allImgs.map((img, i) => (
                   <div key={i} onClick={() => setImgIdx(i)} className="flex-shrink-0 cursor-pointer" style={{ width: 76, height: 56, borderRadius: 2, overflow: 'hidden', outline: i === imgIdx ? '2px solid var(--green)' : '2px solid transparent', transition: 'outline 0.15s', background: '#0d1e2e' }}>
-                    <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <img src={img} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   </div>
                 ))}
               </div>
@@ -544,7 +566,7 @@ export default function PropiedadDetailPage() {
               ) : (
                 <>
                   <a
-                    href={`https://wa.me/56937478846?text=Hola, me interesa la propiedad: ${titulo}`}
+                    href={`https://wa.me/${get('whatsapp', '56937478846')}?text=Hola, me interesa la propiedad: ${titulo}`}
                     target="_blank" rel="noopener noreferrer"
                     className="btn-green inline-flex"
                   >
@@ -687,7 +709,7 @@ export default function PropiedadDetailPage() {
       })()}
 
       {/* ── Banner Showcase El Barranco (inferior) ── */}
-      {id === 'eccfd92d-713e-4e0a-a074-ff76daffd81e' && <ElBarrancoBanner clave="banner_foto" />}
+      {prop.id === EL_BARRANCO_ID && <ElBarrancoBanner clave="banner_foto" />}
 
       {/* Mapa */}
       {(prop.map_address || prop.comuna) && (
