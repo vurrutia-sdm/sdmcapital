@@ -39,6 +39,10 @@ const FORMA_LABELS: Record<FormaPago, string> = {
 
 const STEP_LABELS = ['Cliente', 'Propiedad', 'Precios', 'Forma de pago', 'Ejecutivo']
 
+// Días de vigencia con que nace una cotización nueva. El PDF imprime este valor
+// tal cual y calcula la fecha límite sumándolo a created_at.
+const VIGENCIA_DIAS_DEFECTO = 15
+
 // ─── Generación de PDF bajo demanda ──────────────────────────────────────────
 // @react-pdf/renderer pesa ~2 MB y solo hace falta al descargar una cotización.
 // Con el import estático, el chunk `pdf` entraba en cualquier pestaña de /admin.
@@ -78,14 +82,19 @@ function useUF() {
   const [uf,      setUf]      = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const fetch_ = useCallback(async () => {
+  // Devuelve el valor además de guardarlo: quien lo pide suele necesitarlo en el
+  // acto y leer el estado justo después daría el valor anterior.
+  const fetch_ = useCallback(async (): Promise<number | null> => {
     setLoading(true)
+    let valor: number | null = null
     try {
       const r    = await fetch('https://mindicador.cl/api/uf')
       const data = await r.json()
-      setUf(data.serie?.[0]?.valor ?? null)
+      valor = data.serie?.[0]?.valor ?? null
+      setUf(valor)
     } catch { /* silent */ }
     setLoading(false)
+    return valor
   }, [])
 
   useEffect(() => { fetch_() }, [fetch_])
@@ -321,7 +330,7 @@ function CotizacionWizard({
   setStep: (s: number) => void
   uf: number | null
   ufLoading: boolean
-  refreshUF: () => void
+  refreshUF: () => Promise<number | null>
   propiedades: Propiedad[]
   onSave: (estado?: EstadoCotizacion) => Promise<void>
   onCancel: () => void
@@ -381,7 +390,9 @@ function CotizacionWizard({
       prop_estacionamientos: p.estacionamientos,
       prop_bodegas:          p.bodegas,
       prop_amenidades:       p.amenidades,
-      prop_imagen_url:       p.imagen_principal,
+      // Sin fallback, una propiedad sin portada definida entraba con la imagen
+      // vacía y el PDF terminaba mostrando "Sin imagen" pese a tener fotos.
+      prop_imagen_url:       p.imagen_principal || p.imagenes?.[0],
       precio_uf:             p.precio_uf,
       precio_clp:            p.precio_clp,
     })
@@ -643,7 +654,7 @@ function CotizacionWizard({
                 </div>
               </Fld>
               <button
-                onClick={() => { refreshUF(); if (uf) upd({ valor_uf: uf }) }}
+                onClick={async () => { const v = await refreshUF(); if (v) upd({ valor_uf: v }) }}
                 disabled={ufLoading}
                 className="btn-primary"
                 style={{ padding: '8px 16px', fontSize: 11, marginBottom: 1 }}
@@ -867,15 +878,20 @@ export function CotizacionesAdmin() {
   useEffect(() => {
     supabase
       .from('propiedades')
-      .select('id, titulo, tipo, direccion, comuna, region, dormitorios, banos, superficie_total, superficie_util, estacionamientos, bodegas, amenidades, imagen_principal, precio_uf, precio_clp, activo')
+      .select('id, titulo, tipo, direccion, comuna, region, dormitorios, banos, superficie_total, superficie_util, estacionamientos, bodegas, amenidades, imagen_principal, imagenes, precio_uf, precio_clp, activo')
       .eq('activo', true)
       .order('titulo')
       .then(({ data }) => setPropiedades((data ?? []) as Propiedad[]))
   }, [])
 
-  const openCreate = () => {
-    setEditing({ ...EMPTY_DRAFT, valor_uf: uf ?? 0, vigencia_dias: 30 })
+  // La UF se vuelve a pedir al abrir el wizard: el panel puede llevar horas
+  // abierto y el valor traído al montar quedaría de ayer. created_at lo pone la
+  // base con now(), así que la fecha del documento siempre es la del guardado.
+  const openCreate = async () => {
     setStep(1)
+    setEditing({ ...EMPTY_DRAFT, valor_uf: uf ?? 0, vigencia_dias: VIGENCIA_DIAS_DEFECTO })
+    const actual = await refreshUF()
+    if (actual) setEditing(d => (d ? { ...d, valor_uf: actual } : d))
   }
 
   const openEdit = (c: Cotizacion) => {

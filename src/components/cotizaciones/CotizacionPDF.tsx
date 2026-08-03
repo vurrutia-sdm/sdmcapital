@@ -1,4 +1,5 @@
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer'
+import { imagenParaPDF } from '@/lib/imagenes'
 import type { Cotizacion } from '@/types'
 
 // ─── Paleta ──────────────────────────────────────────────────────────────────
@@ -53,25 +54,30 @@ const S = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start',
   },
   hStripes: { flexDirection: 'row', marginBottom: 9, gap: 4 },
-  hTitle:   { fontFamily: 'Helvetica-Bold', fontSize: 19, color: C.white, letterSpacing: 3 },
-  hSub:     { fontSize: 7.5, color: C.sky, letterSpacing: 2.5, marginTop: 3 },
-  hRight:   { alignItems: 'flex-end', gap: 3 },
+  // El interletraje va contenido: con letterSpacing 3 el bloque no cabía en su
+  // columna y "SDM CAPITAL" se partía a media palabra. `flexShrink: 0` +
+  // `wrap={false}` en el Text evitan que vuelva a ocurrir si crece el bloque
+  // derecho. Mismo criterio en el resto de los títulos en mayúsculas.
+  hLeft:    { flexShrink: 0 },
+  hTitle:   { fontFamily: 'Helvetica-Bold', fontSize: 19, color: C.white, letterSpacing: 1.4 },
+  hSub:     { fontSize: 7.5, color: C.sky, letterSpacing: 1.4, marginTop: 3 },
+  hRight:   { alignItems: 'flex-end', gap: 3, flexShrink: 0 },
   hNum:     { fontFamily: 'Helvetica-Bold', fontSize: 15, color: C.green },
   hDate:    { fontSize: 8, color: C.sky },
   badge:    { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 2, marginTop: 5 },
-  badgeTx:  { fontFamily: 'Helvetica-Bold', fontSize: 6.5, color: C.white, letterSpacing: 2 },
+  badgeTx:  { fontFamily: 'Helvetica-Bold', fontSize: 6.5, color: C.white, letterSpacing: 1 },
 
   // Body
   body: { paddingHorizontal: 36, paddingTop: 22, paddingBottom: 70, gap: 18 },
 
   // Section label + divider
-  secLbl: { fontFamily: 'Helvetica-Bold', fontSize: 7, color: C.green, letterSpacing: 2.5, marginBottom: 5 },
+  secLbl: { fontFamily: 'Helvetica-Bold', fontSize: 7, color: C.green, letterSpacing: 1.4, marginBottom: 5 },
   secLine: { height: 1, backgroundColor: C.sky, opacity: 0.4, marginBottom: 10 },
 
   // Client grid
   clientRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
-  clientFld: { minWidth: 110 },
-  lbl: { fontSize: 6.5, color: C.muted, letterSpacing: 1.5, marginBottom: 2 },
+  clientFld: { minWidth: 122 },
+  lbl: { fontSize: 6.5, color: C.muted, letterSpacing: 0.9, marginBottom: 2 },
   val: { fontFamily: 'Helvetica-Bold', fontSize: 9, color: C.navy },
 
   // Property
@@ -80,7 +86,7 @@ const S = StyleSheet.create({
   propImg:  { width: 148, height: 104, objectFit: 'cover', borderRadius: 2 },
   propNoImg: { width: 148, height: 104, backgroundColor: C.skyPale, borderRadius: 2,
                alignItems: 'center', justifyContent: 'center' },
-  propType:  { fontSize: 7, color: C.green, fontFamily: 'Helvetica-Bold', letterSpacing: 2, marginBottom: 4 },
+  propType:  { fontSize: 7, color: C.green, fontFamily: 'Helvetica-Bold', letterSpacing: 1.2, marginBottom: 4 },
   propName:  { fontFamily: 'Helvetica-Bold', fontSize: 11, color: C.navy, marginBottom: 4 },
   propAddr:  { fontSize: 8, color: C.muted, marginBottom: 10 },
   chars:     { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
@@ -93,8 +99,8 @@ const S = StyleSheet.create({
   priceGrid:  { flexDirection: 'row', gap: 3 },
   pcell:      { flex: 1, backgroundColor: C.skyPale, padding: 10, borderRadius: 2, gap: 3 },
   pcellHL:    { flex: 1, backgroundColor: C.navy,    padding: 10, borderRadius: 2, gap: 3 },
-  pLbl:       { fontSize: 6.5, color: C.muted, letterSpacing: 1.5 },
-  pLblHL:     { fontSize: 6.5, color: C.sky,   letterSpacing: 1.5 },
+  pLbl:       { fontSize: 6.5, color: C.muted, letterSpacing: 0.9 },
+  pLblHL:     { fontSize: 6.5, color: C.sky,   letterSpacing: 0.9 },
   pVal:       { fontFamily: 'Helvetica-Bold', fontSize: 10, color: C.navy },
   pValHL:     { fontFamily: 'Helvetica-Bold', fontSize: 10, color: C.white },
   pSub:       { fontSize: 7.5, color: C.muted },
@@ -132,7 +138,8 @@ const S = StyleSheet.create({
   ftCargo:  { fontSize: 7.5, color: C.sky, marginBottom: 3 },
   ftCont:   { fontSize: 7.5, color: C.sky },
   ftBrand:  { alignItems: 'flex-end' },
-  ftTitle:  { fontFamily: 'Helvetica-Bold', fontSize: 11, color: C.white, letterSpacing: 2 },
+  ftBrandBox: { alignItems: 'flex-end', flexShrink: 0 },
+  ftTitle:  { fontFamily: 'Helvetica-Bold', fontSize: 11, color: C.white, letterSpacing: 1.2 },
   ftWeb:    { fontSize: 7, color: C.sky, marginTop: 2 },
   ftSt:     { flexDirection: 'row', gap: 3, marginTop: 5 },
 })
@@ -150,6 +157,11 @@ export function CotizacionPDF({ c }: { c: Cotizacion }) {
     c.prop_bodegas          ? `${c.prop_bodegas} bodega${c.prop_bodegas > 1 ? 's' : ''}` : '',
   ].filter(Boolean)
 
+  const imgSrc = imagenParaPDF(c.prop_imagen_url)
+
+  // La fecha límite sale de created_at + vigencia_dias, nunca de la diferencia
+  // contra "hoy": una cotización de hace un mes debe seguir diciendo los mismos
+  // días que se pactaron, no los transcurridos.
   const vigFin = c.vigencia_dias
     ? new Date(new Date(c.created_at).getTime() + c.vigencia_dias * 86_400_000)
         .toLocaleDateString('es-CL')
@@ -161,14 +173,14 @@ export function CotizacionPDF({ c }: { c: Cotizacion }) {
 
         {/* ── HEADER ── */}
         <View style={S.header}>
-          <View>
+          <View style={S.hLeft}>
             <View style={S.hStripes}>
               <View style={{ width: 22, height: 4, backgroundColor: C.sky }} />
               <View style={{ width: 22, height: 4, backgroundColor: C.green }} />
               <View style={{ width: 22, height: 4, backgroundColor: C.navyMid }} />
             </View>
-            <Text style={S.hTitle}>SDM CAPITAL</Text>
-            <Text style={S.hSub}>COTIZACIÓN DE PROPIEDAD</Text>
+            <Text style={S.hTitle} wrap={false}>SDM CAPITAL</Text>
+            <Text style={S.hSub} wrap={false}>COTIZACIÓN DE PROPIEDAD</Text>
           </View>
           <View style={S.hRight}>
             <Text style={S.hNum}>{PAD(c.numero)}</Text>
@@ -248,8 +260,8 @@ export function CotizacionPDF({ c }: { c: Cotizacion }) {
                   </Text>
                 ) : null}
               </View>
-              {c.prop_imagen_url ? (
-                <Image src={c.prop_imagen_url} style={S.propImg} />
+              {imgSrc ? (
+                <Image src={imgSrc} style={S.propImg} />
               ) : (
                 <View style={S.propNoImg}>
                   <Text style={{ fontSize: 7, color: C.muted }}>Sin imagen</Text>
@@ -371,8 +383,8 @@ export function CotizacionPDF({ c }: { c: Cotizacion }) {
               {[c.ejecutivo_email, c.ejecutivo_telefono].filter(Boolean).join('  ·  ')}
             </Text>
           </View>
-          <View style={S.ftBrand}>
-            <Text style={S.ftTitle}>SDM CAPITAL</Text>
+          <View style={S.ftBrandBox}>
+            <Text style={S.ftTitle} wrap={false}>SDM CAPITAL</Text>
             <Text style={S.ftWeb}>www.sdmcapital.cl</Text>
             <View style={S.ftSt}>
               <View style={{ width: 14, height: 3, backgroundColor: C.sky }} />
