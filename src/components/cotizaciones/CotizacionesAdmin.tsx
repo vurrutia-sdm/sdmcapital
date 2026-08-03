@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { Search, PencilLine } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { avisarError } from '@/lib/errores'
 import { subirImagen } from '@/lib/subirImagen'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import type { Cotizacion, CotizacionDraft, EstadoCotizacion, FormaPago, Propiedad } from '@/types'
@@ -42,6 +44,27 @@ const STEP_LABELS = ['Cliente', 'Propiedad', 'Precios', 'Forma de pago', 'Ejecut
 // Días de vigencia con que nace una cotización nueva. El PDF imprime este valor
 // tal cual y calcula la fecha límite sumándolo a created_at.
 const VIGENCIA_DIAS_DEFECTO = 15
+
+// Alternar entre buscar en el catálogo y escribir a mano es una decisión real,
+// no una nota al pie: como enlace subrayado en gris no se leía como clickeable.
+// Mismo peso visual que el resto de controles del admin.
+const BTN_MODO: React.CSSProperties = {
+  alignSelf: 'flex-start',
+  display: 'inline-flex', alignItems: 'center', gap: 7,
+  padding: '9px 16px',
+  background: '#fff',
+  border: '1px solid var(--border)',
+  borderRadius: 2,
+  color: 'var(--navy-dark)',
+  fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
+  cursor: 'pointer',
+  transition: 'border-color 0.15s, color 0.15s',
+}
+
+const hoverModo = (e: React.MouseEvent<HTMLButtonElement>, dentro: boolean) => {
+  e.currentTarget.style.borderColor = dentro ? 'var(--green)' : 'var(--border)'
+  e.currentTarget.style.color = dentro ? 'var(--green)' : 'var(--navy-dark)'
+}
 
 // ─── Generación de PDF bajo demanda ──────────────────────────────────────────
 // @react-pdf/renderer pesa ~2 MB y solo hace falta al descargar una cotización.
@@ -368,7 +391,11 @@ function CotizacionWizard({
 
   // ── Selección de propiedad ───────────────────────────────────────────────
   const [propSearch, setPropSearch] = useState('')
-  const [manualProp, setManualProp] = useState(!draft.propiedad_id)
+  // Al crear se arranca en el buscador del catálogo: la mayoría de las
+  // cotizaciones son de propiedades ya publicadas, y tipearlas a mano duplica
+  // datos que ya existen. Al editar una que ya trae título se entra directo a
+  // los campos, que es lo que se viene a retocar.
+  const [manualProp, setManualProp] = useState(Boolean(draft.prop_titulo))
 
   const propsFiltradas = propiedades.filter(p =>
     p.titulo.toLowerCase().includes(propSearch.toLowerCase()) ||
@@ -497,9 +524,12 @@ function CotizacionWizard({
                 )}
                 <button
                   onClick={() => setManualProp(true)}
-                  style={{ alignSelf: 'flex-start', fontSize: 12, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                  style={BTN_MODO}
+                  onMouseEnter={e => hoverModo(e, true)}
+                  onMouseLeave={e => hoverModo(e, false)}
                 >
-                  Ingresar datos manualmente →
+                  <PencilLine size={13} />
+                  Ingresar datos manualmente
                 </button>
               </div>
             )}
@@ -510,9 +540,12 @@ function CotizacionWizard({
                 {!draft.propiedad_id && (
                   <button
                     onClick={() => { setManualProp(false); setPropSearch('') }}
-                    style={{ alignSelf: 'flex-start', fontSize: 12, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginBottom: -8 }}
+                    style={BTN_MODO}
+                    onMouseEnter={e => hoverModo(e, true)}
+                    onMouseLeave={e => hoverModo(e, false)}
                   >
-                    ← Buscar en catálogo
+                    <Search size={13} />
+                    Buscar en catálogo
                   </button>
                 )}
                 {draft.propiedad_id && (
@@ -910,27 +943,35 @@ export function CotizacionesAdmin() {
     }
     delete payload.id
 
-    if (editing.id) {
-      await supabase.from('cotizaciones').update(payload).eq('id', editing.id)
-    } else {
-      await supabase.from('cotizaciones').insert(payload)
-    }
+    const { error } = editing.id
+      ? await supabase.from('cotizaciones').update(payload).eq('id', editing.id)
+      : await supabase.from('cotizaciones').insert(payload)
+
+    setSaving(false)
+
+    // Si falla se deja el wizard abierto y `editing` intacto: quien completó los
+    // cinco pasos no debería perderlos por un error de la base.
+    if (avisarError('No se pudo guardar la cotización', error)) return
+
     await loadCots()
     setEditing(null)
-    setSaving(false)
   }
 
   const updateEstado = async (id: string, estado: EstadoCotizacion) => {
-    await supabase.from('cotizaciones').update({ estado }).eq('id', id)
+    const { error } = await supabase.from('cotizaciones').update({ estado }).eq('id', id)
+    // El <select> se pinta desde el estado local, así que no tocarlo deja a la
+    // vista el valor que de verdad tiene la base.
+    if (avisarError('No se pudo cambiar el estado de la cotización', error)) return
     setCotizaciones(cs => cs.map(c => c.id === id ? { ...c, estado } : c))
   }
 
   const deleteCot = async (id: string) => {
     if (!confirm('¿Eliminar esta cotización?')) return
     setDeleting(id)
-    await supabase.from('cotizaciones').delete().eq('id', id)
-    setCotizaciones(cs => cs.filter(c => c.id !== id))
+    const { error } = await supabase.from('cotizaciones').delete().eq('id', id)
     setDeleting(null)
+    if (avisarError('No se pudo eliminar la cotización', error)) return
+    setCotizaciones(cs => cs.filter(c => c.id !== id))
   }
 
   const nombreArchivo = (c: Cotizacion) =>

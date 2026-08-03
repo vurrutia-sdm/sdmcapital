@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { avisarError } from '@/lib/errores'
 import {
   TarjetaFrente, TarjetaReverso,
   EMPTY_TARJETA, TARJETA_DEFAULTS,
@@ -199,22 +200,25 @@ export function TarjetasEquipo() {
       orden:     editing.orden ?? 0,
     }
 
-    if (editingId) {
-      await supabase.from('tarjetas_equipo').update(payload).eq('id', editingId)
-    } else {
-      await supabase.from('tarjetas_equipo').insert(payload)
-    }
-    await load()
+    const { error } = editingId
+      ? await supabase.from('tarjetas_equipo').update(payload).eq('id', editingId)
+      : await supabase.from('tarjetas_equipo').insert(payload)
+
     setSaving(false)
+    // No se llama a cancel(): si falló, el formulario sigue con lo escrito.
+    if (avisarError('No se pudo guardar la tarjeta', error)) return
+
+    await load()
     cancel()
   }
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar esta tarjeta?')) return
     setDeleting(id)
-    await supabase.from('tarjetas_equipo').delete().eq('id', id)
-    await load()
+    const { error } = await supabase.from('tarjetas_equipo').delete().eq('id', id)
     setDeleting(null)
+    if (avisarError('No se pudo eliminar la tarjeta', error)) return
+    await load()
   }
 
   const move = async (idx: number, dir: -1 | 1) => {
@@ -223,12 +227,13 @@ export function TarjetasEquipo() {
     const a = tarjetas[idx]
     const b = tarjetas[target]
     setMoving(a.id)
-    await Promise.all([
+    const fallo = (await Promise.all([
       supabase.from('tarjetas_equipo').update({ orden: b.orden }).eq('id', a.id),
       supabase.from('tarjetas_equipo').update({ orden: a.orden }).eq('id', b.id),
-    ])
-    await load()
+    ])).find(r => r.error)
     setMoving(null)
+    avisarError('No se pudo reordenar las tarjetas', fallo?.error ?? null)
+    await load()
   }
 
   // ── Vista formulario ────────────────────────────────────────────────────────

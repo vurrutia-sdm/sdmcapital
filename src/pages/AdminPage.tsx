@@ -9,6 +9,7 @@ import Color from '@tiptap/extension-color'
 import { Image } from '@tiptap/extension-image'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
+import { avisarError } from '@/lib/errores'
 import { subirImagen, subirArchivo } from '@/lib/subirImagen'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
@@ -599,12 +600,18 @@ function PropiedadesAdmin() {
     const isCurrentlyActive = p.activo !== false
     const newVal = !isCurrentlyActive
     setItems(prev => prev.map(item => item.id === p.id ? { ...item, activo: newVal } : item))
-    await supabase.from('propiedades').update({ activo: newVal }).eq('id', p.id)
+    const { error } = await supabase.from('propiedades').update({ activo: newVal }).eq('id', p.id)
+    // El cambio se pinta antes de confirmar; si la base lo rechaza hay que
+    // devolver el interruptor a donde estaba o la pantalla queda mintiendo.
+    if (avisarError('No se pudo cambiar la visibilidad de la propiedad', error)) {
+      setItems(prev => prev.map(item => item.id === p.id ? { ...item, activo: isCurrentlyActive } : item))
+    }
   }
 
   const { items: dragged, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
     const updates = reordered.map((p, i) => supabase.from('propiedades').update({ destacada: i < 6 }).eq('id', p.id))
-    await Promise.all(updates)
+    const fallo = (await Promise.all(updates)).find(r => r.error)
+    avisarError('No se pudo guardar el nuevo orden de las propiedades', fallo?.error ?? null)
     load()
   })
 
@@ -621,7 +628,9 @@ function PropiedadesAdmin() {
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar esta propiedad?')) return
-    await supabase.from('propiedades').delete().eq('id', id); load()
+    const { error } = await supabase.from('propiedades').delete().eq('id', id)
+    if (avisarError('No se pudo eliminar la propiedad', error)) return
+    load()
   }
 
   const startEdit = (p: Propiedad) => {
@@ -662,14 +671,13 @@ function PropiedadesAdmin() {
       avance_obra:         editing.avance_obra ?? null,
       subsidios:           editing.subsidios ?? [],
     }
-    if (editing.id) {
-      const { error } = await supabase.from('propiedades').update(payload).eq('id', editing.id)
-      if (error) { alert('Error al guardar: ' + error.message); setSaving(false); return }
-    } else {
-      const { error } = await supabase.from('propiedades').insert([{ ...payload, imagenes: editing.imagenes || [], destacada: false, internacional: false, a_consultar: editing.a_consultar || false }])
-      if (error) { alert('Error al crear: ' + error.message); setSaving(false); return }
-    }
+    const { error } = editing.id
+      ? await supabase.from('propiedades').update(payload).eq('id', editing.id)
+      : await supabase.from('propiedades').insert([{ ...payload, imagenes: editing.imagenes || [], destacada: false, internacional: false, a_consultar: editing.a_consultar || false }])
+
     setSaving(false)
+    if (avisarError('No se pudo guardar la propiedad', error)) return
+
     setEditing(null)
     load()
   }
@@ -1008,7 +1016,9 @@ function BlogAdmin() {
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar este artículo?')) return
-    await supabase.from('blog_posts').delete().eq('id', id); load()
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id)
+    if (avisarError('No se pudo eliminar el artículo', error)) return
+    load()
   }
 
   const makeSlug = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -1016,9 +1026,12 @@ function BlogAdmin() {
   const save = async () => {
     if (!editing) return
     setSaving(true)
-    if (editing.id) await supabase.from('blog_posts').update(editing).eq('id', editing.id)
-    else await supabase.from('blog_posts').insert([{ ...editing, publicado: editing.publicado || false, destacado: editing.destacado || false }])
-    setSaving(false); setEditing(null); load()
+    const { error } = editing.id
+      ? await supabase.from('blog_posts').update(editing).eq('id', editing.id)
+      : await supabase.from('blog_posts').insert([{ ...editing, publicado: editing.publicado || false, destacado: editing.destacado || false }])
+    setSaving(false)
+    if (avisarError('No se pudo guardar el artículo', error)) return
+    setEditing(null); load()
   }
 
   return (
@@ -1099,21 +1112,27 @@ function EquipoAdmin() {
   useEffect(() => { load() }, [])
 
   const { items: sorted, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
-    await Promise.all(reordered.map((m, i) => supabase.from('equipo').update({ orden: i + 1 }).eq('id', m.id)))
+    const fallo = (await Promise.all(reordered.map((m, i) => supabase.from('equipo').update({ orden: i + 1 }).eq('id', m.id)))).find(r => r.error)
+    avisarError('No se pudo guardar el nuevo orden del equipo', fallo?.error ?? null)
     load()
   })
 
   const save = async () => {
     if (!editing) return
     setSaving(true)
-    if (editing.id) await supabase.from('equipo').update(editing).eq('id', editing.id)
-    else await supabase.from('equipo').insert([{ ...editing, activo: editing.activo !== false, orden: items.length + 1 }])
-    setSaving(false); setEditing(null); load()
+    const { error } = editing.id
+      ? await supabase.from('equipo').update(editing).eq('id', editing.id)
+      : await supabase.from('equipo').insert([{ ...editing, activo: editing.activo !== false, orden: items.length + 1 }])
+    setSaving(false)
+    if (avisarError('No se pudo guardar el miembro del equipo', error)) return
+    setEditing(null); load()
   }
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar este miembro?')) return
-    await supabase.from('equipo').delete().eq('id', id); load()
+    const { error } = await supabase.from('equipo').delete().eq('id', id)
+    if (avisarError('No se pudo eliminar el miembro del equipo', error)) return
+    load()
   }
 
   return (
@@ -1197,21 +1216,27 @@ function AsociadosAdmin() {
   useEffect(() => { load() }, [])
 
   const { items: sorted, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
-    await Promise.all(reordered.map((a, i) => supabase.from('asociados').update({ orden: i + 1 }).eq('id', a.id)))
+    const fallo = (await Promise.all(reordered.map((a, i) => supabase.from('asociados').update({ orden: i + 1 }).eq('id', a.id)))).find(r => r.error)
+    avisarError('No se pudo guardar el nuevo orden de los asociados', fallo?.error ?? null)
     load()
   })
 
   const save = async () => {
     if (!editing) return
     setSaving(true)
-    if (editing.id) await supabase.from('asociados').update(editing).eq('id', editing.id)
-    else await supabase.from('asociados').insert([{ ...editing, activo: editing.activo !== false, logo: editing.logo || '', orden: items.length + 1 }])
-    setSaving(false); setEditing(null); load()
+    const { error } = editing.id
+      ? await supabase.from('asociados').update(editing).eq('id', editing.id)
+      : await supabase.from('asociados').insert([{ ...editing, activo: editing.activo !== false, logo: editing.logo || '', orden: items.length + 1 }])
+    setSaving(false)
+    if (avisarError('No se pudo guardar el asociado', error)) return
+    setEditing(null); load()
   }
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar este asociado?')) return
-    await supabase.from('asociados').delete().eq('id', id); load()
+    const { error } = await supabase.from('asociados').delete().eq('id', id)
+    if (avisarError('No se pudo eliminar el asociado', error)) return
+    load()
   }
 
   return (
@@ -1282,7 +1307,8 @@ function MensajesAdmin() {
     supabase.from('contacto_mensajes').select('*').order('created_at', { ascending: false }).then(({ data }) => setMsgs(data || []))
   }, [])
   const marcar = async (id: string) => {
-    await supabase.from('contacto_mensajes').update({ leido: true }).eq('id', id)
+    const { error } = await supabase.from('contacto_mensajes').update({ leido: true }).eq('id', id)
+    if (avisarError('No se pudo marcar el mensaje como leído', error)) return
     setMsgs(m => m.map(msg => msg.id === id ? { ...msg, leido: true } : msg))
   }
   const noLeidos = msgs.filter(m => !m.leido).length
@@ -1634,12 +1660,14 @@ function ContenidoAdmin() {
 
   const save = async () => {
     setSaving(true)
-    await supabase.from('contenido_sitio').upsert(
+    const { error } = await supabase.from('contenido_sitio').upsert(
       Object.entries(d).map(([clave, valor]) => ({ clave, valor })),
       { onConflict: 'clave' }
     )
+    setSaving(false)
+    if (avisarError('No se pudo guardar el contenido del sitio', error)) return
     invalidateContenidoCache()
-    setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500)
+    setSaved(true); setTimeout(() => setSaved(false), 2500)
   }
 
   const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -2034,7 +2062,7 @@ function BarrancoAdmin() {
       { onConflict: 'clave' }
     )
     setSaving(false)
-    if (error) { alert('Error al guardar: ' + error.message); return }
+    if (avisarError('No se pudo guardar el showcase', error)) return
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -2429,12 +2457,14 @@ function RentalAdmin() {
 
   const save = async () => {
     setSaving(true)
-    await supabase.from('contenido_sitio').upsert(
+    const { error } = await supabase.from('contenido_sitio').upsert(
       Object.entries(d).map(([clave, valor]) => ({ clave, valor })),
       { onConflict: 'clave' }
     )
+    setSaving(false)
+    if (avisarError('No se pudo guardar el contenido del sitio', error)) return
     invalidateContenidoCache()
-    setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500)
+    setSaved(true); setTimeout(() => setSaved(false), 2500)
   }
 
   const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -2560,7 +2590,8 @@ function VendeAdmin() {
 
   const set = (k: string) => (v: string) => {
     setD(prev => ({ ...prev, [k]: v }))
-    supabase.from('contenido_sitio').upsert({ clave: k, valor: v }, { onConflict: 'clave' }).then(() => {
+    supabase.from('contenido_sitio').upsert({ clave: k, valor: v }, { onConflict: 'clave' }).then(({ error }) => {
+      if (avisarError('No se pudo guardar el campo', error)) return
       invalidateContenidoCache()
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)

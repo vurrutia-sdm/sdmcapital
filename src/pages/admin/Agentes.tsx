@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { avisarError } from '@/lib/errores'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -96,15 +97,17 @@ export default function Agentes() {
   }
 
   const toggleActivo = async (a: Agente) => {
-    await supabase.from('sdm_agentes').update({ activo: !a.activo }).eq('id', a.id)
+    const { error } = await supabase.from('sdm_agentes').update({ activo: !a.activo }).eq('id', a.id)
+    if (avisarError('No se pudo cambiar el estado del agente', error)) return
     load()
   }
 
   const del = async (id: string) => {
     if (!confirm('¿Eliminar este agente?')) return
     setDeleting(id)
-    await supabase.from('sdm_agentes').delete().eq('id', id)
+    const { error } = await supabase.from('sdm_agentes').delete().eq('id', id)
     setDeleting(null)
+    if (avisarError('No se pudo eliminar el agente', error)) return
     load()
   }
 

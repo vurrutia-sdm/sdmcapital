@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, RefreshCw, ChevronDown, ChevronUp, Check, X, Pencil, Trash2, Bell } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { avisarError } from '@/lib/errores'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -1057,13 +1058,18 @@ export default function Captacion() {
     const edit = edits[v.id]
     if (!edit) return
     setSavingId(v.id)
-    await supabase.from('visitas').update({
+    const { error } = await supabase.from('visitas').update({
       estado: 'confirmada',
       asignado_a: edit.asignado,
       horario_confirmado: edit.horario || null,
     }).eq('id', v.id)
+    if (error) { setSavingId(null); avisarError('No se pudo confirmar la visita', error); return }
+
     if (v.lead_id) {
-      await supabase.from('leads').update({ status: 'visita_confirmada' }).eq('id', v.lead_id)
+      // La visita ya quedó confirmada; si el lead no se actualiza hay que
+      // avisarlo igual, porque los dos registros quedan descoordinados.
+      const { error: errLead } = await supabase.from('leads').update({ status: 'visita_confirmada' }).eq('id', v.lead_id)
+      avisarError('La visita se confirmó, pero no se pudo actualizar el estado del lead', errLead)
     }
     setSavingId(null)
     loadVisitas()
@@ -1073,8 +1079,9 @@ export default function Captacion() {
   const cancelarVisita = async (v: VisitaConLead) => {
     if (!confirm('¿Cancelar esta visita?')) return
     setSavingId(v.id)
-    await supabase.from('visitas').update({ estado: 'cancelada' }).eq('id', v.id)
+    const { error } = await supabase.from('visitas').update({ estado: 'cancelada' }).eq('id', v.id)
     setSavingId(null)
+    if (avisarError('No se pudo cancelar la visita', error)) return
     loadVisitas()
   }
 
