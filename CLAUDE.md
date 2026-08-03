@@ -1,5 +1,18 @@
 # SDM Capital — notas para Claude Code
 
+## Antes de tocar nada: leer SINCRONIA.md
+
+Varias sesiones de Claude Code trabajan sobre este repo en paralelo.
+[`SINCRONIA.md`](./SINCRONIA.md) define qué archivos le corresponden a cada una y
+dos reglas obligatorias:
+
+1. **Commitear antes de deployar**, nunca al revés — el deploy toma el working
+   tree completo, no lo commiteado.
+2. **Correr `git status` al iniciar sesión** — si hay cambios sin commitear de
+   otra sesión, detenerse y preguntar antes de editar.
+
+Ahí mismo está el registro donde cada sesión anota en qué está trabajando.
+
 ## Migraciones de base de datos (Supabase)
 
 El proyecto está linkeado a `ugfhgfpgxyfzafudxaeo` y la CLI de Supabase está
