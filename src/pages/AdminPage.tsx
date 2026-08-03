@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase'
 import { subirImagen, subirArchivo } from '@/lib/subirImagen'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
+import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto, DossierItem } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
 import { CotizacionesAdmin } from '@/components/cotizaciones/CotizacionesAdmin'
@@ -190,7 +191,7 @@ function ImageUploader({ currentUrl, onUploaded, folder = 'general' }: { current
   }
   return (
     <div className="flex items-center gap-4">
-      {currentUrl && <img src={currentUrl} alt="" className="w-16 h-16 object-cover rounded" style={{ border: '1px solid var(--border)' }} />}
+      {currentUrl && <img src={thumbUrl(currentUrl)} alt="" loading="lazy" decoding="async" className="w-16 h-16 object-cover rounded" style={{ border: '1px solid var(--border)' }} />}
       <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
         {uploading ? 'Subiendo…' : currentUrl ? 'Cambiar imagen' : 'Subir imagen'}
         <input type="file" accept="image/*" onChange={upload} style={{ display: 'none' }} disabled={uploading} />
@@ -379,7 +380,7 @@ const upload = async (files: FileList) => {
                   boxShadow: url === imagenPrincipal ? '0 0 0 2px rgba(61,170,110,0.25)' : 'none',
                 }}
               >
-                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <img src={thumbUrl(url)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 {url === imagenPrincipal && (
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'center', padding: '4px 0' }}>
                     ★ PORTADA
@@ -958,7 +959,7 @@ function PropiedadesAdmin() {
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-3">
                     {(p.imagen_principal || p.imagenes?.[0])
-                      ? <img src={p.imagen_principal || p.imagenes[0]} alt="" className="w-10 h-10 object-cover rounded flex-shrink-0" />
+                      ? <img src={thumbUrl(p.imagen_principal || p.imagenes[0])} alt="" loading="lazy" decoding="async" className="w-10 h-10 object-cover rounded flex-shrink-0" />
                       : <div className="w-10 h-10 rounded flex-shrink-0" style={{ background: 'var(--navy)', opacity: 0.3 }} />
                     }
                     <div>
@@ -1490,7 +1491,7 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
     onChange(JSON.stringify(next.map(x => x.id)))
   }
 
-  const thumb = (p: Propiedad) => p.imagen_principal || p.imagenes?.[0] || ''
+  const thumb = (p: Propiedad) => thumbUrl(p.imagen_principal || p.imagenes?.[0] || '')
   const precio = (p: Propiedad) => p.a_consultar ? 'A consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : '—'
   const available = allProps.filter(p => !ids.includes(p.id))
 
