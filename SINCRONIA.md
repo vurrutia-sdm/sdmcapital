@@ -72,6 +72,31 @@ línea o se marca como cerrada.
 
 | Fecha | Sesión | En qué está | Estado |
 |---|---|---|---|
-| 2026-08-02 | Admin | Cotizaciones: columnas `prop_pais`/`prop_ciudad` en Supabase, errores de escritura visibles en todo el admin (`avisarError`), catálogo como modo por defecto en el Paso 2, PDF bajo demanda | Cerrado — commiteado y desplegado |
+| 2026-08-02 | Admin | Cotizaciones: columnas `prop_pais`/`prop_ciudad` en Supabase, errores de escritura visibles en todo el admin (`avisarError`), catálogo como modo por defecto en el Paso 2, PDF bajo demanda | **Cerrada** — todo commiteado y desplegado |
 | 2026-08-02 | Web pública | Componente `SinArriendos` en `PropiedadesPage.tsx` | Cerrado — commit `0b7e80a`, ya en producción |
 | — | Sofía / chatbot | — | — |
+
+### Sesión admin cerrada el 2026-08-02
+
+Último commit: `933fac8`. Árbol limpio y producción verificada contra `HEAD`
+(mismos hashes de assets, chunks diferidos y `/api/imagen` respondiendo).
+
+Trabajo de la sesión, en orden:
+
+1. Accesibilidad: contraste WCAG AA, `focus-visible`, sanitización con DOMPurify,
+   lazy loading de imágenes.
+2. TypeScript: de 38 errores a 0, `tsc` incorporado al script de build,
+   `thumbUrl()` en las miniaturas del catálogo.
+3. Rendimiento del admin: PDF bajo demanda, el chunk de 2 MB fuera de la carga
+   inicial, fallback de Suspense propio para `/admin`.
+4. PDF de cotizaciones: imagen vía proxy de R2, UF fresca al abrir el wizard,
+   letter-spacing legible.
+5. Alta de cotizaciones: columnas `prop_pais`/`prop_ciudad`, errores de Supabase
+   visibles en todo el admin, catálogo por defecto en el Paso 2.
+
+**Fase 3 (tokens tipográficos): planificada, NO iniciada.** No se tocó ningún
+archivo por este motivo. Queda como el siguiente trabajo pendiente de la sesión
+admin.
+
+Pendiente operativo: los commits de esta sesión están **solo en local**, sin
+`push` (`main` va 7 commits adelante de `origin/main`).
