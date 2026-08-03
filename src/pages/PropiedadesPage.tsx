@@ -4,6 +4,7 @@ import { useSearchParams, useLocation, Link } from 'react-router-dom'
 import { SlidersHorizontal, X, Map, Grid } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getComunas } from '@/data/comunas-chile'
+import { useContenido } from '@/hooks/useContenido'
 import PropertyCard from '@/components/ui/PropertyCard'
 import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad, FiltrosPropiedades } from '@/types'
@@ -11,6 +12,49 @@ import type { Propiedad, FiltrosPropiedades } from '@/types'
 const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY
 
 declare global { interface Window { google: typeof google } }
+
+// Estado vacío del filtro de arriendo.
+//
+// El menú del header y RentalPage enlazan a ?estado=en_arriendo, y hoy el
+// catálogo no tiene ninguna propiedad en ese estado. Con la vista vacía genérica
+// el visitante concluye que SDM no hace arriendos y se va. El arriendo es línea
+// de negocio propia, así que aquí se capta en vez de no decir nada.
+//
+// Solo aplica a este filtro: para el resto, "No se encontraron propiedades" es
+// la respuesta correcta.
+function SinArriendos() {
+  const { get } = useContenido()
+  const wa = get('whatsapp', '56937478846')
+  const texto = 'Hola, me interesa arrendar. ¿Me avisan cuando tengan propiedades disponibles?'
+
+  return (
+    <div className="px-4 lg:px-12 pb-20">
+      <div
+        className="text-center mx-auto"
+        style={{ maxWidth: 620, marginTop: 32, padding: '56px 32px', background: 'var(--off)', border: '1px solid var(--border)' }}
+      >
+        <h2 className="font-serif font-light" style={{ fontSize: 30, lineHeight: 1.2, color: 'var(--navy-dark)' }}>
+          Estamos actualizando nuestro <em>catálogo de arriendos</em>
+        </h2>
+        <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.8, marginTop: 18 }}>
+          En SDM Capital trabajamos con propiedades en arriendo. En este momento no
+          tenemos unidades publicadas, pero recibimos disponibilidad nueva de forma
+          constante. Escríbenos y te avisamos apenas tengamos algo que calce con lo
+          que buscas.
+        </p>
+        <a
+          href={`https://wa.me/${wa}?text=${encodeURIComponent(texto)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary"
+          style={{ marginTop: 28 }}
+        >
+          Avísenme por WhatsApp
+        </a>
+      </div>
+    </div>
+  )
+}
 
 const TIPOS   = [{ value: '', label: 'Todos los tipos' },{ value: 'casa', label: 'Casa' },{ value: 'departamento', label: 'Departamento' },{ value: 'oficina', label: 'Oficina' },{ value: 'parcela', label: 'Parcela' },{ value: 'comercial', label: 'Comercial' },{ value: 'hotel', label: 'Hotel / Inversión' }]
 const REGIONES = [{ value: '', label: 'Todas las regiones' },{ value: 'R. Metropolitana', label: 'R. Metropolitana' },{ value: 'Valparaíso', label: 'Valparaíso' },{ value: 'Coquimbo', label: 'Coquimbo' },{ value: 'Biobío', label: 'Biobío' },{ value: 'Los Lagos', label: 'Los Lagos' }]
@@ -308,9 +352,11 @@ export default function PropiedadesPage() {
           <div style={{ width: 32, height: 32, border: '2px solid var(--border)', borderTopColor: 'var(--navy)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       ) : displayProps.length === 0 ? (
-        <div className="text-center py-24">
-          <p style={{ fontSize: 18, color: 'var(--muted)', fontWeight: 300 }}>No se encontraron propiedades.</p>
-        </div>
+        filtros.estado === 'en_arriendo' ? <SinArriendos /> : (
+          <div className="text-center py-24">
+            <p style={{ fontSize: 18, color: 'var(--muted)', fontWeight: 300 }}>No se encontraron propiedades.</p>
+          </div>
+        )
       ) : viewMode === 'map' ? (
         <div className="px-4 lg:px-12 pb-20 mt-6">
           <MapView props={displayProps} />
