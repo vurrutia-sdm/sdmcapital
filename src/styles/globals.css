@@ -79,6 +79,12 @@
   .logo-stripe--green { background: var(--green); }
   .logo-stripe--navy  { background: var(--navy-deeper); }
 
+  /* Pantalla de carga de /admin. Aparece recién a los 300 ms: en conexiones
+     rápidas el chunk llega antes y el usuario no llega a ver nada, que es
+     mejor que un destello. `both` mantiene opacity:0 durante el retardo. */
+  .admin-loading { animation: admin-loading-in 0.25s ease 0.3s both; }
+  @keyframes admin-loading-in { from { opacity: 0; } to { opacity: 1; } }
+
   .btn-primary {
     @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-opacity duration-200 hover:opacity-90;
     background: var(--navy-dark);

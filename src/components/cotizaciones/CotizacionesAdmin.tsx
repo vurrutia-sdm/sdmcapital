@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { PDFDownloadLink, pdf } from '@react-pdf/renderer'
 import { supabase } from '@/lib/supabase'
 import { subirImagen } from '@/lib/subirImagen'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import type { Cotizacion, CotizacionDraft, EstadoCotizacion, FormaPago, Propiedad } from '@/types'
-import { CotizacionPDF } from './CotizacionPDF'
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 const EMPTY_DRAFT: CotizacionDraft = {
@@ -40,6 +38,27 @@ const FORMA_LABELS: Record<FormaPago, string> = {
 }
 
 const STEP_LABELS = ['Cliente', 'Propiedad', 'Precios', 'Forma de pago', 'Ejecutivo']
+
+// ─── Generación de PDF bajo demanda ──────────────────────────────────────────
+// @react-pdf/renderer pesa ~2 MB y solo hace falta al descargar una cotización.
+// Con el import estático, el chunk `pdf` entraba en cualquier pestaña de /admin.
+// Estas dos funciones lo cargan recién al hacer clic; el navegador cachea el
+// módulo, así que la espera es solo la primera vez.
+async function generarBlobPDF(c: Cotizacion): Promise<Blob> {
+  const [{ pdf }, { CotizacionPDF }] = await Promise.all([
+    import('@react-pdf/renderer'),
+    import('./CotizacionPDF'),
+  ])
+  return pdf(<CotizacionPDF c={c} />).toBlob()
+}
+
+function descargarBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a   = document.createElement('a')
+  a.href = url; a.download = filename
+  document.body.appendChild(a); a.click(); document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 1500)
+}
 
 const PAD = (n: number) => `COT-${String(n).padStart(4, '0')}`
 const n0  = (v: string | number | undefined) =>
@@ -829,6 +848,7 @@ export function CotizacionesAdmin() {
   const [propiedades,  setPropiedades]  = useState<Propiedad[]>([])
   const [deleting,     setDeleting]     = useState<string | null>(null)
   const [gmailLoading, setGmailLoading] = useState<string | null>(null)
+  const [pdfLoading,   setPdfLoading]   = useState<string | null>(null)
 
   const { uf, ufLoading, refreshUF } = useUF()
 
@@ -897,16 +917,22 @@ export function CotizacionesAdmin() {
     setDeleting(null)
   }
 
+  const nombreArchivo = (c: Cotizacion) =>
+    `${PAD(c.numero)}-${c.cliente_nombre.replace(/\s+/g, '-')}.pdf`
+
+  const descargarPDF = async (c: Cotizacion) => {
+    setPdfLoading(c.id)
+    try {
+      descargarBlob(await generarBlobPDF(c), nombreArchivo(c))
+    } finally {
+      setPdfLoading(null)
+    }
+  }
+
   const openGmail = async (c: Cotizacion) => {
     setGmailLoading(c.id)
     try {
-      const blob     = await pdf(<CotizacionPDF c={c} />).toBlob()
-      const url      = URL.createObjectURL(blob)
-      const filename = `${PAD(c.numero)}-${c.cliente_nombre.replace(/\s+/g, '-')}.pdf`
-      const a        = document.createElement('a')
-      a.href = url; a.download = filename
-      document.body.appendChild(a); a.click(); document.body.removeChild(a)
-      setTimeout(() => URL.revokeObjectURL(url), 1500)
+      descargarBlob(await generarBlobPDF(c), nombreArchivo(c))
 
       const subject = `Cotización ${PAD(c.numero)} – ${c.prop_titulo}`
       const body    = [
@@ -1075,20 +1101,14 @@ export function CotizacionesAdmin() {
                 </button>
 
                 {/* Descargar PDF */}
-                <PDFDownloadLink
-                  document={<CotizacionPDF c={c} />}
-                  fileName={`${PAD(c.numero)}-${c.cliente_nombre.replace(/\s+/g, '-')}.pdf`}
+                <button
+                  onClick={() => descargarPDF(c)}
+                  title="Descargar PDF"
+                  disabled={pdfLoading === c.id}
+                  style={{ fontSize: 14, background: 'none', border: 'none', cursor: pdfLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', color: pdfLoading === c.id ? 'var(--muted)' : 'var(--green)', borderRadius: 2 }}
                 >
-                  {({ loading: pdfLoading }) => (
-                    <button
-                      title="Descargar PDF"
-                      disabled={pdfLoading}
-                      style={{ fontSize: 14, background: 'none', border: 'none', cursor: pdfLoading ? 'wait' : 'pointer', padding: '4px 6px', color: pdfLoading ? 'var(--muted)' : 'var(--green)', borderRadius: 2 }}
-                    >
-                      📄
-                    </button>
-                  )}
-                </PDFDownloadLink>
+                  {pdfLoading === c.id ? '⏳' : '📄'}
+                </button>
 
                 {/* Gmail */}
                 <button

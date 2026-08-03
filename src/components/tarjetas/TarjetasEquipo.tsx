@@ -5,8 +5,13 @@ import {
   EMPTY_TARJETA, TARJETA_DEFAULTS,
   type Tarjeta, type TarjetaDraft,
 } from './TarjetaCard'
-import { imprimirTarjeta } from './imprimir'
 import './tarjeta.css'
+
+// `imprimir` arrastra jsPDF y html-to-image, que rollup agrupa en el mismo chunk
+// que @react-pdf. Se carga al pulsar Imprimir, no al abrir el panel.
+const imprimirTarjeta = async (tarjeta: Parameters<
+  Awaited<typeof import('./imprimir')>['imprimirTarjeta']
+>[0]) => (await import('./imprimir')).imprimirTarjeta(tarjeta)
 
 // ─── Pequeñas piezas UI (mismo patrón que CotizacionesAdmin) ──────────────────
 function Fld({ label, children }: { label: string; children: React.ReactNode }) {

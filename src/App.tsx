@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { LangProvider } from '@/hooks/useLang'
 import Layout from '@/components/layout/Layout'
 import ScrollToTop from '@/components/layout/ScrollToTop'
@@ -40,6 +40,25 @@ function Cargando() {
   return <div style={{ minHeight: '100vh', background: '#fff' }} />
 }
 
+// El admin baja chunks bastante más grandes que el sitio público, y ahí una
+// pantalla en blanco de varios segundos se lee como una página rota. El retardo
+// de 300 ms lo pone la animación en CSS (.admin-loading), no un timer en JS.
+function CargandoAdmin() {
+  return (
+    <div
+      className="admin-loading flex flex-col items-center justify-center gap-4"
+      style={{ minHeight: '100vh', background: 'var(--off)' }}
+    >
+      <div className="logo-stripes">
+        <div className="logo-stripe logo-stripe--sky" />
+        <div className="logo-stripe logo-stripe--green" />
+        <div className="logo-stripe logo-stripe--navy" />
+      </div>
+      <span style={{ fontSize: 13, color: 'var(--muted)' }}>Cargando panel…</span>
+    </div>
+  )
+}
+
 function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6 px-8 text-center">
@@ -62,15 +81,18 @@ export default function App() {
         <ScrollToTop />
         <Suspense fallback={<Cargando />}>
         <Routes>
-          {/* Admin — sin layout público */}
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/ficha-cliente" element={<FichaClientesLista />} />
-          <Route path="/admin/ficha-cliente/:clienteId" element={<FichaClienteDetalle />} />
-          <Route path="/admin/ficha-cliente/:clienteId/nueva" element={<FichaClienteNueva />} />
-          <Route path="/admin/ficha-cliente/:clienteId/ficha/:fichaId" element={<FichaClienteVer />} />
-          <Route path="/admin/ficha-cliente/:clienteId/ficha/:fichaId/editar" element={<FichaClienteEditar />} />
-          <Route path="/admin/agentes" element={<Agentes />} />
-          <Route path="/admin/captacion" element={<Captacion />} />
+          {/* Admin — sin layout público. Suspense propio: estas rutas bajan
+              chunks grandes y merecen un fallback visible, no el div en blanco. */}
+          <Route element={<Suspense fallback={<CargandoAdmin />}><Outlet /></Suspense>}>
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/ficha-cliente" element={<FichaClientesLista />} />
+            <Route path="/admin/ficha-cliente/:clienteId" element={<FichaClienteDetalle />} />
+            <Route path="/admin/ficha-cliente/:clienteId/nueva" element={<FichaClienteNueva />} />
+            <Route path="/admin/ficha-cliente/:clienteId/ficha/:fichaId" element={<FichaClienteVer />} />
+            <Route path="/admin/ficha-cliente/:clienteId/ficha/:fichaId/editar" element={<FichaClienteEditar />} />
+            <Route path="/admin/agentes" element={<Agentes />} />
+            <Route path="/admin/captacion" element={<Captacion />} />
+          </Route>
 
           {/* Showcase El Barranco — experiencia inmersiva, sin header/footer */}
           <Route path="/propiedades/:id/showcase" element={<ElBarrancoShowcase />} />
