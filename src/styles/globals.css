@@ -61,9 +61,17 @@
 
   *:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
+  /* `clip` y no `hidden`, en las DOS reglas. `overflow-x: hidden` convierte al
+     elemento en contenedor de scroll, y con html Y body en hidden a la vez
+     cualquier `position: sticky` del sitio deja de pegarse: su contenedor de
+     scroll pasa a ser ese ancestro en vez del viewport. Rompía el header del
+     admin. `clip` recorta exactamente igual sin crear el contenedor.
+     Medido: hace falta que las dos estén en `hidden` para romperlo — con una
+     sola el sticky funciona. Por eso van juntas y simétricas: dejar una sola
+     sería un arreglo por accidente que alguien "corregiría" más adelante. */
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
@@ -72,7 +80,7 @@
     background: #ffffff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   ::selection {
