@@ -431,7 +431,7 @@ function CotizacionWizard({
   return (
     <div>
       {/* Cabecera */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col items-start gap-3 mb-8 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <div>
           <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
             {draft.id ? `Editar ${PAD(0)}` : 'Nueva Cotización'}

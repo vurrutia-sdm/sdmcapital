@@ -392,7 +392,7 @@ export default function Propiedades() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Propiedades</h2>
         <button className="btn-green" onClick={() => setEditing(blank())}>+ Nueva propiedad</button>
       </div>
@@ -670,7 +670,7 @@ export default function Propiedades() {
                   <span className="text-sdm-sm" style={{ fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
                   {i < 6 && <Star size={11} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.15em', marginLeft: 4, color: 'var(--green)' }} />}
                 </td>
-                <td className="py-3 pr-4">
+                <td className="py-3 pr-8 lg:pr-4">
                   <div className="flex items-center gap-3">
                     {(p.imagen_principal || p.imagenes?.[0])
                       ? <img src={thumbUrl(p.imagen_principal || p.imagenes[0])} alt="" loading="lazy" decoding="async" className="w-10 h-10 object-cover rounded flex-shrink-0" />

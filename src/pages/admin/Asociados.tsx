@@ -48,7 +48,7 @@ export default function Asociados() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2>
         <button className="btn-green" onClick={() => setEditing({ nombre: '', logo: '', url: '', orden: items.length + 1, activo: true })}>+ Nuevo asociado</button>
       </div>

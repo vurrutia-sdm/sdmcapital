@@ -59,7 +59,7 @@ export default function Vende() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col items-start gap-3 mb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Vende con Nosotros</h2>
         {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
       </div>
