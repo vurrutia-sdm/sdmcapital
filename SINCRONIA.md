@@ -85,6 +85,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | Admin — Fase 3, etapa 2 | Helpers compartidos a `src/components/admin/`: `campos.tsx`, `layout.tsx`, `acciones.tsx`, `ImageUploader.tsx`. `primitivas.tsx` eliminado | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-05 | Admin — Fase 3, etapa 3 | Cuatro paneles a `src/pages/admin/`: `Blog`, `Equipo`, `Asociados`, `PaginasLegales` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-05 | Admin — Fase 3, etapa 4 | Romper el ciclo de imports: `RichTextEditor` + `TBtn` y `useDragSort` a `src/components/admin/` | Cerrada — ciclo eliminado, commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — Fase 3, etapa 5 | Tres paneles a `src/pages/admin/`: `Rental`, `Vende`, `Barranco` | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -402,6 +403,74 @@ los imports cruzados que dejaron de existir.
 Quedan 15 componentes en `AdminPage.tsx`. Los grandes: `PropiedadesAdmin`
 (426 líneas), `BarrancoAdmin` (403), `ContenidoAdmin` (321),
 `PropImageManager` (145), `RentalAdmin` (143), `VendeAdmin` (120).
+
+### Fase 3 — Etapa 5: Rental, Vende y Barranco — 2026-08-06
+
+| Antes | Ahora | Líneas del archivo nuevo |
+|---|---|---:|
+| `RentalAdmin` | `src/pages/admin/Rental.tsx` | 156 |
+| `VendeAdmin` | `src/pages/admin/Vende.tsx` | 103 |
+| `BarrancoAdmin` | `src/pages/admin/Barranco.tsx` | 410 |
+
+`AdminPage.tsx`: 2.123 → 1.496 líneas. Acumulado de la Fase 3: **2.808 →
+1.496, −1.312 líneas (−46,7%)** en cinco etapas.
+
+El diff de `AdminPage.tsx` son 633 borrados y **6 líneas agregadas**: los tres
+`import` y los tres `tab === … && <Panel />`. Nada más cambió — los cuerpos de
+las tres funciones se movieron byte a byte, verificados con `diff` contra el
+extracto original.
+
+#### Eran los tres paneles del bug de remontaje
+
+`Sec` y `Full` estuvieron definidos **dentro** de estos tres (más
+`ContenidoAdmin`), y esa es la causa documentada del salto de scroll. Ya vivían
+a nivel de módulo en `src/components/admin/layout.tsx` desde la Etapa 2, y así
+siguen: los tres archivos nuevos no definen ningún componente anidado.
+Verificado: la única declaración a nivel de módulo de cada archivo es su
+`export default function`.
+
+#### Las claves de pestaña no se tocaron
+
+`'rental'`, `'vende'` y `'barranco'` siguen igual. Solo cambió el nombre del
+componente.
+
+#### El ciclo sigue roto
+
+**No queda ningún import desde `src/pages/admin/` hacia `AdminPage.tsx`.** Las
+menciones a `AdminPage` que quedan en ese directorio son todas comentarios de
+cabecera. Ninguno de los tres paneles necesitó estado ni handlers de
+`AdminPage`: los tres son autocontenidos contra Supabase.
+
+#### Chunks: sin movimiento
+
+| Chunk | Etapa 4 | Etapa 5 |
+|---|---|---|
+| `AdminPage` | 169,57 kB | 169,57 kB |
+| `pdf` | 2.054,86 kB | 2.054,86 kB |
+| `editor` | `editor-CRXeSJ56.js` | mismo hash |
+| `react` | `react-DLA1cIuT.js` | mismo hash |
+| `index` | 238,90 kB | 238,90 kB |
+
+`pdf` sigue **fuera** de la carga inicial del admin. Los imports estáticos del
+chunk `AdminPage` son `react`, `router`, `index`, `errores`, `subirImagen`,
+`editor` e `iconos`; `pdf` solo aparece dentro del array `__vite__mapDeps`, que
+es la tabla de precarga de un `import()` dinámico.
+
+#### Anotado y NO tocado
+
+Los tres archivos conservan el comentario `// Sec y Full: definidos a nivel de
+módulo, junto a ContenidoAdmin.`, que quedó desactualizado: `Sec` y `Full`
+viven en `src/components/admin/layout.tsx` desde la Etapa 2, no junto a
+`ContenidoAdmin`. Es un comentario, no comportamiento, y esta etapa es un
+refactor puro. Corregirlo va en la etapa de limpieza.
+
+#### Pendiente
+
+Quedan 12 declaraciones de nivel superior en `AdminPage.tsx`. Las grandes:
+`PropiedadesAdmin` (443 líneas), `ContenidoAdmin` (321), `PropImageManager`
+(145), `CarouselPhotoManager` (107) y `HomeDestacadasSelector` (96).
+`FotosAdmin`, `DossierUploader` y `slugify` son las que faltan además del
+propio `AdminPage`.
 
 ### Sesión RLS vistas de métricas — 2026-08-05
 
