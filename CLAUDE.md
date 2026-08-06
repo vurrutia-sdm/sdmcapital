@@ -93,6 +93,25 @@ supabase migration up --linked
 Nota: `supabase db query` no existe como subcomando de la CLI. Los subcomandos
 de `supabase db` son `diff`, `dump`, `push`, `pull`, `reset` y `lint`.
 
+### `supabase db dump` requiere Docker
+
+Aunque parezca una operación remota —lee del proyecto linkeado, no de una base
+local—, `db dump` corre `pg_dump` dentro de un contenedor. Sin Docker Desktop
+arriba falla así, después de haberse conectado:
+
+```
+Dumping schemas from remote database...
+failed to inspect docker image: Cannot connect to the Docker daemon at
+unix:///Users/<usuario>/.docker/run/docker.sock. Is the docker daemon running?
+```
+
+Lo mismo aplica a `db diff` y `db reset`. `migration up --linked` y
+`migration list --linked` **no** necesitan Docker.
+
+Consecuencia práctica: sin Docker no hay forma desde la CLI de leer el esquema,
+las políticas RLS ni nada de `pg_catalog`. Para eso queda el SQL Editor del
+dashboard, o consultas por PostgREST cuando la tabla esté expuesta.
+
 ## Build y deploy
 
 `npm run build` corre `tsc && vite build`: el typecheck bloquea el build a

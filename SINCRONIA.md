@@ -75,9 +75,23 @@ línea o se marca como cerrada.
 | 2026-08-02 | Admin | Cotizaciones: columnas `prop_pais`/`prop_ciudad` en Supabase, errores de escritura visibles en todo el admin (`avisarError`), catálogo como modo por defecto en el Paso 2, PDF bajo demanda | **Cerrada** — todo commiteado y desplegado |
 | 2026-08-02 | Web pública | Componente `SinArriendos` en `PropiedadesPage.tsx` | Cerrado — commit `0b7e80a`, ya en producción |
 | 2026-08-05 | Inventario oficinas | Carga de 10 edificios de oficinas en arriendo (42 unidades). Toca `src/types/index.ts`, `supabase/migrations/` y `src/pages/PropiedadDetailPage.tsx` | Commit `a1a0728`, pusheado |
-| 2026-08-05 | Inventario oficinas (cambio de estrategia) | Los 10 edificios pasan a referencia interna permanente; se publica una ficha genérica en su lugar. Solo toca `supabase/migrations/` | Cerrada — commiteada, migración aplicada, sin deploy |
+| 2026-08-05 | Inventario oficinas (cambio de estrategia) | Los 10 edificios pasan a referencia interna permanente; se publica una ficha genérica en su lugar. Solo toca `supabase/migrations/` | Cerrada — commit `06d32b1`, migración aplicada y pusheada. Sin deploy propio: era SQL, no cambiaba el bundle |
 | 2026-08-05 | Banner promocional | Barra promocional en el home controlada desde el admin. Toca `src/components/sections/BannerPromo.tsx`, `src/pages/HomePage.tsx` y `ContenidoAdmin` dentro de `src/pages/AdminPage.tsx` | Cerrada — commiteada y desplegada |
+| 2026-08-05 | RLS / exposición de datos | Diagnóstico de lectura anónima en Supabase. **Solo investigación, sin cambios aplicados.** Afectaría `supabase/migrations/` y potencialmente todas las lecturas del sitio | Diagnóstico entregado, esperando revisión |
 | — | Sofía / chatbot | — | — |
+
+### Sesión RLS — 2026-08-05 (diagnóstico, sin cambios)
+
+Hallazgo: **las 19 tablas de `public` son legibles con la anon key**, que viaja
+en el bundle del sitio. `propiedades` devuelve las 65 filas, incluidas las 12
+con `activo = false` y su `direccion`.
+
+No se aplicó ningún cambio. Antes de tocar RLS hay que inventariar las
+políticas existentes: si ya hay una permisiva de SELECT, agregar otra no
+restringe nada — las políticas permisivas se suman con OR.
+
+**Advertencia para cualquier sesión: no agregar políticas a ciegas.** Una
+política mal puesta sobre `propiedades` deja el catálogo público en blanco.
 
 ### Sesión banner promocional — 2026-08-05
 
@@ -133,7 +147,8 @@ comunica volumen y rango de superficies sin decir dónde está nada. Va sin
 cualquiera de esos campos reintroduciría lo que se está protegiendo. Su
 `unidades` es NULL para que la ficha no dibuje el desglose piso por piso.
 
-Esa sí se activa, cuando se le carguen las fotos desde el admin.
+Esa sí está publicada: se le cargaron 10 fotos desde el admin y quedó con
+`activo = true` el 2026-08-05.
 
 ### Sesión admin cerrada el 2026-08-02
 
@@ -157,5 +172,6 @@ Trabajo de la sesión, en orden:
 archivo por este motivo. Queda como el siguiente trabajo pendiente de la sesión
 admin.
 
-Pendiente operativo: los commits de esta sesión están **solo en local**, sin
-`push` (`main` va 7 commits adelante de `origin/main`).
+Pendiente operativo **ya resuelto**: aquellos commits estaban solo en local,
+pero desde el 2026-08-05 `main` está a la par con `origin/main`. No queda nada
+sin pushear de esa sesión.
