@@ -90,6 +90,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, etapa 7 (final) | `Propiedades` a `src/pages/admin/Propiedades.tsx`, con `PropImageManager`, `DossierUploader` y `slugify` | Cerrada — **refactor de `AdminPage.tsx` terminado**, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, iconos | Reemplazar los emojis del admin por `lucide-react`. Dos commits: sidebar + encabezados, y controles + editor | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, limpieza | Borrar `FotosAdmin` y corregir los comentarios desactualizados | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — Fase 3, escala tipográfica | **Definición de tokens en ZONA COMPARTIDA** (`src/styles/globals.css` y `tailwind.config.js`). No toca componentes | Commiteada y pusheada, **sin desplegar** — no cambia nada visible |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05

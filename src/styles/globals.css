@@ -16,6 +16,39 @@
     --muted: #5F7183;
     --border: #e8edf2;
     --off: #F9FAFB;
+
+    /* ─── ESCALA TIPOGRÁFICA ─────────────────────────────────────────────
+       Espejo exacto de `fontSize` y `letterSpacing` en tailwind.config.js.
+       Existen para poder escribir `fontSize: 'var(--text-sm)'` desde
+       `style={{}}` mientras se migran los ~780 literales inline.
+
+       Los nombres NO llevan prefijo `sdm-` porque las custom properties
+       viven en su propio espacio y no pueden pisar nada de Tailwind; el
+       prefijo del config existe solo para no redefinir sus claves nativas.
+       La equivalencia es directa:
+
+         --text-sm      ↔  text-sdm-sm
+         --display-lg   ↔  text-display-lg
+         --tracking-wide ↔ tracking-sdm-wide                              */
+
+    /* Display — Cormorant Garamond 300 */
+    --display-sm: 28px;
+    --display-md: 40px;
+    --display-lg: 52px;
+    --display-xl: 72px;
+
+    /* UI / cuerpo — Inter */
+    --text-xs: 11px;
+    --text-sm: 13px;
+    --text-base: 15px;
+    --text-lg: 17px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+
+    /* Tracking */
+    --tracking-tight: -0.5px;
+    --tracking-normal: 0;
+    --tracking-wide: 2px;
   }
 
   * { box-sizing: border-box; }
@@ -57,21 +90,11 @@
   }
   .section-label--light { color: rgba(168, 196, 220, 0.85); }
 
-  .display-xl {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    @apply text-[72px] font-light leading-[1.03] tracking-[-1px];
-    color: var(--navy-dark);
-  }
-  .display-lg {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    @apply text-[52px] font-light leading-[1.08] tracking-[-0.5px];
-    color: var(--navy-dark);
-  }
-  .display-md {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    @apply text-[42px] font-light leading-[1.1] tracking-[-0.3px];
-    color: var(--navy-dark);
-  }
+  /* Las clases .display-xl / .display-lg / .display-md se eliminaron el
+     2026-08-06. Eran una tercera fuente de verdad para los tamaños display
+     —72/52/42px, en desacuerdo con los 76/52/42 de tailwind.config.js— y
+     ningún componente las usaba. Los tamaños display viven ahora solo en
+     `fontSize` del config y en `:root` de este archivo. */
 
   .logo-stripes { @apply flex flex-col gap-[3px] w-9; }
   .logo-stripe  { @apply h-[2.5px] rounded-[1px] w-9; }
