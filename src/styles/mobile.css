@@ -6,8 +6,13 @@
 @media (max-width: 768px) {
 
   /* ── Layout general ── */
+  /* `clip`, nunca `hidden`. Es el tercer lugar del proyecto donde vive esta
+     regla —los otros dos son html y body en globals.css— y basta con que una
+     de ellas sea `hidden` para que el elemento se vuelva contenedor de scroll
+     y deje de pegarse cualquier `position: sticky` del sitio. Rompía el header
+     del admin en teléfono. `clip` recorta exactamente igual. */
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* ── Header ── */
