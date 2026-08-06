@@ -51,9 +51,9 @@ export default function PaginasLegales() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Páginas Legales</h2>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Páginas Legales</h2>
         <div className="flex items-center gap-4">
-          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+          {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>
@@ -61,26 +61,24 @@ export default function PaginasLegales() {
       <div className="flex gap-2 mb-6">
         {LEGAL_PAGES.map(p => (
           <button key={p.slug} onClick={() => setActiveSlug(p.slug)}
-            className="rounded-sm"
-            style={{
-              padding: '9px 18px', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
+            className="rounded-sm text-sdm-sm"
+            style={{ padding: '9px 18px', fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
               border: `1px solid ${activeSlug === p.slug ? 'var(--navy-dark)' : '#e8edf2'}`,
               background: activeSlug === p.slug ? 'var(--navy-dark)' : '#fff',
-              color: activeSlug === p.slug ? '#fff' : 'var(--muted)',
-            }}>
+              color: activeSlug === p.slug ? '#fff' : 'var(--muted)' }}>
             {p.label}
           </button>
         ))}
       </div>
 
-      {error && <p style={{ fontSize: 13, color: '#E24B4A', marginBottom: 16 }}>{error}</p>}
+      {error && <p className="text-sdm-sm" style={{ color: '#E24B4A', marginBottom: 16 }}>{error}</p>}
 
       <div className="bg-white border border-[#e8edf2] rounded-sm p-8">
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
+        <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
           Este texto se muestra públicamente en <code>{active.ruta}</code>. Usa los títulos (H2) para separar las secciones, igual que en el resto del sitio.
         </p>
         {loading
-          ? <p style={{ fontSize: 14, color: 'var(--muted)' }}>Cargando…</p>
+          ? <p className="text-sdm-base" style={{ color: 'var(--muted)' }}>Cargando…</p>
           : <RichTextEditor key={activeSlug} value={contenido} onChange={setContenido} />}
       </div>
     </div>

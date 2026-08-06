@@ -42,8 +42,8 @@ function SpecCell({ icon, value, label }: { icon: React.ReactNode; value: string
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '10px 14px', border: '1px solid #e0e4ea', borderRadius: 4, minWidth: 72, background: '#fff' }}>
       <div style={{ color: '#4db870' }}>{icon}</div>
-      <span style={{ fontSize: 16, fontWeight: 600, color: '#0d2240', lineHeight: 1 }}>{value}</span>
-      <span style={{ fontSize: 10, color: '#7a8fa6', letterSpacing: '0.8px', textTransform: 'uppercase' }}>{label}</span>
+      <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240', lineHeight: 1 }}>{value}</span>
+      <span className="text-sdm-xs tracking-sdm-wide" style={{ color: '#7a8fa6', textTransform: 'uppercase' }}>{label}</span>
     </div>
   )
 }
@@ -85,7 +85,7 @@ export default function FichaClienteVer() {
 
   if (checking) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
-      <span style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', fontSize: 18 }}>Verificando sesión…</span>
+      <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
@@ -116,16 +116,16 @@ export default function FichaClienteVer() {
       {/* ── Admin UI (no-print) ── */}
       <div className="no-print" style={{ background: '#fff', borderBottom: '1px solid #dce4ec', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none', fontSize: 13 }}>
+          <Link className="text-sdm-sm" to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al cliente
           </Link>
           <span style={{ color: '#dce4ec' }}>|</span>
-          <span style={{ fontSize: 16, fontWeight: 600, color: '#0d2240' }}>
+          <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>
             {ficha?.direccion || 'Ficha de propiedad'}
           </span>
         </div>
-        <button onClick={() => window.print()}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#0d2240', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer', letterSpacing: '0.5px', fontFamily: 'inherit' }}>
+        <button className="text-sdm-sm tracking-sdm-wide" onClick={() => window.print()}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#0d2240', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           <Printer size={15} /> Imprimir / Guardar PDF
         </button>
       </div>
@@ -133,7 +133,7 @@ export default function FichaClienteVer() {
       {/* ── Loading ── */}
       {loading && (
         <div className="no-print" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f7fa' }}>
-          <span style={{ color: '#7a8fa6', fontStyle: 'italic', fontSize: 14 }}>Cargando ficha…</span>
+          <span className="text-sdm-base" style={{ color: '#7a8fa6', fontStyle: 'italic' }}>Cargando ficha…</span>
         </div>
       )}
 
@@ -154,10 +154,10 @@ export default function FichaClienteVer() {
 
               {/* Cliente */}
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: '#7a9ab8', marginBottom: 6 }}>CLIENTE</div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{cliente.nombre}</div>
-                {cliente.telefono && <div style={{ fontSize: 12, color: '#aabccc', marginBottom: 2 }}>{cliente.telefono}</div>}
-                {cliente.correo && <div style={{ fontSize: 12, color: '#aabccc' }}>{cliente.correo}</div>}
+                <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: '#7a9ab8', marginBottom: 6 }}>CLIENTE</div>
+                <div className="text-sdm-base" style={{ fontWeight: 600, color: '#fff', marginBottom: 4 }}>{cliente.nombre}</div>
+                {cliente.telefono && <div className="text-sdm-sm" style={{ color: '#aabccc', marginBottom: 2 }}>{cliente.telefono}</div>}
+                {cliente.correo && <div className="text-sdm-sm" style={{ color: '#aabccc' }}>{cliente.correo}</div>}
               </div>
             </div>
 
@@ -167,20 +167,20 @@ export default function FichaClienteVer() {
               {/* Badge */}
               {(ficha.tipo || ficha.operacion) && (
                 <div style={{ marginBottom: 14 }}>
-                  <span className="pe" style={{ display: 'inline-block', background: '#edf7f1', border: '1px solid #b6e4ca', color: '#1a6e3c', fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20 }}>
+                  <span className="pe text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-block', background: '#edf7f1', border: '1px solid #b6e4ca', color: '#1a6e3c', fontWeight: 700, textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20 }}>
                     {[ficha.tipo, ficha.operacion].filter(Boolean).join(' · ')}
                   </span>
                 </div>
               )}
 
               {/* Dirección */}
-              <div style={{ fontSize: 22, fontWeight: 500, color: '#0d2240', marginBottom: 8, lineHeight: 1.3, fontFamily: 'Georgia, serif' }}>
+              <div className="text-sdm-2xl" style={{ fontWeight: 500, color: '#0d2240', marginBottom: 8, lineHeight: 1.3, fontFamily: 'Georgia, serif' }}>
                 {ficha.direccion || 'Propiedad SDM Capital'}
               </div>
 
               {/* Precio */}
               {ficha.precio_uf && (
-                <div style={{ fontSize: 28, fontWeight: 500, color: '#0d2240', marginBottom: 20, fontFamily: 'Georgia, serif' }}>
+                <div className="text-sdm-display-sm" style={{ fontWeight: 500, color: '#0d2240', marginBottom: 20, fontFamily: 'Georgia, serif' }}>
                   UF {ficha.precio_uf.toLocaleString('es-CL')}
                 </div>
               )}
@@ -199,9 +199,9 @@ export default function FichaClienteVer() {
               {/* Descripción */}
               {ficha.descripcion && (
                 <div style={{ marginBottom: 24 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#7a8fa6', marginBottom: 10 }}>Descripción</div>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: '#7a8fa6', marginBottom: 10 }}>Descripción</div>
                   {ficha.descripcion.split('\n').filter(l => l.trim()).map((p, i) => (
-                    <p key={i} style={{ fontSize: 14, color: '#3a4353', lineHeight: 1.75, margin: '0 0 10px' }}>{p}</p>
+                    <p className="text-sdm-base" key={i} style={{ color: '#3a4353', lineHeight: 1.75, margin: '0 0 10px' }}>{p}</p>
                   ))}
                 </div>
               )}
@@ -210,20 +210,20 @@ export default function FichaClienteVer() {
             {/* CTA STRIP */}
             <div className="pe" style={{ background: '#0d2240', padding: '18px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4, fontFamily: 'Georgia, serif' }}>
+                <div className="text-sdm-base" style={{ fontWeight: 700, color: '#fff', marginBottom: 4, fontFamily: 'Georgia, serif' }}>
                   Tu búsqueda, en buenas manos.
                 </div>
-                <div style={{ fontSize: 12, color: '#aabccc', lineHeight: 1.5 }}>
+                <div className="text-sdm-sm" style={{ color: '#aabccc', lineHeight: 1.5 }}>
                   Escríbenos cuando quieras para resolver dudas o coordinar una visita.
                 </div>
               </div>
               {(ficha.asesor_telefono || ficha.asesor_correo) && (
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   {ficha.asesor_telefono && (
-                    <div style={{ fontSize: 12, color: '#fff', marginBottom: 4 }}>{ficha.asesor_telefono}</div>
+                    <div className="text-sdm-sm" style={{ color: '#fff', marginBottom: 4 }}>{ficha.asesor_telefono}</div>
                   )}
                   {ficha.asesor_correo && (
-                    <div style={{ fontSize: 12, color: '#aabccc' }}>{ficha.asesor_correo}</div>
+                    <div className="text-sdm-sm" style={{ color: '#aabccc' }}>{ficha.asesor_correo}</div>
                   )}
                 </div>
               )}
@@ -231,10 +231,10 @@ export default function FichaClienteVer() {
 
             {/* FOOTER */}
             <div className="pe" style={{ background: '#f5f7fa', borderTop: '1px solid #e0e4ea', padding: '11px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 12, color: '#0d2240', fontWeight: 500 }}>
+              <span className="text-sdm-sm" style={{ color: '#0d2240', fontWeight: 500 }}>
                 {ficha.asesor_nombre ? `${ficha.asesor_nombre} · ` : ''}SDM Capital
               </span>
-              <span style={{ fontSize: 11, color: '#9aafc2' }}>
+              <span className="text-sdm-xs" style={{ color: '#9aafc2' }}>
                 Información sujeta a verificación · {today}
               </span>
             </div>
@@ -246,10 +246,10 @@ export default function FichaClienteVer() {
 
               {/* Gallery header */}
               <div className="pe" style={{ background: '#162e4a', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'Georgia, serif', fontSize: 13, fontWeight: 700, color: '#fff', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                <span className="text-sdm-sm tracking-sdm-wide" style={{ fontFamily: 'Georgia, serif', fontWeight: 700, color: '#fff', textTransform: 'uppercase' }}>
                   Fotografías de la propiedad
                 </span>
-                <span style={{ fontSize: 11, color: '#7a9ab8', letterSpacing: '1px' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ color: '#7a9ab8' }}>
                   {ficha.fotos.length} {ficha.fotos.length === 1 ? 'fotografía' : 'fotografías'}
                 </span>
               </div>

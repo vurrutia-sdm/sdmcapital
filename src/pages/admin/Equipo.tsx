@@ -49,24 +49,24 @@ export default function Equipo() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Equipo</h2>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Equipo</h2>
         <button className="btn-green" onClick={() => setEditing({ nombre: '', cargo: '', bio: '', orden: items.length + 1, activo: true })}>+ Nuevo miembro</button>
       </div>
-      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las filas para cambiar el orden de aparición.</p>
+      <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las filas para cambiar el orden de aparición.</p>
 
       {editing && (
         <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar miembro' : 'Nuevo miembro'}</h3>
+          <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar miembro' : 'Nuevo miembro'}</h3>
           <div className="mb-6 p-6 rounded-sm" style={{ background: 'var(--off)', border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><Camera size={14} strokeWidth={2} />Foto del miembro</div>
+            <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><Camera size={14} strokeWidth={2} />Foto del miembro</div>
             <div className="flex items-center gap-6">
               {editing.foto
                 ? <img src={editing.foto} alt="Foto" className="w-20 h-20 object-cover rounded-full" style={{ border: '3px solid var(--border)' }} />
-                : <div className="w-20 h-20 rounded-full flex items-center justify-center font-serif" style={{ background: 'var(--navy)', color: 'var(--sky)', fontSize: 24, border: '3px solid var(--border)' }}>{(editing.nombre || '?').split(' ').map((n: string) => n[0]).join('').slice(0,2)}</div>
+                : <div className="w-20 h-20 rounded-full flex items-center justify-center font-serif text-sdm-2xl" style={{ background: 'var(--navy)', color: 'var(--sky)', border: '3px solid var(--border)' }}>{(editing.nombre || '?').split(' ').map((n: string) => n[0]).join('').slice(0,2)}</div>
               }
               <div className="flex-1">
                 <ImageUploader currentUrl={editing.foto} folder="equipo" onUploaded={url => setEditing(p => ({ ...p, foto: url }))} />
-                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>Recomendado: foto cuadrada, mínimo 400×400px.</p>
+                <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8 }}>Recomendado: foto cuadrada, mínimo 400×400px.</p>
               </div>
             </div>
           </div>
@@ -96,22 +96,22 @@ export default function Equipo() {
               <GripVertical size={18} strokeWidth={2} style={{ color: 'var(--muted)', flexShrink: 0 }} />
               {m.foto
                 ? <img src={m.foto} alt={m.nombre} className="w-14 h-14 object-cover rounded-full" style={{ border: '2px solid var(--border)' }} />
-                : <div className="w-14 h-14 rounded-full flex items-center justify-center font-serif flex-shrink-0" style={{ background: 'var(--navy)', color: 'var(--sky)', fontSize: 18 }}>{m.nombre.split(' ').map(n => n[0]).join('').slice(0,2)}</div>
+                : <div className="w-14 h-14 rounded-full flex items-center justify-center font-serif flex-shrink-0 text-sdm-xl" style={{ background: 'var(--navy)', color: 'var(--sky)' }}>{m.nombre.split(' ').map(n => n[0]).join('').slice(0,2)}</div>
               }
               <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy-dark)' }}>{m.nombre}</div>
-                <div style={{ fontSize: 12, color: 'var(--green)', letterSpacing: '0.5px' }}>{m.cargo}</div>
+                <div className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{m.nombre}</div>
+                <div className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)' }}>{m.cargo}</div>
               </div>
             </div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 12 }} className="line-clamp-2">{m.bio}</p>
+            <p style={{ color: 'var(--muted)', lineHeight: 1.6, marginBottom: 12 }} className="line-clamp-2 text-sdm-sm">{m.bio}</p>
             <div className="flex gap-3 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
-              <button onClick={() => setEditing(m)} style={{ fontSize: 12, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-              <button onClick={() => del(m.id)} style={{ fontSize: 12, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
+              <button className="text-sdm-sm" onClick={() => setEditing(m)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
+              <button className="text-sdm-sm" onClick={() => del(m.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
               <Badge label={m.activo ? 'Activo' : 'Inactivo'} color={m.activo ? 'var(--green)' : 'var(--muted)'} />
             </div>
           </div>
         ))}
-        {sorted.length === 0 && <div className="py-12 text-center col-span-3" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Sin miembros. Crea el primero.</div>}
+        {sorted.length === 0 && <div className="py-12 text-center col-span-3 text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin miembros. Crea el primero.</div>}
       </div>
     </div>
   )

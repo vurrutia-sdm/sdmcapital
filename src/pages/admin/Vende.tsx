@@ -60,8 +60,8 @@ export default function Vende() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Vende con Nosotros</h2>
-        {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Vende con Nosotros</h2>
+        {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
       </div>
 
       <Sec title={<><Image size={18} strokeWidth={1.75} />Hero</>}>
@@ -76,7 +76,7 @@ export default function Vende() {
         {[1, 2, 3].map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Pilar {n}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Pilar {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Field label="Número"><Inp value={(d as Record<string,string>)[`vende_pilar${n}_num`]} onChange={set(`vende_pilar${n}_num`)} /></Field>
                 <Field label="Título"><Inp value={(d as Record<string,string>)[`vende_pilar${n}_titulo`]} onChange={set(`vende_pilar${n}_titulo`)} /></Field>

@@ -78,9 +78,9 @@ export default function Rental() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>SDM Rental</h2>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>SDM Rental</h2>
         <div className="flex items-center gap-4">
-          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+          {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function Rental() {
 
         <Full>
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 1</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 1</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field label="Tipo"><Inp value={d.rental_comp1_tipo} onChange={set('rental_comp1_tipo')} /></Field>
               <Field label="Gestión"><Inp value={d.rental_comp1_ges} onChange={set('rental_comp1_ges')} /></Field>
@@ -136,7 +136,7 @@ export default function Rental() {
 
         <Full>
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 2 (Recomendado)</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 2 (Recomendado)</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field label="Tipo"><Inp value={d.rental_comp2_tipo} onChange={set('rental_comp2_tipo')} /></Field>
               <Field label="Gestión"><Inp value={d.rental_comp2_ges} onChange={set('rental_comp2_ges')} /></Field>

@@ -39,7 +39,7 @@ const INIT: FormState = {
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
-  fontFamily: 'inherit', fontSize: 15, color: '#1a2e44', background: '#fff',
+  fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
   border: 'none', borderBottom: '1px solid #dce4ec', padding: '7px 0',
   outline: 'none', width: '100%',
 }
@@ -49,7 +49,7 @@ const sel: React.CSSProperties = { ...inp, cursor: 'pointer' }
 function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: '#7a8fa6', fontWeight: 500 }}>{label}</label>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: '#7a8fa6', fontWeight: 500 }}>{label}</label>
       {children}
     </div>
   )
@@ -58,7 +58,7 @@ function FLabel({ label, children }: { label: string; children: React.ReactNode 
 function SCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ background: '#fff', border: '1px solid #dce4ec', borderRadius: 4, padding: '24px 28px', marginBottom: 20 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#0d2240', marginBottom: 20, paddingBottom: 12, borderBottom: '1px solid #f0f4f8' }}>
+      <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: '#0d2240', marginBottom: 20, paddingBottom: 12, borderBottom: '1px solid #f0f4f8' }}>
         {title}
       </div>
       {children}
@@ -173,7 +173,7 @@ export default function FichaClienteNueva() {
 
   if (checking) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
-      <span style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', fontSize: 18 }}>Verificando sesión…</span>
+      <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
@@ -190,11 +190,11 @@ export default function FichaClienteNueva() {
       {/* Header */}
       <div style={{ background: '#fff', borderBottom: '1px solid #dce4ec', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none', fontSize: 13 }}>
+          <Link className="text-sdm-sm" to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al cliente
           </Link>
           <span style={{ color: '#dce4ec' }}>|</span>
-          <span style={{ fontSize: 16, fontWeight: 600, color: '#0d2240' }}>Nueva ficha</span>
+          <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Nueva ficha</span>
         </div>
       </div>
 
@@ -258,8 +258,8 @@ export default function FichaClienteNueva() {
                 {agentes.map(a => <option key={a.id} value={a.id}>{a.nombre}</option>)}
               </select>
             </FLabel>
-            <a href="/admin/agentes" target="_blank" rel="noopener noreferrer"
-              style={{ fontSize: 12, color: '#4db870', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
+            <a className="text-sdm-sm" href="/admin/agentes" target="_blank" rel="noopener noreferrer"
+              style={{ color: '#4db870', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
               Gestionar agentes →
             </a>
           </div>
@@ -281,7 +281,7 @@ export default function FichaClienteNueva() {
           {photos.length > 0 && (
             <>
               {photos.length > 1 && (
-                <div style={{ fontSize: 12, color: '#7a8fa6', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div className="text-sdm-sm" style={{ color: '#7a8fa6', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 9l4-4 4 4M5 15l4 4 4-4"/></svg>
                   Arrastra para reordenar
                 </div>
@@ -296,7 +296,7 @@ export default function FichaClienteNueva() {
                     onDragOver={e => e.preventDefault()}
                     style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', cursor: 'grab', border: '2px solid #dce4ec', userSelect: 'none' }}>
                     <img src={p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
-                    <div style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(13,34,64,0.75)', borderRadius: 2, padding: '1px 6px', fontSize: 11, fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
+                    <div className="text-sdm-xs" style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(13,34,64,0.75)', borderRadius: 2, padding: '1px 6px', fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
                       {i + 1}
                     </div>
                     <button onClick={() => removePhoto(p.id)}
@@ -309,7 +309,7 @@ export default function FichaClienteNueva() {
             </>
           )}
           {photos.length < 15 && (
-            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#0d2240', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'inherit' }}>
+            <label className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#0d2240', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: 'pointer', fontWeight: 600, textTransform: 'uppercase', fontFamily: 'inherit' }}>
               + Agregar fotos
               <input type="file" accept="image/*" multiple style={{ display: 'none' }}
                 onChange={e => { if (e.target.files?.length) { addPhotos(e.target.files); e.target.value = '' } }} />
@@ -318,13 +318,13 @@ export default function FichaClienteNueva() {
         </SCard>
 
         {saveError && (
-          <div style={{ background: '#fff3f3', border: '1px solid #fca5a5', borderRadius: 4, padding: '12px 16px', marginBottom: 16, fontSize: 14, color: '#dc2626' }}>
+          <div className="text-sdm-base" style={{ background: '#fff3f3', border: '1px solid #fca5a5', borderRadius: 4, padding: '12px 16px', marginBottom: 16, color: '#dc2626' }}>
             {saveError}
           </div>
         )}
 
-        <button onClick={save} disabled={saving}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? '#7a8fa6' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontSize: 15, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', letterSpacing: '0.5px', fontFamily: 'inherit' }}>
+        <button className="text-sdm-base tracking-sdm-wide" onClick={save} disabled={saving}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? '#7a8fa6' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
           {saving ? (photos.length > 0 ? `Subiendo fotos y guardando…` : 'Guardando…') : 'Guardar ficha'}
         </button>
       </div>

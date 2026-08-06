@@ -44,13 +44,13 @@ export default function Blog() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Blog</h2>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Blog</h2>
         <button className="btn-green" onClick={() => setEditing({ titulo: '', slug: '', resumen: '', contenido: '', autor_nombre: 'Equipo SDM Capital', categoria: 'Mercado', publicado: false, destacado: false })}>+ Nuevo artículo</button>
       </div>
 
       {editing && (
         <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar artículo' : 'Nuevo artículo'}</h3>
+          <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar artículo' : 'Nuevo artículo'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Título"><Inp value={editing.titulo || ''} onChange={v => setEditing(p => ({ ...p, titulo: v, slug: p?.id ? p.slug : makeSlug(v) }))} /></Field>
             <Field label="Slug (URL)"><Inp value={editing.slug || ''} onChange={v => setEditing(p => ({ ...p, slug: v }))} /></Field>
@@ -90,18 +90,18 @@ export default function Blog() {
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
-          <thead><tr style={{ borderBottom: '1px solid var(--border)' }}>{['Título','Categoría','Autor','Estado','Acciones'].map(h => <th key={h} className="text-left pb-3 pr-6" style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ borderBottom: '1px solid var(--border)' }}>{['Título','Categoría','Autor','Estado','Acciones'].map(h => <th key={h} className="text-left pb-3 pr-6 text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>)}</tr></thead>
           <tbody>
             {posts.map(p => (
               <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td className="py-4 pr-6"><div style={{ fontWeight: 500, fontSize: 14 }}>{p.titulo}</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>{p.slug}</div></td>
-                <td className="py-4 pr-6" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.categoria}</td>
-                <td className="py-4 pr-6" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.autor_nombre}</td>
+                <td className="py-4 pr-6"><div className="text-sdm-base" style={{ fontWeight: 500 }}>{p.titulo}</div><div className="text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.slug}</div></td>
+                <td className="py-4 pr-6 text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.categoria}</td>
+                <td className="py-4 pr-6 text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.autor_nombre}</td>
                 <td className="py-4 pr-6"><Badge label={p.publicado ? 'Publicado' : 'Borrador'} color={p.publicado ? 'var(--green)' : 'var(--muted)'} /></td>
-                <td className="py-4"><div className="flex gap-3"><button onClick={() => setEditing(p)} style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button onClick={() => del(p.id)} style={{ fontSize: 13, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
+                <td className="py-4"><div className="flex gap-3"><button className="text-sdm-sm" onClick={() => setEditing(p)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button className="text-sdm-sm" onClick={() => del(p.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
               </tr>
             ))}
-            {posts.length === 0 && <tr><td colSpan={5} className="py-12 text-center" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>No hay artículos aún.</td></tr>}
+            {posts.length === 0 && <tr><td colSpan={5} className="py-12 text-center text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>No hay artículos aún.</td></tr>}
           </tbody>
         </table>
       </div>

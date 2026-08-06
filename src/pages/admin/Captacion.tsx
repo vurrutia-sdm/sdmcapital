@@ -122,11 +122,8 @@ const SCORE_NULL = { bg: '#eef1f4', fg: '#7a8fa6', label: 'Sin calificar' }
 function ScoreBadge({ score }: { score: string | null }) {
   const s = (score && SCORE_STYLE[score]) || SCORE_NULL
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', fontSize: 11, fontWeight: 700,
-      letterSpacing: '0.5px', textTransform: 'uppercase', color: s.fg, background: s.bg,
-      borderRadius: 12, padding: '3px 10px', flexShrink: 0,
-    }}>
+    <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', fontWeight: 700, textTransform: 'uppercase', color: s.fg, background: s.bg,
+      borderRadius: 12, padding: '3px 10px', flexShrink: 0 }}>
       {s.label}
     </span>
   )
@@ -140,8 +137,8 @@ function fmt(v: string | null | undefined, fallback = '—') {
 function DRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-      <span style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{label}</span>
-      <span style={{ fontSize: 14, color: COLORS.navy, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
+      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{label}</span>
+      <span className="text-sdm-base" style={{ color: COLORS.navy, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
     </div>
   )
 }
@@ -183,23 +180,21 @@ function NotifToggle({ value, onChange, saving }: {
       padding: '12px 18px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12,
     }}>
       <Bell size={15} color={COLORS.muted} />
-      <span style={{ fontSize: 13, color: COLORS.muted, fontWeight: 600 }}>Notificaciones por correo:</span>
+      <span className="text-sdm-sm" style={{ color: COLORS.muted, fontWeight: 600 }}>Notificaciones por correo:</span>
       <div style={{ display: 'flex', gap: 6 }}>
         {opts.map(opt => (
-          <button key={opt.key} type="button" onClick={() => onChange(opt.key)} disabled={saving}
-            style={{
-              padding: '7px 14px', fontSize: 12, fontWeight: 600, borderRadius: 14,
+          <button className="text-sdm-sm" key={opt.key} type="button" onClick={() => onChange(opt.key)} disabled={saving}
+            style={{ padding: '7px 14px', fontWeight: 600, borderRadius: 14,
               cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit',
               border: `1px solid ${value === opt.key ? COLORS.navy : COLORS.border}`,
               background: value === opt.key ? COLORS.navy : '#fff',
               color: value === opt.key ? '#fff' : COLORS.muted,
-              transition: 'all 0.15s', opacity: saving ? 0.7 : 1,
-            }}>
+              transition: 'all 0.15s', opacity: saving ? 0.7 : 1 }}>
             {opt.label}
           </button>
         ))}
       </div>
-      {saving && <span style={{ fontSize: 12, color: COLORS.muted, fontStyle: 'italic' }}>Guardando…</span>}
+      {saving && <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Guardando…</span>}
     </div>
   )
 }
@@ -238,24 +233,24 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
         background: '#fff', borderRadius: 8, padding: 28, width: '100%', maxWidth: 480,
         display: 'flex', flexDirection: 'column', gap: 16, maxHeight: '90vh', overflowY: 'auto',
       }}>
-        <div style={{ fontSize: 17, fontWeight: 700, color: COLORS.navy }}>Editar lead</div>
+        <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>Editar lead</div>
 
         {textFields.map(f => (
           <div key={f.key} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{f.label}</label>
-            <input
+            <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{f.label}</label>
+            <input className="text-sdm-base"
               type="text"
               value={draft[f.key]}
               onChange={e => upd(f.key, e.target.value)}
-              style={{ fontFamily: 'inherit', fontSize: 14, color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}
+              style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}
             />
           </div>
         ))}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Score</label>
-          <select value={draft.score} onChange={e => upd('score', e.target.value)}
-            style={{ fontFamily: 'inherit', fontSize: 14, color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}>
+          <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Score</label>
+          <select className="text-sdm-base" value={draft.score} onChange={e => upd('score', e.target.value)}
+            style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}>
             <option value="">Sin calificar</option>
             <option value="hot">Hot</option>
             <option value="warm">Warm</option>
@@ -264,9 +259,9 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Estado</label>
-          <select value={draft.status} onChange={e => upd('status', e.target.value)}
-            style={{ fontFamily: 'inherit', fontSize: 14, color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}>
+          <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Estado</label>
+          <select className="text-sdm-base" value={draft.status} onChange={e => upd('status', e.target.value)}
+            style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}>
             <option value="">—</option>
             <option value="nuevo">Nuevo</option>
             <option value="calificando">Calificando</option>
@@ -279,18 +274,18 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
         </div>
 
         {error && (
-          <div style={{ fontSize: 13, color: COLORS.red, background: '#fde2e1', borderRadius: 4, padding: '10px 14px' }}>
+          <div className="text-sdm-sm" style={{ color: COLORS.red, background: '#fde2e1', borderRadius: 4, padding: '10px 14px' }}>
             {error}
           </div>
         )}
 
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-          <button type="button" onClick={() => onSave(draft)} disabled={saving}
-            style={{ flex: 1, background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
+          <button className="text-sdm-sm" type="button" onClick={() => onSave(draft)} disabled={saving}
+            style={{ flex: 1, background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontWeight: 700, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
-          <button type="button" onClick={onCancel} disabled={saving}
-            style={{ background: '#fff', color: COLORS.muted, border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '11px 18px', fontSize: 13, fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+          <button className="text-sdm-sm" type="button" onClick={onCancel} disabled={saving}
+            style={{ background: '#fff', color: COLORS.muted, border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '11px 18px', fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
             Cancelar
           </button>
         </div>
@@ -302,7 +297,7 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
 // ── Chat de la conversación ───────────────────────────────────────────────────
 function ChatLog({ conversation }: { conversation: ChatMsg[] | null }) {
   if (!conversation || !conversation.length) {
-    return <div style={{ fontSize: 13, color: COLORS.muted, fontStyle: 'italic', padding: '8px 0' }}>Sin conversación registrada.</div>
+    return <div className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic', padding: '8px 0' }}>Sin conversación registrada.</div>
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 380, overflowY: 'auto', padding: 14, background: COLORS.bg, borderRadius: 6 }}>
@@ -310,13 +305,11 @@ function ChatLog({ conversation }: { conversation: ChatMsg[] | null }) {
         const isAssistant = m.role === 'assistant'
         return (
           <div key={i} style={{ display: 'flex', justifyContent: isAssistant ? 'flex-end' : 'flex-start' }}>
-            <div style={{
-              maxWidth: '78%', padding: '9px 13px', borderRadius: 12, fontSize: 13, lineHeight: 1.55,
+            <div className="text-sdm-sm" style={{ maxWidth: '78%', padding: '9px 13px', borderRadius: 12, lineHeight: 1.55,
               background: isAssistant ? COLORS.navy : '#fff',
               color: isAssistant ? '#fff' : COLORS.navy,
               border: isAssistant ? 'none' : `1px solid ${COLORS.border}`,
-              whiteSpace: 'pre-wrap',
-            }}>
+              whiteSpace: 'pre-wrap' }}>
               {m.content}
             </div>
           </div>
@@ -337,12 +330,10 @@ function DetailTabs({ active, onChange }: { active: DetailTab; onChange: (t: Det
   return (
     <div style={{ display: 'flex', gap: 4, borderBottom: `1px solid ${COLORS.border}` }}>
       {tabs.map(t => (
-        <button key={t.key} type="button" onClick={() => onChange(t.key)}
-          style={{
-            padding: '8px 16px', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+        <button className="text-sdm-sm" key={t.key} type="button" onClick={() => onChange(t.key)}
+          style={{ padding: '8px 16px', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
             border: 'none', borderBottom: `2px solid ${active === t.key ? COLORS.navy : 'transparent'}`,
-            background: 'none', color: active === t.key ? COLORS.navy : COLORS.muted, marginBottom: -1,
-          }}>
+            background: 'none', color: active === t.key ? COLORS.navy : COLORS.muted, marginBottom: -1 }}>
           {t.label}
         </button>
       ))}
@@ -364,21 +355,19 @@ function MensajeBubble({ m }: { m: Mensaje }) {
     <div style={{ display: 'flex', justifyContent: style.align }}>
       <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: 4, alignItems: style.align }}>
         {style.label && (
-          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: COLORS.green }}>{style.label}</span>
+          <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: COLORS.green }}>{style.label}</span>
         )}
-        <div style={{
-          padding: '9px 13px', borderRadius: 12, fontSize: 13, lineHeight: 1.55,
+        <div className="text-sdm-sm" style={{ padding: '9px 13px', borderRadius: 12, lineHeight: 1.55,
           background: style.bg, color: style.fg, border: style.border,
-          whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-        }}>
+          whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
           {m.tipo === 'voz' && (
-            <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 4, opacity: 0.8 }}>
+            <div className="text-sdm-xs" style={{ fontWeight: 700, marginBottom: 4, opacity: 0.8 }}>
               🎤 Nota de voz
             </div>
           )}
           {m.contenido || <span style={{ fontStyle: 'italic', opacity: 0.6 }}>(sin contenido)</span>}
         </div>
-        <span style={{ fontSize: 10, color: COLORS.muted }}>{formatHora(m.created_at)}</span>
+        <span className="text-sdm-xs" style={{ color: COLORS.muted }}>{formatHora(m.created_at)}</span>
       </div>
     </div>
   )
@@ -436,19 +425,19 @@ function ConversacionThread({ leadId, waPhone, active, refreshSignal }: { leadId
   }, [mensajes])
 
   if (loading) {
-    return <div style={{ fontSize: 13, color: COLORS.muted, fontStyle: 'italic', padding: '24px 0', textAlign: 'center' }}>Cargando conversación…</div>
+    return <div className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic', padding: '24px 0', textAlign: 'center' }}>Cargando conversación…</div>
   }
 
   if (error) {
     return (
-      <div style={{ fontSize: 13, color: COLORS.red, background: '#fde2e1', borderRadius: 6, padding: '12px 14px' }}>
+      <div className="text-sdm-sm" style={{ color: COLORS.red, background: '#fde2e1', borderRadius: 6, padding: '12px 14px' }}>
         No se pudo cargar la conversación: {error}
       </div>
     )
   }
 
   if (!mensajes.length) {
-    return <div style={{ fontSize: 13, color: COLORS.muted, fontStyle: 'italic', padding: '24px 0', textAlign: 'center' }}>Sin mensajes todavía.</div>
+    return <div className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic', padding: '24px 0', textAlign: 'center' }}>Sin mensajes todavía.</div>
   }
 
   return (
@@ -486,27 +475,24 @@ function ModoToggleBanner({ lead, onModoChange }: {
       borderRadius: 8, padding: '12px 16px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ fontSize: 24, lineHeight: 1 }}>{isManual ? '✋' : '🤖'}</span>
+        <span className="text-sdm-2xl" style={{ lineHeight: 1 }}>{isManual ? '✋' : '🤖'}</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: isManual ? '#c8740a' : COLORS.green }}>
+          <span className="text-sdm-base" style={{ fontWeight: 700, color: isManual ? '#c8740a' : COLORS.green }}>
             {isManual ? 'Control manual — Sofía en pausa' : 'Sofía está respondiendo'}
           </span>
-          <span style={{ fontSize: 12, color: COLORS.muted }}>
+          <span className="text-sdm-sm" style={{ color: COLORS.muted }}>
             {isManual
               ? 'Sofía no responderá hasta que devuelvas el control. Escribe abajo para hablar con el cliente.'
               : 'Toma el control para escribirle directamente al cliente y pausar a Sofía.'}
           </span>
         </div>
       </div>
-      <button type="button" onClick={toggleModo} disabled={togglingModo}
-        style={{
-          padding: '12px 22px', fontSize: 13, fontWeight: 700, borderRadius: 6, fontFamily: 'inherit',
-          letterSpacing: '0.3px', border: 'none', color: '#fff', whiteSpace: 'nowrap',
+      <button className="text-sdm-sm tracking-sdm-normal" type="button" onClick={toggleModo} disabled={togglingModo}
+        style={{ padding: '12px 22px', fontWeight: 700, borderRadius: 6, fontFamily: 'inherit', border: 'none', color: '#fff', whiteSpace: 'nowrap',
           cursor: togglingModo ? 'default' : 'pointer',
           background: isManual ? COLORS.green : '#c8740a',
           opacity: togglingModo ? 0.6 : 1,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
-        }}>
+          boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
         {togglingModo ? 'Guardando…' : isManual ? '🤖 Devolver a Sofía' : '✋ Tomar control'}
       </button>
     </div>
@@ -556,28 +542,26 @@ function ManualSendBox({ lead, onSent }: {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: '#fff', border: `1px solid ${COLORS.border}`, borderTop: `2px solid ${COLORS.green}`, borderRadius: 6, padding: 12 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-        <textarea
+        <textarea className="text-sdm-sm"
           value={mensaje}
           onChange={e => setMensaje(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar() } }}
           placeholder="Escribe el mensaje para el cliente…"
           maxLength={MAX_MENSAJE_LEN}
           rows={2}
-          style={{ flex: 1, fontFamily: 'inherit', fontSize: 13, color: COLORS.navy, background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none', resize: 'vertical' }}
+          style={{ flex: 1, fontFamily: 'inherit', color: COLORS.navy, background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none', resize: 'vertical' }}
         />
-        <button type="button" onClick={enviar} disabled={sending || !mensaje.trim()}
-          style={{
-            padding: '12px 24px', fontSize: 13, fontWeight: 700, borderRadius: 4, fontFamily: 'inherit',
+        <button className="text-sdm-sm" type="button" onClick={enviar} disabled={sending || !mensaje.trim()}
+          style={{ padding: '12px 24px', fontWeight: 700, borderRadius: 4, fontFamily: 'inherit',
             border: 'none', color: '#fff', background: COLORS.navy, flexShrink: 0,
             cursor: (sending || !mensaje.trim()) ? 'default' : 'pointer',
-            opacity: (sending || !mensaje.trim()) ? 0.5 : 1,
-          }}>
+            opacity: (sending || !mensaje.trim()) ? 0.5 : 1 }}>
           {sending ? 'Enviando…' : 'Enviar'}
         </button>
       </div>
-      <span style={{ fontSize: 11, color: COLORS.muted }}>{mensaje.length} / {MAX_MENSAJE_LEN} · Enter envía, Shift+Enter agrega un salto de línea</span>
+      <span className="text-sdm-xs" style={{ color: COLORS.muted }}>{mensaje.length} / {MAX_MENSAJE_LEN} · Enter envía, Shift+Enter agrega un salto de línea</span>
       {sendError && (
-        <div style={{ fontSize: 12, color: COLORS.red, background: '#fde2e1', borderRadius: 4, padding: '8px 12px' }}>
+        <div className="text-sdm-sm" style={{ color: COLORS.red, background: '#fde2e1', borderRadius: 4, padding: '8px 12px' }}>
           {sendError}
         </div>
       )}
@@ -595,8 +579,8 @@ const VISITA_ESTADO_STYLE = {
 function Stat({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <span style={{ fontSize: 26, fontWeight: 700, color: color || COLORS.navy, lineHeight: 1 }}>{value}</span>
-      <span style={{ fontSize: 12, color: COLORS.muted }}>{label}</span>
+      <span className="text-sdm-2xl" style={{ fontWeight: 700, color: color || COLORS.navy, lineHeight: 1 }}>{value}</span>
+      <span className="text-sdm-sm" style={{ color: COLORS.muted }}>{label}</span>
     </div>
   )
 }
@@ -604,7 +588,7 @@ function Stat({ label, value, color }: { label: string; value: number; color?: s
 function MetricCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20, display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
-      <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{title}</div>
+      <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{title}</div>
       {children}
     </div>
   )
@@ -631,7 +615,7 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
 
   return (
     <section>
-      <h2 style={{ fontSize: 20, fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Métricas</h2>
+      <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Métricas</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
         <MetricCard title="Leads nuevos">
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
@@ -666,26 +650,26 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
         </MetricCard>
 
         <MetricCard title="Conversión lead → visita">
-          <span style={{ fontSize: 30, fontWeight: 700, color: COLORS.navy, lineHeight: 1 }}>{m.conversion.toFixed(1)}%</span>
-          <span style={{ fontSize: 12, color: COLORS.muted }}>{m.visitasConfirmadas} confirmadas / {m.leadsTotal} leads totales</span>
+          <span className="text-sdm-display-sm" style={{ fontWeight: 700, color: COLORS.navy }}>{m.conversion.toFixed(1)}%</span>
+          <span className="text-sdm-sm" style={{ color: COLORS.muted }}>{m.visitasConfirmadas} confirmadas / {m.leadsTotal} leads totales</span>
         </MetricCard>
       </div>
 
       <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20 }}>
-        <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 12 }}>
+        <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 12 }}>
           Comunas más buscadas (este mes)
         </div>
         {loading ? (
-          <span style={{ fontSize: 13, color: COLORS.muted, fontStyle: 'italic' }}>Cargando…</span>
+          <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Cargando…</span>
         ) : m.topComunas.length === 0 ? (
-          <span style={{ fontSize: 13, color: COLORS.muted, fontStyle: 'italic' }}>Sin datos de comunas para este mes.</span>
+          <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Sin datos de comunas para este mes.</span>
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {m.topComunas.map((c, i) => (
               <div key={c.comuna} style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.bg, borderRadius: 14, padding: '6px 14px' }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.navy }}>{i + 1}.</span>
-                <span style={{ fontSize: 13, color: COLORS.navy, textTransform: 'capitalize' }}>{c.comuna}</span>
-                <span style={{ fontSize: 12, color: COLORS.muted, fontWeight: 600 }}>({c.count})</span>
+                <span className="text-sdm-sm" style={{ fontWeight: 700, color: COLORS.navy }}>{i + 1}.</span>
+                <span className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{c.comuna}</span>
+                <span className="text-sdm-sm" style={{ color: COLORS.muted, fontWeight: 600 }}>({c.count})</span>
               </div>
             ))}
           </div>
@@ -709,8 +693,8 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
     <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.navy }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
-          <div style={{ fontSize: 12, color: COLORS.muted, marginTop: 2 }}>{fmt(lead?.wa_phone)} · solicitada {timeAgo(visita.created_at)}</div>
+          <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, marginTop: 2 }}>{fmt(lead?.wa_phone)} · solicitada {timeAgo(visita.created_at)}</div>
         </div>
         {lead && <ScoreBadge score={lead.score} />}
       </div>
@@ -723,24 +707,22 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
       </div>
 
       {lead?.brief && (
-        <div style={{ fontSize: 13, color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
+        <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
           {lead.brief}
         </div>
       )}
 
       <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>
-          <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>Asignar a</div>
+          <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>Asignar a</div>
           <div style={{ display: 'flex', gap: 8 }}>
             {(['Roberto', 'Manuel'] as const).map(name => (
-              <button key={name} type="button" onClick={() => onChange({ ...edit, asignado: name })}
-                style={{
-                  flex: 1, padding: '9px 14px', fontSize: 13, fontWeight: 600, borderRadius: 4, cursor: 'pointer',
+              <button className="text-sdm-sm" key={name} type="button" onClick={() => onChange({ ...edit, asignado: name })}
+                style={{ flex: 1, padding: '9px 14px', fontWeight: 600, borderRadius: 4, cursor: 'pointer',
                   fontFamily: 'inherit', border: `1px solid ${edit.asignado === name ? COLORS.navy : COLORS.border}`,
                   background: edit.asignado === name ? COLORS.navy : '#fff',
                   color: edit.asignado === name ? '#fff' : COLORS.navy,
-                  transition: 'all 0.15s',
-                }}>
+                  transition: 'all 0.15s' }}>
                 {name}
               </button>
             ))}
@@ -748,26 +730,26 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Horario confirmado</label>
-          <input
+          <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Horario confirmado</label>
+          <input className="text-sdm-base"
             type="text"
             value={edit.horario}
             onChange={e => onChange({ ...edit, horario: e.target.value })}
             placeholder="Ej: Sábado 14 de junio, 11:00 hrs"
-            style={{ fontFamily: 'inherit', fontSize: 14, color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}
+            style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}
           />
           {visita.horario_propuesto && (
-            <span style={{ fontSize: 12, color: COLORS.muted }}>Propuesto por el lead: «{visita.horario_propuesto}»</span>
+            <span className="text-sdm-sm" style={{ color: COLORS.muted }}>Propuesto por el lead: «{visita.horario_propuesto}»</span>
           )}
         </div>
 
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-          <button type="button" onClick={onConfirm} disabled={saving}
-            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: COLORS.green, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit', letterSpacing: '0.5px' }}>
+          <button className="text-sdm-sm tracking-sdm-wide" type="button" onClick={onConfirm} disabled={saving}
+            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: COLORS.green, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontWeight: 700, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
             <Check size={15} /> {saving ? 'Guardando…' : 'Confirmar visita'}
           </button>
-          <button type="button" onClick={onCancel} disabled={saving}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#fff', color: COLORS.red, border: `1px solid ${COLORS.red}`, borderRadius: 4, padding: '11px 18px', fontSize: 13, fontWeight: 600, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
+          <button className="text-sdm-sm" type="button" onClick={onCancel} disabled={saving}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#fff', color: COLORS.red, border: `1px solid ${COLORS.red}`, borderRadius: 4, padding: '11px 18px', fontWeight: 600, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
             <X size={15} /> Cancelar
           </button>
         </div>
@@ -794,12 +776,12 @@ function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoC
       <div onClick={onToggle} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer' }}>
         <ScoreBadge score={lead.score} />
         <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.navy, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.nombre, 'Sin nombre')}</div>
-          <div style={{ fontSize: 13, color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.comuna)}</div>
-          <div style={{ fontSize: 13, color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.intencion)}</div>
-          <div style={{ fontSize: 13, color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.presupuesto)}</div>
-          <div style={{ fontSize: 13, color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.plazo)}</div>
-          <div style={{ fontSize: 12, color: COLORS.navy, textTransform: 'capitalize' }}>{fmt(lead.status)}</div>
+          <div className="text-sdm-base" style={{ fontWeight: 700, color: COLORS.navy, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.nombre, 'Sin nombre')}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.comuna)}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.intencion)}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.presupuesto)}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.plazo)}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{fmt(lead.status)}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           <button
@@ -844,15 +826,15 @@ function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoC
 
               {lead.brief && (
                 <div>
-                  <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>Brief para el equipo</div>
-                  <div style={{ fontSize: 13, color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>Brief para el equipo</div>
+                  <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
                     {lead.brief}
                   </div>
                 </div>
               )}
 
               <div>
-                <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>Resumen de calificación (IA)</div>
+                <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>Resumen de calificación (IA)</div>
                 <ChatLog conversation={lead.conversation} />
               </div>
             </>
@@ -1141,7 +1123,7 @@ export default function Captacion() {
   // ── Render guards ────────────────────────────────────────────────────────────
   if (checking) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: COLORS.navy }}>
-      <span style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', fontSize: 18 }}>Verificando sesión…</span>
+      <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
@@ -1160,14 +1142,14 @@ export default function Captacion() {
       {/* Header */}
       <div style={{ background: '#fff', borderBottom: `1px solid ${COLORS.border}`, padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.muted, textDecoration: 'none', fontSize: 13 }}>
+          <Link className="text-sdm-sm" to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.muted, textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al admin
           </Link>
           <span style={{ color: COLORS.border }}>|</span>
-          <span style={{ fontSize: 16, fontWeight: 600, color: COLORS.navy }}>Captación — Leads y Visitas</span>
+          <span className="text-sdm-lg" style={{ fontWeight: 600, color: COLORS.navy }}>Captación — Leads y Visitas</span>
         </div>
-        <button onClick={loadAll}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 2, padding: '9px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', letterSpacing: '0.5px', fontFamily: 'inherit' }}>
+        <button className="text-sdm-sm tracking-sdm-wide" onClick={loadAll}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 2, padding: '9px 18px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           <RefreshCw size={15} /> Actualizar
         </button>
       </div>
@@ -1183,11 +1165,11 @@ export default function Captacion() {
 
           {/* ── Sección 1: Visitas por confirmar ─────────────────────────── */}
           <section>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Visitas por confirmar</h2>
+            <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Visitas por confirmar</h2>
             {loadingVisitas && visitas.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontSize: 14, fontStyle: 'italic' }}>Cargando visitas…</div>
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando visitas…</div>
             ) : visitas.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontSize: 14, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
                 No hay visitas pendientes por confirmar.
               </div>
             ) : (
@@ -1210,17 +1192,15 @@ export default function Captacion() {
           {/* ── Sección 2: Leads recientes ────────────────────────────────── */}
           <section>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: COLORS.navy }}>Leads recientes</h2>
+              <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy }}>Leads recientes</h2>
               <div style={{ display: 'flex', gap: 6 }}>
                 {SCORE_FILTERS.map(f => (
-                  <button key={f.key} type="button" onClick={() => setFilter(f.key)}
-                    style={{
-                      padding: '7px 16px', fontSize: 12, fontWeight: 600, borderRadius: 14, cursor: 'pointer', fontFamily: 'inherit',
+                  <button className="text-sdm-sm" key={f.key} type="button" onClick={() => setFilter(f.key)}
+                    style={{ padding: '7px 16px', fontWeight: 600, borderRadius: 14, cursor: 'pointer', fontFamily: 'inherit',
                       border: `1px solid ${filter === f.key ? COLORS.navy : COLORS.border}`,
                       background: filter === f.key ? COLORS.navy : '#fff',
                       color: filter === f.key ? '#fff' : COLORS.muted,
-                      transition: 'all 0.15s',
-                    }}>
+                      transition: 'all 0.15s' }}>
                     {f.label}
                   </button>
                 ))}
@@ -1228,9 +1208,9 @@ export default function Captacion() {
             </div>
 
             {loadingLeads && leads.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontSize: 14, fontStyle: 'italic' }}>Cargando leads…</div>
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando leads…</div>
             ) : filteredLeads.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontSize: 14, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
                 No hay leads para este filtro.
               </div>
             ) : (

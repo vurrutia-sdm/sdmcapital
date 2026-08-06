@@ -117,27 +117,27 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
               {url ? (
                 <>
                   <img src={url} alt={`Foto ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: d[HERO_POS_KEYS[i]] || 'center center', display: 'block' }} />
-                  <div style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 11, fontWeight: 700, width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
+                  <div className="text-sdm-xs" style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontWeight: 700, width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
                   <div style={{ position: 'absolute', top: 6, right: 28, background: 'rgba(0,0,0,0.5)', borderRadius: 3, padding: '2px 4px' }}>
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="white" opacity="0.8"><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
                   </div>
-                  <button onClick={() => remove(i)} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.85)', border: 'none', borderRadius: 3, color: '#fff', width: 20, height: 20, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}><X size={14} strokeWidth={2} /></button>
+                  <button className="text-sdm-sm" onClick={() => remove(i)} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.85)', border: 'none', borderRadius: 3, color: '#fff', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}><X size={14} strokeWidth={2} /></button>
                 </>
               ) : (
                 <label style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: 4 }}>
                   {uploading === i
-                    ? <span style={{ fontSize: 11, color: 'var(--muted)' }}>Subiendo…</span>
-                    : <><span style={{ fontSize: 20, color: 'var(--muted)' }}>+</span><span style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>Foto {i + 1}</span></>
+                    ? <span className="text-sdm-xs" style={{ color: 'var(--muted)' }}>Subiendo…</span>
+                    : <><span className="text-sdm-xl" style={{ color: 'var(--muted)' }}>+</span><span className="text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase' }}>Foto {i + 1}</span></>
                   }
                   <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading !== null} onChange={e => { const f = e.target.files?.[0]; if (f) upload(i, f) }} />
                 </label>
               )}
             </div>
             {url && (
-              <select
+              <select className="text-sdm-xs"
                 value={d[HERO_POS_KEYS[i]] || 'center center'}
                 onChange={e => setD(prev => ({ ...prev, [HERO_POS_KEYS[i]]: e.target.value }))}
-                style={{ width: '100%', marginTop: 4, fontSize: 11, padding: '4px 6px', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--navy-dark)', background: '#fff', fontFamily: 'inherit', cursor: 'pointer' }}
+                style={{ width: '100%', marginTop: 4, padding: '4px 6px', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--navy-dark)', background: '#fff', fontFamily: 'inherit', cursor: 'pointer' }}
               >
                 {POSITION_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -146,8 +146,8 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
         ))}
       </div>
       {filled.length === 0
-        ? <p style={{ fontSize: 13, color: 'var(--muted)', fontStyle: 'italic' }}>Sube al menos una foto para activar el carrusel.</p>
-        : <p style={{ fontSize: 12, color: 'var(--muted)' }}>{filled.length} foto{filled.length > 1 ? 's' : ''} en el carrusel · Arrastra para reordenar</p>
+        ? <p className="text-sdm-sm" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sube al menos una foto para activar el carrusel.</p>
+        : <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>{filled.length} foto{filled.length > 1 ? 's' : ''} en el carrusel · Arrastra para reordenar</p>
       }
     </div>
   )
@@ -206,29 +206,29 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
 
   return (
     <div>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>Elige hasta <strong>6 propiedades</strong> para el Inicio. Arrastra para reordenar.</p>
+      <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 16 }}>Elige hasta <strong>6 propiedades</strong> para el Inicio. Arrastra para reordenar.</p>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Seleccionadas ({selected.length}/6)</div>
-        {selected.length === 0 && <div style={{ padding: '16px', background: 'var(--off)', borderRadius: 4, fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>Aún no hay propiedades seleccionadas.</div>}
+        <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Seleccionadas ({selected.length}/6)</div>
+        {selected.length === 0 && <div className="text-sdm-sm" style={{ padding: '16px', background: 'var(--off)', borderRadius: 4, color: 'var(--muted)', textAlign: 'center' }}>Aún no hay propiedades seleccionadas.</div>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {selected.map((p, i) => (
             <div key={p.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#fff', border: '1px solid var(--border)', borderRadius: 4, cursor: 'grab' }}>
               <GripVertical size={14} strokeWidth={2} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)', minWidth: 20 }}>{i + 1}</span>
+              <span className="text-sdm-sm" style={{ fontWeight: 700, color: 'var(--green)', minWidth: 20 }}>{i + 1}</span>
               {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)' }}>{p.comuna} · {precio(p)}</div>
+                <div className="text-sdm-sm" style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
+                <div className="text-sdm-xs" style={{ color: 'var(--muted)' }}>{p.comuna} · {precio(p)}</div>
               </div>
-              <button onClick={() => remove(p.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E24B4A', fontSize: 18, lineHeight: 1, padding: '0 4px' }}>×</button>
+              <button className="text-sdm-xl" onClick={() => remove(p.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E24B4A', lineHeight: 1, padding: '0 4px' }}>×</button>
             </div>
           ))}
         </div>
       </div>
       {selected.length < 6 && (
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Disponibles — clic para agregar</div>
+          <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Disponibles — clic para agregar</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 400, overflowY: 'auto', padding: 4 }}>
             {available.map(p => (
               <div key={p.id} onClick={() => add(p)}
@@ -237,8 +237,8 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'var(--off)' }}>
                 {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 40, height: 32, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>{precio(p)}</div>
+                  <div className="text-sdm-sm" style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
+                  <div className="text-sdm-xs" style={{ color: 'var(--muted)' }}>{precio(p)}</div>
                 </div>
               </div>
             ))}
@@ -370,17 +370,17 @@ export default function Contenido() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Textos del sitio</h2>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Textos del sitio</h2>
         <div className="flex items-center gap-4">
-          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+          {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">
         {PAGINAS.map(p => (
-          <button key={p.key} onClick={() => handlePaginaChange(p.key)}
-            style={{ padding: '8px 16px', fontSize: 13, fontWeight: pagina === p.key ? 600 : 300, borderRadius: 2, border: pagina === p.key ? '2px solid var(--green)' : '1px solid var(--border)', background: pagina === p.key ? 'var(--green)' : '#fff', color: pagina === p.key ? '#fff' : 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button className="text-sdm-sm" key={p.key} onClick={() => handlePaginaChange(p.key)}
+            style={{ padding: '8px 16px', fontWeight: pagina === p.key ? 600 : 300, borderRadius: 2, border: pagina === p.key ? '2px solid var(--green)' : '1px solid var(--border)', background: pagina === p.key ? 'var(--green)' : '#fff', color: pagina === p.key ? '#fff' : 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6 }}>
             <p.icon size={14} strokeWidth={2} />{p.label}
           </button>
         ))}
@@ -389,7 +389,7 @@ export default function Contenido() {
       {pagina === 'inicio' && <>
         <Sec title={<><Image size={18} strokeWidth={1.75} />Fotos del hero — Carrusel</>}>
           <Full>
-            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>Sube hasta 5 fotos. <strong>Arrastra para reordenar.</strong></p>
+            <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>Sube hasta 5 fotos. <strong>Arrastra para reordenar.</strong></p>
             <CarouselPhotoManager d={d as unknown as Record<string, string>} setD={setD as unknown as (fn: (prev: Record<string, string>) => Record<string, string>) => void} />
           </Full>
         </Sec>
@@ -412,7 +412,7 @@ export default function Contenido() {
           return (
             <Sec title={<>{activo ? <Eye size={18} strokeWidth={1.75} /> : <EyeOff size={18} strokeWidth={1.75} />}Banner promocional</>}>
               <Full>
-                <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.7 }}>
+                <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 16, lineHeight: 1.7 }}>
                   Pieza que aparece en el inicio, justo debajo del buscador. Se muestra a todos los
                   visitantes mientras esté activa: para retirarla, apaga este switch.
                 </p>
@@ -421,7 +421,7 @@ export default function Contenido() {
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: activo ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: activo ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: activo ? '#16a34a' : '#dc2626', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{activo ? <><Check size={14} strokeWidth={2} />Visible en el inicio</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
+                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: activo ? '#16a34a' : '#dc2626', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{activo ? <><Check size={14} strokeWidth={2} />Visible en el inicio</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
                 </div>
               </Full>
               <Full><Field label="Kicker (etiqueta superior)"><Inp value={d.banner_kicker} onChange={set('banner_kicker')} /></Field></Full>
@@ -476,7 +476,7 @@ export default function Contenido() {
           {[1,2,3,4,5,6,7,8].map(n => (
             <Full key={n}>
               <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Testimonio {n}</div>
+                <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Testimonio {n}</div>
                 <Field label="Texto"><Txa value={(d as Record<string,string>)[`testimonial_${n}_texto`] || ''} onChange={set(`testimonial_${n}_texto`)} rows={3} /></Field>
                 <Field label="Autor"><Inp value={(d as Record<string,string>)[`testimonial_${n}_autor`] || ''} onChange={set(`testimonial_${n}_autor`)} /></Field>
                 <Field label='URL historia'><Inp value={(d as Record<string,string>)[`testimonial_${n}_url`] || ''} onChange={set(`testimonial_${n}_url`)} placeholder="https://..." /></Field>
@@ -517,7 +517,7 @@ export default function Contenido() {
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: isVisible ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: isVisible ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: isVisible ? '#16a34a' : '#dc2626', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{isVisible ? <><Check size={14} strokeWidth={2} />Visible</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
+                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: isVisible ? '#16a34a' : '#dc2626', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{isVisible ? <><Check size={14} strokeWidth={2} />Visible</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
                 </div>
               </Full>
               <Field label="Título"><Inp value={(d as Record<string,string>)[`servicio_${key}_titulo`] || ''} onChange={set(`servicio_${key}_titulo`)} /></Field>

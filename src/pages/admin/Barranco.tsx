@@ -173,9 +173,9 @@ export default function Barranco() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif font-light flex items-center gap-2" style={{ fontSize: 30, color: 'var(--navy-dark)' }}><Building2 size={18} strokeWidth={1.75} />El Barranco — Showcase</h2>
+        <h2 className="font-serif font-light flex items-center gap-2 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}><Building2 size={18} strokeWidth={1.75} />El Barranco — Showcase</h2>
         <div className="flex items-center gap-4">
-          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+          {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function Barranco() {
         {([1, 2, 3] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Actividad {n}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Actividad {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bi(`actividad_${n}_titulo`, `actividad_${n}_titulo_es`, 'Título')}
                 {bi(`actividad_${n}_sub`, `actividad_${n}_sub_es`, 'Subtítulo')}
@@ -261,7 +261,7 @@ export default function Barranco() {
         {([1, 2, 3, 4, 5, 6, 7, 8] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '14px 18px', marginBottom: 4 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Amenidad {n}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Amenidad {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bi(`amenidad_${n}_titulo`, `amenidad_${n}_titulo_es`, 'Título')}
                 {bi(`amenidad_${n}_desc`, `amenidad_${n}_desc_es`, 'Descripción')}
@@ -321,7 +321,7 @@ export default function Barranco() {
         {([1,2,3,4,5,6,7] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_infra_${n}_key`, `ficha_infra_${n}_key_es`, 'Etiqueta')}
                 {bi(`ficha_infra_${n}_val`, `ficha_infra_${n}_val_es`, 'Valor')}
@@ -336,7 +336,7 @@ export default function Barranco() {
         {([1,2,3,4,5,6,7] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_equip_${n}_key`, `ficha_equip_${n}_key_es`, 'Etiqueta')}
                 {bi(`ficha_equip_${n}_val`, `ficha_equip_${n}_val_es`, 'Valor')}
@@ -351,7 +351,7 @@ export default function Barranco() {
         {([1,2,3,4,5,6] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_legal_${n}_key`, `ficha_legal_${n}_key_es`, 'Etiqueta')}
                 {bi(`ficha_legal_${n}_val`, `ficha_legal_${n}_val_es`, 'Valor')}
@@ -366,7 +366,7 @@ export default function Barranco() {
         {([1,2,3,4,5,6] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_ops_${n}_key`, `ficha_ops_${n}_key_es`, 'Etiqueta')}
                 {bi(`ficha_ops_${n}_val`, `ficha_ops_${n}_val_es`, 'Valor')}

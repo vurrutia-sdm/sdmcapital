@@ -49,24 +49,24 @@ export default function Asociados() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2>
         <button className="btn-green" onClick={() => setEditing({ nombre: '', logo: '', url: '', orden: items.length + 1, activo: true })}>+ Nuevo asociado</button>
       </div>
-      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las tarjetas para cambiar el orden.</p>
+      <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las tarjetas para cambiar el orden.</p>
 
       {editing && (
         <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar asociado' : 'Nuevo asociado'}</h3>
+          <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar asociado' : 'Nuevo asociado'}</h3>
           <div className="mb-6 p-6 rounded-sm" style={{ background: 'var(--off)', border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><Building2 size={14} strokeWidth={2} />Logo de la empresa</div>
+            <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><Building2 size={14} strokeWidth={2} />Logo de la empresa</div>
             <div className="flex items-center gap-6">
               {editing.logo
                 ? <img src={editing.logo} alt="Logo" style={{ height: 56, objectFit: 'contain', border: '1px solid var(--border)', padding: 8, borderRadius: 4, background: '#fff', maxWidth: 160 }} />
-                : <div style={{ width: 120, height: 56, border: '2px dashed var(--border)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--muted)' }}>Sin logo</div>
+                : <div className="text-sdm-sm" style={{ width: 120, height: 56, border: '2px dashed var(--border)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>Sin logo</div>
               }
               <div className="flex-1">
                 <ImageUploader currentUrl={editing.logo} folder="asociados" onUploaded={url => setEditing(p => ({ ...p, logo: url }))} />
-                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>PNG con fondo transparente para mejor resultado.</p>
+                <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8 }}>PNG con fondo transparente para mejor resultado.</p>
               </div>
             </div>
           </div>
@@ -91,17 +91,17 @@ export default function Asociados() {
             <GripVertical size={16} strokeWidth={2} style={{ color: 'var(--muted)', marginBottom: 8 }} />
             {a.logo
               ? <img src={a.logo} alt={a.nombre} style={{ height: 44, objectFit: 'contain', maxWidth: '100%', marginBottom: 10 }} />
-              : <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}><span style={{ fontSize: 14, fontWeight: 600, color: 'var(--navy-dark)' }}>{a.nombre}</span></div>
+              : <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}><span className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{a.nombre}</span></div>
             }
-            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 4 }}>{a.nombre}</div>
-            <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: 'var(--sky)', textDecoration: 'none', marginBottom: 10 }} className="truncate w-full">{a.url}</a>
+            <div className="text-sdm-sm" style={{ fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 4 }}>{a.nombre}</div>
+            <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sky)', textDecoration: 'none', marginBottom: 10 }} className="truncate w-full text-sdm-sm">{a.url}</a>
             <div className="flex gap-3 border-t pt-3 w-full justify-center" style={{ borderColor: 'var(--border)' }}>
-              <button onClick={() => setEditing(a)} style={{ fontSize: 12, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-              <button onClick={() => del(a.id)} style={{ fontSize: 12, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
+              <button className="text-sdm-sm" onClick={() => setEditing(a)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
+              <button className="text-sdm-sm" onClick={() => del(a.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
             </div>
           </div>
         ))}
-        {sorted.length === 0 && <div className="col-span-4 py-12 text-center" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Sin asociados. Crea el primero.</div>}
+        {sorted.length === 0 && <div className="col-span-4 py-12 text-center text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin asociados. Crea el primero.</div>}
       </div>
     </div>
   )

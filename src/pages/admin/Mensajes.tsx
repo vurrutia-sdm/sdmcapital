@@ -25,7 +25,7 @@ export default function Mensajes() {
   const noLeidos = msgs.filter(m => !m.leido).length
   return (
     <div>
-      <h2 className="font-serif font-light mb-8" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>
+      <h2 className="font-serif font-light mb-8 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
         Mensajes de contacto
         {noLeidos > 0 && <span className="ml-3 font-sans text-[14px] px-3 py-1 rounded-full" style={{ background: 'var(--green)', color: '#fff' }}>{noLeidos} nuevos</span>}
       </h2>
@@ -36,21 +36,21 @@ export default function Mensajes() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
                   {!m.leido && <span className="w-2 h-2 rounded-full" style={{ background: 'var(--green)' }} />}
-                  <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--navy-dark)' }}>{m.nombre}</span>
-                  <a href={`mailto:${m.email}`} style={{ fontSize: 14, color: 'var(--navy)', textDecoration: 'none' }}>{m.email}</a>
-                  {m.telefono && <a href={`tel:${m.telefono}`} style={{ fontSize: 14, color: 'var(--muted)', textDecoration: 'none' }}>{m.telefono}</a>}
+                  <span className="text-sdm-lg" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{m.nombre}</span>
+                  <a className="text-sdm-base" href={`mailto:${m.email}`} style={{ color: 'var(--navy)', textDecoration: 'none' }}>{m.email}</a>
+                  {m.telefono && <a className="text-sdm-base" href={`tel:${m.telefono}`} style={{ color: 'var(--muted)', textDecoration: 'none' }}>{m.telefono}</a>}
                 </div>
-                <p style={{ fontSize: 15, color: 'var(--ink)', lineHeight: 1.7 }}>{m.mensaje}</p>
-                {m.created_at && <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>{new Date(m.created_at).toLocaleString('es-CL')}</p>}
+                <p className="text-sdm-base" style={{ color: 'var(--ink)', lineHeight: 1.7 }}>{m.mensaje}</p>
+                {m.created_at && <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8 }}>{new Date(m.created_at).toLocaleString('es-CL')}</p>}
               </div>
               <div className="flex gap-2">
-                <a href={`mailto:${m.email}?subject=Re: Consulta SDM Capital`} className="btn-primary" style={{ fontSize: 11, padding: '8px 16px' }}>Responder</a>
-                {!m.leido && <button onClick={() => m.id && marcar(m.id)} style={{ fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase', padding: '8px 16px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--muted)', background: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Marcar leído</button>}
+                <a href={`mailto:${m.email}?subject=Re: Consulta SDM Capital`} className="btn-primary text-sdm-xs" style={{ padding: '8px 16px' }}>Responder</a>
+                {!m.leido && <button className="text-sdm-xs tracking-sdm-wide" onClick={() => m.id && marcar(m.id)} style={{ textTransform: 'uppercase', padding: '8px 16px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--muted)', background: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Marcar leído</button>}
               </div>
             </div>
           </div>
         ))}
-        {msgs.length === 0 && <div className="text-center py-16" style={{ fontSize: 15, color: 'var(--muted)', fontStyle: 'italic' }}>No hay mensajes todavía.</div>}
+        {msgs.length === 0 && <div className="text-center py-16 text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>No hay mensajes todavía.</div>}
       </div>
     </div>
   )

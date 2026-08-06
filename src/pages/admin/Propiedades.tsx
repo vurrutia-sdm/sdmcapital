@@ -105,30 +105,30 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
           {items.map((d, i) => (
             <div key={i} className="flex items-center gap-3 p-3 rounded-sm" style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)' }}>
               <File size={18} strokeWidth={2} style={{ flexShrink: 0 }} />
-              <a href={d.url} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160, flexShrink: 0 }}>
+              <a className="text-sdm-sm" href={d.url} target="_blank" rel="noopener noreferrer"
+                style={{ color: 'var(--muted)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160, flexShrink: 0 }}>
                 {dossierFileName(d.url)}
               </a>
-              <input
+              <input className="text-sdm-sm"
                 type="text"
                 value={d.titulo || ''}
                 placeholder="Título a mostrar (opcional)"
                 onChange={e => setTitulo(d.url, e.target.value)}
-                style={{ flex: 1, fontSize: 13, padding: '6px 10px', border: '1px solid var(--sky)', borderRadius: 2, background: '#fff', color: 'var(--ink)' }}
+                style={{ flex: 1, padding: '6px 10px', border: '1px solid var(--sky)', borderRadius: 2, background: '#fff', color: 'var(--ink)' }}
               />
-              <button onClick={() => remove(d.url)}
-                style={{ fontSize: 11, color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
+              <button className="text-sdm-xs" onClick={() => remove(d.url)}
+                style={{ color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
                 Eliminar
               </button>
             </div>
           ))}
         </div>
       )}
-      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontWeight: 600, textTransform: 'uppercase' }}>
         {uploading ? 'Subiendo…' : <><Paperclip size={14} strokeWidth={2} />{`Agregar archivos (${items.length} subido${items.length !== 1 ? 's' : ''})`}</>}
         <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style={{ display: 'none' }} disabled={uploading} onChange={upload} />
       </label>
-      <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PDF, Word, Excel. Puedes subir varios a la vez. Si dejas el título vacío, se muestra el nombre del archivo.</p>
+      <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 6 }}>PDF, Word, Excel. Puedes subir varios a la vez. Si dejas el título vacío, se muestra el nombre del archivo.</p>
     </div>
   )
 }
@@ -204,7 +204,7 @@ const upload = async (files: FileList) => {
   return (
     <div>
       {imagenes.length > 0 && (
-        <div style={{ fontSize: 13, color: 'var(--navy-dark)', background: 'var(--sky-pale)', border: '1px solid var(--sky)', borderRadius: 4, padding: '8px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="text-sdm-sm" style={{ color: 'var(--navy-dark)', background: 'var(--sky-pale)', border: '1px solid var(--sky)', borderRadius: 4, padding: '8px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Camera size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
           <span>Haz clic en <strong>"Portada"</strong> debajo de la foto que quieres como imagen principal.</span>
         </div>
@@ -228,7 +228,7 @@ const upload = async (files: FileList) => {
               >
                 <img src={thumbUrl(url)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 {url === imagenPrincipal && (
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'center', padding: '4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', padding: '4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                     <Star size={11} strokeWidth={2} />PORTADA
                   </div>
                 )}
@@ -239,23 +239,20 @@ const upload = async (files: FileList) => {
                     <circle cx="1.5" cy="8.5" r="1.2"/><circle cx="5.5" cy="8.5" r="1.2"/>
                   </svg>
                 </div>
-                <button
+                <button className="text-sdm-sm"
                   onClick={() => remove(i)}
                   title="Eliminar foto"
-                  style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
+                  style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
                 ><X size={14} strokeWidth={2} /></button>
               </div>
-              <button
+              <button className="text-sdm-xs tracking-sdm-wide"
                 onClick={() => setPrincipal(url)}
-                style={{
-                  width: '100%', marginTop: 4, padding: '5px 0',
-                  fontSize: 11, fontWeight: 600, letterSpacing: '0.5px',
+                style={{ width: '100%', marginTop: 4, padding: '5px 0', fontWeight: 600,
                   border: 'none', borderRadius: 2, cursor: 'pointer',
                   fontFamily: 'inherit', transition: 'all 0.15s',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                   background: url === imagenPrincipal ? 'var(--green)' : 'var(--border)',
-                  color: url === imagenPrincipal ? '#fff' : 'var(--muted)',
-                }}
+                  color: url === imagenPrincipal ? '#fff' : 'var(--muted)' }}
                 onMouseEnter={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--sky)'; e.currentTarget.style.color = 'var(--navy-dark)' } }}
                 onMouseLeave={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)' } }}
               >
@@ -266,13 +263,13 @@ const upload = async (files: FileList) => {
         </div>
       )}
       {imagenes.length < 20 && (
-        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
+        <label className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontWeight: 600, textTransform: 'uppercase' }}>
           {uploading ? (progress || 'Procesando…') : `+ Agregar fotos (${imagenes.length}/20)`}
           <input type="file" accept="image/*" multiple style={{ display: 'none' }} disabled={uploading}
             onChange={e => { if (e.target.files?.length) upload(e.target.files) }} />
         </label>
       )}
-      <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, lineHeight: 1.6 }}>
+      <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8, lineHeight: 1.6 }}>
         Arrastra para reordenar · <Star size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para elegir la imagen principal (borde verde) · <X size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para eliminar
       </p>
     </div>
@@ -396,14 +393,14 @@ export default function Propiedades() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Propiedades</h2>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Propiedades</h2>
         <button className="btn-green" onClick={() => setEditing(blank())}>+ Nueva propiedad</button>
       </div>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+        <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
           <MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6</strong> aparecen en el Inicio.
         </p>
-        <label className="flex items-center gap-2" style={{ fontSize: 13, color: 'var(--muted)', cursor: 'pointer' }}>
+        <label className="flex items-center gap-2 text-sdm-sm" style={{ color: 'var(--muted)', cursor: 'pointer' }}>
           <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} />
           Mostrar pausadas
         </label>
@@ -411,7 +408,7 @@ export default function Propiedades() {
 
       {editing && (
         <div id="prop-edit-form" className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar propiedad' : 'Nueva propiedad'}</h3>
+          <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar propiedad' : 'Nueva propiedad'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Título"><Inp value={editing.titulo || ''} onChange={v => setEditing(p => ({ ...p, titulo: v }))} /></Field>
             <Field label="Tipo">
@@ -446,8 +443,8 @@ export default function Propiedades() {
               <select
                 value={editing.region || ''}
                 onChange={e => setEditing(p => ({ ...p, region: e.target.value, comuna: '' }))}
-                className="input-line w-full"
-                style={{ fontFamily: 'inherit', fontSize: 15, color: 'var(--ink)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: 'pointer' }}
+                className="input-line w-full text-sdm-base"
+                style={{ fontFamily: 'inherit', color: 'var(--ink)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: 'pointer' }}
               >
                 <option value="">Seleccionar región...</option>
                 {REGIONES.map(r => <option key={r} value={r}>{r}</option>)}
@@ -458,8 +455,8 @@ export default function Propiedades() {
                 value={editing.comuna || ''}
                 onChange={e => setEditing(p => ({ ...p, comuna: e.target.value }))}
                 disabled={!editing.region}
-                className="input-line w-full"
-                style={{ fontFamily: 'inherit', fontSize: 15, color: editing.region ? 'var(--ink)' : 'var(--muted)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: editing.region ? 'pointer' : 'not-allowed' }}
+                className="input-line w-full text-sdm-base"
+                style={{ fontFamily: 'inherit', color: editing.region ? 'var(--ink)' : 'var(--muted)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: editing.region ? 'pointer' : 'not-allowed' }}
               >
                 <option value="">{editing.region ? 'Seleccionar comuna...' : 'Primero elige una región'}</option>
                 {getComunas(editing.region || '').map(c => <option key={c} value={c}>{c}</option>)}
@@ -469,7 +466,7 @@ export default function Propiedades() {
           </div>
 
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Precio</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Precio</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Precio UF"><Inp type="number" value={editing.precio_uf || ''} onChange={v => setEditing(p => ({ ...p, precio_uf: Number(v) }))} placeholder="Ej: 3500" /></Field>
               <Field label="Precio CLP"><Inp type="number" value={editing.precio_clp || ''} onChange={v => setEditing(p => ({ ...p, precio_clp: Number(v) }))} placeholder="Ej: 120000000" /></Field>
@@ -489,7 +486,7 @@ export default function Propiedades() {
           </div>
 
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Características</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Características</div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <Field label="Dormitorios"><Inp type="number" value={editing.dormitorios || ''} onChange={v => setEditing(p => ({ ...p, dormitorios: Number(v) }))} /></Field>
               <Field label="Baños"><Inp type="number" value={editing.banos || ''} onChange={v => setEditing(p => ({ ...p, banos: Number(v) }))} /></Field>
@@ -508,7 +505,7 @@ export default function Propiedades() {
 
           {editing.categoria === 'proyecto_nuevo' && (
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Información del Proyecto</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Información del Proyecto</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Field label="Etapa de construcción">
                   <Sel value={editing.etapa_construccion || ''}
@@ -556,7 +553,7 @@ export default function Propiedades() {
           )}
 
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14} strokeWidth={2} />Ubicación en mapa</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14} strokeWidth={2} />Ubicación en mapa</div>
             <MapPicker
               address={editing.map_address || ''}
               lat={editing.map_lat}
@@ -566,7 +563,7 @@ export default function Propiedades() {
           </div>
 
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><Briefcase size={14} strokeWidth={2} />Comisión y Beneficios</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><Briefcase size={14} strokeWidth={2} />Comisión y Beneficios</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Comisión corredora (%)">
                 <Inp type="number" value={editing.comision_porcentaje ?? 2}
@@ -606,7 +603,7 @@ export default function Propiedades() {
           </div>
 
           <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><File size={14} strokeWidth={2} />Dossiers / Fichas técnicas</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><File size={14} strokeWidth={2} />Dossiers / Fichas técnicas</div>
             <DossierUploader
               items={editing.dossiers || []}
               onChanged={items => setEditing(p => ({ ...p, dossiers: items }))}
@@ -649,8 +646,8 @@ export default function Propiedades() {
                 { label: 'Activo', field: null },
                 { label: 'Acciones', field: null },
               ].map(({ label, field }) => (
-                <th key={label} className="text-left pb-3 pr-4"
-                  style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: field ? 'var(--navy)' : 'var(--muted)', fontWeight: 400, cursor: field ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'nowrap' }}
+                <th key={label} className="text-left pb-3 pr-4 text-sdm-xs tracking-sdm-wide"
+                  style={{ textTransform: 'uppercase', color: field ? 'var(--navy)' : 'var(--muted)', fontWeight: 400, cursor: field ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'nowrap' }}
                   onClick={() => field && toggleSort(field as typeof sortField)}
                 >
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{label}{field && (sortField === field ? (sortDir === 'asc' ? <ArrowUp size={14} strokeWidth={2} /> : <ArrowDown size={14} strokeWidth={2} />) : <ArrowUpDown size={14} strokeWidth={2} />)}</span>
@@ -670,7 +667,7 @@ export default function Propiedades() {
               >
                 <td className="py-3 pr-2" style={{ color: 'var(--muted)' }}><GripVertical size={16} strokeWidth={2} /></td>
                 <td className="py-3 pr-4">
-                  <span style={{ fontSize: 12, fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
+                  <span className="text-sdm-sm" style={{ fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
                   {i < 6 && <Star size={11} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.15em', marginLeft: 4, color: 'var(--green)' }} />}
                 </td>
                 <td className="py-3 pr-4">
@@ -680,33 +677,33 @@ export default function Propiedades() {
                       : <div className="w-10 h-10 rounded flex-shrink-0" style={{ background: 'var(--navy)', opacity: 0.3 }} />
                     }
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 500, maxWidth: 220 }} className="truncate">{p.titulo}</div>
-                      <div style={{ fontSize: 12, color: 'var(--muted)' }}>{p.comuna}</div>
+                      <div style={{ fontWeight: 500, maxWidth: 220 }} className="truncate text-sdm-base">{p.titulo}</div>
+                      <div className="text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.comuna}</div>
                     </div>
                   </div>
                 </td>
-                <td className="py-3 pr-4" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.tipo}</td>
+                <td className="py-3 pr-4 text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.tipo}</td>
                 <td className="py-3 pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'#c0392b':p.estado==='reservada'?'#d97706':p.estado==='arrendada'?'#2563eb':'#999'} /></td>
-                <td className="py-3 pr-4" style={{ fontSize: 14 }}>{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : p.precio_clp ? `$${p.precio_clp.toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
+                <td className="py-3 pr-4 text-sdm-base">{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : p.precio_clp ? `$${p.precio_clp.toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
                 <td className="py-3 pr-4"><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
                 <td className="py-3 pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
-                  <button
+                  <button className="text-sdm-sm"
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
                     onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
                     onPointerDown={e => e.stopPropagation()}
-                    style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                     {p.activo === false ? <><Pause size={14} strokeWidth={2} />Pausada</> : <><Check size={14} strokeWidth={2} />Activa</>}
                   </button>
                 </td>
                 <td className="py-3" draggable={false} onDragStart={e => e.preventDefault()}>
                   <div className="flex gap-3">
-                    <button onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-                    <button onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ fontSize: 13, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
+                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
+                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
                   </div>
                 </td>
               </tr>
             ))}
-            {displayItems.length === 0 && <tr><td colSpan={8} className="py-12 text-center" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
+            {displayItems.length === 0 && <tr><td colSpan={8} className="py-12 text-center text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
           </tbody>
         </table>
       </div>
