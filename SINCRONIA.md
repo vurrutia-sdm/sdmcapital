@@ -94,6 +94,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
+| 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | En curso |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
 | — | Sofía / chatbot | — | — |
 
