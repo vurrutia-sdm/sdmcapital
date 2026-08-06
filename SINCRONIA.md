@@ -94,7 +94,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
-| 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | En curso |
+| 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
 | — | Sofía / chatbot | — | — |
@@ -1363,24 +1363,36 @@ había. Home, catálogo, ficha de propiedad y showcase de El Barranco, a 360,
 combinaciones renderizan contenido real y en ninguna el `scrollWidth` supera
 al `innerWidth`.
 
-#### PENDIENTE: debajo de 768px sigue roto
+#### La regla vive en TRES lugares, no en dos
 
-**`src/styles/mobile.css:8-10`** reintroduce la regla dentro de
-`@media (max-width: 768px)`:
+Al aplicar el cambio en `globals.css` apareció un tercero:
+**`src/styles/mobile.css`**, dentro de `@media (max-width: 768px)`. Dejaba
+`html: clip` + `body: hidden` en teléfono, que —según la tabla de arriba—
+**también rompe el sticky**.
 
-```css
-@media (max-width: 768px) {
-  body { overflow-x: hidden; }
-}
-```
+| # | Archivo | Selector |
+|---|---|---|
+| 1 | `src/styles/globals.css` | `html` |
+| 2 | `src/styles/globals.css` | `body` |
+| 3 | `src/styles/mobile.css` | `body`, bajo `@media (max-width: 768px)` |
 
-Eso deja `html: clip` + `body: hidden`, que —según la tabla de arriba— **también
-rompe el sticky**. En teléfono el header del admin sigue subiendo con el
-scroll.
+**Los tres son `clip`. Ninguno puede volver a `hidden`.**
 
-`src/styles/` es zona compartida y ese archivo no estaba autorizado en este
-cambio, así que **queda sin tocar a la espera de decisión**. El arreglo sería
-el mismo: `clip` en vez de `hidden`.
+La regla operativa para este proyecto es simple: *ninguna de las tres puede
+ser `hidden`*. Dicho con precisión, lo que se midió es que rompe cuando `body`
+queda en `hidden` mientras `html` no es `visible` — y `html` nunca es `visible`
+acá. Con que una vuelva a `hidden`, el header del admin deja de pegarse otra
+vez.
+
+Verificado tras el cambio: **no queda ningún `overflow-x: hidden` en el CSS
+compilado**, y el header se pega a 360, 390, 430, 767, 768, 1024 y 1440 — o
+sea dentro y fuera de la media query. Sin desborde horizontal en home,
+catálogo, ficha y showcase en ninguno de esos anchos.
+
+De paso, `mobile.css` merece una revisión aparte: son overrides con
+`!important` sobre selectores genéricos (`section.relative`, `header nav`) que
+pueden estar peleando con Tailwind. En este cambio **solo se tocó la regla de
+`overflow-x`**.
 
 Vale la pena revisar `mobile.css` entero de paso: son overrides con `!important`
 sobre selectores genéricos (`section.relative`, `header nav`) que pueden estar
