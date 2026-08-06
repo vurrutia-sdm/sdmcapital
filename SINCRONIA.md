@@ -93,6 +93,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 1) | **Definición de tokens en ZONA COMPARTIDA** (`src/styles/globals.css` y `tailwind.config.js`). No toca componentes | Commiteada y pusheada, **sin desplegar** — no cambia nada visible |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -1149,6 +1150,85 @@ El `overflow-x: hidden` del `body` queda como estaba, y la solución no depende
 de él. El único archivo del diff es `AdminPage.tsx`.
 
 Chunk `AdminPage`: 175,55 → 177,29 kB (**+1,74**).
+
+### Admin móvil — encabezados, alineación y densidad — 2026-08-06
+
+Segunda tanda de móvil, sobre el contenido interno de los paneles. Todo con
+el breakpoint `lg`, igual que el cajón. **De `lg` para arriba no cambia nada**,
+verificado a 1024 y 1440.
+
+#### El encabezado de panel está repetido, no compartido
+
+No hay componente. Es un `<div className="flex items-center justify-between
+mb-N">` con un `<h2>` y una acción, **duplicado en 10 paneles**, cada uno con
+su propio margen inferior: `Propiedades`, `Contenido`, `PaginasLegales`,
+`Blog`, `Asociados`, `Barranco`, `Equipo`, `Rental`, `Vende` y
+`CotizacionesAdmin`. El arreglo va en los 10.
+
+Debajo de `lg` se apila —título arriba, acción abajo, `gap-3`— y de `lg` para
+arriba vuelve a la fila, con `lg:gap-0` para que el escritorio quede idéntico.
+
+**La acción no ocupa el ancho completo, a propósito.** Los grupos son
+heterogéneos: unos son un solo botón (`+ Nueva propiedad`) y otros un par
+estado + botón (`Guardado correctamente` + `SaveBtn`). Estirarlos pediría un
+tratamiento distinto por panel, y un botón verde a todo el ancho bajo cada
+título se lee como acción principal de página incluso cuando solo es guardar.
+
+#### La densidad de la tabla era espaciado, no estructura
+
+Medido con `getBoundingClientRect`: la tabla mide **619px dentro de un
+contenedor de 328**, o sea que el `overflow-x-auto` ya funciona y scrollea. El
+problema era solo la separación entre columnas al comprimirse a su ancho
+mínimo:
+
+| | título → tipo |
+|---|---:|
+| móvil, antes | **16px** |
+| móvil, ahora | **32px** |
+| 1440px | 218px (sin cambio) |
+
+La celda del título pasó a `pr-8 lg:pr-4`. Como la tabla ya scrollea,
+ensancharla 16px no aprieta nada.
+
+#### El centrado de textos de ayuda NO EXISTE en el admin
+
+Se buscó y **no se tocó nada**. Las 32 apariciones de `text-center` y
+`textAlign: 'center'` del dominio son, las 32, exclusiones que el propio
+encargo pedía respetar:
+
+- estados vacíos (`No hay imágenes`, `Aún no hay propiedades`…)
+- `Cargando…` y spinners
+- las tarjetas de "Acceso restringido" de las 7 vistas con auth propia
+- el badge `PORTADA` centrado dentro de su caja
+- la tarjeta de `Asociados`, diseñada centrada (logo arriba, nombre abajo)
+- el indicador de pasos del wizard de cotizaciones
+
+Tampoco viene de otro lado. Verificado: `globals.css` **no tiene una sola
+regla de `text-align`**; los estilos `.ProseMirror` del editor no centran; el
+contenido guardado en `paginas_legales`, `blog` y `propiedades` tiene **cero**
+`text-align: center`; y los únicos contenedores con centrado por flexbox son
+los dos deliberados de arriba.
+
+Si el centrado se sigue viendo, no sale del admin.
+
+#### Pendiente: las tablas siguen sin layout móvil
+
+`Propiedades` y `Blog` usan `<table className="w-full">` dentro de un
+`overflow-x-auto`. En móvil eso significa **scroll horizontal**: la tabla de
+Propiedades mide 635px contra 328 de pantalla, con 8 columnas en su ancho
+mínimo. Funciona, pero obliga a arrastrar de lado para ver el estado o el
+precio.
+
+**Necesitan rediseño a tarjetas apiladas**, no más ajustes de espaciado. Queda
+fuera de esta etapa a propósito y se decide aparte.
+
+#### Sobre medir en headless
+
+Chrome headless tiene un piso de viewport de ~500px que ignora
+`--window-size`. Toda medida móvil hecha así es falsa. Lo que sirve es cargar
+la página en **iframes del ancho real** dentro de una ventana grande.
+
+Chunk `AdminPage`: 177,29 → 177,84 kB (**+0,55**).
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
