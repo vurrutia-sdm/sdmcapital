@@ -74,7 +74,8 @@ línea o se marca como cerrada.
 |---|---|---|---|
 | 2026-08-02 | Admin | Cotizaciones: columnas `prop_pais`/`prop_ciudad` en Supabase, errores de escritura visibles en todo el admin (`avisarError`), catálogo como modo por defecto en el Paso 2, PDF bajo demanda | **Cerrada** — todo commiteado y desplegado |
 | 2026-08-02 | Web pública | Componente `SinArriendos` en `PropiedadesPage.tsx` | Cerrado — commit `0b7e80a`, ya en producción |
-| 2026-08-05 | Inventario oficinas | Carga de 10 edificios de oficinas en arriendo (42 unidades). Toca `src/types/index.ts`, `supabase/migrations/` y `src/pages/PropiedadDetailPage.tsx` | En curso |
+| 2026-08-05 | Inventario oficinas | Carga de 10 edificios de oficinas en arriendo (42 unidades). Toca `src/types/index.ts`, `supabase/migrations/` y `src/pages/PropiedadDetailPage.tsx` | Commit `a1a0728`, pusheado |
+| 2026-08-05 | Inventario oficinas (cambio de estrategia) | Los 10 edificios pasan a referencia interna permanente; se publica una ficha genérica en su lugar. Solo toca `supabase/migrations/` | Cerrada — commiteada, migración aplicada, sin deploy |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión inventario oficinas — 2026-08-05
@@ -86,9 +87,27 @@ para el render de unidades; queda avisado acá. El admin y el banner del home
 
 Migraciones `20260805000000` y `20260805000100` **ya aplicadas** contra
 `ugfhgfpgxyfzafudxaeo`. La base cambió: `propiedades` tiene columna `unidades`
-(jsonb, nullable) y 10 filas nuevas de tipo `oficina`. Las 10 quedan con
-`activo = false`, así que no aparecen en el catálogo público hasta que se
-carguen las fotos desde el admin.
+(jsonb, nullable) y 10 filas nuevas de tipo `oficina`.
+
+### Cambio de estrategia — los 10 edificios NO se publican
+
+Migración `20260805000200`, también aplicada.
+
+Los 10 edificios cargados en `20260805000100` quedan **pausados de forma
+permanente**: son referencia interna. Publicarlos expondría las direcciones de
+la cartera del socio.
+
+- **No borrarlos.** Los datos y las 42 unidades se conservan.
+- **No activarlos.** `activo = false` es deliberado y definitivo, no un estado
+  transitorio a la espera de fotos.
+
+Lo que sí se publica es una ficha genérica, `oficinas-arriendo-santiago-centro`:
+comunica volumen y rango de superficies sin decir dónde está nada. Va sin
+`direccion`, sin `map_address` y sin `map_lat` / `map_lng` a propósito —
+cualquiera de esos campos reintroduciría lo que se está protegiendo. Su
+`unidades` es NULL para que la ficha no dibuje el desglose piso por piso.
+
+Esa sí se activa, cuando se le carguen las fotos desde el admin.
 
 ### Sesión admin cerrada el 2026-08-02
 
