@@ -83,6 +83,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | RLS / vistas de métricas | Migración `20260805000500`: `security_invoker` en las 4 vistas `metricas_*`, que evadían el RLS de las tablas de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada con medición antes/después |
 | 2026-08-05 | Admin — Fase 3, etapa 1 | Partir `AdminPage.tsx`. Primitivas a `src/components/admin/primitivas.tsx` y pestaña piloto a `src/pages/admin/Mensajes.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-05 | Admin — Fase 3, etapa 2 | Helpers compartidos a `src/components/admin/`: `campos.tsx`, `layout.tsx`, `acciones.tsx`, `ImageUploader.tsx`. `primitivas.tsx` eliminado | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-05 | Admin — Fase 3, etapa 3 | Cuatro paneles a `src/pages/admin/`: `Blog`, `Equipo`, `Asociados`, `PaginasLegales` | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -299,9 +300,61 @@ un componente con estado y con dependencias de `src/lib/` —`subirImagen` y
 | `editor` | `editor-CRXeSJ56.js` | mismo hash |
 | `index` | 238,90 kB | 238,90 kB |
 
+### Fase 3 — Etapa 3: cuatro paneles mecánicos — 2026-08-05
+
+| Antes | Ahora |
+|---|---|
+| `BlogAdmin` | `src/pages/admin/Blog.tsx` |
+| `EquipoAdmin` | `src/pages/admin/Equipo.tsx` |
+| `AsociadosAdmin` | `src/pages/admin/Asociados.tsx` |
+| `PaginasLegalesAdmin` | `src/pages/admin/PaginasLegales.tsx` |
+
+`AdminPage.tsx`: 2.656 → 2.286 líneas. Acumulado de la Fase 3: **2.808 → 2.286,
+−522 líneas** en tres etapas.
+
+`LEGAL_PAGES` se movió con `PaginasLegales`: es una constante local de
+`AdminPage.tsx`, no de `src/types/`, y solo la usaba ese panel.
+
+#### Dos símbolos que siguen viviendo en `AdminPage.tsx`
+
+`RichTextEditor` y `useDragSort` quedaron exportados desde `AdminPage.tsx` y
+los paneles extraídos los importan desde ahí:
+
+- `RichTextEditor` — lo usan `Blog` y `PaginasLegales`. Se extrae junto con
+  `TBtn` en una etapa posterior.
+- `useDragSort` — lo usan `Equipo`, `Asociados` y `PropiedadesAdmin`.
+
+**Esto crea un import circular**: `AdminPage` importa los paneles y los paneles
+importan de `AdminPage`. Funciona porque ambos son declaraciones `function`,
+que se hoistean, y porque nadie los invoca en tiempo de evaluación del módulo,
+solo en render. Es transitorio y hay que deshacerlo: cuando `RichTextEditor`
+se vaya a `src/components/admin/`, `useDragSort` debería irse con él o a su
+propio módulo, y el ciclo desaparece.
+
+Si alguna etapa futura mueve una de esas dos a un contexto que se ejecute en
+tiempo de módulo, el ciclo deja de ser inocuo.
+
+#### Los paneles NO se convirtieron en chunks aparte
+
+Se importan de forma estática, así que siguen dentro del chunk `AdminPage`.
+Es deliberado: un `lazy()` cambiaría el comportamiento de carga y esto es un
+refactor puro.
+
+#### Chunks
+
+| Chunk | Etapa 2 | Etapa 3 |
+|---|---|---|
+| `AdminPage` | 169,57 kB | 169,60 kB |
+| `pdf` | 2.054,86 kB | 2.054,86 kB |
+| `react` | `react-DLA1cIuT.js` | mismo hash |
+| `editor` | `editor-CRXeSJ56.js` | mismo hash |
+| `index` | 238,90 kB | 238,90 kB |
+
+Los 0,03 kB de más en `AdminPage` son los `export` y los `import` nuevos.
+
 #### Pendiente para las próximas etapas
 
-Quedan 21 componentes en `AdminPage.tsx`. Los grandes: `PropiedadesAdmin`
+Quedan 17 componentes en `AdminPage.tsx`. Los grandes: `PropiedadesAdmin`
 (426 líneas), `BarrancoAdmin` (403), `ContenidoAdmin` (321),
 `PropImageManager` (145), `RentalAdmin` (143), `RichTextEditor` (123),
 `VendeAdmin` (120).

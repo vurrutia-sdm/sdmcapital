@@ -14,13 +14,17 @@ import { subirImagen, subirArchivo } from '@/lib/subirImagen'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
-import type { Propiedad, BlogPost, MiembroEquipo, Asociado, DossierItem } from '@/types'
+import type { Propiedad, DossierItem } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
 import { Sec, Full } from '@/components/admin/layout'
 import { Field, Inp, Txa, Chk, Sel } from '@/components/admin/campos'
 import { SaveBtn, Badge } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import Mensajes from '@/pages/admin/Mensajes'
+import Blog from '@/pages/admin/Blog'
+import Equipo from '@/pages/admin/Equipo'
+import Asociados from '@/pages/admin/Asociados'
+import PaginasLegales from '@/pages/admin/PaginasLegales'
 import { CotizacionesAdmin } from '@/components/cotizaciones/CotizacionesAdmin'
 import { TarjetasEquipo } from '@/components/tarjetas/TarjetasEquipo'
 
@@ -112,7 +116,7 @@ const SUBSIDIO_OPTIONS = [
 ]
 
 // ─── DRAG & DROP HOOK ─────────────────────────────────────────────────────────
-function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (items: T[]) => void) {
+export function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (items: T[]) => void) {
   const [items, setItems] = useState<T[]>(initialItems)
   const dragItem = useRef<number | null>(null)
   const dragOver = useRef<number | null>(null)
@@ -364,7 +368,7 @@ function TBtn({ onClick, active, title, children }: {
   )
 }
 
-function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
+export function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
   const editor = useEditor({
     extensions: [
       // StarterKit 3.x ya trae link y underline. Registrarlos aparte los duplica
@@ -912,302 +916,6 @@ function PropiedadesAdmin() {
   )
 }
 
-// ─── BLOG ─────────────────────────────────────────────────────────────────────
-function BlogAdmin() {
-  const [posts, setPosts]     = useState<BlogPost[]>([])
-  const [editing, setEditing] = useState<Partial<BlogPost> | null>(null)
-  const [saving, setSaving]   = useState(false)
-
-  const load = () => supabase.from('blog_posts').select('*').order('created_at', { ascending: false }).then(({ data }) => setPosts(data || []))
-  useEffect(() => { load() }, [])
-
-  const del = async (id: string) => {
-    if (!confirm('¿Eliminar este artículo?')) return
-    const { error } = await supabase.from('blog_posts').delete().eq('id', id)
-    if (avisarError('No se pudo eliminar el artículo', error)) return
-    load()
-  }
-
-  const makeSlug = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-
-  const save = async () => {
-    if (!editing) return
-    setSaving(true)
-    const { error } = editing.id
-      ? await supabase.from('blog_posts').update(editing).eq('id', editing.id)
-      : await supabase.from('blog_posts').insert([{ ...editing, publicado: editing.publicado || false, destacado: editing.destacado || false }])
-    setSaving(false)
-    if (avisarError('No se pudo guardar el artículo', error)) return
-    setEditing(null); load()
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Blog</h2>
-        <button className="btn-green" onClick={() => setEditing({ titulo: '', slug: '', resumen: '', contenido: '', autor_nombre: 'Equipo SDM Capital', categoria: 'Mercado', publicado: false, destacado: false })}>+ Nuevo artículo</button>
-      </div>
-
-      {editing && (
-        <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar artículo' : 'Nuevo artículo'}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <Field label="Título"><Inp value={editing.titulo || ''} onChange={v => setEditing(p => ({ ...p, titulo: v, slug: p?.id ? p.slug : makeSlug(v) }))} /></Field>
-            <Field label="Slug (URL)"><Inp value={editing.slug || ''} onChange={v => setEditing(p => ({ ...p, slug: v }))} /></Field>
-            <Field label="Categoría"><Inp value={editing.categoria || ''} onChange={v => setEditing(p => ({ ...p, categoria: v }))} /></Field>
-            <Field label="Autor"><Inp value={editing.autor_nombre || ''} onChange={v => setEditing(p => ({ ...p, autor_nombre: v }))} /></Field>
-          </div>
-          <div className="mb-6">
-            <Field label="Imagen de portada">
-              <ImageUploader currentUrl={editing.imagen_portada} folder="blog"
-                onUploaded={url => setEditing(p => ({ ...p, imagen_portada: url }))} />
-            </Field>
-          </div>
-          <div className="mb-4">
-            <Field label="Resumen"><Txa rows={2} value={editing.resumen || ''} onChange={v => setEditing(p => ({ ...p, resumen: v }))} /></Field>
-          </div>
-
-          {/* ─── RICH TEXT EDITOR ─── */}
-          <div className="mb-6">
-            <Field label="Contenido completo">
-              <RichTextEditor
-                value={editing.contenido || ''}
-                onChange={v => setEditing(p => ({ ...p, contenido: v }))}
-              />
-            </Field>
-          </div>
-
-          <div className="flex gap-6 mt-4 mb-6">
-            <Chk label="Publicado" checked={!!editing.publicado} onChange={v => setEditing(p => ({ ...p, publicado: v }))} />
-            <Chk label="Destacado" checked={!!editing.destacado} onChange={v => setEditing(p => ({ ...p, destacado: v }))} />
-          </div>
-          <div className="flex gap-3">
-            <SaveBtn onClick={save} loading={saving} />
-            <button onClick={() => setEditing(null)} className="btn-primary" style={{ background: 'var(--muted)' }}>Cancelar</button>
-          </div>
-        </div>
-      )}
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead><tr style={{ borderBottom: '1px solid var(--border)' }}>{['Título','Categoría','Autor','Estado','Acciones'].map(h => <th key={h} className="text-left pb-3 pr-6" style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>)}</tr></thead>
-          <tbody>
-            {posts.map(p => (
-              <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td className="py-4 pr-6"><div style={{ fontWeight: 500, fontSize: 14 }}>{p.titulo}</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>{p.slug}</div></td>
-                <td className="py-4 pr-6" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.categoria}</td>
-                <td className="py-4 pr-6" style={{ fontSize: 13, color: 'var(--muted)' }}>{p.autor_nombre}</td>
-                <td className="py-4 pr-6"><Badge label={p.publicado ? 'Publicado' : 'Borrador'} color={p.publicado ? 'var(--green)' : 'var(--muted)'} /></td>
-                <td className="py-4"><div className="flex gap-3"><button onClick={() => setEditing(p)} style={{ fontSize: 13, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button onClick={() => del(p.id)} style={{ fontSize: 13, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
-              </tr>
-            ))}
-            {posts.length === 0 && <tr><td colSpan={5} className="py-12 text-center" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>No hay artículos aún.</td></tr>}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-// ─── EQUIPO ───────────────────────────────────────────────────────────────────
-function EquipoAdmin() {
-  const [items, setItems]     = useState<MiembroEquipo[]>([])
-  const [editing, setEditing] = useState<Partial<MiembroEquipo> | null>(null)
-  const [saving, setSaving]   = useState(false)
-
-  const load = () => supabase.from('equipo').select('*').order('orden').then(({ data }) => setItems(data || []))
-  useEffect(() => { load() }, [])
-
-  const { items: sorted, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
-    const fallo = (await Promise.all(reordered.map((m, i) => supabase.from('equipo').update({ orden: i + 1 }).eq('id', m.id)))).find(r => r.error)
-    avisarError('No se pudo guardar el nuevo orden del equipo', fallo?.error ?? null)
-    load()
-  })
-
-  const save = async () => {
-    if (!editing) return
-    setSaving(true)
-    const { error } = editing.id
-      ? await supabase.from('equipo').update(editing).eq('id', editing.id)
-      : await supabase.from('equipo').insert([{ ...editing, activo: editing.activo !== false, orden: items.length + 1 }])
-    setSaving(false)
-    if (avisarError('No se pudo guardar el miembro del equipo', error)) return
-    setEditing(null); load()
-  }
-
-  const del = async (id: string) => {
-    if (!confirm('¿Eliminar este miembro?')) return
-    const { error } = await supabase.from('equipo').delete().eq('id', id)
-    if (avisarError('No se pudo eliminar el miembro del equipo', error)) return
-    load()
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Equipo</h2>
-        <button className="btn-green" onClick={() => setEditing({ nombre: '', cargo: '', bio: '', orden: items.length + 1, activo: true })}>+ Nuevo miembro</button>
-      </div>
-      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}>🖱 Arrastra las filas para cambiar el orden de aparición.</p>
-
-      {editing && (
-        <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar miembro' : 'Nuevo miembro'}</h3>
-          <div className="mb-6 p-6 rounded-sm" style={{ background: 'var(--off)', border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16 }}>📷 Foto del miembro</div>
-            <div className="flex items-center gap-6">
-              {editing.foto
-                ? <img src={editing.foto} alt="Foto" className="w-20 h-20 object-cover rounded-full" style={{ border: '3px solid var(--border)' }} />
-                : <div className="w-20 h-20 rounded-full flex items-center justify-center font-serif" style={{ background: 'var(--navy)', color: 'var(--sky)', fontSize: 24, border: '3px solid var(--border)' }}>{(editing.nombre || '?').split(' ').map((n: string) => n[0]).join('').slice(0,2)}</div>
-              }
-              <div className="flex-1">
-                <ImageUploader currentUrl={editing.foto} folder="equipo" onUploaded={url => setEditing(p => ({ ...p, foto: url }))} />
-                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>Recomendado: foto cuadrada, mínimo 400×400px.</p>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <Field label="Nombre completo"><Inp value={editing.nombre || ''} onChange={v => setEditing(p => ({ ...p, nombre: v }))} /></Field>
-            <Field label="Cargo"><Inp value={editing.cargo || ''} onChange={v => setEditing(p => ({ ...p, cargo: v }))} placeholder="Ej: Director General" /></Field>
-            <Field label="Email"><Inp type="email" value={editing.email || ''} onChange={v => setEditing(p => ({ ...p, email: v }))} /></Field>
-            <Field label="Teléfono"><Inp value={editing.telefono || ''} onChange={v => setEditing(p => ({ ...p, telefono: v }))} /></Field>
-            <Field label="LinkedIn URL"><Inp value={editing.linkedin || ''} onChange={v => setEditing(p => ({ ...p, linkedin: v }))} placeholder="https://linkedin.com/in/..." /></Field>
-            <Field label="WhatsApp (solo números, sin +)"><Inp value={editing.whatsapp || ''} onChange={v => setEditing(p => ({ ...p, whatsapp: v }))} placeholder="56912345678" /></Field>
-            <Field label="Orden"><Inp type="number" value={editing.orden || ''} onChange={v => setEditing(p => ({ ...p, orden: Number(v) }))} /></Field>
-          </div>
-          <Field label="Biografía"><Txa rows={4} value={editing.bio || ''} onChange={v => setEditing(p => ({ ...p, bio: v }))} /></Field>
-          <div className="mt-4 mb-6"><Chk label="Activo (visible en el sitio)" checked={editing.activo !== false} onChange={v => setEditing(p => ({ ...p, activo: v }))} /></div>
-          <div className="flex gap-3">
-            <SaveBtn onClick={save} loading={saving} />
-            <button onClick={() => setEditing(null)} className="btn-primary" style={{ background: 'var(--muted)' }}>Cancelar</button>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {sorted.map((m, i) => (
-          <div key={m.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab" style={{ borderTop: '3px solid var(--green)' }}>
-            <div className="flex items-center gap-4 mb-4">
-              <span style={{ color: 'var(--muted)', fontSize: 20 }}>⠿</span>
-              {m.foto
-                ? <img src={m.foto} alt={m.nombre} className="w-14 h-14 object-cover rounded-full" style={{ border: '2px solid var(--border)' }} />
-                : <div className="w-14 h-14 rounded-full flex items-center justify-center font-serif flex-shrink-0" style={{ background: 'var(--navy)', color: 'var(--sky)', fontSize: 18 }}>{m.nombre.split(' ').map(n => n[0]).join('').slice(0,2)}</div>
-              }
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy-dark)' }}>{m.nombre}</div>
-                <div style={{ fontSize: 12, color: 'var(--green)', letterSpacing: '0.5px' }}>{m.cargo}</div>
-              </div>
-            </div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 12 }} className="line-clamp-2">{m.bio}</p>
-            <div className="flex gap-3 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
-              <button onClick={() => setEditing(m)} style={{ fontSize: 12, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-              <button onClick={() => del(m.id)} style={{ fontSize: 12, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
-              <Badge label={m.activo ? 'Activo' : 'Inactivo'} color={m.activo ? 'var(--green)' : 'var(--muted)'} />
-            </div>
-          </div>
-        ))}
-        {sorted.length === 0 && <div className="py-12 text-center col-span-3" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Sin miembros. Crea el primero.</div>}
-      </div>
-    </div>
-  )
-}
-
-// ─── ASOCIADOS ────────────────────────────────────────────────────────────────
-function AsociadosAdmin() {
-  const [items, setItems]     = useState<Asociado[]>([])
-  const [editing, setEditing] = useState<Partial<Asociado> | null>(null)
-  const [saving, setSaving]   = useState(false)
-
-  const load = () => supabase.from('asociados').select('*').order('orden').then(({ data }) => setItems(data || []))
-  useEffect(() => { load() }, [])
-
-  const { items: sorted, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
-    const fallo = (await Promise.all(reordered.map((a, i) => supabase.from('asociados').update({ orden: i + 1 }).eq('id', a.id)))).find(r => r.error)
-    avisarError('No se pudo guardar el nuevo orden de los asociados', fallo?.error ?? null)
-    load()
-  })
-
-  const save = async () => {
-    if (!editing) return
-    setSaving(true)
-    const { error } = editing.id
-      ? await supabase.from('asociados').update(editing).eq('id', editing.id)
-      : await supabase.from('asociados').insert([{ ...editing, activo: editing.activo !== false, logo: editing.logo || '', orden: items.length + 1 }])
-    setSaving(false)
-    if (avisarError('No se pudo guardar el asociado', error)) return
-    setEditing(null); load()
-  }
-
-  const del = async (id: string) => {
-    if (!confirm('¿Eliminar este asociado?')) return
-    const { error } = await supabase.from('asociados').delete().eq('id', id)
-    if (avisarError('No se pudo eliminar el asociado', error)) return
-    load()
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2>
-        <button className="btn-green" onClick={() => setEditing({ nombre: '', logo: '', url: '', orden: items.length + 1, activo: true })}>+ Nuevo asociado</button>
-      </div>
-      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}>🖱 Arrastra las tarjetas para cambiar el orden.</p>
-
-      {editing && (
-        <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6" style={{ fontSize: 24, color: 'var(--navy-dark)' }}>{editing.id ? 'Editar asociado' : 'Nuevo asociado'}</h3>
-          <div className="mb-6 p-6 rounded-sm" style={{ background: 'var(--off)', border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16 }}>🏢 Logo de la empresa</div>
-            <div className="flex items-center gap-6">
-              {editing.logo
-                ? <img src={editing.logo} alt="Logo" style={{ height: 56, objectFit: 'contain', border: '1px solid var(--border)', padding: 8, borderRadius: 4, background: '#fff', maxWidth: 160 }} />
-                : <div style={{ width: 120, height: 56, border: '2px dashed var(--border)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--muted)' }}>Sin logo</div>
-              }
-              <div className="flex-1">
-                <ImageUploader currentUrl={editing.logo} folder="asociados" onUploaded={url => setEditing(p => ({ ...p, logo: url }))} />
-                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>PNG con fondo transparente para mejor resultado.</p>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <Field label="Nombre de la empresa"><Inp value={editing.nombre || ''} onChange={v => setEditing(p => ({ ...p, nombre: v }))} /></Field>
-            <Field label="URL del sitio web"><Inp value={editing.url || ''} onChange={v => setEditing(p => ({ ...p, url: v }))} placeholder="https://..." /></Field>
-            <Field label="Orden"><Inp type="number" value={editing.orden || ''} onChange={v => setEditing(p => ({ ...p, orden: Number(v) }))} /></Field>
-          </div>
-          <Field label="Descripción breve"><Txa rows={2} value={editing.descripcion || ''} onChange={v => setEditing(p => ({ ...p, descripcion: v }))} /></Field>
-          <div className="mt-4 mb-6"><Chk label="Activo (visible en el sitio)" checked={editing.activo !== false} onChange={v => setEditing(p => ({ ...p, activo: v }))} /></div>
-          <div className="flex gap-3">
-            <SaveBtn onClick={save} loading={saving} />
-            <button onClick={() => setEditing(null)} className="btn-primary" style={{ background: 'var(--muted)' }}>Cancelar</button>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {sorted.map((a, i) => (
-          <div key={a.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab flex flex-col items-center text-center">
-            <span style={{ color: 'var(--muted)', fontSize: 18, marginBottom: 8, display: 'block' }}>⠿</span>
-            {a.logo
-              ? <img src={a.logo} alt={a.nombre} style={{ height: 44, objectFit: 'contain', maxWidth: '100%', marginBottom: 10 }} />
-              : <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}><span style={{ fontSize: 14, fontWeight: 600, color: 'var(--navy-dark)' }}>{a.nombre}</span></div>
-            }
-            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 4 }}>{a.nombre}</div>
-            <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: 'var(--sky)', textDecoration: 'none', marginBottom: 10 }} className="truncate w-full">{a.url}</a>
-            <div className="flex gap-3 border-t pt-3 w-full justify-center" style={{ borderColor: 'var(--border)' }}>
-              <button onClick={() => setEditing(a)} style={{ fontSize: 12, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-              <button onClick={() => del(a.id)} style={{ fontSize: 12, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
-            </div>
-          </div>
-        ))}
-        {sorted.length === 0 && <div className="col-span-4 py-12 text-center" style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Sin asociados. Crea el primero.</div>}
-      </div>
-    </div>
-  )
-}
-
-// ─── MENSAJES ─────────────────────────────────────────────────────────────────
 // ─── CONTENIDO ────────────────────────────────────────────────────────────────
 const HERO_KEYS = ['hero_imagen_url','hero_imagen_url_2','hero_imagen_url_3','hero_imagen_url_4','hero_imagen_url_5'] as const
 const HERO_POS_KEYS = ['hero_pos_1','hero_pos_2','hero_pos_3','hero_pos_4','hero_pos_5'] as const
@@ -2214,84 +1922,6 @@ function BarrancoAdmin() {
   )
 }
 
-// ─── PÁGINAS LEGALES ──────────────────────────────────────────────────────────
-const LEGAL_PAGES: { slug: string; label: string; ruta: string }[] = [
-  { slug: 'politica-de-privacidad',   label: 'Política de Privacidad',   ruta: '/politica-de-privacidad' },
-  { slug: 'condiciones-del-servicio', label: 'Condiciones del Servicio', ruta: '/condiciones-del-servicio' },
-  { slug: 'eliminacion-de-datos',     label: 'Eliminación de Datos',     ruta: '/eliminacion-de-datos' },
-]
-
-function PaginasLegalesAdmin() {
-  const [activeSlug, setActiveSlug] = useState(LEGAL_PAGES[0].slug)
-  const active = LEGAL_PAGES.find(p => p.slug === activeSlug) || LEGAL_PAGES[0]
-
-  const [contenido, setContenido] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    setLoading(true); setSaved(false); setError('')
-    supabase.from('paginas_legales').select('contenido').eq('slug', activeSlug).maybeSingle()
-      .then(({ data, error }) => {
-        if (error) setError('No se pudo cargar el contenido: ' + error.message)
-        else setContenido(data?.contenido || '')
-        setLoading(false)
-      })
-  }, [activeSlug])
-
-  const save = async () => {
-    setSaving(true); setError(''); setSaved(false)
-    const { error } = await supabase.from('paginas_legales').upsert(
-      { slug: activeSlug, contenido, updated_at: new Date().toISOString() },
-      { onConflict: 'slug' }
-    )
-    setSaving(false)
-    if (error) { setError('Error al guardar: ' + error.message); return }
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Páginas Legales</h2>
-        <div className="flex items-center gap-4">
-          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
-          <SaveBtn onClick={save} loading={saving} />
-        </div>
-      </div>
-
-      <div className="flex gap-2 mb-6">
-        {LEGAL_PAGES.map(p => (
-          <button key={p.slug} onClick={() => setActiveSlug(p.slug)}
-            className="rounded-sm"
-            style={{
-              padding: '9px 18px', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
-              border: `1px solid ${activeSlug === p.slug ? 'var(--navy-dark)' : '#e8edf2'}`,
-              background: activeSlug === p.slug ? 'var(--navy-dark)' : '#fff',
-              color: activeSlug === p.slug ? '#fff' : 'var(--muted)',
-            }}>
-            {p.label}
-          </button>
-        ))}
-      </div>
-
-      {error && <p style={{ fontSize: 13, color: '#E24B4A', marginBottom: 16 }}>{error}</p>}
-
-      <div className="bg-white border border-[#e8edf2] rounded-sm p-8">
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
-          Este texto se muestra públicamente en <code>{active.ruta}</code>. Usa los títulos (H2) para separar las secciones, igual que en el resto del sitio.
-        </p>
-        {loading
-          ? <p style={{ fontSize: 14, color: 'var(--muted)' }}>Cargando…</p>
-          : <RichTextEditor key={activeSlug} value={contenido} onChange={setContenido} />}
-      </div>
-    </div>
-  )
-}
-
 // ─── RENTAL ───────────────────────────────────────────────────────────────────
 function RentalAdmin() {
   const [saving, setSaving] = useState(false)
@@ -2639,15 +2269,15 @@ export default function AdminPage() {
         <main className="flex-1 p-8 lg:p-10 min-w-0 ml-56">
           {tab === 'propiedades'  && <PropiedadesAdmin />}
           {tab === 'cotizaciones' && <CotizacionesAdmin />}
-          {tab === 'blog'         && <BlogAdmin />}
-          {tab === 'equipo'       && <EquipoAdmin />}
-          {tab === 'asociados'    && <AsociadosAdmin />}
+          {tab === 'blog'         && <Blog />}
+          {tab === 'equipo'       && <Equipo />}
+          {tab === 'asociados'    && <Asociados />}
           {tab === 'mensajes'     && <Mensajes />}
           {tab === 'contenido'    && <ContenidoAdmin />}
           {tab === 'fotos'        && <FotosAdmin />}
           {tab === 'barranco'     && <BarrancoAdmin />}
           {tab === 'tarjetas'     && <TarjetasEquipo />}
-          {tab === 'legal'        && <PaginasLegalesAdmin />}
+          {tab === 'legal'        && <PaginasLegales />}
           {tab === 'rental'       && <RentalAdmin />}
           {tab === 'vende'        && <VendeAdmin />}
         </main>
