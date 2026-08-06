@@ -16,7 +16,10 @@ import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad, BlogPost, MiembroEquipo, Asociado, DossierItem } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
-import { Sec, Full } from '@/components/admin/primitivas'
+import { Sec, Full } from '@/components/admin/layout'
+import { Field, Inp, Txa, Chk, Sel } from '@/components/admin/campos'
+import { SaveBtn, Badge } from '@/components/admin/acciones'
+import { ImageUploader } from '@/components/admin/ImageUploader'
 import Mensajes from '@/pages/admin/Mensajes'
 import { CotizacionesAdmin } from '@/components/cotizaciones/CotizacionesAdmin'
 import { TarjetasEquipo } from '@/components/tarjetas/TarjetasEquipo'
@@ -71,79 +74,6 @@ function LoginForm() {
 }
 
 // ─── SHARED UI ────────────────────────────────────────────────────────────────
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div className="flex flex-col gap-2"><label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</label>{children}</div>
-}
-
-function Inp({ value, onChange, type = 'text', placeholder = '', min, max }: {
-  value: string | number
-  onChange: (v: string) => void
-  type?: string
-  placeholder?: string
-  min?: number
-  max?: number
-}) {
-  const [local, setLocal] = useState(String(value ?? ''))
-  const prevValue = useRef(String(value ?? ''))
-  useEffect(() => {
-    const str = String(value ?? '')
-    if (str !== prevValue.current) {
-      setLocal(str)
-      prevValue.current = str
-    }
-  }, [value])
-  return (
-    <input
-      type={type}
-      value={local}
-      placeholder={placeholder}
-      min={min}
-      max={max}
-      className="input-line"
-      onChange={e => setLocal(e.target.value)}
-      onBlur={() => { prevValue.current = local; onChange(local) }}
-    />
-  )
-}
-
-function Txa({ value, onChange, rows = 3, placeholder }: {
-  value: string
-  onChange: (v: string) => void
-  rows?: number
-  placeholder?: string
-}) {
-  const [local, setLocal] = useState(value ?? '')
-  const prevValue = useRef(value ?? '')
-  useEffect(() => {
-    if (value !== prevValue.current) {
-      setLocal(value ?? '')
-      prevValue.current = value ?? ''
-    }
-  }, [value])
-  return (
-    <textarea
-      value={local}
-      rows={rows}
-      placeholder={placeholder}
-      className="input-line resize-none"
-      onChange={e => setLocal(e.target.value)}
-      onBlur={() => { prevValue.current = local; onChange(local) }}
-    />
-  )
-}
-function Chk({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
-  return <label className="flex items-center gap-2 cursor-pointer" style={{ fontSize: 14, color: 'var(--muted)' }}><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ accentColor: 'var(--green)', width: 15, height: 15 }} />{label}</label>
-}
-function Sel({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
-  return <select value={value} onChange={e => onChange(e.target.value)} className="input-line" style={{ cursor: 'pointer' }}>{options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
-}
-function SaveBtn({ onClick, loading = false }: { onClick: () => void; loading?: boolean }) {
-  return <button onClick={onClick} disabled={loading} className="btn-green" style={{ alignSelf: 'flex-start' }}>{loading ? 'Guardando…' : 'Guardar cambios'}</button>
-}
-function Badge({ label, color }: { label: string; color: string }) {
-  return <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 2, background: color, color: '#fff' }}>{label}</span>
-}
-
 // ─── PROYECTOS NUEVOS — opciones ───────────────────────────────────────────────
 const FECHA_ENTREGA_OPTIONS = [
   { value: '', label: 'Seleccionar...' },
@@ -180,31 +110,6 @@ const SUBSIDIO_OPTIONS = [
   { value: 'FOGAES', label: 'FOGAES — Garantía Estatal' },
   { value: 'subsidio_tasa', label: 'Subsidio a la Tasa de Interés' },
 ]
-
-// ─── IMAGE UPLOADER ───────────────────────────────────────────────────────────
-function ImageUploader({ currentUrl, onUploaded, folder = 'general' }: { currentUrl?: string; onUploaded: (url: string) => void; folder?: string }) {
-  const [uploading, setUploading] = useState(false)
-  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploading(true)
-    const r = await subirImagen(file, folder)
-    if (r) onUploaded(r.url)
-    setUploading(false)
-  }
-  return (
-    <div className="flex items-center gap-4">
-      {currentUrl && <img src={thumbUrl(currentUrl)} alt="" loading="lazy" decoding="async" className="w-16 h-16 object-cover rounded" style={{ border: '1px solid var(--border)' }} />}
-      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
-        {uploading ? 'Subiendo…' : currentUrl ? 'Cambiar imagen' : 'Subir imagen'}
-        <input type="file" accept="image/*" onChange={upload} style={{ display: 'none' }} disabled={uploading} />
-      </label>
-      {currentUrl && (
-        <input value={currentUrl} readOnly className="input-line flex-1" style={{ fontSize: 12, color: 'var(--muted)' }} onClick={e => (e.target as HTMLInputElement).select()} />
-      )}
-    </div>
-  )
-}
 
 // ─── DRAG & DROP HOOK ─────────────────────────────────────────────────────────
 function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (items: T[]) => void) {

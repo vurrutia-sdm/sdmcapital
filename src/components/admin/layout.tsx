@@ -1,14 +1,14 @@
-// Primitivas de maquetación compartidas por los paneles del admin.
+// Maquetación de los paneles del admin.
 //
 // `Sec` es la tarjeta blanca con título y grilla de dos columnas; `Full` hace
 // que un campo ocupe el ancho completo de esa grilla. Las usan ContenidoAdmin,
 // BarrancoAdmin, RentalAdmin y VendeAdmin.
 //
-// ─── REGLA INNEGOCIABLE ───────────────────────────────────────────────────────
+// ─── REGLA INNEGOCIABLE PARA TODO EL ADMIN ────────────────────────────────────
 //
-// Estos componentes —y cualquier otro que se extraiga del admin— van SIEMPRE a
-// nivel de módulo. Nunca dentro de otro componente, nunca dentro de un render,
-// nunca como arrow function creada en el cuerpo de un componente.
+// Los componentes van SIEMPRE a nivel de módulo. Nunca dentro de otro
+// componente, nunca dentro de un render, nunca como arrow function creada en
+// el cuerpo de un componente.
 //
 // No es una preferencia de estilo. `Sec` y `Full` estuvieron definidos dentro
 // de ContenidoAdmin, BarrancoAdmin, RentalAdmin y VendeAdmin —cuatro copias

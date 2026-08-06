@@ -82,6 +82,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | RLS / `envios_plantilla` | Migración `20260805000400`: RLS en la última tabla de `public` que lo tenía apagado. Tabla de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada. **Falta confirmar que Sofía siga registrando envíos** |
 | 2026-08-05 | RLS / vistas de métricas | Migración `20260805000500`: `security_invoker` en las 4 vistas `metricas_*`, que evadían el RLS de las tablas de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada con medición antes/después |
 | 2026-08-05 | Admin — Fase 3, etapa 1 | Partir `AdminPage.tsx`. Primitivas a `src/components/admin/primitivas.tsx` y pestaña piloto a `src/pages/admin/Mensajes.tsx` | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-05 | Admin — Fase 3, etapa 2 | Helpers compartidos a `src/components/admin/`: `campos.tsx`, `layout.tsx`, `acciones.tsx`, `ImageUploader.tsx`. `primitivas.tsx` eliminado | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -243,16 +244,67 @@ admin, y `react` y `editor` conservaron el mismo hash.
 | `react` | 147,89 kB | 147,89 kB |
 | `index` | 238,90 kB | 238,90 kB |
 
-#### Pendiente para las próximas etapas
-
-Quedan 26 componentes en `AdminPage.tsx`. Los cuatro grandes son
-`PropiedadesAdmin` (426 líneas), `BarrancoAdmin` (403), `ContenidoAdmin` (321)
-y `RichTextEditor` (123). Los helpers de formulario —`Field`, `Inp`, `Txa`,
-`Chk`, `Sel`, `SaveBtn`, `Badge`— los usan cinco o más paneles y son los
-siguientes candidatos naturales para `primitivas.tsx`.
-
 **Es un refactor puro: mover código, no mejorarlo.** Las mejoras detectadas se
 anotan y se hacen en una etapa aparte.
+
+### Fase 3 — Etapa 2: helpers compartidos — 2026-08-05
+
+`src/components/admin/` quedó así:
+
+| Archivo | Qué contiene |
+|---|---|
+| `campos.tsx` | `Field`, `Inp`, `Txa`, `Chk`, `Sel` |
+| `layout.tsx` | `Sec`, `Full` |
+| `acciones.tsx` | `SaveBtn`, `Badge` |
+| `ImageUploader.tsx` | `ImageUploader` |
+
+`AdminPage.tsx`: 2.751 → 2.653 líneas.
+
+#### `primitivas.tsx` fue eliminado
+
+Se creó en la Etapa 1 con `Sec` y `Full`. Su contenido pasó a `layout.tsx` sin
+cambios. El nombre no decía nada: "primitivas" habría terminado siendo el
+cajón donde cae todo lo que no tiene otro lugar, que es exactamente el
+problema que este refactor viene a resolver en `AdminPage.tsx`.
+
+#### Por qué separado por tipo y no un archivo único
+
+Un `helpers.tsx` con los diez componentes vuelve a crear un archivo que hay
+que abrir para cualquier cosa, y del que todos los paneles importan aunque
+usen una fracción. Separado por tipo, el import declara qué necesita cada
+panel: `MensajesAdmin` no importa nada, `PaginasLegalesAdmin` solo
+`acciones`, y los cuatro que usan la grilla solo `layout`.
+
+También deja lugar obvio para lo que viene: cuando se extraigan los paneles
+grandes, cada helper nuevo tiene un archivo donde entrar en vez de engordar
+uno solo.
+
+`ImageUploader` va en su propio archivo, con nombre en PascalCase, porque es
+un componente con estado y con dependencias de `src/lib/` —`subirImagen` y
+`thumbUrl`—, no un helper de presentación de tres líneas.
+
+#### Qué NO se extrajo, a propósito
+
+- `TBtn` — solo lo usa `RichTextEditor`, viaja con él.
+- `DossierUploader`, `PropImageManager`, `CarouselPhotoManager`,
+  `HomeDestacadasSelector` — van con sus paneles.
+
+#### Chunks: sin movimiento
+
+| Chunk | Etapa 1 | Etapa 2 |
+|---|---|---|
+| `AdminPage` | 169,57 kB | 169,57 kB |
+| `pdf` | 2.054,86 kB | 2.054,86 kB |
+| `react` | `react-DLA1cIuT.js` | mismo hash |
+| `editor` | `editor-CRXeSJ56.js` | mismo hash |
+| `index` | 238,90 kB | 238,90 kB |
+
+#### Pendiente para las próximas etapas
+
+Quedan 21 componentes en `AdminPage.tsx`. Los grandes: `PropiedadesAdmin`
+(426 líneas), `BarrancoAdmin` (403), `ContenidoAdmin` (321),
+`PropImageManager` (145), `RentalAdmin` (143), `RichTextEditor` (123),
+`VendeAdmin` (120).
 
 ### Sesión RLS vistas de métricas — 2026-08-05
 
