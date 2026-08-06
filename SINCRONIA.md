@@ -88,6 +88,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, etapa 5 | Tres paneles a `src/pages/admin/`: `Rental`, `Vende`, `Barranco` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, etapa 6 | `Contenido` a `src/pages/admin/Contenido.tsx`, con `CarouselPhotoManager` y `HomeDestacadasSelector` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, etapa 7 (final) | `Propiedades` a `src/pages/admin/Propiedades.tsx`, con `PropImageManager`, `DossierUploader` y `slugify` | Cerrada — **refactor de `AdminPage.tsx` terminado**, commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — Fase 3, iconos | Reemplazar los emojis del admin por `lucide-react`. Dos commits: sidebar + encabezados, y controles + editor | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -659,6 +660,138 @@ las 9 rutas lazy precargan exactamente el mismo conjunto de chunks antes y
 después. `AdminPage` sí cambió de verdad, con el mismo tamaño exacto — es el
 renombrado de identificadores minificados al mover 678 líneas a un módulo
 nuevo.
+
+---
+
+### Fase 3 — Iconos: emojis reemplazados por `lucide-react` — 2026-08-06
+
+Los emojis se renderizaban distinto en cada sistema operativo, no heredaban
+`currentColor` y no escalaban con la tipografía. `lucide-react` ya estaba
+instalado y en uso en el sitio público. Los iconos se importan **por nombre**,
+nunca el paquete completo.
+
+Se hizo en **dos commits** para que, si algo se ve raro, se sepa en cuál está:
+
+| Commit | Alcance |
+|---|---|
+| `a4884a6` | sidebar de pestañas (13) + encabezados de panel (48) |
+| `81a8940` | controles, estados (≈30) + barra del editor (11) |
+
+#### Tabla de equivalencias
+
+**Sidebar** — `size={16} strokeWidth={1.75}`. Las claves de pestaña **no
+cambiaron**; solo el icono.
+
+| Clave | Antes | Ahora |
+|---|---|---|
+| `propiedades` | 🏠 | `Building2` |
+| `cotizaciones` | 📋 | `ClipboardList` |
+| `blog` | 📝 | `FileText` |
+| `equipo` | 👥 | `Users` |
+| `asociados` | 🤝 | `HeartHandshake` |
+| `mensajes` | 💬 | `MessageCircle` |
+| `contenido` | ✏️ | `PenLine` |
+| `fotos` | 🖼 | `Image` |
+| `barranco` | 🏨 | `Building2` |
+| `tarjetas` | 💳 | `CreditCard` |
+| `legal` | 🔒 | `Lock` |
+| `rental` | 🏘 | `KeyRound` |
+| `vende` | 🏷 | `Tag` |
+
+**Encabezados de panel** — `size={18} strokeWidth={1.75}`.
+
+🎬 `Clapperboard` · 🖼 `Image` · 🌊 `Waves` · 🏄 `Wind` · 🏨 `Building2` ·
+🛏 `Bed` · 💡 `Lightbulb` · 📊 `BarChart3` · 📖 `BookOpen` · 📋 `ClipboardList` ·
+💰 `Wallet` · 📝 `FileText` · 👁/🚫 `Eye`/`EyeOff` · 🗂 `FolderTree` ·
+🏠 `Home` · 🌎 `Globe` · 💬 `MessageCircle` · 👥 `Users` · 💼 `Briefcase` ·
+🤝 `HeartHandshake` · 🏢 `Building` · 📱 `Smartphone` · 🔑 `KeyRound` ·
+⚖️ `Scale` · 🏛 `Landmark` · 🔁 `RefreshCw`
+
+**Controles, estados y editor** — `size={14} strokeWidth={2}`.
+
+✓ `Check` · ✕ `X` · ★ `Star` · ⠿ `GripVertical` · 🖱 `MousePointer2` ·
+⏸ `Pause` · ↑↓↕ `ArrowUp`/`ArrowDown`/`ArrowUpDown` · 📄 `File` ·
+📎 `Paperclip` · 📷 `Camera` · 🏢 `Building2` · ↗ `ExternalLink` ·
+📍 `MapPin` · 🎥 `Youtube` · ⬅☰➡ `AlignLeft`/`AlignCenter`/`AlignRight` ·
+• `List` · ❝ `Quote` · — `Minus` · 🔗 `Link` · 🔗̸ `Link2Off` · ↩↪ `Undo2`/`Redo2`
+
+#### Cuatro cambios de tipo
+
+| Símbolo | Antes | Ahora |
+|---|---|---|
+| `Sec.title` | `string` | `React.ReactNode` |
+| `Field.label` | `string` | `React.ReactNode` |
+| `Chk.label` | `string` | `React.ReactNode` |
+| `DEFAULT_TABS.icon` | `string` | `LucideIcon` |
+
+**Las claves de pestaña no se tocaron.** `localStorage` guarda solo `t.key`
+(`AdminPage.tsx`, en el `setItem` del reordenado), nunca el icono, así que el
+orden configurado sobrevive.
+
+#### Excepciones — qué quedó sin tocar y por qué
+
+| Qué | Dónde | Motivo |
+|---|---|---|
+| 🇬🇧 🇨🇱 | etiquetas EN/ES de `Barranco` | lucide **no tiene iconos de país**. Reemplazarlas pierde la información |
+| 🌐 / 🇨🇱 | columna internacional de `Propiedades` | idem |
+| 🇪🇸 🇺🇾 | destinos en `Contenido` | idem |
+| `'6 → 12'` | `Barranco` — `brief_meses` y su placeholder | **es dato**, no icono: se escribe en `showcase_barranco` |
+| `••••••••` | máscara de contraseña en `AdminPage` | es texto de placeholder |
+| `→` `←` | texto de enlaces ("Ingresar →", "← Ir al admin") | convención tipográfica; reemplazarlos obligaría a tocar el layout de nueve enlaces |
+| 🎤 ✋ 🤖 | `Captacion.tsx` | SINCRONIA.md lo asigna a la **sesión Sofía** |
+
+Dos emojis se quitaron **sin reemplazo**, dejando solo el texto:
+
+- **Ciudades en `Contenido`** (🏙 Miami, 🏖 Punta Cana, 🎡 Orlando, 🗽 Nueva
+  York): no hay icono para la Estatua de la Libertad, y usar uno genérico para
+  las cuatro borraba justamente la distinción que aportaban.
+- **Opciones del `Sel` de `activo` en `Propiedades`** (✅ Activa / ⏸ Inactiva):
+  `Sel` renderiza `<option>{label}</option>`, y **un `<option>` de HTML solo
+  admite texto, no SVG**. No es una preferencia, es una restricción del
+  elemento. El texto ya dice "visible en el sitio" / "oculta del sitio".
+
+#### Detalles de implementación que conviene recordar
+
+**Iconos dentro de prosa van `inline`, no `flex`.** Para las leyendas de
+arrastre y el pie de la galería se usa
+`style={{ display: 'inline', verticalAlign: '-0.2em' }}`. Meterlos en un
+contenedor flex convierte cada nodo de texto en un ítem y se pierde el
+espaciado entre palabras.
+
+**El color semántico se hereda solo.** En los pares activa/pausada y
+visible/oculto el color vive en el contenedor (`#16a34a` / `#dc2626`), así que
+los iconos quedan del color correcto con `currentColor`, sin fijárselo.
+
+**`RichTextEditor` ya importaba `Image` y `Link` de TipTap.** Los de lucide
+entran como `ImageIcon` y `LinkIcon`. Sin el alias el build falla con
+`TS2300: Duplicate identifier 'Image'`.
+
+**El único cambio de layout es el mínimo para alinear.** `flex items-center
+gap-2` en el `h3` de `Sec` y el `h2` de Barranco; `display: flex` en el
+`label` de `Field` y en los sub-encabezados de `Propiedades`. Ninguno tenía
+más de un hijo antes, así que el `gap` no alteró nada existente.
+
+#### Chunks — cuánto costaron los iconos
+
+| Chunk | Etapa 7 | Iconos | Delta |
+|---|---:|---:|---:|
+| `AdminPage` | 169,56 kB | 176,10 kB | **+6,54 kB** |
+| `iconos` | 11,81 kB | 30,67 kB | **+18,86 kB** |
+| `pdf` | 2.054,86 kB | 2.054,86 kB | — |
+| `index` | 238,90 kB | 238,90 kB | — |
+| `editor` | `editor-CRXeSJ56.js` | mismo hash | — |
+| `react` | `react-DLA1cIuT.js` | mismo hash | — |
+
+**Costo real: +25,40 kB sin comprimir, +3,98 kB en gzip** (`AdminPage` +0,57,
+`iconos` +3,41). `iconos` ya era un import estático del chunk `AdminPage`
+antes de esta etapa, así que ese es el aumento de la carga inicial del admin.
+
+`pdf` sigue fuera de los imports estáticos del chunk `AdminPage`, que son los
+mismos siete: `react`, `router`, `index`, `errores`, `subirImagen`, `editor` e
+`iconos`.
+
+Con el método normalizado, `pdf` e `index` quedaron **byte a byte idénticos**
+a la Etapa 7 — esta vez ni siquiera se permutó la tabla `__vite__mapDeps`.
 
 ---
 
