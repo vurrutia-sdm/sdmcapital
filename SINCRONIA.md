@@ -94,7 +94,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
-| 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | En curso |
+| 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -1230,6 +1230,92 @@ Chrome headless tiene un piso de viewport de ~500px que ignora
 la página en **iframes del ancho real** dentro de una ventana grande.
 
 Chunk `AdminPage`: 177,29 → 177,84 kB (**+0,55**).
+
+### Fase 3 — Escala tipográfica, fase 2 · tanda 2: la web pública — 2026-08-06
+
+Cierra la migración. **29 archivos, 4 commits.** Invasión de dominio sobre la
+sesión web pública, anunciada antes de tocar.
+
+| Commit | Superficie | fontSize | letterSpacing |
+|---|---|---:|---:|
+| `f952fb9` | home y catálogo + secciones compartidas | 113 | 56 |
+| `0ff7989` | ficha de propiedad + crédito | 76 | 25 |
+| `3c5b42e` | el último literal de la ficha (`'13px'` como string) | 1 | — |
+| `4653bba` | institucionales, blog, legales, showcase | 155 | 51 |
+| | **total** | **345** | **132** |
+
+Se partió por **superficie visual, no por carpeta**, para que si algo se ve
+mal se sepa en qué pantalla mirar.
+
+#### 58 valores quedan sin migrar, a propósito
+
+| Tipo | Cuántos | Motivo |
+|---|---:|---|
+| `clamp(...)` | 40 | tamaños responsive calculados, no literales |
+| `letter-spacing` en `em` | 17 | **pendiente de revisión** (ver abajo) |
+| ternario | 1 | `PropiedadDetailPage:115` elige 11 o 9 según el símbolo de la red |
+
+El ternario merece una nota: sus dos valores caerían en `text-sdm-xs`, así que
+unificarlo subiría el icono de LinkedIn de 9 a 11px. Se deja como está.
+
+#### Los 17 `em` de El Barranco, sin convertir
+
+El encargo mencionaba solo `ElBarrancoShowcase.tsx`; **`ElBarrancoBanner.tsx`
+también tiene dos**. Equivalencias calculadas contra el `font-size` de cada
+elemento:
+
+| em | font-size | = px | archivos |
+|---|---:|---:|---|
+| 0.4em | 10px | **4,0px** | Showcase ×2, Banner ×1 |
+| 0.35em | 10px | 3,5px | Showcase ×1 |
+| 0.3em | 10px | 3,0px | Showcase ×2 |
+| 0.25em | 10–11px | 2,5–2,8px | Showcase ×5, Banner ×1 |
+| 0.2em | 10–11px | 2,0–2,2px | Showcase ×2 |
+| 0.06em | clamp(32px…) | 1,9px | Showcase ×1 |
+| 0.08em | 12px | **1,0px** | Showcase ×1 |
+
+**Los 17 caerían en `tracking-sdm-wide` (2px)**, pero sus valores reales van de
+1,0 a 4,0px. Convertirlos partiría a la mitad los cuatro más abiertos —los
+"eyebrow" en versalitas de 10px, que son la firma tipográfica de esa página— y
+duplicaría el más cerrado. Por eso quedan intactos hasta que se decida.
+
+#### Las constantes no pueden llevar `className`
+
+27 literales viven en objetos `React.CSSProperties`, casi todos en el registro
+de estilos `S` de `ElBarrancoShowcase`, que se aplica con `style={S.loQueSea}`.
+Van con `var(--sdm-*)`, igual que en la tanda 1.
+
+#### Los tres avisos de la tanda 1, comprobados
+
+- **`style={{…}} className=`**: dos casos, `BlogPage:71` y `HomePage:82`, pero
+  ninguno con `fontSize`, así que el transformador los ignoró. Aun así se le
+  enseñó a buscar el `className` en **todo el tag** y no solo antes del
+  `style`, que era el fallo de la tanda 1.
+- **Constantes**: 27, resueltas con custom properties.
+- **`lineHeight` sobre display**: 11 absorbidos, contra 1 en el admin. Se
+  cumplió que serían bastantes más.
+
+#### Ahora sí se emiten los 13 tokens
+
+La tanda 1 dejaba 9. Con la web pública aparecen los cuatro que faltaban:
+`text-sdm-display-md`, `-lg`, `-xl` y `tracking-sdm-tight` — los títulos
+grandes y el tracking negativo viven acá, no en el admin.
+
+| | delta |
+|---|---:|
+| CSS | +0,26 kB |
+| chunk `index` | +2,24 kB |
+| chunk `AdminPage` | +0,06 kB |
+
+#### La escala queda completa
+
+Todo el sitio usa los tokens, salvo dos sistemas aparte que quedan fuera **a
+propósito y de forma permanente**:
+
+- **`CotizacionPDF.tsx`** — puntos tipográficos de `@react-pdf/renderer` sobre
+  hoja carta. No son píxeles de pantalla.
+- **`tarjeta.css`** — `em` y un `11.33px` calculado para un ancho fijo de
+  400px.
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
