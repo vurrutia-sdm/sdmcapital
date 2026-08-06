@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
-import { Building2, ClipboardList, CreditCard, ExternalLink, FileText, HeartHandshake, KeyRound, Lock, MessageCircle, PenLine, Tag, Users } from 'lucide-react'
+import { Building2, ClipboardList, CreditCard, ExternalLink, FileText, HeartHandshake, KeyRound, LogOut, Lock, Menu, MessageCircle, PenLine, Tag, Users, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import Mensajes from '@/pages/admin/Mensajes'
@@ -99,8 +99,18 @@ export default function AdminPage() {
   const { authed, checking } = useAdminAuth()
   const [tab, setTab] = useState<Tab>('propiedades')
   const [tabs, setTabs] = useState(loadTabOrder)
+  const [menuAbierto, setMenuAbierto] = useState(false)
   const dragTab = useRef<number | null>(null)
   const dragOverTab = useRef<number | null>(null)
+
+  // El cajón se cierra con Escape. Solo escucha mientras está abierto, y en
+  // escritorio nunca se abre, así que el listener no existe ahí.
+  useEffect(() => {
+    if (!menuAbierto) return
+    const alTeclear = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuAbierto(false) }
+    window.addEventListener('keydown', alTeclear)
+    return () => window.removeEventListener('keydown', alTeclear)
+  }, [menuAbierto])
 
   const onTabDragStart = (i: number) => { dragTab.current = i }
   const onTabDragEnter = (i: number) => { dragOverTab.current = i }
@@ -118,32 +128,61 @@ export default function AdminPage() {
   if (!authed)  return <LoginForm />
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--off)' }}>
-      <div className="bg-white border-b border-[#e8edf2] px-8 py-4 flex items-center justify-between sticky top-0 z-40">
+    // --admin-header-h es la ÚNICA definición de la altura del header. La usan
+    // el propio header (que la fuerza de lg para arriba) y el aside, que se
+    // posiciona justo debajo. Antes eran dos números sueltos: el header medía
+    // 79,5 px y el aside arrancaba en 57, así que el header le tapaba los
+    // primeros 22 px. Medido con getBoundingClientRect: 79,50 px.
+    <div className="min-h-screen" style={{ background: 'var(--off)', '--admin-header-h': '80px' } as React.CSSProperties}>
+      <div className="bg-white border-b border-[#e8edf2] px-4 lg:px-8 py-4 flex items-center justify-between sticky top-0 z-40 lg:h-[var(--admin-header-h)]">
         <div className="flex items-center gap-3">
+          <button onClick={() => setMenuAbierto(true)} aria-label="Abrir menú" aria-expanded={menuAbierto}
+            className="lg:hidden flex items-center justify-center -ml-1 p-1"
+            style={{ color: 'var(--navy-dark)', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <Menu size={22} strokeWidth={1.75} />
+          </button>
           <div className="logo-stripes"><div className="logo-stripe logo-stripe--sky"/><div className="logo-stripe logo-stripe--green"/><div className="logo-stripe logo-stripe--navy"/></div>
           <div>
             <div className="font-serif text-sdm-xl tracking-sdm-wide" style={{ color: 'var(--navy-dark)' }}>SDM Capital</div>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase' }}>Panel Admin</div>
+            <div className="hidden lg:block text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase' }}>Panel Admin</div>
           </div>
         </div>
-        <div className="flex items-center gap-5">
-          <a className="text-sdm-sm tracking-sdm-wide" href="/" target="_blank" style={{ color: 'var(--muted)', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>Ver sitio <ExternalLink size={14} strokeWidth={2} /></a>
-          <button className="text-sdm-sm tracking-sdm-wide" onClick={() => supabase.auth.signOut()} style={{ color: 'var(--muted)', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Cerrar sesión</button>
+        <div className="flex items-center gap-4 lg:gap-5">
+          <a className="text-sdm-sm tracking-sdm-wide" href="/" target="_blank" title="Ver sitio" style={{ color: 'var(--muted)', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}><span className="hidden lg:inline">Ver sitio </span><ExternalLink size={14} strokeWidth={2} /></a>
+          <button className="text-sdm-sm tracking-sdm-wide" onClick={() => supabase.auth.signOut()} title="Cerrar sesión" style={{ color: 'var(--muted)', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 4 }}><span className="hidden lg:inline">Cerrar sesión</span><LogOut size={14} strokeWidth={2} className="lg:hidden" /></button>
         </div>
       </div>
 
+      {/* Backdrop del cajón. Solo existe en móvil y con el cajón abierto. */}
+      {menuAbierto && (
+        <div onClick={() => setMenuAbierto(false)} aria-hidden
+          className="lg:hidden fixed inset-0 z-40" style={{ background: 'rgba(15,37,53,0.45)' }} />
+      )}
+
       <div className="flex overflow-visible">
-        <aside className="w-56 h-[calc(100vh-57px)] overflow-y-auto bg-white border-r border-[#e8edf2] py-6 flex-shrink-0 fixed top-[57px] left-0 z-30">
-          <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        {/* Debajo de lg es un cajón que se superpone; de lg para arriba, el
+            sidebar fijo de siempre, anclado bajo el header. */}
+        <aside className={`fixed left-0 top-0 h-screen w-64 z-50 overflow-y-auto bg-white border-r border-[#e8edf2] py-6 transition-transform duration-200 lg:transition-none lg:w-56 lg:z-30 lg:top-[var(--admin-header-h)] lg:h-[calc(100vh-var(--admin-header-h))] lg:translate-x-0 ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="lg:hidden flex items-center justify-between" style={{ padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
+            <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Secciones</span>
+            <button onClick={() => setMenuAbierto(false)} aria-label="Cerrar menú"
+              style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 4 }}>
+              <X size={18} strokeWidth={2} />
+            </button>
+          </div>
+          {/* El reordenamiento por arrastre usa la API HTML5 de drag and drop,
+              que no dispara desde eventos táctiles. En móvil se oculta la
+              etiqueta y la manija: el orden guardado se sigue respetando, solo
+              no se puede cambiar desde el teléfono. */}
+          <div className="hidden lg:flex text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, alignItems: 'center', gap: 6 }}>
             <svg width="10" height="14" viewBox="0 0 10 14" fill="var(--muted)"><circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/><circle cx="2" cy="7" r="1.5"/><circle cx="8" cy="7" r="1.5"/><circle cx="2" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/></svg>
             Arrastra para ordenar
           </div>
           {tabs.map((t, i) => (
             <div key={t.key} draggable onDragStart={() => onTabDragStart(i)} onDragEnter={() => onTabDragEnter(i)} onDragEnd={onTabDragEnd}
-              onClick={() => setTab(t.key)} className="flex items-center gap-3 transition-all duration-150 text-sdm-sm"
+              onClick={() => { setTab(t.key); setMenuAbierto(false) }} className="flex items-center gap-3 transition-all duration-150 text-sdm-sm"
               style={{ padding: '11px 16px', fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none' }}>
-              <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" style={{ opacity: 0.3, flexShrink: 0 }}><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
+              <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" className="hidden lg:block" style={{ opacity: 0.3, flexShrink: 0 }}><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
               <t.icon size={16} strokeWidth={1.75} style={{ flexShrink: 0 }} />
               {t.label}
             </div>
@@ -151,21 +190,21 @@ export default function AdminPage() {
           {/* ── Herramientas ── */}
           <div style={{ borderTop: '1px solid var(--border)', marginTop: 12, paddingTop: 12 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 8px' }}>Herramientas</div>
-            <RouterLink className="text-sdm-sm" to="/admin/ficha-cliente"
+            <RouterLink className="text-sdm-sm" to="/admin/ficha-cliente" onClick={() => setMenuAbierto(false)}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
               <FileText size={15} style={{ flexShrink: 0 }} />
               Ficha para cliente
             </RouterLink>
-            <RouterLink className="text-sdm-sm" to="/admin/agentes"
+            <RouterLink className="text-sdm-sm" to="/admin/agentes" onClick={() => setMenuAbierto(false)}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
               <Users size={15} style={{ flexShrink: 0 }} />
               Agentes
             </RouterLink>
-            <RouterLink className="text-sdm-sm" to="/admin/captacion"
+            <RouterLink className="text-sdm-sm" to="/admin/captacion" onClick={() => setMenuAbierto(false)}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
@@ -175,7 +214,7 @@ export default function AdminPage() {
           </div>
         </aside>
 
-        <main className="flex-1 p-8 lg:p-10 min-w-0 ml-56">
+        <main className="flex-1 min-w-0 p-4 lg:p-8 xl:p-10 lg:ml-56">
           {tab === 'propiedades'  && <Propiedades />}
           {tab === 'cotizaciones' && <CotizacionesAdmin />}
           {tab === 'blog'         && <Blog />}
