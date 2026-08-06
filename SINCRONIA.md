@@ -81,6 +81,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | RLS / cierre de escritura anónima | Migración `20260805000300`: RLS en `propiedades`, `ficha_clientes`, `ficha_propiedades` y `sdm_agentes`. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada contra producción |
 | 2026-08-05 | RLS / `envios_plantilla` | Migración `20260805000400`: RLS en la última tabla de `public` que lo tenía apagado. Tabla de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada. **Falta confirmar que Sofía siga registrando envíos** |
 | 2026-08-05 | RLS / vistas de métricas | Migración `20260805000500`: `security_invoker` en las 4 vistas `metricas_*`, que evadían el RLS de las tablas de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada con medición antes/después |
+| 2026-08-05 | Admin — Fase 3, etapa 1 | Partir `AdminPage.tsx`. Primitivas a `src/components/admin/primitivas.tsx` y pestaña piloto a `src/pages/admin/Mensajes.tsx` | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -196,6 +197,62 @@ select count(*), max(created_at) from public.envios_plantilla;
 Si tras un envío real de plantilla ese conteo sigue en 0, el Worker está
 usando la anon key y no `service_role`. En ese caso **no** agregar una política
 para `anon`: hay que arreglar el Worker.
+
+### Fase 3 — partir `AdminPage.tsx`. Etapa 1 de N — 2026-08-05
+
+La Fase 3 que quedó planificada y sin iniciar el 2026-08-02 arrancó por acá.
+`AdminPage.tsx` tenía 2.808 líneas y 29 componentes de nivel superior.
+
+Hecho en esta etapa:
+
+- `Sec` y `Full` viven ahora en **`src/components/admin/primitivas.tsx`**.
+- La pestaña Mensajes vive en **`src/pages/admin/Mensajes.tsx`**. Se eligió
+  como piloto por ser la más autocontenida: una tabla, sin props, sin helpers
+  compartidos y sin estado de `AdminPage`.
+- `AdminPage.tsx` quedó en 2.751 líneas.
+
+#### Regla: todo componente extraído va a nivel de módulo
+
+Ningún componente puede quedar definido dentro de otro, ni dentro de un
+render, ni como arrow function creada en el cuerpo de un componente. Si al
+partir un archivo queda uno anidado, hay que sacarlo al nivel superior.
+
+No es estilo. `Sec` y `Full` estuvieron definidos dentro de `ContenidoAdmin`,
+`BarrancoAdmin`, `RentalAdmin` y `VendeAdmin` —cuatro copias idénticas— y al
+recrearse en cada render React los trataba como tipos de componente distintos:
+desmontaba el árbol entero, la página perdía altura, el navegador llevaba el
+scroll a 0 y no volvía. Tocar cualquier switch saltaba al inicio. La regla
+está escrita también dentro de `primitivas.tsx`.
+
+#### Las claves de pestaña NO se renombran
+
+El orden de las pestañas se persiste en `localStorage` como un array de claves
+(`STORAGE_KEY` en `AdminPage.tsx`). Renombrar una clave le borra la
+configuración a Víctor. El componente pasó de `MensajesAdmin` a `Mensajes`,
+pero la clave sigue siendo `'mensajes'`.
+
+#### Chunks: sin movimiento
+
+Verificado antes y después. `pdf` (2 MB) sigue fuera de la carga inicial del
+admin, y `react` y `editor` conservaron el mismo hash.
+
+| Chunk | Antes | Después |
+|---|---|---|
+| `AdminPage` | 169,57 kB | 169,57 kB |
+| `pdf` | 2.054,86 kB | 2.054,86 kB |
+| `react` | 147,89 kB | 147,89 kB |
+| `index` | 238,90 kB | 238,90 kB |
+
+#### Pendiente para las próximas etapas
+
+Quedan 26 componentes en `AdminPage.tsx`. Los cuatro grandes son
+`PropiedadesAdmin` (426 líneas), `BarrancoAdmin` (403), `ContenidoAdmin` (321)
+y `RichTextEditor` (123). Los helpers de formulario —`Field`, `Inp`, `Txa`,
+`Chk`, `Sel`, `SaveBtn`, `Badge`— los usan cinco o más paneles y son los
+siguientes candidatos naturales para `primitivas.tsx`.
+
+**Es un refactor puro: mover código, no mejorarlo.** Las mejoras detectadas se
+anotan y se hacen en una etapa aparte.
 
 ### Sesión RLS vistas de métricas — 2026-08-05
 
