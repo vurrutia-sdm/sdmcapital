@@ -18,7 +18,7 @@ const imprimirTarjeta = async (tarjeta: Parameters<
 function Fld({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
         {label}
       </label>
       {children}
@@ -82,7 +82,7 @@ function TarjetaForm({
 
   return (
     <div>
-      <h2 className="font-serif font-light mb-6" style={{ fontSize: 28, color: 'var(--navy-dark)' }}>
+      <h2 className="font-serif font-light mb-6 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
         {isNew ? 'Nueva tarjeta' : 'Editar tarjeta'}
       </h2>
 
@@ -128,7 +128,7 @@ function TarjetaForm({
 
         {/* Vista previa */}
         <div className="flex flex-col items-center gap-3">
-          <p style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+          <p className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
             Vista previa (90 × 50 mm)
           </p>
           <PreviewPair tarjeta={draft} />
@@ -255,10 +255,10 @@ export function TarjetasEquipo() {
     <div>
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h2 className="font-serif font-light" style={{ fontSize: 28, color: 'var(--navy-dark)' }}>
+          <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
             Tarjetas de Presentación
           </h2>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
+          <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
             {tarjetas.length} integrante{tarjetas.length !== 1 ? 's' : ''} del equipo
           </p>
         </div>
@@ -284,45 +284,45 @@ export function TarjetasEquipo() {
               <Miniatura tarjeta={t} />
 
               <div className="flex-1 min-w-0">
-                <div style={{ fontFamily: "'Lora', serif", fontWeight: 600, fontSize: 16, color: 'var(--navy-dark)' }}>
+                <div className="text-sdm-lg" style={{ fontFamily: "'Lora', serif", fontWeight: 600, color: 'var(--navy-dark)' }}>
                   {t.nombre}
                 </div>
                 {t.cargo && (
-                  <div style={{ fontSize: 11, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', marginTop: 2 }}>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--green)', marginTop: 2 }}>
                     {t.cargo}
                   </div>
                 )}
-                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                <div className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
                   {[t.telefono, t.email].filter(Boolean).join(' · ') || '—'}
                 </div>
               </div>
 
               {/* Reordenar */}
               <div className="flex flex-col gap-1">
-                <button
+                <button className="text-sdm-sm"
                   onClick={() => move(i, -1)}
                   disabled={i === 0 || moving === t.id}
                   title="Subir"
-                  style={{ fontSize: 13, background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: i === 0 ? 'default' : 'pointer', color: i === 0 ? 'var(--border)' : 'var(--navy-dark)', padding: '2px 8px' }}
+                  style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: i === 0 ? 'default' : 'pointer', color: i === 0 ? 'var(--border)' : 'var(--navy-dark)', padding: '2px 8px' }}
                 >▲</button>
-                <button
+                <button className="text-sdm-sm"
                   onClick={() => move(i, 1)}
                   disabled={i === tarjetas.length - 1 || moving === t.id}
                   title="Bajar"
-                  style={{ fontSize: 13, background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: i === tarjetas.length - 1 ? 'default' : 'pointer', color: i === tarjetas.length - 1 ? 'var(--border)' : 'var(--navy-dark)', padding: '2px 8px' }}
+                  style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: i === tarjetas.length - 1 ? 'default' : 'pointer', color: i === tarjetas.length - 1 ? 'var(--border)' : 'var(--navy-dark)', padding: '2px 8px' }}
                 >▼</button>
               </div>
 
               {/* Acciones */}
               <div className="flex flex-col items-end gap-2" style={{ flexShrink: 0 }}>
-                <button onClick={() => imprimirTarjeta(t)} className="btn-primary" style={{ padding: '8px 14px', fontSize: 11 }}>
+                <button onClick={() => imprimirTarjeta(t)} className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}>
                   🖨️ Imprimir / PDF
                 </button>
                 <div className="flex gap-3">
-                  <button onClick={() => openEdit(t)} style={{ fontSize: 12, color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>
+                  <button className="text-sdm-sm" onClick={() => openEdit(t)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>
                     Editar
                   </button>
-                  <button onClick={() => del(t.id)} disabled={deleting === t.id} style={{ fontSize: 12, color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>
+                  <button className="text-sdm-sm" onClick={() => del(t.id)} disabled={deleting === t.id} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>
                     {deleting === t.id ? 'Eliminando…' : 'Eliminar'}
                   </button>
                 </div>

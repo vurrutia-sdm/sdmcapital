@@ -10,7 +10,7 @@
 import { useState, useEffect, useRef } from 'react'
 
 export function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
-  return <div className="flex flex-col gap-2"><label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>{label}</label>{children}</div>
+  return <div className="flex flex-col gap-2"><label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>{label}</label>{children}</div>
 }
 
 export function Inp({ value, onChange, type = 'text', placeholder = '', min, max }: {
@@ -71,7 +71,7 @@ export function Txa({ value, onChange, rows = 3, placeholder }: {
 }
 
 export function Chk({ label, checked, onChange }: { label: React.ReactNode; checked: boolean; onChange: (v: boolean) => void }) {
-  return <label className="flex items-center gap-2 cursor-pointer" style={{ fontSize: 14, color: 'var(--muted)' }}><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ accentColor: 'var(--green)', width: 15, height: 15 }} />{label}</label>
+  return <label className="flex items-center gap-2 cursor-pointer text-sdm-base" style={{ color: 'var(--muted)' }}><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ accentColor: 'var(--green)', width: 15, height: 15 }} />{label}</label>
 }
 
 export function Sel({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {

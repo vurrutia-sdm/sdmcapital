@@ -56,7 +56,7 @@ const BTN_MODO: React.CSSProperties = {
   border: '1px solid var(--border)',
   borderRadius: 2,
   color: 'var(--navy-dark)',
-  fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
+  fontSize: 'var(--sdm-text-xs)', fontWeight: 600, letterSpacing: 'var(--sdm-tracking-wide)', textTransform: 'uppercase',
   cursor: 'pointer',
   transition: 'border-color 0.15s, color 0.15s',
 }
@@ -144,17 +144,14 @@ function ImageUploader({
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 text-sdm-sm tracking-sdm-wide">
       {currentUrl && (
         <img src={currentUrl} alt="" className="w-16 h-16 object-cover rounded" style={{ border: '1px solid var(--border)' }} />
       )}
-      <label style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8,
         background: uploading ? 'var(--muted)' : 'var(--navy-dark)',
         color: '#fff', padding: '9px 18px', borderRadius: 2,
-        cursor: uploading ? 'not-allowed' : 'pointer',
-        fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
-      }}>
+        cursor: uploading ? 'not-allowed' : 'pointer', fontWeight: 600, textTransform: 'uppercase' }}>
         {uploading ? 'Subiendo…' : currentUrl ? 'Cambiar imagen' : 'Subir imagen'}
         <input type="file" accept="image/*" onChange={upload} style={{ display: 'none' }} disabled={uploading} />
       </label>
@@ -162,8 +159,8 @@ function ImageUploader({
         <input
           value={currentUrl}
           readOnly
-          className="input-line flex-1"
-          style={{ fontSize: 12, color: 'var(--muted)' }}
+          className="input-line flex-1 text-sdm-sm"
+          style={{ color: 'var(--muted)' }}
           onClick={e => (e.target as HTMLInputElement).select()}
         />
       )}
@@ -175,7 +172,7 @@ function ImageUploader({
 function Fld({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
         {label}
       </label>
       {children}
@@ -307,23 +304,18 @@ function StepIndicator({ step }: { step: number }) {
         return (
           <div key={idx} className="flex items-center">
             <div className="flex flex-col items-center gap-1.5">
-              <div
-                style={{
-                  width: 30, height: 30, borderRadius: '50%',
+              <div className="text-sdm-sm"
+                style={{ width: 30, height: 30, borderRadius: '50%',
                   background: active ? 'var(--green)' : done ? 'var(--navy-dark)' : 'var(--border)',
                   color: active || done ? '#fff' : 'var(--muted)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 12, fontWeight: 600, flexShrink: 0,
-                }}
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, flexShrink: 0 }}
               >
                 {done ? '✓' : idx}
               </div>
-              <span style={{
-                fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
+              <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase',
                 color: active ? 'var(--navy-dark)' : 'var(--muted)',
                 fontWeight: active ? 600 : 400,
-                whiteSpace: 'nowrap',
-              }}>
+                whiteSpace: 'nowrap' }}>
                 {lbl}
               </span>
             </div>
@@ -441,14 +433,14 @@ function CotizacionWizard({
       {/* Cabecera */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="font-serif font-light" style={{ fontSize: 28, color: 'var(--navy-dark)' }}>
+          <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
             {draft.id ? `Editar ${PAD(0)}` : 'Nueva Cotización'}
           </h2>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
+          <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
             Complete los 5 pasos para generar la cotización
           </p>
         </div>
-        <button onClick={onCancel} style={{ fontSize: 12, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase' }}>
+        <button className="text-sdm-sm tracking-sdm-wide" onClick={onCancel} style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>
           ← Volver al listado
         </button>
       </div>
@@ -460,7 +452,7 @@ function CotizacionWizard({
         {/* ── PASO 1: CLIENTE ── */}
         {step === 1 && (
           <div className="flex flex-col gap-6">
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
+            <h3 className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
               Datos del cliente
             </h3>
             <div className="grid grid-cols-2 gap-6">
@@ -486,7 +478,7 @@ function CotizacionWizard({
         {/* ── PASO 2: PROPIEDAD ── */}
         {step === 2 && (
           <div className="flex flex-col gap-6">
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
+            <h3 className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
               Propiedad
             </h3>
 
@@ -505,7 +497,7 @@ function CotizacionWizard({
                 {propSearch.length > 0 && (
                   <div style={{ border: '1px solid var(--border)', borderRadius: 2, maxHeight: 220, overflowY: 'auto' }}>
                     {propsFiltradas.length === 0 ? (
-                      <div style={{ padding: '12px 16px', fontSize: 13, color: 'var(--muted)' }}>Sin resultados</div>
+                      <div className="text-sdm-sm" style={{ padding: '12px 16px', color: 'var(--muted)' }}>Sin resultados</div>
                     ) : propsFiltradas.slice(0, 12).map(p => (
                       <button
                         key={p.id}
@@ -513,8 +505,8 @@ function CotizacionWizard({
                         className="w-full text-left"
                         style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'none', cursor: 'pointer' }}
                       >
-                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--navy-dark)' }}>{p.titulo}</span>
-                        <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                        <span className="text-sdm-sm" style={{ fontWeight: 500, color: 'var(--navy-dark)' }}>{p.titulo}</span>
+                        <span className="text-sdm-xs" style={{ color: 'var(--muted)' }}>
                           {[p.tipo, p.comuna, p.region].filter(Boolean).join(' · ')}
                           {p.precio_uf ? `  ·  ${p.precio_uf.toLocaleString('es-CL')} UF` : ''}
                         </span>
@@ -549,7 +541,7 @@ function CotizacionWizard({
                   </button>
                 )}
                 {draft.propiedad_id && (
-                  <div style={{ fontSize: 12, color: 'var(--green)', marginBottom: -8 }}>
+                  <div className="text-sdm-sm" style={{ color: 'var(--green)', marginBottom: -8 }}>
                     ✓ Propiedad vinculada al catálogo — puedes editar los datos del snapshot
                   </div>
                 )}
@@ -673,14 +665,14 @@ function CotizacionWizard({
         {/* ── PASO 3: PRECIOS ── */}
         {step === 3 && (
           <div className="flex flex-col gap-6">
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
+            <h3 className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
               Precios
             </h3>
 
             {/* UF del día */}
             <div className="flex items-end gap-4 p-4" style={{ background: 'var(--sky-pale)', borderRadius: 2 }}>
               <Fld label="Valor UF del día (auto)">
-                <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--navy-dark)', fontFamily: 'Inter', paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
+                <div className="text-sdm-2xl" style={{ fontWeight: 700, color: 'var(--navy-dark)', fontFamily: 'Inter', paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
                   {draft.valor_uf > 0
                     ? `$ ${draft.valor_uf.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                     : ufLoading ? 'Cargando…' : '—'}
@@ -689,15 +681,15 @@ function CotizacionWizard({
               <button
                 onClick={async () => { const v = await refreshUF(); if (v) upd({ valor_uf: v }) }}
                 disabled={ufLoading}
-                className="btn-primary"
-                style={{ padding: '8px 16px', fontSize: 11, marginBottom: 1 }}
+                className="btn-primary text-sdm-xs"
+                style={{ padding: '8px 16px', marginBottom: 1 }}
               >
                 {ufLoading ? '…' : '⟳ Actualizar'}
               </button>
               {uf && draft.valor_uf !== uf && (
-                <button
+                <button className="text-sdm-xs"
                   onClick={() => upd({ valor_uf: uf })}
-                  style={{ fontSize: 11, color: 'var(--green)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginBottom: 10 }}
+                  style={{ color: 'var(--green)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginBottom: 10 }}
                 >
                   Usar valor actual ({uf.toLocaleString('es-CL', { maximumFractionDigits: 2 })})
                 </button>
@@ -721,8 +713,8 @@ function CotizacionWizard({
                 { lbl: 'Precio final CLP', val: precioFinalCLP ? `$ ${fmtN(Math.round(precioFinalCLP))}` : '—', hl: true },
               ].map(({ lbl, val, hl }) => (
                 <div key={lbl} className="p-4" style={{ background: hl ? 'var(--navy-dark)' : 'var(--sky-pale)', borderRadius: 2 }}>
-                  <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: hl ? 'var(--sky)' : 'var(--muted)', marginBottom: 6 }}>{lbl}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: hl ? '#fff' : 'var(--navy-dark)' }}>{val}</div>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: hl ? 'var(--sky)' : 'var(--muted)', marginBottom: 6 }}>{lbl}</div>
+                  <div className="text-sdm-xl" style={{ fontWeight: 700, color: hl ? '#fff' : 'var(--navy-dark)' }}>{val}</div>
                 </div>
               ))}
             </div>
@@ -736,7 +728,7 @@ function CotizacionWizard({
         {/* ── PASO 4: FORMA DE PAGO ── */}
         {step === 4 && (
           <div className="flex flex-col gap-6">
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
+            <h3 className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
               Forma de pago
             </h3>
 
@@ -754,7 +746,7 @@ function CotizacionWizard({
               <>
                 {/* Barra visual */}
                 <div>
-                  <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>
                     Distribución Pie / Crédito
                   </div>
                   <div style={{ height: 10, borderRadius: 5, background: 'var(--border)', overflow: 'hidden', display: 'flex' }}>
@@ -762,8 +754,8 @@ function CotizacionWizard({
                     <div style={{ flex: 1, background: 'var(--sky)' }} />
                   </div>
                   <div className="flex justify-between mt-2">
-                    <span style={{ fontSize: 11, color: 'var(--green)', fontWeight: 600 }}>Pie {draft.pie_pct ?? 0}%  ·  {fmtN(pieUF, 2)} UF</span>
-                    <span style={{ fontSize: 11, color: 'var(--navy)', fontWeight: 600 }}>Crédito {100 - (draft.pie_pct ?? 0)}%  ·  {fmtN(creditoUF, 2)} UF</span>
+                    <span className="text-sdm-xs" style={{ color: 'var(--green)', fontWeight: 600 }}>Pie {draft.pie_pct ?? 0}%  ·  {fmtN(pieUF, 2)} UF</span>
+                    <span className="text-sdm-xs" style={{ color: 'var(--navy)', fontWeight: 600 }}>Crédito {100 - (draft.pie_pct ?? 0)}%  ·  {fmtN(creditoUF, 2)} UF</span>
                   </div>
                 </div>
 
@@ -781,13 +773,13 @@ function CotizacionWizard({
 
                 {divUF != null && (
                   <div className="p-4" style={{ background: 'var(--sky-pale)', borderRadius: 2 }}>
-                    <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+                    <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
                       Dividendo mensual estimado
                     </div>
-                    <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--navy-dark)' }}>
+                    <div className="text-sdm-2xl" style={{ fontWeight: 700, color: 'var(--navy-dark)' }}>
                       {fmtN(divUF, 2)} UF / mes
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                    <div className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
                       ≈ $ {fmtN(Math.round(divUF * (draft.valor_uf ?? 0)))} / mes
                     </div>
                   </div>
@@ -800,7 +792,7 @@ function CotizacionWizard({
         {/* ── PASO 5: EJECUTIVO Y OBSERVACIONES ── */}
         {step === 5 && (
           <div className="flex flex-col gap-6">
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
+            <h3 className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
               Ejecutivo y observaciones
             </h3>
             <div className="grid grid-cols-2 gap-6">
@@ -852,7 +844,7 @@ function CotizacionWizard({
       <div className="flex items-center justify-between mt-6">
         <button
           onClick={() => step > 1 ? setStep(step - 1) : onCancel()}
-          style={{ fontSize: 13, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase' }}
+          style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}
         >
           {step > 1 ? '← Anterior' : '× Cancelar'}
         </button>
@@ -1041,10 +1033,10 @@ export function CotizacionesAdmin() {
       {/* Cabecera */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h2 className="font-serif font-light" style={{ fontSize: 28, color: 'var(--navy-dark)' }}>
+          <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
             Cotizaciones
           </h2>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
+          <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
             {cotizaciones.length} cotización{cotizaciones.length !== 1 ? 'es' : ''} registradas
           </p>
         </div>
@@ -1059,8 +1051,8 @@ export function CotizacionesAdmin() {
           const count = cotizaciones.filter(c => c.estado === e).length
           return (
             <div key={e} className="bg-white p-4" style={{ borderRadius: 2, border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: ESTADO_COLORS[e] }}>{count}</div>
-              <div style={{ fontSize: 11, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2 }}>
+              <div className="text-sdm-2xl" style={{ fontWeight: 700, color: ESTADO_COLORS[e] }}>{count}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2 }}>
                 {ESTADO_LABELS[e]}
               </div>
             </div>
@@ -1080,7 +1072,7 @@ export function CotizacionesAdmin() {
           {/* Encabezado tabla */}
           <div className="grid" style={{ gridTemplateColumns: '90px 1fr 1fr 110px 120px 120px 110px', padding: '10px 16px', borderBottom: '2px solid var(--border)', background: 'var(--off)' }}>
             {['#', 'Cliente', 'Propiedad', 'Final UF', 'Pago', 'Estado', 'Acciones'].map(h => (
-              <div key={h} style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 600 }}>{h}</div>
+              <div className="text-sdm-xs tracking-sdm-wide" key={h} style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 600 }}>{h}</div>
             ))}
           </div>
 
@@ -1095,50 +1087,48 @@ export function CotizacionesAdmin() {
               }}
             >
               {/* # */}
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--navy-dark)', fontFamily: 'monospace' }}>
+              <div className="text-sdm-sm" style={{ fontWeight: 600, color: 'var(--navy-dark)', fontFamily: 'monospace' }}>
                 {PAD(c.numero)}
               </div>
 
               {/* Cliente */}
               <div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>{c.cliente_nombre}</div>
+                <div className="text-sdm-sm" style={{ fontWeight: 500, color: 'var(--ink)' }}>{c.cliente_nombre}</div>
                 {c.cliente_email && (
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>{c.cliente_email}</div>
+                  <div className="text-sdm-xs" style={{ color: 'var(--muted)', marginTop: 1 }}>{c.cliente_email}</div>
                 )}
               </div>
 
               {/* Propiedad */}
               <div>
-                <div style={{ fontSize: 13, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{c.prop_titulo}</div>
+                <div className="text-sdm-sm" style={{ color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{c.prop_titulo}</div>
                 {(c.prop_comuna || c.prop_ciudad) && (
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>
+                  <div className="text-sdm-xs" style={{ color: 'var(--muted)', marginTop: 1 }}>
                     {c.prop_comuna || c.prop_ciudad}
                   </div>
                 )}
               </div>
 
               {/* Precio final */}
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--navy-dark)' }}>
+              <div className="text-sdm-sm" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>
                 {c.precio_final_uf ? `${fmtN(c.precio_final_uf, 0)} UF` : '—'}
               </div>
 
               {/* Forma de pago */}
-              <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+              <div className="text-sdm-xs" style={{ color: 'var(--muted)' }}>
                 {c.forma_pago ? FORMA_LABELS[c.forma_pago] : '—'}
               </div>
 
               {/* Estado */}
               <div>
-                <select
+                <select className="text-sdm-xs"
                   value={c.estado}
                   onChange={e => updateEstado(c.id, e.target.value as EstadoCotizacion)}
-                  style={{
-                    fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 2,
+                  style={{ fontWeight: 600, padding: '3px 8px', borderRadius: 2,
                     border: 'none', cursor: 'pointer',
                     background: ESTADO_COLORS[c.estado] + '22',
                     color: ESTADO_COLORS[c.estado],
-                    appearance: 'none',
-                  }}
+                    appearance: 'none' }}
                 >
                   {(Object.keys(ESTADO_LABELS) as EstadoCotizacion[]).map(e => (
                     <option key={e} value={e}>{ESTADO_LABELS[e]}</option>
@@ -1149,40 +1139,40 @@ export function CotizacionesAdmin() {
               {/* Acciones */}
               <div className="flex items-center gap-1">
                 {/* Editar */}
-                <button
+                <button className="text-sdm-base"
                   onClick={() => openEdit(c)}
                   title="Editar"
-                  style={{ fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--navy-dark)', borderRadius: 2 }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--navy-dark)', borderRadius: 2 }}
                 >
                   ✏️
                 </button>
 
                 {/* Descargar PDF */}
-                <button
+                <button className="text-sdm-base"
                   onClick={() => descargarPDF(c)}
                   title="Descargar PDF"
                   disabled={pdfLoading === c.id}
-                  style={{ fontSize: 14, background: 'none', border: 'none', cursor: pdfLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', color: pdfLoading === c.id ? 'var(--muted)' : 'var(--green)', borderRadius: 2 }}
+                  style={{ background: 'none', border: 'none', cursor: pdfLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', color: pdfLoading === c.id ? 'var(--muted)' : 'var(--green)', borderRadius: 2 }}
                 >
                   {pdfLoading === c.id ? '⏳' : '📄'}
                 </button>
 
                 {/* Gmail */}
-                <button
+                <button className="text-sdm-base"
                   onClick={() => openGmail(c)}
                   title="Descargar PDF y abrir Gmail"
                   disabled={gmailLoading === c.id}
-                  style={{ fontSize: 14, background: 'none', border: 'none', cursor: gmailLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', borderRadius: 2 }}
+                  style={{ background: 'none', border: 'none', cursor: gmailLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', borderRadius: 2 }}
                 >
                   {gmailLoading === c.id ? '⏳' : '📧'}
                 </button>
 
                 {/* Eliminar */}
-                <button
+                <button className="text-sdm-base"
                   onClick={() => deleteCot(c.id)}
                   title="Eliminar"
                   disabled={deleting === c.id}
-                  style={{ fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: '#E24B4A', borderRadius: 2, opacity: deleting === c.id ? 0.5 : 1 }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: '#E24B4A', borderRadius: 2, opacity: deleting === c.id ? 0.5 : 1 }}
                 >
                   🗑
                 </button>

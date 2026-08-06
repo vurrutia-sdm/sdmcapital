@@ -10,5 +10,5 @@ export function SaveBtn({ onClick, loading = false }: { onClick: () => void; loa
 }
 
 export function Badge({ label, color }: { label: string; color: string }) {
-  return <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 2, background: color, color: '#fff' }}>{label}</span>
+  return <span className="text-sdm-xs" style={{ padding: '3px 10px', borderRadius: 2, background: color, color: '#fff' }}>{label}</span>
 }

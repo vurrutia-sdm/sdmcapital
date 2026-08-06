@@ -21,17 +21,15 @@ function TBtn({ onClick, active, title, children }: {
   onClick: () => void; active?: boolean; title?: string; children: React.ReactNode
 }) {
   return (
-    <button
+    <button className="text-sdm-sm"
       onMouseDown={e => { e.preventDefault(); onClick() }}
       title={title}
-      style={{
-        padding: '4px 8px', borderRadius: 3, border: 'none', cursor: 'pointer',
-        fontFamily: 'inherit', fontSize: 13, lineHeight: 1,
+      style={{ padding: '4px 8px', borderRadius: 3, border: 'none', cursor: 'pointer',
+        fontFamily: 'inherit', lineHeight: 1,
         background: active ? 'var(--navy-dark)' : 'transparent',
         color: active ? '#fff' : 'var(--muted)',
         fontWeight: active ? 700 : 400,
-        transition: 'all 0.1s',
-      }}
+        transition: 'all 0.1s' }}
       onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--border)' }}
       onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
     >
@@ -130,7 +128,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           </div>
         ))}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 4, paddingLeft: 6, borderLeft: '1px solid var(--border)' }}>
-          <span style={{ fontSize: 12, color: 'var(--muted)' }}>Color:</span>
+          <span className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Color:</span>
           <input type="color" onChange={e => editor.chain().focus().setColor(e.target.value).run()} title="Color del texto"
             style={{ width: 26, height: 26, borderRadius: 3, border: '1px solid var(--border)', padding: 2, cursor: 'pointer', background: 'none' }} />
         </div>
