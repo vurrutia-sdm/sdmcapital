@@ -84,6 +84,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | Admin — Fase 3, etapa 1 | Partir `AdminPage.tsx`. Primitivas a `src/components/admin/primitivas.tsx` y pestaña piloto a `src/pages/admin/Mensajes.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-05 | Admin — Fase 3, etapa 2 | Helpers compartidos a `src/components/admin/`: `campos.tsx`, `layout.tsx`, `acciones.tsx`, `ImageUploader.tsx`. `primitivas.tsx` eliminado | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-05 | Admin — Fase 3, etapa 3 | Cuatro paneles a `src/pages/admin/`: `Blog`, `Equipo`, `Asociados`, `PaginasLegales` | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-05 | Admin — Fase 3, etapa 4 | Romper el ciclo de imports: `RichTextEditor` + `TBtn` y `useDragSort` a `src/components/admin/` | Cerrada — ciclo eliminado, commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -324,15 +325,14 @@ los paneles extraídos los importan desde ahí:
   `TBtn` en una etapa posterior.
 - `useDragSort` — lo usan `Equipo`, `Asociados` y `PropiedadesAdmin`.
 
-**Esto crea un import circular**: `AdminPage` importa los paneles y los paneles
-importan de `AdminPage`. Funciona porque ambos son declaraciones `function`,
-que se hoistean, y porque nadie los invoca en tiempo de evaluación del módulo,
-solo en render. Es transitorio y hay que deshacerlo: cuando `RichTextEditor`
-se vaya a `src/components/admin/`, `useDragSort` debería irse con él o a su
-propio módulo, y el ciclo desaparece.
+**Esto creó un import circular**: `AdminPage` importaba los paneles y los
+paneles importaban de `AdminPage`. Funcionaba porque ambos son declaraciones
+`function`, que se hoistean, y porque nadie los invocaba en tiempo de
+evaluación del módulo, solo en render.
 
-Si alguna etapa futura mueve una de esas dos a un contexto que se ejecute en
-tiempo de módulo, el ciclo deja de ser inocuo.
+> **Deuda RESUELTA en la Etapa 4.** Ambos símbolos se movieron a
+> `src/components/admin/` y no queda ningún import desde `src/pages/admin/`
+> hacia `AdminPage.tsx`.
 
 #### Los paneles NO se convirtieron en chunks aparte
 
@@ -352,12 +352,56 @@ refactor puro.
 
 Los 0,03 kB de más en `AdminPage` son los `export` y los `import` nuevos.
 
+### Fase 3 — Etapa 4: ciclo de imports roto — 2026-08-05
+
+| Símbolo | Ahora vive en |
+|---|---|
+| `RichTextEditor` + `TBtn` | `src/components/admin/RichTextEditor.tsx` |
+| `useDragSort` | `src/components/admin/useDragSort.ts` |
+
+`AdminPage.tsx`: 2.286 → 2.123 líneas. Acumulado de la Fase 3: **2.808 →
+2.123, −685 líneas (−24,4%)** en cuatro etapas.
+
+#### El ciclo desapareció
+
+**No queda ningún import desde `src/pages/admin/` hacia `AdminPage.tsx`.**
+`AdminPage.tsx` ya no exporta `RichTextEditor` ni `useDragSort`; el flujo de
+dependencias va en una sola dirección:
+
+```
+src/components/admin/  ←  src/pages/admin/  ←  AdminPage.tsx
+```
+
+`TBtn` no se exporta desde `RichTextEditor.tsx`: solo lo usa ese archivo, así
+que viaja con el editor y no forma parte de su API.
+
+#### `useDragSort` va en `src/components/admin/`, no en `src/hooks/`
+
+Es un hook, pero `src/hooks/` es zona compartida entre sesiones y esto es
+exclusivo del admin. Ponerlo ahí obligaría a coordinar con las otras sesiones
+cada vez que se toque.
+
+#### Chunks — atención al de TipTap
+
+El riesgo de esta etapa era que mover `RichTextEditor` de archivo alterara
+cómo Vite agrupa TipTap. **No pasó: `editor` conservó el hash exacto.**
+
+| Chunk | Etapa 3 | Etapa 4 |
+|---|---|---|
+| `AdminPage` | 169,60 kB | 169,57 kB |
+| `pdf` | 2.054,86 kB | 2.054,86 kB |
+| `editor` | `editor-CRXeSJ56.js` | **mismo hash**, 388,10 kB |
+| `react` | `react-DLA1cIuT.js` | mismo hash |
+| `index` | 238,90 kB | 238,90 kB |
+
+`AdminPage` bajó 0,03 kB y volvió al tamaño de la Etapa 2: son los `export` y
+los imports cruzados que dejaron de existir.
+
 #### Pendiente para las próximas etapas
 
-Quedan 17 componentes en `AdminPage.tsx`. Los grandes: `PropiedadesAdmin`
+Quedan 15 componentes en `AdminPage.tsx`. Los grandes: `PropiedadesAdmin`
 (426 líneas), `BarrancoAdmin` (403), `ContenidoAdmin` (321),
-`PropImageManager` (145), `RentalAdmin` (143), `RichTextEditor` (123),
-`VendeAdmin` (120).
+`PropImageManager` (145), `RentalAdmin` (143), `VendeAdmin` (120).
 
 ### Sesión RLS vistas de métricas — 2026-08-05
 

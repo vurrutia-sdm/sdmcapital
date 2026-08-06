@@ -11,7 +11,7 @@ import type { BlogPost } from '@/types'
 import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
 import { SaveBtn, Badge } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
-import { RichTextEditor } from '@/pages/AdminPage'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
 
 export default function Blog() {
   const [posts, setPosts]     = useState<BlogPost[]>([])

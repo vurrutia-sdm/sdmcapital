@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { SaveBtn } from '@/components/admin/acciones'
-import { RichTextEditor } from '@/pages/AdminPage'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
 
 const LEGAL_PAGES: { slug: string; label: string; ruta: string }[] = [
   { slug: 'politica-de-privacidad',   label: 'Política de Privacidad',   ruta: '/politica-de-privacidad' },

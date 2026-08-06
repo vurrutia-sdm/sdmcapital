@@ -11,7 +11,7 @@ import type { Asociado } from '@/types'
 import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
 import { SaveBtn } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
-import { useDragSort } from '@/pages/AdminPage'
+import { useDragSort } from '@/components/admin/useDragSort'
 
 export default function Asociados() {
   const [items, setItems]     = useState<Asociado[]>([])

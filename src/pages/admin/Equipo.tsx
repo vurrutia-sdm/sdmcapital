@@ -11,7 +11,7 @@ import type { MiembroEquipo } from '@/types'
 import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
 import { SaveBtn, Badge } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
-import { useDragSort } from '@/pages/AdminPage'
+import { useDragSort } from '@/components/admin/useDragSort'
 
 export default function Equipo() {
   const [items, setItems]     = useState<MiembroEquipo[]>([])
