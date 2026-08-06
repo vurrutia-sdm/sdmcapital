@@ -90,7 +90,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, etapa 7 (final) | `Propiedades` a `src/pages/admin/Propiedades.tsx`, con `PropImageManager`, `DossierUploader` y `slugify` | Cerrada — **refactor de `AdminPage.tsx` terminado**, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, iconos | Reemplazar los emojis del admin por `lucide-react`. Dos commits: sidebar + encabezados, y controles + editor | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, limpieza | Borrar `FotosAdmin` y corregir los comentarios desactualizados | Cerrada — commiteada, desplegada y verificada |
-| 2026-08-06 | Admin — Fase 3, escala tipográfica | **Definición de tokens en ZONA COMPARTIDA** (`src/styles/globals.css` y `tailwind.config.js`). No toca componentes | Commiteada y pusheada, **sin desplegar** — no cambia nada visible |
+| 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 1) | **Definición de tokens en ZONA COMPARTIDA** (`src/styles/globals.css` y `tailwind.config.js`). No toca componentes | Commiteada y pusheada, **sin desplegar** — no cambia nada visible |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -862,6 +862,86 @@ limpieza, junto con borrar `FotosAdmin`.
 
 > **Deuda saldada** en la etapa de limpieza del 2026-08-06. No quedan
 > referencias a nombres `*Admin` en `src/`.
+
+### Fase 3 — Escala tipográfica, fase 1: los tokens — 2026-08-06
+
+Solo definiciones. **No migra ni un literal**, y no toca ningún archivo de
+`src/pages/` ni `src/components/`. El deploy va con la primera tanda de
+migración.
+
+Zona compartida: `src/styles/globals.css` y `tailwind.config.js`.
+
+#### Los 13 tokens — nombres definitivos
+
+**Una sola regla, sin excepciones:** todo token lleva el prefijo `sdm-`, y la
+custom property equivalente es `--sdm-<nombre>`.
+
+| Clase Tailwind | Custom property | Valor |
+|---|---|---|
+| `text-sdm-display-sm` | `var(--sdm-display-sm)` | 28px / 1.15 / −0.5px |
+| `text-sdm-display-md` | `var(--sdm-display-md)` | 40px / 1.08 / −0.5px |
+| `text-sdm-display-lg` | `var(--sdm-display-lg)` | 52px / 1.05 / −0.5px |
+| `text-sdm-display-xl` | `var(--sdm-display-xl)` | 72px / 1.02 / −1px |
+| `text-sdm-xs` | `var(--sdm-text-xs)` | 11px |
+| `text-sdm-sm` | `var(--sdm-text-sm)` | 13px |
+| `text-sdm-base` | `var(--sdm-text-base)` | 15px |
+| `text-sdm-lg` | `var(--sdm-text-lg)` | 17px |
+| `text-sdm-xl` | `var(--sdm-text-xl)` | 20px |
+| `text-sdm-2xl` | `var(--sdm-text-2xl)` | 24px |
+| `tracking-sdm-tight` | `var(--sdm-tracking-tight)` | −0.5px |
+| `tracking-sdm-normal` | `var(--sdm-tracking-normal)` | 0 |
+| `tracking-sdm-wide` | `var(--sdm-tracking-wide)` | 2px |
+
+Los display llevan `lineHeight` y `letterSpacing` empaquetados en la clase de
+Tailwind. Sin ellos Tailwind aplicaría `line-height: 1.5`, que en un título de
+72px es una regresión. Las custom properties solo llevan el tamaño.
+
+#### Por qué el prefijo `sdm-` en todo
+
+En UI y tracking es **obligatorio**: `xs`/`sm`/`base`/`lg`/`xl`/`2xl` y
+`tight`/`normal`/`wide` son claves **nativas** de Tailwind. Redefinirlas
+habría cambiado en silencio `text-sm` de 14 a 13px en `BlogPostPage.tsx` y
+`ReservaConfirmacionPage.tsx`, y `tracking-wide` de 0.025em a 2px en
+`BlogPostPage.tsx` — tres archivos de la web pública que esta fase no toca.
+
+En display **no haría falta**, y de hecho quedaron sin prefijo en el primer
+commit. Se renombraron enseguida: la asimetría
+—`text-sdm-sm` pero `text-display-lg`— es difícil de recordar, y en una
+migración de ~780 literales garantiza que alguien escriba `text-sm` creyendo
+que es el token de SDM y obtenga los 14px de Tailwind.
+
+Verificado con `resolveConfig` que los defaults nativos quedan intactos:
+`text-sm` sigue en `0.875rem` y `tracking-wide` en `0.025em`.
+
+#### Se eliminó una tercera fuente de verdad
+
+`globals.css` tenía clases `.display-xl` / `.display-lg` / `.display-md`
+escritas a mano con **otros valores** que los del config:
+
+| | `.display-*` de globals.css | `fontSize` del config | ahora |
+|---|---:|---:|---:|
+| xl | 72px | 76px | 72px |
+| lg | 52px | 52px | 52px |
+| md | 42px | 42px | 40px |
+| sm | — | 32px | 28px |
+
+Las tres estaban muertas: no aparecían en ningún `.tsx`, `.ts`, `index.html`
+ni `functions/`, ni en las cinco tablas de contenido editable
+(`paginas_legales`, `blog`, `propiedades`, `contenido_sitio`,
+`showcase_barranco`). Se borraron.
+
+#### Las clases utilitarias todavía no existen en el CSS
+
+El JIT de Tailwind solo emite lo que encuentra en el contenido, así que
+`text-sdm-sm` y compañía **no están en el bundle** hasta que el primer
+componente las escriba. Es lo esperado. Las custom properties sí están desde
+ya, porque `:root` se emite siempre.
+
+#### Chunks
+
+Los tres chunks JS quedaron **byte a byte idénticos**. Lo único que cambia es
+el CSS: +241 bytes en el primer commit (13 tokens menos tres clases borradas)
+y +52 más al renombrar.
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 

@@ -19,36 +19,42 @@
 
     /* ─── ESCALA TIPOGRÁFICA ─────────────────────────────────────────────
        Espejo exacto de `fontSize` y `letterSpacing` en tailwind.config.js.
-       Existen para poder escribir `fontSize: 'var(--text-sm)'` desde
+       Existen para poder escribir `fontSize: 'var(--sdm-text-sm)'` desde
        `style={{}}` mientras se migran los ~780 literales inline.
 
-       Los nombres NO llevan prefijo `sdm-` porque las custom properties
-       viven en su propio espacio y no pueden pisar nada de Tailwind; el
-       prefijo del config existe solo para no redefinir sus claves nativas.
-       La equivalencia es directa:
+       UNA SOLA REGLA, SIN EXCEPCIONES:
 
-         --text-sm      ↔  text-sdm-sm
-         --display-lg   ↔  text-display-lg
-         --tracking-wide ↔ tracking-sdm-wide                              */
+         clase Tailwind        custom property
+         text-sdm-*        ↔   --sdm-text-*
+         text-sdm-display-* ↔  --sdm-display-*
+         tracking-sdm-*    ↔   --sdm-tracking-*
+
+       Todo lleva el prefijo `sdm-`. En las claves de Tailwind es
+       obligatorio —`xs`/`sm`/`base`/`lg`/`xl`/`2xl` y
+       `tight`/`normal`/`wide` son claves NATIVAS, y redefinirlas cambiaría
+       en silencio lo que hace `text-sm` para cualquiera—. En las custom
+       properties no haría falta, pero se pone igual: en una migración de
+       ~780 literales, una asimetría de nombres es una fuente de errores
+       más cara que la verbosidad.                                        */
 
     /* Display — Cormorant Garamond 300 */
-    --display-sm: 28px;
-    --display-md: 40px;
-    --display-lg: 52px;
-    --display-xl: 72px;
+    --sdm-display-sm: 28px;
+    --sdm-display-md: 40px;
+    --sdm-display-lg: 52px;
+    --sdm-display-xl: 72px;
 
     /* UI / cuerpo — Inter */
-    --text-xs: 11px;
-    --text-sm: 13px;
-    --text-base: 15px;
-    --text-lg: 17px;
-    --text-xl: 20px;
-    --text-2xl: 24px;
+    --sdm-text-xs: 11px;
+    --sdm-text-sm: 13px;
+    --sdm-text-base: 15px;
+    --sdm-text-lg: 17px;
+    --sdm-text-xl: 20px;
+    --sdm-text-2xl: 24px;
 
     /* Tracking */
-    --tracking-tight: -0.5px;
-    --tracking-normal: 0;
-    --tracking-wide: 2px;
+    --sdm-tracking-tight: -0.5px;
+    --sdm-tracking-normal: 0;
+    --sdm-tracking-wide: 2px;
   }
 
   * { box-sizing: border-box; }

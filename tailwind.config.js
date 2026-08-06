@@ -30,26 +30,33 @@ export default {
       },
       // ─── ESCALA TIPOGRÁFICA ───────────────────────────────────────────────
       //
-      // Dos escalas conceptualmente distintas: `display-*` es Cormorant
+      // Dos escalas conceptualmente distintas: `sdm-display-*` es Cormorant
       // Garamond weight 300 (títulos y precios) y `sdm-*` es Inter (cuerpo,
       // UI y formularios). Los mismos valores están duplicados como custom
       // properties en `:root` de src/styles/globals.css, para poder usarlos
       // desde `style={{}}` mientras se migran los ~780 literales inline.
       //
-      // Los tokens de UI y de tracking van con prefijo `sdm-` A PROPÓSITO:
-      // `xs`/`sm`/`base`/`lg`/`xl`/`2xl` y `tight`/`normal`/`wide` son claves
-      // NATIVAS de Tailwind. Redefinirlas cambiaría en silencio el valor de
-      // `text-sm`, `tracking-wide` y compañía para cualquiera que las escriba,
-      // contra lo que dice la documentación de Tailwind. Con el prefijo, los
-      // defaults quedan intactos.
+      // UNA SOLA REGLA, SIN EXCEPCIONES: todo token del sistema lleva el
+      // prefijo `sdm-`, y la custom property equivalente es `--sdm-<nombre>`.
+      //
+      //   text-sdm-sm          ↔  var(--sdm-text-sm)
+      //   text-sdm-display-lg  ↔  var(--sdm-display-lg)
+      //   tracking-sdm-wide    ↔  var(--sdm-tracking-wide)
+      //
+      // En UI y tracking el prefijo es obligatorio: `xs`/`sm`/`base`/`lg`/
+      // `xl`/`2xl` y `tight`/`normal`/`wide` son claves NATIVAS de Tailwind, y
+      // redefinirlas cambiaría en silencio lo que hace `text-sm` para
+      // cualquiera que lo escriba, contra lo que dice su documentación. En
+      // display no haría falta, pero se pone igual: en una migración de ~780
+      // literales una asimetría de nombres cuesta más que la verbosidad.
       fontSize: {
         // Display — Cormorant Garamond. lineHeight y letterSpacing van
         // empaquetados: sin ellos Tailwind aplicaría line-height 1.5, que en
         // un título de 72px es una regresión.
-        'display-xl': ['72px', { lineHeight: '1.02', letterSpacing: '-1px' }],
-        'display-lg': ['52px', { lineHeight: '1.05', letterSpacing: '-0.5px' }],
-        'display-md': ['40px', { lineHeight: '1.08', letterSpacing: '-0.5px' }],
-        'display-sm': ['28px', { lineHeight: '1.15', letterSpacing: '-0.5px' }],
+        'sdm-display-xl': ['72px', { lineHeight: '1.02', letterSpacing: '-1px' }],
+        'sdm-display-lg': ['52px', { lineHeight: '1.05', letterSpacing: '-0.5px' }],
+        'sdm-display-md': ['40px', { lineHeight: '1.08', letterSpacing: '-0.5px' }],
+        'sdm-display-sm': ['28px', { lineHeight: '1.15', letterSpacing: '-0.5px' }],
         // UI / cuerpo — Inter
         'sdm-xs':   '11px',
         'sdm-sm':   '13px',
