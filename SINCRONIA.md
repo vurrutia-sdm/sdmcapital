@@ -86,6 +86,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | Admin — Fase 3, etapa 3 | Cuatro paneles a `src/pages/admin/`: `Blog`, `Equipo`, `Asociados`, `PaginasLegales` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-05 | Admin — Fase 3, etapa 4 | Romper el ciclo de imports: `RichTextEditor` + `TBtn` y `useDragSort` a `src/components/admin/` | Cerrada — ciclo eliminado, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, etapa 5 | Tres paneles a `src/pages/admin/`: `Rental`, `Vende`, `Barranco` | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — Fase 3, etapa 6 | `Contenido` a `src/pages/admin/Contenido.tsx`, con `CarouselPhotoManager` y `HomeDestacadasSelector` | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -471,6 +472,103 @@ Quedan 12 declaraciones de nivel superior en `AdminPage.tsx`. Las grandes:
 (145), `CarouselPhotoManager` (107) y `HomeDestacadasSelector` (96).
 `FotosAdmin`, `DossierUploader` y `slugify` son las que faltan además del
 propio `AdminPage`.
+
+### Fase 3 — Etapa 6: Contenido — 2026-08-06
+
+| Antes | Ahora |
+|---|---|
+| `ContenidoAdmin` | `src/pages/admin/Contenido.tsx` |
+| `CarouselPhotoManager` | idem — mismo archivo |
+| `HomeDestacadasSelector` | idem — mismo archivo |
+
+`src/pages/admin/Contenido.tsx`: 569 líneas.
+`AdminPage.tsx`: 1.496 → **953** líneas. Acumulado de la Fase 3: **2.808 → 953,
+−1.855 líneas (−66,1%)** en seis etapas.
+
+El diff de `AdminPage.tsx` son 546 borrados y **3 líneas agregadas**.
+
+#### Los tres van juntos porque `Contenido` es su único consumidor
+
+Verificado con `grep` sobre `src/` y `functions/`: `CarouselPhotoManager` y
+`HomeDestacadasSelector` no se usan en ningún otro lado. Por eso van a
+`src/pages/admin/` y no a `src/components/admin/`, que es para lo compartido.
+
+Los tres quedan **a nivel de módulo**; solo `Contenido` lleva `export default`.
+Cero componentes anidados en el archivo.
+
+Se movieron con ellos `HERO_KEYS`, `HERO_POS_KEYS` y `POSITION_OPTIONS`: son
+constantes locales que solo usa `CarouselPhotoManager`.
+
+#### Verificación byte a byte
+
+`diff` del bloque completo (539 líneas: las tres constantes más los tres
+componentes) contra el original en `HEAD`. **Una sola línea distinta**, que es
+justamente el renombre pedido:
+
+```
+< function ContenidoAdmin() {
+> export default function Contenido() {
+```
+
+`CarouselPhotoManager` y `HomeDestacadasSelector` quedaron idénticos hasta el
+byte, y el cuerpo de `ContenidoAdmin` también salvo su firma.
+
+#### Las claves de `contenido_sitio` no se tocaron
+
+Ninguna clave cambió. Las del banner promocional —`banner_activo`,
+`banner_titulo`, `banner_subtitulo`, `banner_cta_texto`, `banner_cta_url`— no
+tienen migración: las crea este panel con el primer guardado. Renombrar
+cualquiera de ellas rompería el banner en silencio, porque `BannerPromo` caería
+a sus valores por defecto sin que nada fallara. La clave de pestaña sigue
+siendo `'contenido'`.
+
+#### Cinco imports quedaron huérfanos y `tsc` no los delató
+
+`noUnusedLocals` está apagado en `tsconfig.json`, así que el build pasaba en
+verde con ellos. Revisados a mano y eliminados de `AdminPage.tsx`:
+`invalidateContenidoCache`, `Sec`, `Full`, `Txa` e `ImageUploader`.
+
+El chunk `AdminPage` conservó **exactamente el mismo hash** antes y después de
+quitarlos: Rollup ya los eliminaba por tree-shaking. Es limpieza de fuente, sin
+efecto en el bundle.
+
+#### Chunks
+
+| Chunk | Etapa 5 | Etapa 6 |
+|---|---|---|
+| `AdminPage` | 169,57 kB | 169,56 kB |
+| `pdf` | 2.054,86 kB | 2.054,86 kB |
+| `editor` | `editor-CRXeSJ56.js` | **mismo hash** |
+| `react` | `react-DLA1cIuT.js` | **mismo hash** |
+| `index` | 238,90 kB | 238,90 kB |
+
+`pdf` sigue fuera de la carga inicial del admin. Los imports estáticos del
+chunk `AdminPage` son `react`, `router`, `index`, `errores`, `subirImagen`,
+`editor` e `iconos`.
+
+##### Por qué cambiaron hashes con el tamaño intacto
+
+`pdf`, `index`, `subirImagen` y varios chunks de rutas cambiaron de hash sin
+cambiar de tamaño. Se verificó descargando de producción los archivos de la
+Etapa 5 y comparándolos: **el contenido es idéntico salvo los nombres de chunk
+embebidos**. `pdf` difería en 32 bytes, `index` en 152, `subirImagen` en 8 —
+todos dentro de rutas `nombre-<hash>.js`.
+
+El cascade arranca donde tenía que arrancar: `AdminPage.tsx` cambió, así que su
+chunk cambió de hash; `index` embebe `AdminPage-<hash>.js` en su mapa de rutas
+lazy, así que cambió también; y todo lo que importa `index` fue detrás.
+
+Conviene tenerlo presente al revisar etapas futuras: **comparar solo hashes da
+falsos positivos.** Lo que discrimina es normalizar los `-<hash>.js` y comparar
+el contenido.
+
+#### Pendiente
+
+Quedan 8 declaraciones de nivel superior en `AdminPage.tsx`, y las grandes son
+ya solo dos: `PropiedadesAdmin` (426 líneas) y `PropImageManager` (145).
+Además `FotosAdmin` (68), `DossierUploader` (62), `LoginForm`, `useAdminAuth`,
+`slugify` y `loadTabOrder`, más las constantes de la sidebar y el propio
+`AdminPage`.
 
 ### Sesión RLS vistas de métricas — 2026-08-05
 
