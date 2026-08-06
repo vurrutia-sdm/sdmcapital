@@ -6,8 +6,8 @@
 // opera normal — pero nada de lo de acá debe tocar la semántica de `activo`
 // (ver SINCRONIA.md, sesión RLS del 2026-08-05).
 //
-// Extraída de AdminPage.tsx sin cambios: mismo markup, mismos estilos, mismas
-// queries. La clave de pestaña sigue siendo 'propiedades' — el orden de las
+// Extraída de AdminPage.tsx sin cambios de comportamiento: mismos estilos,
+// mismas queries. Los emojis pasaron a iconos de lucide-react más tarde. La clave de pestaña sigue siendo 'propiedades' — el orden de las
 // pestañas se persiste en localStorage y renombrarla borraría esa preferencia.
 //
 // `PropImageManager`, `DossierUploader` y `slugify` viajan en este archivo

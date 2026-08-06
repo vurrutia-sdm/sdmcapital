@@ -1,7 +1,7 @@
 // Pestaña "Legal" del admin — textos de paginas_legales.
 //
-// Extraída de AdminPage.tsx sin cambios: mismo markup, mismos estilos, mismas
-// queries. La clave de pestaña sigue siendo 'legal' — el orden de las pestañas se
+// Extraída de AdminPage.tsx sin cambios de comportamiento: mismos estilos,
+// mismas queries. Los emojis pasaron a iconos de lucide-react más tarde. La clave de pestaña sigue siendo 'legal' — el orden de las pestañas se
 // persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'

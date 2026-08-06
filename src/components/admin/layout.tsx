@@ -1,8 +1,8 @@
 // Maquetación de los paneles del admin.
 //
 // `Sec` es la tarjeta blanca con título y grilla de dos columnas; `Full` hace
-// que un campo ocupe el ancho completo de esa grilla. Las usan ContenidoAdmin,
-// BarrancoAdmin, RentalAdmin y VendeAdmin.
+// que un campo ocupe el ancho completo de esa grilla. Las usan los paneles
+// Contenido, Barranco, Rental y Vende.
 //
 // ─── REGLA INNEGOCIABLE PARA TODO EL ADMIN ────────────────────────────────────
 //
@@ -11,7 +11,7 @@
 // el cuerpo de un componente.
 //
 // No es una preferencia de estilo. `Sec` y `Full` estuvieron definidos dentro
-// de ContenidoAdmin, BarrancoAdmin, RentalAdmin y VendeAdmin —cuatro copias
+// de Contenido, Barranco, Rental y Vende —cuatro copias
 // idénticas—, y al recrearse en cada render React los veía como tipos de
 // componente distintos en cada pasada: desmontaba el árbol entero y lo volvía
 // a montar. Al desaparecer el contenido la página perdía altura, el navegador

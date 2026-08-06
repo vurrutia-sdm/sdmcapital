@@ -1,6 +1,6 @@
 // Reordenamiento por arrastre para las listas del admin.
 //
-// Lo usan PropiedadesAdmin, Equipo y Asociados. Vivía en AdminPage.tsx y los
+// Lo usan los paneles Propiedades, Equipo y Asociados. Vivía en AdminPage.tsx y los
 // paneles ya extraídos lo importaban de vuelta desde ahí, lo que creaba un
 // ciclo de imports; por eso se mueve a su propio módulo.
 //

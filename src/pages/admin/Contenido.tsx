@@ -7,8 +7,8 @@
 // primer guardado, y `BannerPromo` las lee vía `useContenido` con los mismos
 // valores por defecto.
 //
-// Extraída de AdminPage.tsx sin cambios: mismo markup, mismos estilos, mismas
-// queries. La clave de pestaña sigue siendo 'contenido' — el orden de las
+// Extraída de AdminPage.tsx sin cambios de comportamiento: mismos estilos,
+// mismas queries. Los emojis pasaron a iconos de lucide-react más tarde. La clave de pestaña sigue siendo 'contenido' — el orden de las
 // pestañas se persiste en localStorage y renombrarla borraría esa preferencia.
 //
 // `CarouselPhotoManager` y `HomeDestacadasSelector` viajan en este archivo

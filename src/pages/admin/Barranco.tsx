@@ -1,8 +1,8 @@
 // Pestaña "Barranco" del admin — showcase del Hotel El Barranco (tabla
 // `showcase_barranco`), con todos los textos en EN/ES.
 //
-// Extraída de AdminPage.tsx sin cambios: mismo markup, mismos estilos, mismas
-// queries. La clave de pestaña sigue siendo 'barranco' — el orden de las
+// Extraída de AdminPage.tsx sin cambios de comportamiento: mismos estilos,
+// mismas queries. Los emojis pasaron a iconos de lucide-react más tarde. La clave de pestaña sigue siendo 'barranco' — el orden de las
 // pestañas se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
@@ -155,7 +155,6 @@ export default function Barranco() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  // Sec y Full: definidos a nivel de módulo, junto a ContenidoAdmin.
 
   // Render helpers — EN 🇬🇧 / ES 🇨🇱 side by side
   const bi = (keyEn: string, keyEs: string, label: string) => (

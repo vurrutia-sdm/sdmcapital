@@ -1,8 +1,8 @@
 // Pestaña "Vende" del admin — textos de "Vende con Nosotros" en
 // `contenido_sitio`. Guarda campo por campo, sin botón de guardar.
 //
-// Extraída de AdminPage.tsx sin cambios: mismo markup, mismos estilos, mismas
-// queries. La clave de pestaña sigue siendo 'vende' — el orden de las pestañas
+// Extraída de AdminPage.tsx sin cambios de comportamiento: mismos estilos,
+// mismas queries. Los emojis pasaron a iconos de lucide-react más tarde. La clave de pestaña sigue siendo 'vende' — el orden de las pestañas
 // se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
@@ -56,7 +56,6 @@ export default function Vende() {
     })
   }
 
-  // Sec y Full: definidos a nivel de módulo, junto a ContenidoAdmin.
 
   return (
     <div>
