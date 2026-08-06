@@ -16,6 +16,7 @@ import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad, BlogPost, MiembroEquipo, Asociado, MensajeContacto, DossierItem } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
+import { Sec, Full } from '@/components/admin/primitivas'
 import { CotizacionesAdmin } from '@/components/cotizaciones/CotizacionesAdmin'
 import { TarjetasEquipo } from '@/components/tarjetas/TarjetasEquipo'
 
@@ -1565,21 +1566,6 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
     </div>
   )
 }
-
-// `Sec` y `Full` van a nivel de módulo, NO dentro de ContenidoAdmin.
-//
-// Definidos adentro se recreaban en cada render: React los veía como tipos de
-// componente distintos en cada pasada, desmontaba el árbol entero y lo volvía a
-// montar. Al desaparecer el contenido la página perdía altura, el navegador
-// llevaba el scroll a 0, y al remontar el scroll ya se había perdido — por eso
-// tocar cualquier switch de "Textos del sitio" saltaba al inicio.
-const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
-    <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
-  </div>
-)
-const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
 
 function ContenidoAdmin() {
   const [saving, setSaving] = useState(false)
