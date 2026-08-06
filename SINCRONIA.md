@@ -79,6 +79,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | Banner promocional | Barra promocional en el home controlada desde el admin. Toca `src/components/sections/BannerPromo.tsx`, `src/pages/HomePage.tsx` y `ContenidoAdmin` dentro de `src/pages/AdminPage.tsx` | Cerrada — commiteada y desplegada |
 | 2026-08-05 | RLS / exposición de datos | Diagnóstico de lectura anónima en Supabase. Solo investigación | Cerrada — derivó en la migración `20260805000300` |
 | 2026-08-05 | RLS / cierre de escritura anónima | Migración `20260805000300`: RLS en `propiedades`, `ficha_clientes`, `ficha_propiedades` y `sdm_agentes`. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada contra producción |
+| 2026-08-05 | RLS / `envios_plantilla` | Migración `20260805000400`: RLS en la última tabla de `public` que lo tenía apagado. Tabla de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada. **Falta confirmar que Sofía siga registrando envíos** |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -136,6 +137,64 @@ el mismo valor, no cambia nada en ninguno de los dos casos.
 Quedan sin revisar las otras 15 tablas de `public`. `cotizaciones` y
 `contacto_mensajes` daban 0 filas en el diagnóstico, pero eso no distingue
 "vacía" de "RLS la oculta": hay que confirmarlo antes de darlas por seguras.
+
+### Sesión RLS `envios_plantilla` — 2026-08-05
+
+Migración `20260805000400_rls_envios_plantilla.sql`, aplicada.
+
+`envios_plantilla` era la única tabla de `public` con `relrowsecurity = false`.
+Sin políticas y con grants de `SELECT/INSERT/UPDATE/DELETE/TRUNCATE` para
+`anon`: con la anon key del bundle se podía leer, llenar de basura o vaciar.
+
+Ahora tiene RLS activo y una sola política, `FOR ALL TO authenticated`. **No se
+le agregó política a `anon` a propósito**: es una tabla interna y el Worker de
+Sofía accede con `service_role`, que no pasa por RLS.
+
+#### Las tablas internas de Sofía están en deny-all a propósito
+
+| Tabla | RLS | Políticas |
+|---|---|---|
+| `decisiones_shadow` | activo | ninguna |
+| `eventos_procesados` | activo | ninguna |
+| `eventos_turno` | activo | ninguna |
+| `mensajes_pendientes` | activo | ninguna |
+| `migracion_r2` | activo | ninguna |
+| `envios_plantilla` | activo | solo `authenticated` |
+
+RLS activo con cero políticas significa **deny-all** para `anon` y para
+`authenticated`. No es un descuido: Sofía lleva meses escribiendo en ellas
+porque el Worker usa `service_role`, que salta RLS por completo.
+
+**Consecuencia:** un panel del admin que lea esas tablas se va a ver vacío, y
+eso es lo esperado. Si alguien "arregla" ese panel vacío agregando un
+`Allow all` desde el dashboard, reabre exactamente el agujero que se acaba de
+cerrar. La solución correcta para un panel así es leer por el Worker o por una
+función con `service_role`, nunca abrirle la tabla a `anon`.
+
+#### Verificación que quedó pendiente
+
+`envios_plantilla` **ya estaba vacía antes** de aplicar la migración (0 filas
+con RLS apagado). Por eso:
+
+- El test de conteo no prueba nada: daba 0 antes y da 0 después.
+- El test de `PATCH` idempotente era inaplicable: no hay ninguna fila que
+  tocar.
+
+Lo que sí se verificó es un `INSERT` anónimo, que ahora devuelve
+`42501 · new row violates row-level security policy` con HTTP 401, sin crear
+fila. Eso confirma que RLS bloquea.
+
+Lo que **no** se pudo verificar: que Sofía siga registrando envíos. La tabla
+estaba vacía antes, así que no hay línea base, y ahora `anon` ya no puede
+leerla. Hay que comprobarlo desde el SQL Editor del dashboard:
+
+```sql
+select count(*), max(created_at) from public.envios_plantilla;
+```
+
+Si tras un envío real de plantilla ese conteo sigue en 0, el Worker está
+usando la anon key y no `service_role`. En ese caso **no** agregar una política
+para `anon`: hay que arreglar el Worker.
 
 ### Sesión banner promocional — 2026-08-05
 
