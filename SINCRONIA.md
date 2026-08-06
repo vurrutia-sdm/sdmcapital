@@ -76,7 +76,33 @@ línea o se marca como cerrada.
 | 2026-08-02 | Web pública | Componente `SinArriendos` en `PropiedadesPage.tsx` | Cerrado — commit `0b7e80a`, ya en producción |
 | 2026-08-05 | Inventario oficinas | Carga de 10 edificios de oficinas en arriendo (42 unidades). Toca `src/types/index.ts`, `supabase/migrations/` y `src/pages/PropiedadDetailPage.tsx` | Commit `a1a0728`, pusheado |
 | 2026-08-05 | Inventario oficinas (cambio de estrategia) | Los 10 edificios pasan a referencia interna permanente; se publica una ficha genérica en su lugar. Solo toca `supabase/migrations/` | Cerrada — commiteada, migración aplicada, sin deploy |
+| 2026-08-05 | Banner promocional | Barra promocional en el home controlada desde el admin. Toca `src/components/sections/BannerPromo.tsx`, `src/pages/HomePage.tsx` y `ContenidoAdmin` dentro de `src/pages/AdminPage.tsx` | Cerrada — commiteada y desplegada |
 | — | Sofía / chatbot | — | — |
+
+### Sesión banner promocional — 2026-08-05
+
+Esta sesión entra en **`src/pages/AdminPage.tsx`, que es dominio de la sesión
+admin** — concretamente en `ContenidoAdmin`, pestaña Inicio, para agregar la
+sección "Banner promocional". Queda avisado acá porque es una invasión de
+dominio, no un archivo compartido.
+
+También toca `src/components/sections/` y `src/pages/HomePage.tsx`, que son de
+la sesión web pública, y **`functions/api/subir.js`, que es dominio de la sesión
+Sofía / chatbot**: se agregó `'banner/'` a la lista `PREFIJOS`. Sin ese prefijo
+el endpoint rechaza la subida de la imagen del banner. Es una línea, pero está
+en territorio ajeno.
+
+Además se subieron `Sec` y `Full` a nivel de módulo en `AdminPage.tsx`. Estaban
+definidos dentro de `ContenidoAdmin`, `BarrancoAdmin`, `RentalAdmin` y
+`VendeAdmin` — cuatro copias idénticas. Al recrearse en cada render, React
+desmontaba y remontaba el árbol completo, y la página saltaba al inicio con
+cada cambio de switch. Si otra sesión vuelve a definirlos adentro, el bug
+reaparece.
+
+Las claves nuevas (`banner_activo`, `banner_titulo`, `banner_subtitulo`,
+`banner_cta_texto`, `banner_cta_url`) viven en `contenido_sitio` y **no
+requieren migración**: el admin las crea con el primer guardado y el
+componente tiene los mismos valores por defecto vía `useContenido`.
 
 ### Sesión inventario oficinas — 2026-08-05
 

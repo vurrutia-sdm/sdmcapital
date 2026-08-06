@@ -1,0 +1,149 @@
+// Pieza promocional del home, justo debajo del SearchBar.
+//
+// Va en el flujo del documento, no como modal ni interstitial: Google penaliza
+// los interstitials intrusivos en móvil y no vale la pena arriesgar
+// posicionamiento por un banner.
+//
+// No se puede cerrar. Se muestra a todos los visitantes mientras
+// `banner_activo` sea 'true'; se retira apagándolo desde el admin
+// (Contenido → Inicio → Banner promocional).
+
+import { Link } from 'react-router-dom'
+import { useContenido } from '@/hooks/useContenido'
+
+// Las tres franjas del logo, reutilizadas arriba de la pieza y como respaldo
+// visual cuando no hay imagen cargada.
+const COLORES_LOGO = ['var(--sky)', 'var(--green)', 'var(--navy-deeper)']
+
+export default function BannerPromo() {
+  const { get, loading } = useContenido()
+
+  // Mientras carga el contenido no se dibuja nada: evita que la pieza aparezca
+  // y desaparezca si en la base está apagada.
+  if (loading) return null
+  if (get('banner_activo', 'false') !== 'true') return null
+
+  const kicker    = get('banner_kicker', 'Oportunidad comercial')
+  const titulo    = get('banner_titulo', 'Oficinas en arriendo en Santiago Centro')
+  const subtitulo = get('banner_subtitulo', '42 oficinas disponibles · desde 178 m² · ejes Miraflores, Ahumada y Nueva York')
+  const ctaTexto  = get('banner_cta_texto', 'Ver disponibilidad')
+  const ctaUrl    = get('banner_cta_url', '/propiedades/oficinas-arriendo-santiago-centro')
+  const imagen    = get('banner_imagen', '')
+
+  if (!titulo) return null
+
+  const estiloCta: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '13px 30px',
+    background: 'var(--green)',
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: 500,
+    letterSpacing: '1.5px',
+    textTransform: 'uppercase',
+    textDecoration: 'none',
+    borderRadius: 2,
+    whiteSpace: 'nowrap',
+    transition: 'background 0.15s',
+  }
+
+  const esExterno = /^https?:\/\//i.test(ctaUrl)
+
+  const cta = ctaTexto && ctaUrl ? (
+    esExterno ? (
+      <a href={ctaUrl} target="_blank" rel="noopener noreferrer" style={estiloCta} className="w-full md:w-auto">
+        {ctaTexto}
+      </a>
+    ) : (
+      <Link to={ctaUrl} style={estiloCta} className="w-full md:w-auto">
+        {ctaTexto}
+      </Link>
+    )
+  ) : null
+
+  return (
+    <section aria-label="Aviso destacado" style={{ width: '100%', background: 'var(--navy-dark)', borderRadius: 0 }}>
+      {/* Franja con los tres colores del logo */}
+      <div aria-hidden="true" style={{ display: 'flex', height: 2 }}>
+        {COLORES_LOGO.map(color => (
+          <span key={color} style={{ flex: 1, background: color }} />
+        ))}
+      </div>
+
+      {/* Móvil: imagen arriba, contenido abajo (order invertido en desktop con
+          flex-row, donde el contenido pasa a la izquierda). */}
+      <div className="flex flex-col md:flex-row">
+
+        {/* ── Imagen ──
+            En móvil mide 180px de alto. En desktop `h-auto` deja que el
+            flex-row la estire hasta igualar la columna de contenido. El
+            contenido va en posición absoluta para que el 100% de alto no
+            dependa de cómo se resolvió la altura del contenedor. */}
+        <div
+          className="w-full md:w-[45%] order-1 md:order-2 h-[180px] md:h-auto"
+          style={{ flexShrink: 0, position: 'relative' }}
+        >
+          {imagen ? (
+            <img
+              src={imagen}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          ) : (
+            // Respaldo: sin imagen cargada la pieza no se ve rota.
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute', inset: 0, background: 'var(--navy-deeper)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              }}
+            >
+              {COLORES_LOGO.map(color => (
+                <span key={color} style={{ display: 'block', width: 34, height: 2, background: color }} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Contenido ── */}
+        <div
+          className="w-full md:w-[55%] order-2 md:order-1 flex flex-col items-start justify-center md:min-h-[320px] md:border-r md:border-white/10"
+          style={{
+            background: 'var(--navy-dark)',
+            paddingTop: 40,
+            paddingBottom: 40,
+            paddingLeft: 'clamp(16px,5vw,48px)',
+            paddingRight: 'clamp(16px,5vw,48px)',
+          }}
+        >
+          {kicker && (
+            <div className="section-label section-label--light" style={{ marginBottom: 14 }}>
+              {kicker}
+            </div>
+          )}
+
+          <h2
+            className="font-serif"
+            style={{ fontWeight: 300, fontSize: 'clamp(30px,3.4vw,42px)', color: '#fff', lineHeight: 1.1, letterSpacing: '-0.4px' }}
+          >
+            {titulo}
+          </h2>
+
+          <div aria-hidden="true" style={{ width: 44, height: 2, background: 'var(--green)', marginTop: 18, marginBottom: 18 }} />
+
+          {subtitulo && (
+            <p style={{ fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.62)', lineHeight: 1.6, maxWidth: 460, marginBottom: 26 }}>
+              {subtitulo}
+            </p>
+          )}
+
+          {cta}
+        </div>
+      </div>
+    </section>
+  )
+}

@@ -18,7 +18,7 @@ const CACHE_CONTROL = 'public, max-age=31536000, immutable'
 // Prefijos permitidos. Evita que una ruta manipulada escriba fuera de lo previsto.
 const PREFIJOS = ['propiedades/', 'blog/', 'equipo/', 'hero/', 'paginas/', 'servicios/',
                   'destinos/', 'asociados/', 'dossiers/', 'cotizaciones/', 'general/',
-                  'rental/', 'vende/', 'fichas/']
+                  'rental/', 'vende/', 'fichas/', 'banner/']
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json' } })

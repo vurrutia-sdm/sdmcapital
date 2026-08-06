@@ -1566,6 +1566,21 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
   )
 }
 
+// `Sec` y `Full` van a nivel de módulo, NO dentro de ContenidoAdmin.
+//
+// Definidos adentro se recreaban en cada render: React los veía como tipos de
+// componente distintos en cada pasada, desmontaba el árbol entero y lo volvía a
+// montar. Al desaparecer el contenido la página perdía altura, el navegador
+// llevaba el scroll a 0, y al remontar el scroll ya se había perdido — por eso
+// tocar cualquier switch de "Textos del sitio" saltaba al inicio.
+const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
+    <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+  </div>
+)
+const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
+
 function ContenidoAdmin() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved]   = useState(false)
@@ -1585,6 +1600,13 @@ function ContenidoAdmin() {
     hero_subtitulo: 'Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el extranjero. Financiamiento sin pagos adelantados.',
     hero_location: 'Las Condes · Santiago · Chile',
     stats_propiedades: '120', stats_anios: '15', stats_paises: '10', stats_clientes: '500',
+    banner_activo: 'false',
+    banner_kicker: 'Oportunidad comercial',
+    banner_imagen: '',
+    banner_titulo: 'Oficinas en arriendo en Santiago Centro',
+    banner_subtitulo: '42 oficinas disponibles · desde 178 m² · ejes Miraflores, Ahumada y Nueva York',
+    banner_cta_texto: 'Ver disponibilidad',
+    banner_cta_url: '/propiedades/oficinas-arriendo-santiago-centro',
     financiamiento_titulo: '¿Necesitas financiamiento?',
     financiamiento_body: 'Gestionamos créditos de consumo, hipotecarios y bancarización para personas y empresas en Chile y el extranjero. Sin pagos adelantados.',
     testimonial_1_texto: 'SDM Capital hizo posible el sueño de mi familia de adquirir nuestra primera vivienda en Santiago.',
@@ -1670,14 +1692,6 @@ function ContenidoAdmin() {
     setSaved(true); setTimeout(() => setSaved(false), 2500)
   }
 
-  const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
-      <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
-    </div>
-  )
-  const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
-
   const PAGINAS = [
     { key: 'inicio', label: '🏠 Inicio' }, { key: 'testimonios', label: '💬 Testimonios' },
     { key: 'quienes', label: '👥 Quiénes Somos' }, { key: 'servicios', label: '💼 Servicios' },
@@ -1725,6 +1739,36 @@ function ContenidoAdmin() {
           <Field label="Países"><Inp type="number" value={d.stats_paises} onChange={set('stats_paises')} /></Field>
           <Field label="Clientes satisfechos"><Inp type="number" value={d.stats_clientes} onChange={set('stats_clientes')} /></Field>
         </Sec>
+        {(() => {
+          const activo = d.banner_activo === 'true'
+          return (
+            <Sec title={`${activo ? '👁' : '🚫'} Banner promocional`}>
+              <Full>
+                <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.7 }}>
+                  Pieza que aparece en el inicio, justo debajo del buscador. Se muestra a todos los
+                  visitantes mientras esté activa: para retirarla, apaga este switch.
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: activo ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${activo ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
+                  <button onClick={() => setD(p => ({ ...p, banner_activo: activo ? 'false' : 'true' }))}
+                    style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: activo ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                    <span style={{ position: 'absolute', top: 2, left: activo ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
+                  </button>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: activo ? '#16a34a' : '#dc2626' }}>{activo ? '✓ Visible en el inicio' : '⏸ Oculto'}</span>
+                </div>
+              </Full>
+              <Full><Field label="Kicker (etiqueta superior)"><Inp value={d.banner_kicker} onChange={set('banner_kicker')} /></Field></Full>
+              <Full><Field label="Título"><Inp value={d.banner_titulo} onChange={set('banner_titulo')} /></Field></Full>
+              <Full><Field label="Subtítulo"><Txa value={d.banner_subtitulo} onChange={set('banner_subtitulo')} rows={2} /></Field></Full>
+              <Field label="Texto del botón"><Inp value={d.banner_cta_texto} onChange={set('banner_cta_texto')} /></Field>
+              <Field label="Enlace del botón"><Inp value={d.banner_cta_url} onChange={set('banner_cta_url')} /></Field>
+              <Full>
+                <Field label="Imagen (columna derecha)">
+                  <ImageUploader currentUrl={d.banner_imagen} folder="banner" onUploaded={url => setD(p => ({ ...p, banner_imagen: url }))} />
+                </Field>
+              </Full>
+            </Sec>
+          )
+        })()}
         <Sec title="🗂 Orden del catálogo">
           <Full>
             <Field label="¿Cómo se ordenan las propiedades?">
@@ -2067,13 +2111,7 @@ function BarrancoAdmin() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
-      <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
-    </div>
-  )
-  const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
+  // Sec y Full: definidos a nivel de módulo, junto a ContenidoAdmin.
 
   // Render helpers — EN 🇬🇧 / ES 🇨🇱 side by side
   const bi = (keyEn: string, keyEs: string, label: string) => (
@@ -2467,13 +2505,7 @@ function RentalAdmin() {
     setSaved(true); setTimeout(() => setSaved(false), 2500)
   }
 
-  const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
-      <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
-    </div>
-  )
-  const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
+  // Sec y Full: definidos a nivel de módulo, junto a ContenidoAdmin.
 
   return (
     <div>
@@ -2598,13 +2630,7 @@ function VendeAdmin() {
     })
   }
 
-  const Sec = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
-      <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2]" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
-    </div>
-  )
-  const Full = ({ children }: { children: React.ReactNode }) => <div className="md:col-span-2">{children}</div>
+  // Sec y Full: definidos a nivel de módulo, junto a ContenidoAdmin.
 
   return (
     <div>

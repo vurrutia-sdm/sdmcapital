@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
 import HeroSection from '@/components/sections/HeroSection'
 import SearchBar from '@/components/sections/SearchBar'
+import BannerPromo from '@/components/sections/BannerPromo'
 import SEO from '@/components/SEO'
 import ContactSection from '@/components/sections/ContactSection'
 import BlogPreviewSection from '@/components/sections/BlogPreviewSection'
@@ -206,6 +207,9 @@ export default function HomePage() {
 
       {/* 2. Search bar */}
       <SearchBar />
+
+      {/* 2b. Banner promocional — se controla desde Contenido → Inicio */}
+      <BannerPromo />
 
       {/* 3. Propiedades destacadas */}
       <section className="py-12 lg:py-24">
