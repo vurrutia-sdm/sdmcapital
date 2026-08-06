@@ -89,6 +89,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, etapa 6 | `Contenido` a `src/pages/admin/Contenido.tsx`, con `CarouselPhotoManager` y `HomeDestacadasSelector` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, etapa 7 (final) | `Propiedades` a `src/pages/admin/Propiedades.tsx`, con `PropImageManager`, `DossierUploader` y `slugify` | Cerrada — **refactor de `AdminPage.tsx` terminado**, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, iconos | Reemplazar los emojis del admin por `lucide-react`. Dos commits: sidebar + encabezados, y controles + editor | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — Fase 3, limpieza | Borrar `FotosAdmin` y corregir los comentarios desactualizados | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -795,10 +796,10 @@ a la Etapa 7 — esta vez ni siquiera se permutó la tabla `__vite__mapDeps`.
 
 ---
 
-## Fase 3 cerrada — `AdminPage.tsx`, de 2.808 a 264 líneas
+## Fase 3 cerrada — `AdminPage.tsx`, de 2.808 a 194 líneas
 
-**−2.544 líneas, −90,6%**, en siete etapas y sin un solo cambio de
-comportamiento.
+**−2.614 líneas, −93,1%.** Siete etapas de refactor puro, sin un solo cambio
+de comportamiento, más la etapa de iconos y la de limpieza.
 
 | Etapa | Qué salió | `AdminPage.tsx` |
 |---|---|---:|
@@ -809,18 +810,22 @@ comportamiento.
 | 4 | `RichTextEditor` + `TBtn`, `useDragSort` — ciclo roto | 2.123 |
 | 5 | `Rental`, `Vende`, `Barranco` | 1.496 |
 | 6 | `Contenido` + `CarouselPhotoManager` + `HomeDestacadasSelector` | 953 |
-| 7 | `Propiedades` + `PropImageManager` + `DossierUploader` | **264** |
+| 7 | `Propiedades` + `PropImageManager` + `DossierUploader` | 264 |
+| limpieza | `FotosAdmin` — panel legado, borrado | **194** |
 
 ### Qué quedó en `AdminPage.tsx`
 
-Ocho declaraciones, todas de armazón: el tipo `Tab`, `useAdminAuth`,
-`LoginForm`, `FotosAdmin`, `DEFAULT_TABS`, `STORAGE_KEY`, `loadTabOrder` y el
-propio `AdminPage`. Es lo que tiene que ser: autenticación, sidebar y
-enrutado de pestañas.
+Siete declaraciones, todas de armazón: el tipo `Tab`, `useAdminAuth`,
+`LoginForm`, `DEFAULT_TABS`, `STORAGE_KEY`, `loadTabOrder` y el propio
+`AdminPage`. Es lo que tiene que ser: autenticación, sidebar y enrutado de
+pestañas.
 
 `FotosAdmin` (68 líneas) sigue ahí **a propósito**. Es el panel legado que
 mezcla Supabase Storage con R2 y está marcado para borrarse, no para
 refactorizarse. Extraerlo sería trabajo tirado.
+
+> **Ya no está.** Se eliminó en la etapa de limpieza del 2026-08-06.
+> `AdminPage.tsx` quedó en 194 líneas.
 
 ### Las reglas que sobrevivieron a las siete etapas
 
@@ -853,6 +858,90 @@ quedó desactualizado en la Etapa 2 —viven en `src/components/admin/layout.tsx
 y más aún ahora que `ContenidoAdmin` es `Contenido` y está en otro archivo. Son
 comentarios, no comportamiento. Corregirlos es trabajo de una etapa de
 limpieza, junto con borrar `FotosAdmin`.
+
+> **Deuda saldada** en la etapa de limpieza del 2026-08-06. No quedan
+> referencias a nombres `*Admin` en `src/`.
+
+### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
+
+Dos commits. Cierra las dos deudas que el refactor fue dejando anotadas.
+
+| Commit | Qué |
+|---|---|
+| `5d392f2` | borrado de `FotosAdmin` |
+| `71dbb6d` | comentarios desactualizados |
+
+#### Por qué se borró `FotosAdmin`
+
+Leía de **Supabase Storage**, no de R2, que es donde viven las imágenes del
+sitio desde hace meses. La documentación del proyecto ya decía que no debía
+usarse para fotos de propiedades porque apunta a otra carpeta. Además los 390
+archivos huérfanos de Supabase Storage se borran después del **2026-09-01**,
+así que el panel iba a quedar listando archivos inexistentes.
+
+Se eliminó el componente, su entrada en `DEFAULT_TABS`, su rama de render,
+`'fotos'` del tipo `Tab` y los imports que quedaron huérfanos: `subirImagen` y
+los iconos `Image`, `Check` y `X`, que solo usaba ese panel. **`supabase` se
+queda**: lo usan `useAdminAuth`, `LoginForm` y el botón de cerrar sesión.
+
+#### El riesgo era `localStorage`, y estaba cubierto
+
+`STORAGE_KEY` persiste el orden de pestañas como array de claves. Si Víctor
+tenía `'fotos'` guardado y la clave desaparece de `DEFAULT_TABS`, el admin
+tenía que ignorarla sin romperse.
+
+`loadTabOrder` **ya lo manejaba**, sin necesidad de tocarlo:
+
+```js
+const sorted = order.map(key => DEFAULT_TABS.find(t => t.key === key)).filter(Boolean)
+DEFAULT_TABS.forEach(t => { if (!sorted.find(s => s.key === t.key)) sorted.push(t) })
+```
+
+`.find()` devuelve `undefined` para una clave desconocida, `.filter(Boolean)`
+la descarta, y el `forEach` reincorpora las pestañas que falten. Se simularon
+cuatro casos —`'fotos'` en medio del orden, `'fotos'` como única clave
+guardada, sin nada guardado y JSON corrupto— y los cuatro dan 12 pestañas sin
+huecos.
+
+**La pestaña activa no se persiste** (`useState<Tab>('propiedades')`), así que
+tampoco podía quedar apuntando a un panel inexistente.
+
+#### Comentarios corregidos
+
+| Archivo | Qué decía | Qué se hizo |
+|---|---|---|
+| `Barranco`, `Rental`, `Vende` | `// Sec y Full: definidos a nivel de módulo, junto a ContenidoAdmin.` | borrado — falso desde la Etapa 2 |
+| 8 paneles | `Extraída de AdminPage.tsx sin cambios: mismo markup` | reescrito: la etapa de iconos **sí** cambió el markup |
+| `layout.tsx` | `Las usan ContenidoAdmin, BarrancoAdmin, RentalAdmin y VendeAdmin` | nombres actuales |
+| `useDragSort.ts` | `Lo usan PropiedadesAdmin, Equipo y Asociados` | nombres actuales |
+
+`Blog.tsx` y `Mensajes.tsx` **conservan la redacción original** de la
+cabecera: en esos dos sigue siendo exacta, porque la etapa de iconos no los
+tocó. Verificado con `git diff --name-only` entre `6032ff1` y `81a8940`.
+
+La nota histórica de `layout.tsx` sobre el bug de remontaje se conserva —es el
+motivo de la regla— pero con los nombres actuales, para que se puedan
+encontrar en el repo.
+
+El commit de comentarios **no cambió ni una línea de código**, y el chunk
+`AdminPage` conservó el hash exacto. Es la prueba de que fue solo prosa.
+
+#### Chunks
+
+| Chunk | Iconos | Limpieza | Delta |
+|---|---:|---:|---:|
+| `AdminPage` | 176,10 kB | **172,83 kB** | **−3,27 kB** |
+| `pdf` | 2.054,86 kB | igual | — |
+| `iconos` | 30,67 kB | **mismo hash** | — |
+| `index` | 238,90 kB | igual | — |
+
+`iconos` no bajó porque `Image`, `Check` y `X` los siguen usando otros
+paneles; lo único que se fue es el uso que hacía `FotosAdmin`.
+
+`pdf` sigue fuera de los imports estáticos del chunk `AdminPage`. `index`
+difiere en 37 caracteres: `errores` y `subirImagen` volvieron a permutarse en
+`__vite__mapDeps` porque `AdminPage.tsx` dejó de importar `subirImagen`.
+Verificado que las 9 rutas lazy precargan el mismo conjunto de chunks.
 
 ### Sesión RLS vistas de métricas — 2026-08-05
 
