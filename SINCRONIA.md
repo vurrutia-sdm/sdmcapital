@@ -91,6 +91,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, iconos | Reemplazar los emojis del admin por `lucide-react`. Dos commits: sidebar + encabezados, y controles + editor | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, limpieza | Borrar `FotosAdmin` y corregir los comentarios desactualizados | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 1) | **Definición de tokens en ZONA COMPARTIDA** (`src/styles/globals.css` y `tailwind.config.js`). No toca componentes | Commiteada y pusheada, **sin desplegar** — no cambia nada visible |
+| 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -942,6 +943,110 @@ ya, porque `:root` se emite siempre.
 Los tres chunks JS quedaron **byte a byte idénticos**. Lo único que cambia es
 el CSS: +241 bytes en el primer commit (13 tokens menos tres clases borradas)
 y +52 más al renombrar.
+
+### Fase 3 — Escala tipográfica, fase 2 · tanda 1: el admin — 2026-08-06
+
+Migra los literales inline del dominio admin a las clases de Tailwind.
+**25 archivos, 482 literales, 3 commits.**
+
+| Commit | Alcance | fontSize | letterSpacing |
+|---|---|---:|---:|
+| `7413e15` | `components/admin/`, `cotizaciones/`, `tarjetas/` | 68 | 16 |
+| `f5728b5` | los 17 paneles de `pages/admin/` | 307 | 68 |
+| `5c73b73` | `AdminPage.tsx` | 16 | 8 |
+| | **total** | **391** | **91** |
+
+**Quedaron cero literales sin migrar** en el alcance.
+
+#### ESTA MIGRACIÓN NO ES NEUTRA
+
+Los valores cambian a propósito. Texto que medía 14px ahora mide 15; 22px
+pasa a 24; 12px pasa a 13. **Los hashes de chunks no sirven como verificación
+en esta fase** — a diferencia de todas las etapas del refactor anterior.
+
+#### Tabla de conversión — la misma para la tanda de web pública
+
+```
+   9, 10, 11            →  text-sdm-xs          (11px)
+  12, 13                →  text-sdm-sm          (13px)
+  14, 15                →  text-sdm-base        (15px)
+  16, 17                →  text-sdm-lg          (17px)
+  18, 19, 20            →  text-sdm-xl          (20px)
+  21, 22, 24, 26        →  text-sdm-2xl         (24px)
+  28, 30, 32            →  text-sdm-display-sm  (28px)
+  36, 38, 40, 42, 44    →  text-sdm-display-md  (40px)
+  48, 52                →  text-sdm-display-lg  (52px)
+  72, 96                →  text-sdm-display-xl  (72px)
+
+  letter-spacing negativo          →  tracking-sdm-tight
+  0 y positivos hasta 0.3px        →  tracking-sdm-normal
+  positivos desde 0.5px            →  tracking-sdm-wide
+```
+
+Es **fija, sin excepciones**. No se decide caso por caso.
+
+#### Siete literales no podían llevar `className`
+
+Viven en constantes `React.CSSProperties` compartidas —`const inp` en los
+cinco archivos de ficha de cliente, y `pill` en `CotizacionesAdmin.tsx`—, que
+no son elementos JSX. Usan las custom properties, que existen exactamente
+para este caso:
+
+```js
+const inp: React.CSSProperties = { fontSize: 'var(--sdm-text-base)', … }
+```
+
+Son 6 `fontSize` y 1 `letterSpacing`.
+
+#### Un solo `lineHeight` absorbido
+
+Los cuatro tokens display traen `lineHeight` y `letterSpacing` empaquetados,
+así que un valor inline los pisaría. En todo el admin hubo **un solo caso**:
+el porcentaje de conversión de `Captacion.tsx`, de 28px con `lineHeight`
+inline. En la web pública habrá muchos más — ahí es donde viven los títulos
+grandes.
+
+#### Lo que `tsc` atrapó y una revisión visual no habría atrapado
+
+Tres tags tenían el `className` **después** del `style`, y el transformador
+solo miraba antes: quedaron con `className` duplicado. `tsc` los frenó con
+`TS17001: JSX elements cannot have multiple attributes with the same name`.
+Corregidos a mano en `Asociados.tsx:97`, `Equipo.tsx:106` y
+`Propiedades.tsx:680`, conservando las clases que ya tenían.
+
+**Para la tanda de web pública: buscar `style={{…}} className=` antes de
+empezar.** Es el único patrón que rompe la transformación automática.
+
+#### Componentes que no son elementos DOM
+
+13 de los tags migrados son `Link` / `RouterLink` de react-router-dom.
+Reenvían `className` al `<a>` subyacente, así que las clases aplican. Se
+verificó que ningún icono de lucide recibiera una clase de texto: los iconos
+llevan `size`, no `fontSize`.
+
+#### Fuera de alcance, sin tocar
+
+- `CotizacionPDF.tsx` — puntos tipográficos de `@react-pdf/renderer` sobre
+  hoja carta, no píxeles de pantalla. Sistema aparte.
+- `tarjeta.css` — usa `em` y un `11.33px` calculado para un ancho fijo de
+  400px. Sistema aparte.
+- Todo `src/pages/` fuera de `admin/`, `src/components/sections/` y
+  `src/components/ui/` — sesión web pública, va en otra tanda.
+
+#### El CSS creció, y es lo esperado
+
+El JIT de Tailwind solo emite lo que encuentra en el contenido. Hasta esta
+tanda las clases no existían en el bundle; ahora se emiten **9**:
+
+`text-sdm-xs` · `text-sdm-sm` · `text-sdm-base` · `text-sdm-lg` ·
+`text-sdm-xl` · `text-sdm-2xl` · `text-sdm-display-sm` ·
+`tracking-sdm-normal` · `tracking-sdm-wide`
+
+Faltan cuatro: `text-sdm-display-md`, `-lg`, `-xl` y `tracking-sdm-tight`. No
+es un error — el admin no tiene tipografía por encima de 30px ni tracking
+negativo. Aparecerán con la tanda de web pública.
+
+CSS: 26.879 → 27.200 bytes (**+321**).
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
