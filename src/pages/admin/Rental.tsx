@@ -5,7 +5,7 @@
 // se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
-import { Home, Image, KeyRound, Scale, Users, Wallet } from 'lucide-react'
+import { Check, Home, Image, KeyRound, Scale, Users, Wallet } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
@@ -81,7 +81,7 @@ export default function Rental() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>SDM Rental</h2>
         <div className="flex items-center gap-4">
-          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
+          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>

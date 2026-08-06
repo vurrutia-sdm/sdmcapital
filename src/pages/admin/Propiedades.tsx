@@ -20,7 +20,7 @@
 // no proxea `/api`. Esa parte se prueba en producción.
 
 import { useState, useEffect, useRef } from 'react'
-import { Briefcase, File, MapPin, Youtube } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Briefcase, Camera, Check, File, GripVertical, MapPin, MousePointer2, Paperclip, Pause, Star, X, Youtube } from 'lucide-react'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
@@ -104,7 +104,7 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
         <div className="flex flex-col gap-2 mb-3">
           {items.map((d, i) => (
             <div key={i} className="flex items-center gap-3 p-3 rounded-sm" style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)' }}>
-              <span style={{ fontSize: 18 }}>📄</span>
+              <File size={18} strokeWidth={2} style={{ flexShrink: 0 }} />
               <a href={d.url} target="_blank" rel="noopener noreferrer"
                 style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160, flexShrink: 0 }}>
                 {dossierFileName(d.url)}
@@ -125,7 +125,7 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
         </div>
       )}
       <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 18px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
-        {uploading ? 'Subiendo…' : `📎 Agregar archivos (${items.length} subido${items.length !== 1 ? 's' : ''})`}
+        {uploading ? 'Subiendo…' : <><Paperclip size={14} strokeWidth={2} />{`Agregar archivos (${items.length} subido${items.length !== 1 ? 's' : ''})`}</>}
         <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style={{ display: 'none' }} disabled={uploading} onChange={upload} />
       </label>
       <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>PDF, Word, Excel. Puedes subir varios a la vez. Si dejas el título vacío, se muestra el nombre del archivo.</p>
@@ -205,7 +205,7 @@ const upload = async (files: FileList) => {
     <div>
       {imagenes.length > 0 && (
         <div style={{ fontSize: 13, color: 'var(--navy-dark)', background: 'var(--sky-pale)', border: '1px solid var(--sky)', borderRadius: 4, padding: '8px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 16 }}>📷</span>
+          <Camera size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
           <span>Haz clic en <strong>"Portada"</strong> debajo de la foto que quieres como imagen principal.</span>
         </div>
       )}
@@ -228,8 +228,8 @@ const upload = async (files: FileList) => {
               >
                 <img src={thumbUrl(url)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 {url === imagenPrincipal && (
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'center', padding: '4px 0' }}>
-                    ★ PORTADA
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'center', padding: '4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    <Star size={11} strokeWidth={2} />PORTADA
                   </div>
                 )}
                 <div style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.45)', borderRadius: 2, padding: '2px 3px' }}>
@@ -243,7 +243,7 @@ const upload = async (files: FileList) => {
                   onClick={() => remove(i)}
                   title="Eliminar foto"
                   style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
-                >✕</button>
+                ><X size={14} strokeWidth={2} /></button>
               </div>
               <button
                 onClick={() => setPrincipal(url)}
@@ -252,13 +252,14 @@ const upload = async (files: FileList) => {
                   fontSize: 11, fontWeight: 600, letterSpacing: '0.5px',
                   border: 'none', borderRadius: 2, cursor: 'pointer',
                   fontFamily: 'inherit', transition: 'all 0.15s',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                   background: url === imagenPrincipal ? 'var(--green)' : 'var(--border)',
                   color: url === imagenPrincipal ? '#fff' : 'var(--muted)',
                 }}
                 onMouseEnter={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--sky)'; e.currentTarget.style.color = 'var(--navy-dark)' } }}
                 onMouseLeave={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)' } }}
               >
-                {url === imagenPrincipal ? '★ Portada' : 'Portada'}
+                {url === imagenPrincipal ? <><Star size={11} strokeWidth={2} />Portada</> : 'Portada'}
               </button>
             </div>
           ))}
@@ -272,7 +273,7 @@ const upload = async (files: FileList) => {
         </label>
       )}
       <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, lineHeight: 1.6 }}>
-        Arrastra para reordenar · ★ para elegir la imagen principal (borde verde) · ✕ para eliminar
+        Arrastra para reordenar · <Star size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para elegir la imagen principal (borde verde) · <X size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para eliminar
       </p>
     </div>
   )
@@ -400,7 +401,7 @@ export default function Propiedades() {
       </div>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-          🖱 <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6</strong> aparecen en el Inicio.
+          <MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6</strong> aparecen en el Inicio.
         </p>
         <label className="flex items-center gap-2" style={{ fontSize: 13, color: 'var(--muted)', cursor: 'pointer' }}>
           <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} />
@@ -436,8 +437,8 @@ export default function Propiedades() {
                 value={editing.activo === false ? 'false' : 'true'}
                 onChange={v => setEditing(p => ({ ...p, activo: v === 'true' }))}
                 options={[
-                  { value: 'true',  label: '✅ Activa — visible en el sitio' },
-                  { value: 'false', label: '⏸ Inactiva — oculta del sitio' },
+                  { value: 'true',  label: 'Activa — visible en el sitio' },
+                  { value: 'false', label: 'Inactiva — oculta del sitio' },
                 ]}
               />
             </Field>
@@ -476,7 +477,7 @@ export default function Propiedades() {
             </div>
             <div className="mt-4 flex gap-6 flex-wrap">
               <Chk label="Precio a consultar" checked={!!editing.a_consultar} onChange={v => setEditing(p => ({ ...p, a_consultar: v }))} />
-              <Chk label="↓ Baja de precio" checked={!!editing.baja_precio} onChange={v => setEditing(p => ({ ...p, baja_precio: v }))} />
+              <Chk label={<><ArrowDown size={14} strokeWidth={2} />Baja de precio</>} checked={!!editing.baja_precio} onChange={v => setEditing(p => ({ ...p, baja_precio: v }))} />
             </div>
             {editing.baja_precio && (
               <div className="mt-4">
@@ -652,7 +653,7 @@ export default function Propiedades() {
                   style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: field ? 'var(--navy)' : 'var(--muted)', fontWeight: 400, cursor: field ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'nowrap' }}
                   onClick={() => field && toggleSort(field as typeof sortField)}
                 >
-                  {label}{field && sortField === field ? (sortDir === 'asc' ? ' ↑' : ' ↓') : field ? ' ↕' : ''}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{label}{field && (sortField === field ? (sortDir === 'asc' ? <ArrowUp size={14} strokeWidth={2} /> : <ArrowDown size={14} strokeWidth={2} />) : <ArrowUpDown size={14} strokeWidth={2} />)}</span>
                 </th>
               ))}
             </tr>
@@ -667,10 +668,10 @@ export default function Propiedades() {
                 onDragEnd={onDragEnd}
                 style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', opacity: p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
-                <td className="py-3 pr-2" style={{ color: 'var(--muted)', fontSize: 16 }}>⠿</td>
+                <td className="py-3 pr-2" style={{ color: 'var(--muted)' }}><GripVertical size={16} strokeWidth={2} /></td>
                 <td className="py-3 pr-4">
                   <span style={{ fontSize: 12, fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
-                  {i < 6 && <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--green)' }}>★</span>}
+                  {i < 6 && <Star size={11} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.15em', marginLeft: 4, color: 'var(--green)' }} />}
                 </td>
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-3">
@@ -693,8 +694,8 @@ export default function Propiedades() {
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
                     onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
                     onPointerDown={e => e.stopPropagation()}
-                    style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'block' }}>
-                    {p.activo === false ? '⏸ Pausada' : '✓ Activa'}
+                    style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {p.activo === false ? <><Pause size={14} strokeWidth={2} />Pausada</> : <><Check size={14} strokeWidth={2} />Activa</>}
                   </button>
                 </td>
                 <td className="py-3" draggable={false} onDragStart={e => e.preventDefault()}>

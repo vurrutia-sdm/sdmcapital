@@ -9,6 +9,7 @@
 //
 // Ambos a nivel de módulo. Ver la nota en `layout.tsx`.
 
+import { AlignCenter, AlignLeft, AlignRight, Image as ImageIcon, Link as LinkIcon, Link2Off, List, Minus, Quote, Redo2, Undo2 } from 'lucide-react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
@@ -95,24 +96,24 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       <TBtn key="s" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Tachado"><s>S</s></TBtn>,
     ],
     [
-      <TBtn key="al" onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Izquierda">⬅</TBtn>,
-      <TBtn key="ac" onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Centrar">☰</TBtn>,
-      <TBtn key="ar" onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Derecha">➡</TBtn>,
+      <TBtn key="al" onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Izquierda"><AlignLeft size={14} strokeWidth={2} /></TBtn>,
+      <TBtn key="ac" onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Centrar"><AlignCenter size={14} strokeWidth={2} /></TBtn>,
+      <TBtn key="ar" onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Derecha"><AlignRight size={14} strokeWidth={2} /></TBtn>,
     ],
     [
-      <TBtn key="ul" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Lista">• Lista</TBtn>,
+      <TBtn key="ul" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Lista"><List size={14} strokeWidth={2} /></TBtn>,
       <TBtn key="ol" onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="Lista numerada">1. Lista</TBtn>,
-      <TBtn key="bq" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Cita">❝</TBtn>,
-      <TBtn key="hr" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Separador">—</TBtn>,
+      <TBtn key="bq" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Cita"><Quote size={14} strokeWidth={2} /></TBtn>,
+      <TBtn key="hr" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Separador"><Minus size={14} strokeWidth={2} /></TBtn>,
     ],
     [
-      <TBtn key="link" onClick={addLink} active={editor.isActive('link')} title="Insertar enlace">🔗</TBtn>,
-      <TBtn key="unlink" onClick={() => editor.chain().focus().unsetLink().run()} title="Quitar enlace">🔗̸</TBtn>,
-      <TBtn key="img" onClick={addImage} title="Insertar imagen (URL)">🖼</TBtn>,
+      <TBtn key="link" onClick={addLink} active={editor.isActive('link')} title="Insertar enlace"><LinkIcon size={14} strokeWidth={2} /></TBtn>,
+      <TBtn key="unlink" onClick={() => editor.chain().focus().unsetLink().run()} title="Quitar enlace"><Link2Off size={14} strokeWidth={2} /></TBtn>,
+      <TBtn key="img" onClick={addImage} title="Insertar imagen (URL)"><ImageIcon size={14} strokeWidth={2} /></TBtn>,
     ],
     [
-      <TBtn key="undo" onClick={() => editor.chain().focus().undo().run()} title="Deshacer">↩</TBtn>,
-      <TBtn key="redo" onClick={() => editor.chain().focus().redo().run()} title="Rehacer">↪</TBtn>,
+      <TBtn key="undo" onClick={() => editor.chain().focus().undo().run()} title="Deshacer"><Undo2 size={14} strokeWidth={2} /></TBtn>,
+      <TBtn key="redo" onClick={() => editor.chain().focus().redo().run()} title="Rehacer"><Redo2 size={14} strokeWidth={2} /></TBtn>,
     ],
   ]
 

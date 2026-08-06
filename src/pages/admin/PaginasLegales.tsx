@@ -5,6 +5,7 @@
 // persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
+import { Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { SaveBtn } from '@/components/admin/acciones'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
@@ -52,7 +53,7 @@ export default function PaginasLegales() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Páginas Legales</h2>
         <div className="flex items-center gap-4">
-          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
+          {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>

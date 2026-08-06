@@ -70,7 +70,7 @@ export function Txa({ value, onChange, rows = 3, placeholder }: {
   )
 }
 
-export function Chk({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+export function Chk({ label, checked, onChange }: { label: React.ReactNode; checked: boolean; onChange: (v: boolean) => void }) {
   return <label className="flex items-center gap-2 cursor-pointer" style={{ fontSize: 14, color: 'var(--muted)' }}><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ accentColor: 'var(--green)', width: 15, height: 15 }} />{label}</label>
 }
 
