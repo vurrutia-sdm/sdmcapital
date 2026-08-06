@@ -1,10 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
-import { Building2, ClipboardList, CreditCard, FileText, HeartHandshake, Image, KeyRound, Lock, MessageCircle, PenLine, Tag, Users } from 'lucide-react'
-import { Check, ExternalLink, X } from 'lucide-react'
+import { Building2, ClipboardList, CreditCard, ExternalLink, FileText, HeartHandshake, KeyRound, Lock, MessageCircle, PenLine, Tag, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { subirImagen } from '@/lib/subirImagen'
 import Mensajes from '@/pages/admin/Mensajes'
 import Blog from '@/pages/admin/Blog'
 import Equipo from '@/pages/admin/Equipo'
@@ -18,7 +16,7 @@ import Propiedades from '@/pages/admin/Propiedades'
 import { CotizacionesAdmin } from '@/components/cotizaciones/CotizacionesAdmin'
 import { TarjetasEquipo } from '@/components/tarjetas/TarjetasEquipo'
 
-type Tab = 'propiedades' | 'blog' | 'equipo' | 'asociados' | 'mensajes' | 'contenido' | 'fotos' | 'barranco' | 'cotizaciones' | 'tarjetas' | 'legal' | 'rental' | 'vende'
+type Tab = 'propiedades' | 'blog' | 'equipo' | 'asociados' | 'mensajes' | 'contenido' | 'barranco' | 'cotizaciones' | 'tarjetas' | 'legal' | 'rental' | 'vende'
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -67,74 +65,6 @@ function LoginForm() {
   )
 }
 
-// ─── FOTOS ────────────────────────────────────────────────────────────────────
-function FotosAdmin() {
-  const [files, setFiles]   = useState<{ name: string; url: string }[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [copied, setCopied] = useState('')
-
-  const load = async () => {
-    const { data } = await supabase.storage.from('imagenes').list('', { limit: 200, sortBy: { column: 'created_at', order: 'desc' } })
-    if (data) setFiles(data.filter(f => f.name !== '.emptyFolderPlaceholder').map(f => ({ name: f.name, url: supabase.storage.from('imagenes').getPublicUrl(f.name).data.publicUrl })))
-  }
-  useEffect(() => { load() }, [])
-
-  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploading(true)
-    await subirImagen(file, 'general')
-    setUploading(false); load()
-  }
-
-  const del = async (name: string) => {
-    if (!confirm('¿Eliminar esta imagen?')) return
-    await supabase.storage.from('imagenes').remove([name]); load()
-  }
-
-  const copy = (url: string) => {
-    navigator.clipboard.writeText(url); setCopied(url)
-    setTimeout(() => setCopied(''), 2000)
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Gestión de imágenes</h2>
-      </div>
-      <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-8">
-        <h3 style={{ fontSize: 18, fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 8 }}>Subir nueva imagen</h3>
-        <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>Sube fotos y copia la URL para usarla donde necesites.</p>
-        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '11px 24px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
-          {uploading ? 'Subiendo…' : '+ Seleccionar imagen'}
-          <input type="file" accept="image/*" onChange={upload} style={{ display: 'none' }} disabled={uploading} />
-        </label>
-      </div>
-      {files.length === 0
-        ? <div className="text-center py-16" style={{ fontSize: 15, color: 'var(--muted)', fontStyle: 'italic' }}>No hay imágenes. Sube la primera.</div>
-        : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {files.map(f => (
-              <div key={f.name} className="bg-white border border-[#e8edf2] rounded-sm overflow-hidden">
-                <div style={{ height: 140, background: 'var(--off)', overflow: 'hidden' }}>
-                  <img src={f.url} alt={f.name} className="w-full h-full object-cover" />
-                </div>
-                <div style={{ padding: '10px 12px' }}>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
-                  <div className="flex gap-2">
-                    <button onClick={() => copy(f.url)} style={{ flex: 1, fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', padding: '7px 0', borderRadius: 2, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: copied === f.url ? 'var(--green)' : 'var(--navy-dark)', color: '#fff', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                      {copied === f.url ? <><Check size={14} strokeWidth={2} />Copiada</> : 'Copiar URL'}
-                    </button>
-                    <button onClick={() => del(f.name)} style={{ fontSize: 12, padding: '7px 10px', borderRadius: 2, border: '1px solid #fca5a5', cursor: 'pointer', background: 'none', color: '#E24B4A', fontFamily: 'inherit', display: 'flex', alignItems: 'center' }}><X size={14} strokeWidth={2} /></button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-      }
-    </div>
-  )
-}
-
 // ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 const DEFAULT_TABS: { key: Tab; label: string; icon: LucideIcon }[] = [
   { key: 'propiedades',  label: 'Propiedades',     icon: Building2 },
@@ -144,7 +74,6 @@ const DEFAULT_TABS: { key: Tab; label: string; icon: LucideIcon }[] = [
   { key: 'asociados',    label: 'Asociados',       icon: HeartHandshake },
   { key: 'mensajes',     label: 'Mensajes',        icon: MessageCircle },
   { key: 'contenido',    label: 'Textos del sitio',icon: PenLine },
-  { key: 'fotos',        label: 'Imágenes',        icon: Image },
   { key: 'barranco',     label: 'El Barranco',     icon: Building2 },
   { key: 'tarjetas',     label: 'Tarjetas',        icon: CreditCard },
   { key: 'legal',        label: 'Páginas Legales', icon: Lock },
@@ -254,7 +183,6 @@ export default function AdminPage() {
           {tab === 'asociados'    && <Asociados />}
           {tab === 'mensajes'     && <Mensajes />}
           {tab === 'contenido'    && <Contenido />}
-          {tab === 'fotos'        && <FotosAdmin />}
           {tab === 'barranco'     && <Barranco />}
           {tab === 'tarjetas'     && <TarjetasEquipo />}
           {tab === 'legal'        && <PaginasLegales />}
