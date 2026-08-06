@@ -56,7 +56,7 @@ export default function EliminacionDatosPage() {
         <div className="section-label section-label--light" style={{ marginBottom: 20 }}>
           {lang === 'es' ? 'Legal' : 'Legal'}
         </div>
-        <h1 className="font-serif font-light" style={{ fontSize: 'clamp(32px,5vw,56px)', color: '#fff', lineHeight: 1.1, letterSpacing: '-0.5px', maxWidth: 700 }}>
+        <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(32px,5vw,56px)', color: '#fff', lineHeight: 1.1, maxWidth: 700 }}>
           {lang === 'es' ? 'Eliminación de ' : 'Data '}<em>{lang === 'es' ? 'Datos' : 'Deletion'}</em>
         </h1>
       </div>
@@ -64,21 +64,21 @@ export default function EliminacionDatosPage() {
       <div style={{ ...sp, paddingTop: 64, paddingBottom: 96, maxWidth: 760, margin: '0 auto' }}>
         {lang === 'es' ? (
           loading ? (
-            <p style={{ fontSize: 15, color: 'var(--muted)' }}>Cargando…</p>
+            <p className="text-sdm-base" style={{ color: 'var(--muted)' }}>Cargando…</p>
           ) : (
             <div
-              className="prose-sdm"
-              style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}
+              className="prose-sdm text-sdm-lg"
+              style={{ color: 'var(--muted)', lineHeight: 1.9 }}
               dangerouslySetInnerHTML={{ __html: contenido || FALLBACK_ES }}
             />
           )
         ) : (
-          <div style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}>
+          <div className="text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9 }}>
             <p style={{ marginBottom: 24 }}>
               At SDM Capital SpA ("SDM Capital", "we") we respect your right to request the deletion of the personal data you have shared with us through our website sdmcapital.cl or our contact channels, including WhatsApp.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               How to request deletion of your data
             </h2>
             <p style={{ marginBottom: 24 }}>
@@ -90,35 +90,35 @@ export default function EliminacionDatosPage() {
               <li style={{ marginBottom: 6 }}>Any other contact channel listed on our website sdmcapital.cl</li>
             </ul>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               What data we delete
             </h2>
             <p style={{ marginBottom: 24 }}>
               We will delete the personal data we have collected through your interaction with our website and our WhatsApp channels, including — as applicable — your name, phone number, email address, and the content of the conversation or inquiry recorded with our team or our virtual assistant.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Processing time
             </h2>
             <p style={{ marginBottom: 24 }}>
               We will process your request within a reasonable timeframe, which under normal circumstances should not exceed 30 calendar days from receipt. We will confirm through the same channel once the deletion has been completed.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Exceptions
             </h2>
             <p style={{ marginBottom: 24 }}>
               In some cases, we may retain certain information when there is a legal, contractual or regulatory obligation that justifies it (for example, records associated with a transaction that has already been formalized), only for as long as necessary for that purpose.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               More information
             </h2>
             <p style={{ marginBottom: 24 }}>
               For more details on how we collect and process your personal data, see our <a href="/politica-de-privacidad" style={{ color: 'var(--navy)', textDecoration: 'underline' }}>Privacy Policy</a>.
             </p>
 
-            <p style={{ fontSize: 14, color: 'var(--border)', marginTop: 48 }}>
+            <p className="text-sdm-base" style={{ color: 'var(--border)', marginTop: 48 }}>
               Last updated: June 2026.
             </p>
           </div>

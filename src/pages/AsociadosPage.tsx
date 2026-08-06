@@ -29,10 +29,10 @@ export default function AsociadosPage() {
         <div className="section-label" style={{ marginBottom: 18 }}>
           {lang === 'es' ? 'Red de socios' : 'Partner network'}
         </div>
-        <h1 className="font-serif font-light" style={{ fontSize: 'clamp(40px,5vw,64px)', color: 'var(--navy-dark)', lineHeight: 1.07, letterSpacing: '-0.5px' }}>
+        <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(40px,5vw,64px)', color: 'var(--navy-dark)', lineHeight: 1.07 }}>
           Nuestros <em>asociados</em>
         </h1>
-        <p className="font-light mt-5" style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560 }}>
+        <p className="font-light mt-5 text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560 }}>
           {lang === 'es'
             ? 'Trabajamos con una red selecta de socios estratégicos que nos permiten ofrecer a nuestros clientes el mejor servicio integral en cada etapa del proceso inmobiliario y financiero.'
             : 'We work with a select network of strategic partners that allow us to offer our clients the best comprehensive service at every stage of the real estate and financial process.'
@@ -45,10 +45,10 @@ export default function AsociadosPage() {
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16" style={{ padding: '0 clamp(16px,5vw,0px)' }}>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-            <h3 className="font-serif font-light mb-4" style={{ fontSize: 24, color: 'var(--navy-dark)', lineHeight: 1.25 }}>
+            <h3 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
               Alianzas <em>estratégicas</em>
             </h3>
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
                 ? 'Cada asociado ha sido seleccionado por su trayectoria, seriedad y compromiso con la excelencia en el servicio.'
                 : 'Each partner has been selected for their track record, seriousness and commitment to service excellence.'
@@ -57,10 +57,10 @@ export default function AsociadosPage() {
           </div>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-            <h3 className="font-serif font-light mb-4" style={{ fontSize: 24, color: 'var(--navy-dark)', lineHeight: 1.25 }}>
+            <h3 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
               Red <em>global</em>
             </h3>
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
                 ? 'Nuestra red abarca instituciones financieras, portales inmobiliarios, notarías y consultoras en Chile y el extranjero.'
                 : 'Our network spans financial institutions, real estate portals, notaries and consultancies in Chile and abroad.'
@@ -69,10 +69,10 @@ export default function AsociadosPage() {
           </div>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-            <h3 className="font-serif font-light mb-4" style={{ fontSize: 24, color: 'var(--navy-dark)', lineHeight: 1.25 }}>
+            <h3 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
               Servicio <em>integral</em>
             </h3>
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
                 ? 'Juntos garantizamos una experiencia completa: desde la búsqueda de la propiedad hasta la obtención del financiamiento.'
                 : 'Together we guarantee a complete experience: from property search to obtaining financing.'
@@ -106,14 +106,14 @@ export default function AsociadosPage() {
                 />
               ) : (
                 <div className="text-center">
-                  <div className="font-serif font-light mb-2" style={{ fontSize: 18, color: 'var(--navy-dark)', letterSpacing: '1px' }}>
+                  <div className="font-serif font-light mb-2 text-sdm-xl tracking-sdm-wide" style={{ color: 'var(--navy-dark)' }}>
                     {a.nombre}
                   </div>
                   <div style={{ width: 28, height: 1, background: 'var(--green)', margin: '0 auto 8px' }} />
                 </div>
               )}
               {a.descripcion && (
-                <p className="text-center mt-3" style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)', letterSpacing: '0.5px', lineHeight: 1.6 }}>
+                <p className="text-center mt-3 text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.6 }}>
                   {lang === 'en' ? (a.descripcion || a.descripcion) : a.descripcion}
                 </p>
               )}
@@ -127,10 +127,10 @@ export default function AsociadosPage() {
           <div className="section-label justify-center mb-4">
             {lang === 'es' ? '¿Quieres ser socio?' : 'Want to be a partner?'}
           </div>
-          <h3 className="font-serif font-light mb-4" style={{ fontSize: 32, color: 'var(--navy-dark)' }}>
+          <h3 className="font-serif font-light mb-4 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
             Únete a nuestra <em>red</em>
           </h3>
-          <p style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, marginBottom: 24, maxWidth: 480, margin: '0 auto 24px' }}>
+          <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, marginBottom: 24, maxWidth: 480, margin: '0 auto 24px' }}>
             {lang === 'es'
               ? 'Si tu empresa comparte nuestros valores de excelencia y transparencia, nos encantaría explorar una colaboración estratégica.'
               : 'If your company shares our values of excellence and transparency, we\'d love to explore a strategic collaboration.'

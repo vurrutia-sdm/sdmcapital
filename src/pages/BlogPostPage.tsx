@@ -23,12 +23,12 @@ export default function BlogPostPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="font-serif italic" style={{ fontSize: 18, color: 'var(--muted)' }}>Cargando…</div>
+      <div className="font-serif italic text-sdm-xl" style={{ color: 'var(--muted)' }}>Cargando…</div>
     </div>
   )
   if (!post) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="font-serif italic" style={{ fontSize: 22, color: 'var(--muted)' }}>Artículo no encontrado.</div>
+      <div className="font-serif italic text-sdm-2xl" style={{ color: 'var(--muted)' }}>Artículo no encontrado.</div>
       <Link to="/blog" className="btn-primary">← Volver al Blog</Link>
     </div>
   )
@@ -50,19 +50,19 @@ export default function BlogPostPage() {
         >
           <ChevronLeft size={12} /> Blog
         </Link>
-        <span style={{ color: 'var(--border)', fontSize: 13 }}>/</span>
-        <span style={{ fontSize: 13, color: 'var(--navy-dark)', letterSpacing: '0.5px' }}>{titulo}</span>
+        <span className="text-sdm-sm" style={{ color: 'var(--border)' }}>/</span>
+        <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--navy-dark)' }}>{titulo}</span>
       </div>
 
       {/* Hero */}
       <div className="px-8 lg:px-12 py-16 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="flex items-center gap-4 mb-6">
-          <span style={{ fontSize: 13, color: 'var(--green)', letterSpacing: '2.5px', textTransform: 'uppercase' }}>{post.categoria}</span>
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>{fecha}</span>
+          <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{post.categoria}</span>
+          <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'rgba(255,255,255,0.3)' }}>{fecha}</span>
         </div>
         <h1
-          className="font-serif font-light"
-          style={{ fontSize: 'clamp(32px,4.5vw,58px)', color: '#fff', lineHeight: 1.1, letterSpacing: '-0.5px', maxWidth: 780 }}
+          className="font-serif font-light tracking-sdm-tight"
+          style={{ fontSize: 'clamp(32px,4.5vw,58px)', color: '#fff', lineHeight: 1.1, maxWidth: 780 }}
         >
           {titulo}
         </h1>
@@ -73,7 +73,7 @@ export default function BlogPostPage() {
           >
             {post.autor_nombre.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
-          <span style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px' }}>
+          <span className="text-sdm-base tracking-sdm-wide" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.55)' }}>
             {post.autor_nombre}
           </span>
         </div>
@@ -92,8 +92,8 @@ export default function BlogPostPage() {
 
           {/* ─── RICH TEXT CONTENT ─── */}
           <div
-            className="prose-sdm"
-            style={{ fontSize: 15, fontWeight: 300, color: 'var(--ink)' }}
+            className="prose-sdm text-sdm-base"
+            style={{ fontWeight: 300, color: 'var(--ink)' }}
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contenido) }}
           />
 

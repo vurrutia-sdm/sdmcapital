@@ -46,10 +46,10 @@ export default function ServiciosPage() {
       />
       <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 18 }}>Lo que hacemos</div>
-        <h1 className="font-serif font-light" style={{ fontSize: 'clamp(40px,5vw,64px)', color: '#fff', lineHeight: 1.07, letterSpacing: '-0.5px' }}>
+        <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(40px,5vw,64px)', color: '#fff', lineHeight: 1.07 }}>
           Nuestros <em>servicios</em>
         </h1>
-        <p className="font-light mt-5" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', lineHeight: 1.9, maxWidth: 480 }}>
+        <p className="font-light mt-5 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.9, maxWidth: 480 }}>
           Soluciones integrales en inversión inmobiliaria y financiamiento, tanto en Chile como en el extranjero.
         </p>
       </div>
@@ -67,10 +67,10 @@ export default function ServiciosPage() {
               className="grid grid-cols-1 lg:grid-cols-2 gap-px border-b border-[#e8edf2]"
               style={{ background: 'var(--border)', scrollMarginTop: 80 }}>
               <div className={'bg-white px-8 lg:px-14 py-14' + (flip ? ' lg:order-2' : '')}>
-                <div className="font-serif mb-5" style={{ fontSize: 44, fontWeight: 300, color: 'var(--border)', lineHeight: 1 }}>{num}</div>
+                <div className="font-serif mb-5 text-sdm-display-md" style={{ fontWeight: 300, color: 'var(--border)' }}>{num}</div>
                 <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-                <h2 className="font-serif font-light mb-4" style={{ fontSize: 36, color: 'var(--navy-dark)', lineHeight: 1.15, letterSpacing: '-0.3px' }}>{titulo}</h2>
-                {desc ? <p className="font-light mb-8" style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 420 }}>{desc}</p> : null}
+                <h2 className="font-serif font-light mb-4 text-sdm-display-md" style={{ color: 'var(--navy-dark)' }}>{titulo}</h2>
+                {desc ? <p className="font-light mb-8 text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9, maxWidth: 420 }}>{desc}</p> : null}
                 {tags.length > 0 ? (
                   <div className="flex flex-wrap gap-2 mb-8">
                     {tags.map((tag, ti) => tag.url
@@ -90,7 +90,7 @@ export default function ServiciosPage() {
               </div>
               <div className={'flex items-center justify-center overflow-hidden' + (flip ? ' lg:order-1' : '')}
                 style={{ minHeight: 340, background: 'linear-gradient(160deg,' + (GRADIENTS[i] || '#1a3d5c') + ',#0d2035)' }}>
-                {img ? <img src={img} alt={titulo} className="w-full h-full object-cover" style={{ minHeight: 340 }} /> : <span className="font-serif italic" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }}>{titulo}</span>}
+                {img ? <img src={img} alt={titulo} className="w-full h-full object-cover" style={{ minHeight: 340 }} /> : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.15)' }}>{titulo}</span>}
               </div>
             </div>
           )

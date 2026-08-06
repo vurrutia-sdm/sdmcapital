@@ -59,7 +59,7 @@ export default function CondicionesServicioPage() {
         <div className="section-label section-label--light" style={{ marginBottom: 20 }}>
           {lang === 'es' ? 'Legal' : 'Legal'}
         </div>
-        <h1 className="font-serif font-light" style={{ fontSize: 'clamp(32px,5vw,56px)', color: '#fff', lineHeight: 1.1, letterSpacing: '-0.5px', maxWidth: 700 }}>
+        <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(32px,5vw,56px)', color: '#fff', lineHeight: 1.1, maxWidth: 700 }}>
           {lang === 'es' ? 'Condiciones del ' : 'Terms of '}<em>{lang === 'es' ? 'Servicio' : 'Service'}</em>
         </h1>
       </div>
@@ -67,84 +67,84 @@ export default function CondicionesServicioPage() {
       <div style={{ ...sp, paddingTop: 64, paddingBottom: 96, maxWidth: 760, margin: '0 auto' }}>
         {lang === 'es' ? (
           loading ? (
-            <p style={{ fontSize: 15, color: 'var(--muted)' }}>Cargando…</p>
+            <p className="text-sdm-base" style={{ color: 'var(--muted)' }}>Cargando…</p>
           ) : (
             <div
-              className="prose-sdm"
-              style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}
+              className="prose-sdm text-sdm-lg"
+              style={{ color: 'var(--muted)', lineHeight: 1.9 }}
               dangerouslySetInnerHTML={{ __html: contenido || FALLBACK_ES }}
             />
           )
         ) : (
-          <div style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}>
+          <div className="text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9 }}>
             <p style={{ marginBottom: 24 }}>
               These Terms of Service govern the use of the website sdmcapital.cl and the real estate brokerage and intermediation services provided by SDM Capital SpA ("SDM Capital", "we"). By using this site or contacting us through our channels, including WhatsApp, you accept the terms described here.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Scope of the service
             </h2>
             <p style={{ marginBottom: 24 }}>
               SDM Capital acts as a real estate broker and intermediary, connecting people interested in buying, selling or renting properties with the relevant counterparty, and providing advice throughout the process. Any actual brokerage, advisory or intermediation service is formalized through a specific agreement between SDM Capital and the client, not merely by browsing this site or contacting us.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Property information
             </h2>
             <p style={{ marginBottom: 24 }}>
               Information published on this site about properties — including prices, sizes, availability, images, features and timelines — is for reference purposes only. It may change without notice, may be subject to the property's actual availability at the time of the inquiry, and may contain unintentional errors or omissions. We recommend always confirming relevant details directly with our team before making decisions.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Virtual assistant and contact channels
             </h2>
             <p style={{ marginBottom: 24 }}>
               Part of our initial WhatsApp assistance may be handled by an automated virtual assistant, whose purpose is to guide your inquiry and route it to a member of our team. Information provided by the assistant is for reference only and does not constitute a binding offer or definitive professional advice.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Commercial terms
             </h2>
             <p style={{ marginBottom: 24 }}>
               The specific commercial terms of each transaction — including commissions, timelines, payment terms, exclusivity and other conditions — are agreed and formalized in writing through the corresponding contract or mandate between SDM Capital and the client. No prior communication, reference quote or information published on this site replaces that agreement.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Limitation of liability
             </h2>
             <p style={{ marginBottom: 24 }}>
               SDM Capital makes this site and its contact channels available for informational and commercial purposes. To the extent permitted by law, SDM Capital will not be liable for damages arising from the use of information published on the site, decisions made based on reference information, or temporary unavailability of the site or communication channels. This limitation does not affect rights that Chilean law grants consumers on a non-waivable basis.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Content ownership
             </h2>
             <p style={{ marginBottom: 24 }}>
               The text, images, trademarks and other content published on this site are owned by SDM Capital or by third parties who have authorized their use, and may not be reproduced or used without prior authorization.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Changes
             </h2>
             <p style={{ marginBottom: 24 }}>
               SDM Capital may update these Terms of Service at any time. The current version will always be available on this website.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Governing law
             </h2>
             <p style={{ marginBottom: 24 }}>
               These terms are governed by the laws of the Republic of Chile. Any dispute arising from their interpretation or application will be submitted to the competent courts of Chile, without prejudice to applicable special consumer-protection rules.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Contact
             </h2>
             <p style={{ marginBottom: 24 }}>
               If you have questions about these Terms of Service, contact us through the channels listed on our website sdmcapital.cl.
             </p>
 
-            <p style={{ fontSize: 14, color: 'var(--border)', marginTop: 48 }}>
+            <p className="text-sdm-base" style={{ color: 'var(--border)', marginTop: 48 }}>
               Last updated: June 2026.
             </p>
           </div>

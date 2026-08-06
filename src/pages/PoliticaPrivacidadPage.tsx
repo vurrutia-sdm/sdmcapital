@@ -58,7 +58,7 @@ export default function PoliticaPrivacidadPage() {
         <div className="section-label section-label--light" style={{ marginBottom: 20 }}>
           {lang === 'es' ? 'Legal' : 'Legal'}
         </div>
-        <h1 className="font-serif font-light" style={{ fontSize: 'clamp(32px,5vw,56px)', color: '#fff', lineHeight: 1.1, letterSpacing: '-0.5px', maxWidth: 700 }}>
+        <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(32px,5vw,56px)', color: '#fff', lineHeight: 1.1, maxWidth: 700 }}>
           {lang === 'es' ? 'Política de ' : 'Privacy '}<em>{lang === 'es' ? 'Privacidad' : 'Policy'}</em>
         </h1>
       </div>
@@ -66,56 +66,56 @@ export default function PoliticaPrivacidadPage() {
       <div style={{ ...sp, paddingTop: 64, paddingBottom: 96, maxWidth: 760, margin: '0 auto' }}>
         {lang === 'es' ? (
           loading ? (
-            <p style={{ fontSize: 15, color: 'var(--muted)' }}>Cargando…</p>
+            <p className="text-sdm-base" style={{ color: 'var(--muted)' }}>Cargando…</p>
           ) : (
             <div
-              className="prose-sdm"
-              style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}
+              className="prose-sdm text-sdm-lg"
+              style={{ color: 'var(--muted)', lineHeight: 1.9 }}
               dangerouslySetInnerHTML={{ __html: contenido || FALLBACK_ES }}
             />
           )
         ) : (
-          <div style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.9 }}>
+          <div className="text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9 }}>
             <p style={{ marginBottom: 24 }}>
               At SDM Capital ("we") we respect your privacy and are committed to protecting the personal data you share with us through our website sdmcapital.cl and our contact channels.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Information we collect
             </h2>
             <p style={{ marginBottom: 24 }}>
               We may collect information you provide directly, such as your name, email address, phone number and the details of your inquiry, when you fill out a contact form, request information about a property, or message us via WhatsApp or other channels.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               How we use your information
             </h2>
             <p style={{ marginBottom: 24 }}>
               We use your data to respond to your inquiries, connect you with our advisory team, provide information about properties and services you may be interested in, and improve the experience we offer on our site. We do not sell or share your information with third parties for marketing purposes without your consent.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               How we protect your information
             </h2>
             <p style={{ marginBottom: 24 }}>
               We take reasonable measures to protect your personal data against unauthorized access, loss or misuse. Access to this information is limited to members of our team who need it to handle your request.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Your rights
             </h2>
             <p style={{ marginBottom: 24 }}>
               You may request access to, correction of, or deletion of your personal data at any time by contacting us through the channels available on our website.
             </p>
 
-            <h2 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
+            <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginTop: 40, marginBottom: 16 }}>
               Contact
             </h2>
             <p style={{ marginBottom: 24 }}>
               If you have questions about this privacy policy or how we handle your data, contact us through the channels listed on our website sdmcapital.cl.
             </p>
 
-            <p style={{ fontSize: 14, color: 'var(--border)', marginTop: 48 }}>
+            <p className="text-sdm-base" style={{ color: 'var(--border)', marginTop: 48 }}>
               Last updated: June 2026.
             </p>
           </div>

@@ -56,13 +56,13 @@ export default function RentalPage() {
         {heroImg && <img src={heroImg} alt="Hero SDM Rental" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.18 }} />}
         <div style={{ position: 'relative', zIndex: 1 }}>
           <img src="/LOGO-SDM-RENTAL.png" alt="SDM Rental" style={{ height: 72, objectFit: 'contain', marginBottom: 32 }} />
-          <h1 className="font-serif font-light" style={{ fontSize: 'clamp(32px,5vw,68px)', color: '#fff', lineHeight: 1.07, letterSpacing: '-0.5px', maxWidth: 700 }}>
+          <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(32px,5vw,68px)', color: '#fff', lineHeight: 1.07, maxWidth: 700 }}>
             {heroTitulo.split(',').map((part, i, arr) => i === arr.length - 1 ? <><br /><em key={i}>{part.trim()}</em></> : part + ',')}
           </h1>
-          <p className="font-light mt-6 border-l-2 pl-4" style={{ fontSize: 17, color: 'rgba(255,255,255,0.55)', lineHeight: 1.9, borderColor: 'var(--green)', maxWidth: 520 }}>{heroSubtitulo}</p>
+          <p className="font-light mt-6 border-l-2 pl-4 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.9, borderColor: 'var(--green)', maxWidth: 520 }}>{heroSubtitulo}</p>
           <div style={{ display: 'flex', gap: 12, marginTop: 40, flexWrap: 'wrap' }}>
-            <a href="#propietarios" style={{ padding: '13px 28px', background: 'var(--green)', color: '#fff', textDecoration: 'none', fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', borderRadius: 2 }}>Soy propietario</a>
-            <a href="#arrendatarios" style={{ padding: '13px 28px', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', textDecoration: 'none', fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', borderRadius: 2 }}>Busco arriendo</a>
+            <a className="text-sdm-xs tracking-sdm-wide" href="#propietarios" style={{ padding: '13px 28px', background: 'var(--green)', color: '#fff', textDecoration: 'none', fontWeight: 500, textTransform: 'uppercase', borderRadius: 2 }}>Soy propietario</a>
+            <a className="text-sdm-xs tracking-sdm-wide" href="#arrendatarios" style={{ padding: '13px 28px', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', textDecoration: 'none', fontWeight: 500, textTransform: 'uppercase', borderRadius: 2 }}>Busco arriendo</a>
           </div>
         </div>
       </div>
@@ -71,8 +71,8 @@ export default function RentalPage() {
       <section style={{ ...sp, paddingTop: 72, paddingBottom: 72, background: 'var(--off)', borderBottom: '1px solid #e8edf2' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>Quiénes Somos</div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <h2 className="font-serif font-light" style={{ fontSize: 'clamp(26px,4vw,42px)', color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.5px' }}>{quienesTitulo}</h2>
-          <p style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>{quienesTexto}</p>
+          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(26px,4vw,42px)', color: 'var(--navy-dark)', lineHeight: 1.1 }}>{quienesTitulo}</h2>
+          <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>{quienesTexto}</p>
         </div>
       </section>
 
@@ -81,32 +81,32 @@ export default function RentalPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <div className="section-label" style={{ marginBottom: 20 }}>Para Propietarios</div>
-            <h2 className="font-serif font-light mb-4" style={{ fontSize: 'clamp(28px,5vw,44px)', color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.5px' }}>{propTitulo}</h2>
-            <p style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8, marginBottom: 28 }}>{propSubtitulo}</p>
+            <h2 className="font-serif font-light mb-4 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,44px)', color: 'var(--navy-dark)', lineHeight: 1.1 }}>{propTitulo}</h2>
+            <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8, marginBottom: 28 }}>{propSubtitulo}</p>
             {checklist.filter(Boolean).map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 16, alignItems: 'flex-start' }}>
                 <div style={{ width: 24, height: 24, minWidth: 24, background: 'var(--green)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
-                <p style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.7 }}>{item}</p>
+                <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.7 }}>{item}</p>
               </div>
             ))}
-            <a href="#contacto" style={{ display: 'inline-block', marginTop: 24, padding: '13px 28px', border: '1px solid var(--navy-dark)', color: 'var(--navy-dark)', textDecoration: 'none', fontSize: 11, fontWeight: 400, letterSpacing: '2px', textTransform: 'uppercase', borderRadius: 2 }}
+            <a className="text-sdm-xs tracking-sdm-wide" href="#contacto" style={{ display: 'inline-block', marginTop: 24, padding: '13px 28px', border: '1px solid var(--navy-dark)', color: 'var(--navy-dark)', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
               onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--navy-dark)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--navy-dark)'; }}
             >Quiero arrendar mi propiedad</a>
           </div>
           <div style={{ background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', borderRadius: 2, padding: '48px 40px' }}>
-            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 24 }}>Nuestras comisiones</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)', marginBottom: 24 }}>Nuestras comisiones</div>
             <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 24, marginBottom: 24 }}>
-              <div style={{ fontSize: 13, fontWeight: 400, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Arriendo Tradicional</div>
-              <div className="font-serif" style={{ fontSize: 36, color: '#fff', fontWeight: 300 }}>{comisionTradPct}</div>
-              <div style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{comisionTradDesc}</div>
+              <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Arriendo Tradicional</div>
+              <div className="font-serif text-sdm-display-md" style={{ color: '#fff', fontWeight: 300 }}>{comisionTradPct}</div>
+              <div className="text-sdm-base" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{comisionTradDesc}</div>
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 400, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Administración Completa</div>
-              <div className="font-serif" style={{ fontSize: 36, color: '#fff', fontWeight: 300 }}>{comisionAdmPct}</div>
-              <div style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{comisionAdmDesc}</div>
+              <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Administración Completa</div>
+              <div className="font-serif text-sdm-display-md" style={{ color: '#fff', fontWeight: 300 }}>{comisionAdmPct}</div>
+              <div className="text-sdm-base" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{comisionAdmDesc}</div>
             </div>
           </div>
         </div>
@@ -115,10 +115,10 @@ export default function RentalPage() {
       {/* Para Arrendatarios */}
       <section id="arrendatarios" style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--off)', borderBottom: '1px solid #e8edf2' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>Para Arrendatarios</div>
-        <h2 className="font-serif font-light mb-6" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>{arrTitulo}</h2>
-        <p style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>{arrSubtitulo}</p>
-        <Link to="/propiedades-usadas?estado=en_arriendo"
-          style={{ display: 'inline-block', padding: '13px 28px', background: 'var(--navy-dark)', color: '#fff', textDecoration: 'none', fontSize: 11, fontWeight: 400, letterSpacing: '2px', textTransform: 'uppercase', borderRadius: 2 }}
+        <h2 className="font-serif font-light mb-6 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>{arrTitulo}</h2>
+        <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>{arrSubtitulo}</p>
+        <Link className="text-sdm-xs tracking-sdm-wide" to="/propiedades-usadas?estado=en_arriendo"
+          style={{ display: 'inline-block', padding: '13px 28px', background: 'var(--navy-dark)', color: '#fff', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
           onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--green)'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--navy-dark)'; }}
         >Ver propiedades en arriendo</Link>
@@ -127,19 +127,19 @@ export default function RentalPage() {
       {/* Comparativo */}
       <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid #e8edf2' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>¿Cuál elegir?</div>
-        <h2 className="font-serif font-light mb-16" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>{compTitulo}</h2>
+        <h2 className="font-serif font-light mb-16 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>{compTitulo}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-px" style={{ background: 'var(--border)' }}>
           {[
             { tipo: comp1Tipo, def: comp1Def, dur: comp1Dur, ges: comp1Ges, com: comp1Com, destacado: false },
             { tipo: comp2Tipo, def: comp2Def, dur: comp2Dur, ges: comp2Ges, com: comp2Com, destacado: true },
           ].map(c => (
             <div key={c.tipo} style={{ background: c.destacado ? 'var(--navy-dark)' : '#fff', padding: '48px 40px' }}>
-              {c.destacado && <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 16 }}>Recomendado</div>}
-              <h3 className="font-serif font-light mb-6" style={{ fontSize: 26, color: c.destacado ? '#fff' : 'var(--navy-dark)' }}>{c.tipo}</h3>
+              {c.destacado && <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)', marginBottom: 16 }}>Recomendado</div>}
+              <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: c.destacado ? '#fff' : 'var(--navy-dark)' }}>{c.tipo}</h3>
               {[{ label: 'Definición', value: c.def }, { label: 'Duración', value: c.dur }, { label: 'Gestión', value: c.ges }, { label: 'Comisión', value: c.com }].map(row => (
                 <div key={row.label} style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: c.destacado ? 'rgba(255,255,255,0.4)' : 'var(--muted)', marginBottom: 4 }}>{row.label}</div>
-                  <div style={{ fontSize: 15, fontWeight: 300, color: c.destacado ? '#fff' : 'var(--muted)', lineHeight: 1.7 }}>{row.value}</div>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: c.destacado ? 'rgba(255,255,255,0.4)' : 'var(--muted)', marginBottom: 4 }}>{row.label}</div>
+                  <div className="text-sdm-base" style={{ fontWeight: 300, color: c.destacado ? '#fff' : 'var(--muted)', lineHeight: 1.7 }}>{row.value}</div>
                 </div>
               ))}
             </div>

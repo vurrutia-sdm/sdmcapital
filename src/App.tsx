@@ -54,7 +54,7 @@ function CargandoAdmin() {
         <div className="logo-stripe logo-stripe--green" />
         <div className="logo-stripe logo-stripe--navy" />
       </div>
-      <span style={{ fontSize: 13, color: 'var(--muted)' }}>Cargando panel…</span>
+      <span className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Cargando panel…</span>
     </div>
   )
 }
@@ -62,11 +62,11 @@ function CargandoAdmin() {
 function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6 px-8 text-center">
-      <div className="font-serif" style={{ fontSize: 96, fontWeight: 300, color: 'var(--border)', lineHeight: 1 }}>404</div>
-      <h1 className="font-serif font-light" style={{ fontSize: 36, color: 'var(--navy-dark)' }}>
+      <div className="font-serif text-sdm-display-xl" style={{ fontWeight: 300, color: 'var(--border)' }}>404</div>
+      <h1 className="font-serif font-light text-sdm-display-md" style={{ color: 'var(--navy-dark)' }}>
         Página no <em>encontrada</em>
       </h1>
-      <p style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.8 }}>
+      <p className="text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.8 }}>
         La página que buscas no existe o fue movida.
       </p>
       <a href="/" className="btn-primary">← Volver al inicio</a>

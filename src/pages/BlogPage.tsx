@@ -20,10 +20,10 @@ export default function BlogPage() {
     <div className="min-h-screen">
       <div className="px-8 lg:px-12 pt-14 pb-10 border-b border-[#e8edf2]">
         <div className="section-label" style={{ marginBottom: 14 }}>Publicaciones</div>
-        <h1 className="font-serif font-light" style={{ fontSize: 52, color: 'var(--navy-dark)', lineHeight: 1.05, letterSpacing: '-0.5px' }}>
+        <h1 className="font-serif font-light text-sdm-display-lg" style={{ color: 'var(--navy-dark)' }}>
           Blog <em>SDM Capital</em>
         </h1>
-        <p style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', marginTop: 10, lineHeight: 1.8 }}>
+        <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 10, lineHeight: 1.8 }}>
           Noticias, análisis y tendencias del mercado inmobiliario en Chile y el mundo.
         </p>
       </div>
@@ -37,7 +37,7 @@ export default function BlogPage() {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-24">
-            <p className="font-serif italic" style={{ fontSize: 22, color: 'var(--muted)' }}>
+            <p className="font-serif italic text-sdm-2xl" style={{ color: 'var(--muted)' }}>
               Próximamente nuevos artículos.
             </p>
           </div>
@@ -69,7 +69,7 @@ export default function BlogPage() {
                   <div style={{ aspectRatio: '4/3', background: 'var(--off)', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {post.imagen_portada
                       ? <img src={post.imagen_portada} alt={titulo} loading="lazy" decoding="async" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} className="transition-transform duration-500 group-hover:scale-[1.03]" />
-                      : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic" style={{ fontSize: 15, color: 'var(--muted)' }}>{post.categoria}</span></div>
+                      : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic text-sdm-base" style={{ color: 'var(--muted)' }}>{post.categoria}</span></div>
                     }
                     {post.destacado && (
                       <div className="absolute top-3 left-3 text-[13px] tracking-[2px] uppercase px-2.5 py-1" style={{ background: 'var(--green)', color: '#fff', borderRadius: 1 }}>
@@ -79,11 +79,11 @@ export default function BlogPage() {
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-3 mb-3">
-                      <span style={{ fontSize: 13, color: 'var(--green)', letterSpacing: '2px', textTransform: 'uppercase' }}>{post.categoria}</span>
-                      <span style={{ fontSize: 13, color: 'var(--muted)', letterSpacing: '1px' }}>{fecha}</span>
+                      <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{post.categoria}</span>
+                      <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>{fecha}</span>
                     </div>
-                    <h2 className="font-serif font-light mb-2" style={{ fontSize: 20, color: 'var(--navy-dark)', lineHeight: 1.25 }}>{titulo}</h2>
-                    <p className="font-light" style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.7 }}>{resumen}</p>
+                    <h2 className="font-serif font-light mb-2 text-sdm-xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>{titulo}</h2>
+                    <p className="font-light text-sdm-base" style={{ color: 'var(--muted)', lineHeight: 1.7 }}>{resumen}</p>
                     <div className="mt-4 text-[13px] tracking-[2px] uppercase border-b pb-0.5 inline-flex items-center gap-1" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }}>
                       Leer artículo →
                     </div>

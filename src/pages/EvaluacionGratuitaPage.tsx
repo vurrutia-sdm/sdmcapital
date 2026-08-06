@@ -31,7 +31,7 @@ export default function EvaluacionGratuitaPage() {
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-serif text-[22px] font-semibold tracking-[3px]" style={{ color: 'var(--navy-dark)' }}>SDM</span>
-            <span style={{ fontSize: 9, fontWeight: 400, letterSpacing: '5px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2, display: 'block' }}>Capital</span>
+            <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2, display: 'block' }}>Capital</span>
           </div>
         </Link>
       </header>
@@ -42,10 +42,10 @@ export default function EvaluacionGratuitaPage() {
           <div className="section-label section-label--light" style={{ marginBottom: 20, justifyContent: 'center' }}>
             Preevaluación Hipotecaria Sin Costo
           </div>
-          <h1 className="font-serif font-light text-center" style={{ fontSize: 'clamp(28px,5vw,48px)', lineHeight: 1.15, letterSpacing: '-0.5px', color: '#FFFFFF', maxWidth: 760, margin: '0 auto 20px' }}>
+          <h1 className="font-serif font-light text-center tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', lineHeight: 1.15, color: '#FFFFFF', maxWidth: 760, margin: '0 auto 20px' }}>
             ¿Quieres saber si calificas para un crédito hipotecario?
           </h1>
-          <p className="text-center" style={{ fontSize: 17, fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.78)', maxWidth: 620, margin: '0 auto 48px' }}>
+          <p className="text-center text-sdm-lg" style={{ fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.78)', maxWidth: 620, margin: '0 auto 48px' }}>
             Te hacemos una evaluación gratuita en 5 días hábiles. Sin papeleos innecesarios, sin pagos
             anticipados, con acompañamiento de principio a fin.
           </p>
@@ -56,7 +56,7 @@ export default function EvaluacionGratuitaPage() {
                 <div style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'rgba(61,170,110,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
                   <Check size={13} color="#3DAA6E" />
                 </div>
-                <span style={{ fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>{b}</span>
+                <span className="text-sdm-base" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>{b}</span>
               </div>
             ))}
           </div>
@@ -83,7 +83,7 @@ export default function EvaluacionGratuitaPage() {
 
       {/* Footer mínimo */}
       <footer style={{ backgroundColor: '#1C2B3A', padding: '24px 24px', textAlign: 'center' }}>
-        <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.55)' }}>
+        <p className="text-sdm-sm" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.55)' }}>
           © 2026 SDM Capital SpA · sdmcapital.cl ·{' '}
           <Link to="/politica-de-privacidad" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'underline' }}>
             Política de Privacidad

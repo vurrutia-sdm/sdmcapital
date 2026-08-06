@@ -49,15 +49,12 @@ export default function ElBarrancoBanner({ clave = 'banner_detalle_foto' }: { cl
             flexWrap: 'wrap',
           }}>
             <div>
-              <p style={{
-                fontFamily: "'Jost', sans-serif",
-                fontSize: 10,
+              <p className="text-sdm-xs" style={{ fontFamily: "'Jost', sans-serif",
                 fontWeight: 300,
                 letterSpacing: '0.4em',
                 textTransform: 'uppercase',
                 color: '#4CAF82',
-                margin: '0 0 10px',
-              }}>
+                margin: '0 0 10px' }}>
                 SDM Capital · Exclusive Listing
               </p>
               <p style={{
@@ -82,20 +79,17 @@ export default function ElBarrancoBanner({ clave = 'banner_detalle_foto' }: { cl
               </p>
             </div>
 
-            <div style={{
-              display: 'flex',
+            <div className="text-sdm-xs" style={{ display: 'flex',
               alignItems: 'center',
               gap: 12,
               padding: '14px 32px',
               border: '1px solid rgba(76,175,130,0.5)',
               color: '#4CAF82',
               fontFamily: "'Jost', sans-serif",
-              fontSize: 11,
               fontWeight: 400,
               letterSpacing: '0.25em',
               textTransform: 'uppercase',
-              whiteSpace: 'nowrap',
-            }}>
+              whiteSpace: 'nowrap' }}>
               View Full Showcase
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                 stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">

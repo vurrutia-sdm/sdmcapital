@@ -115,46 +115,46 @@ const S: Record<string, React.CSSProperties> = {
   hero: { position: 'relative', height: '100vh', minHeight: 600, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' },
   heroOverlay: { position: 'absolute', inset: 0, background: `linear-gradient(to top, rgba(10,12,11,0.96) 0%, rgba(10,12,11,0.35) 55%, rgba(10,12,11,0.15) 100%)` },
   heroContent: { position: 'relative', zIndex: 2, padding: '0 6vw 64px', maxWidth: 860 },
-  heroEyebrow: { fontWeight: 300, fontSize: 10, letterSpacing: '0.4em', textTransform: 'uppercase', color: C.green, marginBottom: 20 },
+  heroEyebrow: { fontWeight: 300, fontSize: 'var(--sdm-text-xs)', letterSpacing: '0.4em', textTransform: 'uppercase', color: C.green, marginBottom: 20 },
   heroTitle: { fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: 'clamp(52px, 8vw, 100px)', lineHeight: 1.0, margin: '0 0 8px', color: C.cream },
   heroSubtitle: { fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(22px, 3vw, 36px)', color: C.navyLight, margin: '0 0 32px' },
-  heroDesc: { fontWeight: 300, fontSize: 15, lineHeight: 1.85, color: 'rgba(255,255,255,0.85)', maxWidth: 480, margin: '0 0 44px' },
+  heroDesc: { fontWeight: 300, fontSize: 'var(--sdm-text-base)', lineHeight: 1.85, color: 'rgba(255,255,255,0.85)', maxWidth: 480, margin: '0 0 44px' },
   heroActions: { display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' },
-  btnPrimary: { background: C.green, color: '#0a0c0b', border: 'none', padding: '14px 36px', fontFamily: "'Jost', sans-serif", fontWeight: 500, fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', textDecoration: 'none', display: 'inline-block', transition: 'background 0.2s' },
-  btnGhost: { background: 'transparent', color: C.cream, border: `1px solid rgba(168,196,216,0.3)`, padding: '14px 36px', fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', textDecoration: 'none', display: 'inline-block' },
+  btnPrimary: { background: C.green, color: '#0a0c0b', border: 'none', padding: '14px 36px', fontFamily: "'Jost', sans-serif", fontWeight: 500, fontSize: 'var(--sdm-text-xs)', letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', textDecoration: 'none', display: 'inline-block', transition: 'background 0.2s' },
+  btnGhost: { background: 'transparent', color: C.cream, border: `1px solid rgba(168,196,216,0.3)`, padding: '14px 36px', fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-xs)', letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', textDecoration: 'none', display: 'inline-block' },
   heroDots: { position: 'absolute', bottom: 28, right: '6vw', display: 'flex', gap: 8, zIndex: 3 },
   section: { padding: '100px 6vw' },
-  eyebrow: { fontWeight: 300, fontSize: 10, letterSpacing: '0.4em', textTransform: 'uppercase', color: C.green, marginBottom: 16 },
+  eyebrow: { fontWeight: 300, fontSize: 'var(--sdm-text-xs)', letterSpacing: '0.4em', textTransform: 'uppercase', color: C.green, marginBottom: 16 },
   sectionTitle: { fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: 'clamp(36px, 5vw, 68px)', lineHeight: 1.1, margin: '0 0 24px', color: C.cream },
   divider: { width: 40, height: 1, background: C.green, margin: '0 0 32px', border: 'none', opacity: 0.7 },
-  bodyText: { fontWeight: 300, fontSize: 16, lineHeight: 1.9, color: C.muted, maxWidth: 560 },
+  bodyText: { fontWeight: 300, fontSize: 'var(--sdm-text-lg)', lineHeight: 1.9, color: C.muted, maxWidth: 560 },
   statRow: { display: 'flex', gap: 52, marginTop: 52, flexWrap: 'wrap' },
-  statNum: { fontFamily: "'Cormorant Garamond', serif", fontSize: 52, fontWeight: 300, color: C.navyLight, lineHeight: 1, display: 'block' },
-  statLabel: { fontSize: 10, fontWeight: 300, letterSpacing: '0.25em', textTransform: 'uppercase', color: C.faint, marginTop: 6, display: 'block' },
+  statNum: { fontFamily: "'Cormorant Garamond', serif", fontSize: 'var(--sdm-display-lg)', fontWeight: 300, color: C.navyLight, lineHeight: 1, display: 'block' },
+  statLabel: { fontSize: 'var(--sdm-text-xs)', fontWeight: 300, letterSpacing: '0.25em', textTransform: 'uppercase', color: C.faint, marginTop: 6, display: 'block' },
   amenityCard: { padding: '36px 28px', background: C.bgCard, borderTop: `1px solid ${C.border}` },
-  amenityTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: 19, fontWeight: 400, color: C.cream, margin: '14px 0 6px' },
-  amenityDesc: { fontSize: 13, fontWeight: 300, color: C.muted, lineHeight: 1.65 },
+  amenityTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: 'var(--sdm-text-xl)', fontWeight: 400, color: C.cream, margin: '14px 0 6px' },
+  amenityDesc: { fontSize: 'var(--sdm-text-sm)', fontWeight: 300, color: C.muted, lineHeight: 1.65 },
   briefCard: { padding: '40px 32px', background: C.bgCard, borderTop: `1px solid ${C.borderGreen}` },
-  briefNum: { fontFamily: "'Cormorant Garamond', serif", fontSize: 52, fontWeight: 300, color: C.navyLight, lineHeight: 1, marginBottom: 8 },
-  briefLabel: { fontSize: 10, fontWeight: 300, letterSpacing: '0.3em', textTransform: 'uppercase', color: C.muted, marginBottom: 12 },
-  briefNote: { fontSize: 13, fontWeight: 300, color: C.faint, lineHeight: 1.7 },
+  briefNum: { fontFamily: "'Cormorant Garamond', serif", fontSize: 'var(--sdm-display-lg)', fontWeight: 300, color: C.navyLight, lineHeight: 1, marginBottom: 8 },
+  briefLabel: { fontSize: 'var(--sdm-text-xs)', fontWeight: 300, letterSpacing: '0.3em', textTransform: 'uppercase', color: C.muted, marginBottom: 12 },
+  briefNote: { fontSize: 'var(--sdm-text-sm)', fontWeight: 300, color: C.faint, lineHeight: 1.7 },
   upsideBox: { border: `1px solid ${C.border}`, padding: '40px 48px', marginTop: 2 },
-  upsideTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 300, color: C.navyLight, marginBottom: 16 },
+  upsideTitle: { fontFamily: "'Cormorant Garamond', serif", fontSize: 'var(--sdm-display-sm)', fontWeight: 300, color: C.navyLight, marginBottom: 16 },
   fichaBlock: { padding: '32px 40px', background: C.bgCard, borderTop: `1px solid ${C.border}` },
-  fichaBlockTitle: { fontSize: 10, fontWeight: 300, letterSpacing: '0.35em', textTransform: 'uppercase', color: C.green, marginBottom: 20 },
+  fichaBlockTitle: { fontSize: 'var(--sdm-text-xs)', fontWeight: 300, letterSpacing: '0.35em', textTransform: 'uppercase', color: C.green, marginBottom: 20 },
   fichaRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '10px 0', borderBottom: `1px solid rgba(255,255,255,0.04)` },
-  fichaKey: { fontSize: 13, fontWeight: 300, color: C.muted },
-  fichaVal: { fontSize: 13, fontWeight: 400, color: C.cream, textAlign: 'right' },
+  fichaKey: { fontSize: 'var(--sdm-text-sm)', fontWeight: 300, color: C.muted },
+  fichaVal: { fontSize: 'var(--sdm-text-sm)', fontWeight: 400, color: C.cream, textAlign: 'right' },
   footer: { padding: '32px 6vw', borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 },
-  footerText: { fontSize: 12, fontWeight: 300, color: C.faint, letterSpacing: '0.08em' },
-  backBtn: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: "'Jost', sans-serif" },
-  formLabel: { display: 'block', fontSize: 10, fontWeight: 300, letterSpacing: '0.3em', textTransform: 'uppercase', color: C.muted, marginBottom: 8 },
-  formInput: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 15, outline: 'none', boxSizing: 'border-box' as const },
-  formTextarea: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 15, outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const, minHeight: 80 },
+  footerText: { fontSize: 'var(--sdm-text-sm)', fontWeight: 300, color: C.faint, letterSpacing: '0.08em' },
+  backBtn: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--sdm-text-xs)', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: "'Jost', sans-serif" },
+  formLabel: { display: 'block', fontSize: 'var(--sdm-text-xs)', fontWeight: 300, letterSpacing: '0.3em', textTransform: 'uppercase', color: C.muted, marginBottom: 8 },
+  formInput: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-base)', outline: 'none', boxSizing: 'border-box' as const },
+  formTextarea: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-base)', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const, minHeight: 80 },
 }
 
 // Estilo dinámico — fuera de S porque es una función, no un CSSProperties.
-const investTabStyle = (active: boolean): React.CSSProperties => ({ padding: '12px 28px', background: 'transparent', border: 'none', borderBottom: active ? `1px solid ${C.green}` : '1px solid transparent', color: active ? C.cream : C.muted, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: -1, transition: 'all 0.2s' })
+const investTabStyle = (active: boolean): React.CSSProperties => ({ padding: '12px 28px', background: 'transparent', border: 'none', borderBottom: active ? `1px solid ${C.green}` : '1px solid transparent', color: active ? C.cream : C.muted, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-xs)', letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: -1, transition: 'all 0.2s' })
 
 export default function ElBarrancoShowcase() {
   const navigate = useNavigate()
@@ -249,15 +249,13 @@ export default function ElBarrancoShowcase() {
       {/* ── Language toggle ── */}
       <div style={{ position: 'fixed', top: 20, right: 24, zIndex: 200, display: 'flex', overflow: 'hidden', border: '1px solid rgba(168,196,216,0.2)' }}>
         {(['en', 'es'] as const).map(l => (
-          <button key={l} onClick={() => setLang(l)} style={{
-            padding: '7px 13px',
+          <button className="text-sdm-xs" key={l} onClick={() => setLang(l)} style={{ padding: '7px 13px',
             background: lang === l ? C.green : 'rgba(10,12,11,0.75)',
             border: 'none',
             color: lang === l ? '#0a0c0b' : 'rgba(240,236,228,0.55)',
-            fontFamily: "'Jost', sans-serif", fontWeight: 500, fontSize: 10,
+            fontFamily: "'Jost', sans-serif", fontWeight: 500,
             letterSpacing: '0.2em', textTransform: 'uppercase', cursor: 'pointer',
-            transition: 'background 0.2s, color 0.2s', backdropFilter: 'blur(8px)',
-          }}>
+            transition: 'background 0.2s, color 0.2s', backdropFilter: 'blur(8px)' }}>
             {l}
           </button>
         ))}
@@ -321,7 +319,7 @@ export default function ElBarrancoShowcase() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, marginTop: 56 }}>
           {activities.map((a) => <ActivityCard key={a.title} {...a} />)}
         </div>
-        <p style={{ ...S.bodyText, maxWidth: 680, fontSize: 14, marginTop: 40, opacity: 0.8 }}>
+        <p className="text-sdm-base" style={{ ...S.bodyText, maxWidth: 680, marginTop: 40, opacity: 0.8 }}>
           {t('act_p', "Beyond the river: guided fly fishing on Lago Lonconao and Río Espolón, family floating, horseback riding through Valle Las Escalas, trekking to hidden glacier lakes, and kayaking across Patagonia's most pristine waterways.")}
         </p>
       </section>
@@ -368,7 +366,7 @@ export default function ElBarrancoShowcase() {
 
         {investTab === 'story' && (
           <div style={{ maxWidth: 700 }}>
-            <p style={{ ...S.bodyText, fontSize: 18, color: C.navyLight, marginBottom: 24 }}>
+            <p className="text-sdm-xl" style={{ ...S.bodyText, color: C.navyLight, marginBottom: 24 }}>
               {t('story_p1', "A business that runs itself for half the year — imagine what you could do with the other half.")}
             </p>
             <p style={S.bodyText}>{t('story_p2', "El Barranco currently operates only during peak season (6 months) due to the health of its current owners. The infrastructure is complete, the brand is established, the market is ready. A new operator stepping in with full-year ambition faces no capital expenditure barrier — only upside.")}</p>
@@ -477,22 +475,22 @@ export default function ElBarrancoShowcase() {
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: 'clamp(40px, 5.5vw, 76px)', color: C.navyLight, lineHeight: 1, margin: '24px 0 8px' }}>
             {c('precio_display', 'USD 3,000,000')}
           </div>
-          <p style={{ fontSize: 11, fontWeight: 300, letterSpacing: '0.25em', textTransform: 'uppercase', color: C.muted, marginBottom: 40 }}>
+          <p className="text-sdm-xs" style={{ fontWeight: 300, letterSpacing: '0.25em', textTransform: 'uppercase', color: C.muted, marginBottom: 40 }}>
             {t('precio_sub', 'UF 68,000 · Turnkey · Futaleufú, Chile')}
           </p>
           <p style={S.bodyText}>
             {t('contacto_parrafo', 'Boutique hospitality assets with validated operations, a registered brand, and full infrastructure in world-class adventure destinations do not come to market often.')}
           </p>
           <div style={{ marginTop: 40 }}>
-            <p style={{ fontSize: 12, fontWeight: 300, color: C.muted, marginBottom: 4 }}>{c('contacto_empresa', 'SDM Capital Real Estate')}</p>
-            <p style={{ fontSize: 17, fontWeight: 400, color: C.green }}>{c('contacto_telefono', '+56 9 3103 8954')}</p>
+            <p className="text-sdm-sm" style={{ fontWeight: 300, color: C.muted, marginBottom: 4 }}>{c('contacto_empresa', 'SDM Capital Real Estate')}</p>
+            <p className="text-sdm-lg" style={{ fontWeight: 400, color: C.green }}>{c('contacto_telefono', '+56 9 3103 8954')}</p>
           </div>
         </div>
 
         <div>
           {formSent ? (
             <div style={{ paddingTop: 40 }}>
-              <p style={{ ...S.sectionTitle, fontSize: 36 }}>{lang === 'es' ? 'Gracias.' : 'Thank you.'}</p>
+              <p className="text-sdm-display-md" style={{ ...S.sectionTitle }}>{lang === 'es' ? 'Gracias.' : 'Thank you.'}</p>
               <p style={S.bodyText}>{lang === 'es' ? 'Hemos recibido tu mensaje y nos pondremos en contacto pronto.' : "We've received your message and will be in touch shortly."}</p>
             </div>
           ) : (
@@ -538,8 +536,8 @@ function ActivityCard({ img, title, sub, Icon: IconComp }: { img: string; title:
       <img src={img} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform 0.6s ease' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,11,0.88) 0%, transparent 60%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 28 }}>
         <div style={{ marginBottom: 10 }}><IconComp /></div>
-        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 300, color: C.cream, lineHeight: 1.2 }}>{title}</div>
-        <div style={{ fontSize: 10, fontWeight: 300, letterSpacing: '0.25em', textTransform: 'uppercase', color: C.green, marginTop: 6 }}>{sub}</div>
+        <div className="text-sdm-2xl" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, color: C.cream, lineHeight: 1.2 }}>{title}</div>
+        <div className="text-sdm-xs" style={{ fontWeight: 300, letterSpacing: '0.25em', textTransform: 'uppercase', color: C.green, marginTop: 6 }}>{sub}</div>
       </div>
     </div>
   )
