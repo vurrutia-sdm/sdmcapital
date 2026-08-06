@@ -94,7 +94,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
-| 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | En curso |
+| 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
 | — | Sofía / chatbot | — | — |
 
@@ -1317,6 +1317,80 @@ propósito y de forma permanente**:
   hoja carta. No son píxeles de pantalla.
 - **`tarjeta.css`** — `em` y un `11.33px` calculado para un ancho fijo de
   400px.
+
+### `overflow-x: hidden` en html + body rompe TODO `position: sticky` — 2026-08-06
+
+**Guardar esto.** Es la clase de trampa que cuesta días encontrar, porque el
+síntoma aparece a metros de la causa: el header del admin subía con el scroll,
+y el culpable estaba en dos líneas de `globals.css` que nadie relaciona con un
+`sticky`.
+
+#### El mecanismo
+
+`overflow-x: hidden` convierte al elemento en **contenedor de scroll**. Un
+`position: sticky` se pega a su contenedor de scroll más cercano, no al
+viewport. Con `html` y `body` en `hidden`, ese contenedor deja de ser el
+viewport y el sticky no se activa nunca.
+
+`overflow-x: clip` recorta **exactamente igual** pero no crea contenedor de
+scroll. Es la propiedad diseñada para este caso.
+
+#### Medido, no deducido
+
+Chrome, estructura real del admin, scroll de 600px, leyendo el `top` del
+header. **Forzar `behavior: 'instant'`**: el `scroll-behavior: smooth` de `html`
+anima y falsea la lectura si se mide enseguida — costó una medición entera
+descubrirlo.
+
+| `html` | `body` | header tras scrollear |
+|---|---|---|
+| `hidden` | `hidden` | top 0 → **−600** · se va |
+| `hidden` | visible | top 0 → 0 · se pega |
+| visible | `hidden` | top 0 → 0 · se pega |
+| **`clip`** | **`clip`** | top 0 → **0** · se pega |
+| `clip` | `hidden` | top 0 → **−600** · **se va** |
+
+**Hacen falta las dos en `hidden` para romperlo.** Por eso las dos reglas de
+`globals.css` van juntas y simétricas: dejar una sola sería un arreglo por
+accidente que alguien "corregiría" más adelante reintroduciendo el bug.
+
+#### `clip` no destapó ningún desborde
+
+El riesgo era que `hidden` estuviera tapando overflow horizontal real. No lo
+había. Home, catálogo, ficha de propiedad y showcase de El Barranco, a 360,
+390, 1024 y 1440, con el build nuevo servido por `vite preview`: las 16
+combinaciones renderizan contenido real y en ninguna el `scrollWidth` supera
+al `innerWidth`.
+
+#### PENDIENTE: debajo de 768px sigue roto
+
+**`src/styles/mobile.css:8-10`** reintroduce la regla dentro de
+`@media (max-width: 768px)`:
+
+```css
+@media (max-width: 768px) {
+  body { overflow-x: hidden; }
+}
+```
+
+Eso deja `html: clip` + `body: hidden`, que —según la tabla de arriba— **también
+rompe el sticky**. En teléfono el header del admin sigue subiendo con el
+scroll.
+
+`src/styles/` es zona compartida y ese archivo no estaba autorizado en este
+cambio, así que **queda sin tocar a la espera de decisión**. El arreglo sería
+el mismo: `clip` en vez de `hidden`.
+
+Vale la pena revisar `mobile.css` entero de paso: son overrides con `!important`
+sobre selectores genéricos (`section.relative`, `header nav`) que pueden estar
+peleando con Tailwind.
+
+#### Nota de compatibilidad
+
+`overflow: clip` necesita Chrome 90+, Firefox 81+ y **Safari 16+**. En Safari 15
+y anteriores cae a `visible`, así que un desborde horizontal produciría barra
+en vez de recorte. Como se verificó que no hay desbordes, el riesgo es
+teórico — pero conviene saberlo si alguna sesión agrega contenido ancho.
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
