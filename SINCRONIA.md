@@ -87,6 +87,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | Admin — Fase 3, etapa 4 | Romper el ciclo de imports: `RichTextEditor` + `TBtn` y `useDragSort` a `src/components/admin/` | Cerrada — ciclo eliminado, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, etapa 5 | Tres paneles a `src/pages/admin/`: `Rental`, `Vende`, `Barranco` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, etapa 6 | `Contenido` a `src/pages/admin/Contenido.tsx`, con `CarouselPhotoManager` y `HomeDestacadasSelector` | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — Fase 3, etapa 7 (final) | `Propiedades` a `src/pages/admin/Propiedades.tsx`, con `PropImageManager`, `DossierUploader` y `slugify` | Cerrada — **refactor de `AdminPage.tsx` terminado**, commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -569,6 +570,156 @@ ya solo dos: `PropiedadesAdmin` (426 líneas) y `PropImageManager` (145).
 Además `FotosAdmin` (68), `DossierUploader` (62), `LoginForm`, `useAdminAuth`,
 `slugify` y `loadTabOrder`, más las constantes de la sidebar y el propio
 `AdminPage`.
+
+### Fase 3 — Etapa 7: Propiedades. **Refactor cerrado** — 2026-08-06
+
+| Antes | Ahora |
+|---|---|
+| `PropiedadesAdmin` | `src/pages/admin/Propiedades.tsx` |
+| `PropImageManager` | idem — mismo archivo |
+| `DossierUploader` | idem — mismo archivo |
+| `slugify` | idem — mismo archivo |
+
+`src/pages/admin/Propiedades.tsx`: 713 líneas.
+`AdminPage.tsx`: 953 → **264** líneas. El diff son 692 borrados y 3 líneas
+agregadas.
+
+Se movieron con el panel `FECHA_ENTREGA_OPTIONS`, `AVANCE_OBRA_OPTIONS` y
+`SUBSIDIO_OPTIONS`, identificadas como propias de este panel desde la Etapa 2.
+
+#### `slugify` se movió aunque no estaba en la lista
+
+Solo lo usa `PropiedadesAdmin` (una llamada, al construir el slug de la
+propiedad). Dejarlo en `AdminPage.tsx` habría dejado una función muerta, así
+que viajó con el panel. Verificado con `grep` sobre `src/`, `functions/` y
+`scripts/`: `PropImageManager`, `DossierUploader` y `slugify` no se usan en
+ningún otro lado.
+
+#### Se borró el encabezado `// ─── SHARED UI ───`
+
+Encabezaba las primitivas compartidas que salieron en la Etapa 2 y desde
+entonces encabezaba las constantes de proyectos nuevos. Al irse esas
+constantes quedaba colgado justo antes de `// ─── FOTOS ───`, sin nada debajo.
+
+#### Verificación byte a byte
+
+`diff` del bloque de 678 líneas contra el original en `HEAD`. **Una sola línea
+distinta**, el renombre pedido:
+
+```
+< function PropiedadesAdmin() {
+> export default function Propiedades() {
+```
+
+`PropImageManager`, `DossierUploader`, `slugify` y las tres constantes
+quedaron idénticos hasta el byte.
+
+#### RLS y subidas: no se tocó nada
+
+Ninguna query cambió, ni la semántica de `activo`. La tabla `propiedades`
+sigue con `anon` restringido a `activo IS TRUE` y `FOR ALL` solo para
+`authenticated`; el admin entra autenticado. Las subidas siguen pasando por
+`src/lib/subirImagen.ts` sin modificar. Ese pipeline apunta a `/api/subir`, una
+Pages Function, y `vite.config.ts` no proxea `/api`: **las subidas no funcionan
+en localhost**, se prueban en producción. Queda anotado en la cabecera del
+archivo nuevo.
+
+#### 18 imports huérfanos
+
+Con `noUnusedLocals` apagado, `tsc` pasaba en verde con los 18. Revisados a
+mano y eliminados de `AdminPage.tsx`: `REGIONES`, `getComunas`, `avisarError`,
+`subirArchivo`, `normalizeDossiers`, `dossierFileName`, `thumbUrl`,
+`Propiedad`, `DossierItem`, `MapPicker`, `Field`, `Inp`, `Chk`, `Sel`,
+`SaveBtn`, `Badge`, `RichTextEditor` y `useDragSort`.
+
+`AdminPage.tsx` quedó con solo dos imports de librería —`supabase` y
+`subirImagen`, ambos para `FotosAdmin`— más React, el router, los iconos y los
+once paneles.
+
+#### Chunks
+
+| Chunk | Etapa 6 | Etapa 7 |
+|---|---|---|
+| `AdminPage` | 169,56 kB | 169,56 kB |
+| `pdf` | 2.054,86 kB | 2.054,86 kB |
+| `editor` | `editor-CRXeSJ56.js` | **mismo hash** |
+| `react` | `react-DLA1cIuT.js` | **mismo hash** |
+| `index` | 238,90 kB | 238,90 kB |
+
+`pdf` sigue fuera de los imports estáticos del chunk `AdminPage`, que son los
+mismos siete de la Etapa 6: `react`, `router`, `index`, `errores`,
+`subirImagen`, `editor` e `iconos`.
+
+Comparando contenido normalizado contra los archivos de la Etapa 6 servidos en
+producción: `pdf` y `subirImagen` **idénticos**. `index` difiere en 37
+caracteres de 238.765, y son todos el mismo hecho: `errores` y `subirImagen`
+intercambiaron posición en la tabla `__vite__mapDeps`, así que cada referencia
+a esos índices se dio vuelta (3↔4). Se verificó que es una **permutación pura**:
+las 9 rutas lazy precargan exactamente el mismo conjunto de chunks antes y
+después. `AdminPage` sí cambió de verdad, con el mismo tamaño exacto — es el
+renombrado de identificadores minificados al mover 678 líneas a un módulo
+nuevo.
+
+---
+
+## Fase 3 cerrada — `AdminPage.tsx`, de 2.808 a 264 líneas
+
+**−2.544 líneas, −90,6%**, en siete etapas y sin un solo cambio de
+comportamiento.
+
+| Etapa | Qué salió | `AdminPage.tsx` |
+|---|---|---:|
+| — | punto de partida | 2.808 |
+| 1 | `Sec`/`Full` a `primitivas.tsx`, piloto `Mensajes` | 2.751 |
+| 2 | helpers a `campos` / `layout` / `acciones` / `ImageUploader` | 2.653 |
+| 3 | `Blog`, `Equipo`, `Asociados`, `PaginasLegales` | 2.286 |
+| 4 | `RichTextEditor` + `TBtn`, `useDragSort` — ciclo roto | 2.123 |
+| 5 | `Rental`, `Vende`, `Barranco` | 1.496 |
+| 6 | `Contenido` + `CarouselPhotoManager` + `HomeDestacadasSelector` | 953 |
+| 7 | `Propiedades` + `PropImageManager` + `DossierUploader` | **264** |
+
+### Qué quedó en `AdminPage.tsx`
+
+Ocho declaraciones, todas de armazón: el tipo `Tab`, `useAdminAuth`,
+`LoginForm`, `FotosAdmin`, `DEFAULT_TABS`, `STORAGE_KEY`, `loadTabOrder` y el
+propio `AdminPage`. Es lo que tiene que ser: autenticación, sidebar y
+enrutado de pestañas.
+
+`FotosAdmin` (68 líneas) sigue ahí **a propósito**. Es el panel legado que
+mezcla Supabase Storage con R2 y está marcado para borrarse, no para
+refactorizarse. Extraerlo sería trabajo tirado.
+
+### Las reglas que sobrevivieron a las siete etapas
+
+1. **Todo componente a nivel de módulo.** `Sec` y `Full` definidos dentro de
+   `ContenidoAdmin`, `BarrancoAdmin`, `RentalAdmin` y `VendeAdmin` fueron la
+   causa del bug de remontaje: React los trataba como tipos distintos en cada
+   render, desmontaba el árbol y el scroll saltaba al inicio.
+2. **Las dependencias van en una sola dirección:**
+   `src/components/admin/` ← `src/pages/admin/` ← `AdminPage.tsx`. Ningún
+   archivo de `src/pages/admin/` importa de `AdminPage.tsx`. El ciclo que
+   introdujo la Etapa 3 se cerró en la Etapa 4 y no volvió.
+3. **Las claves de pestaña no se renombran.** Se persisten en `localStorage`
+   como array (`STORAGE_KEY`); renombrar una borra el orden configurado. Los
+   componentes cambiaron de nombre, las claves no.
+4. **Refactor puro, verificado con `diff`.** De la Etapa 5 en adelante, cada
+   cuerpo extraído se comparó byte a byte contra el original. La única línea
+   distinta admitida es la de la firma.
+5. **`noUnusedLocals` está apagado.** `tsc` no delata imports huérfanos; hay
+   que revisarlos a mano después de cada extracción. Las etapas 6 y 7 dejaron
+   5 y 18.
+6. **Los hashes de chunk no sirven para comparar.** Un cambio en un chunk
+   cascadea a todo lo que lo referencia. Hay que normalizar los `-<hash>.js` y
+   comparar contenido.
+
+### Lo anotado y no tocado
+
+`Barranco.tsx`, `Rental.tsx` y `Vende.tsx` conservan el comentario
+`// Sec y Full: definidos a nivel de módulo, junto a ContenidoAdmin.`, que
+quedó desactualizado en la Etapa 2 —viven en `src/components/admin/layout.tsx`—
+y más aún ahora que `ContenidoAdmin` es `Contenido` y está en otro archivo. Son
+comentarios, no comportamiento. Corregirlos es trabajo de una etapa de
+limpieza, junto con borrar `FotosAdmin`.
 
 ### Sesión RLS vistas de métricas — 2026-08-05
 
