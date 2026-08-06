@@ -646,7 +646,7 @@ export default function PropiedadDetailPage() {
             </div>
 
             {prop.mostrar_boton_flow !== false && !destacado && (
-              <a className="tracking-sdm-wide"
+              <a className="tracking-sdm-wide text-sdm-sm"
                 href="https://www.flow.cl/uri/gHSdT2jVv"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -659,7 +659,6 @@ export default function PropiedadDetailPage() {
                   border: '1px solid var(--navy-dark)',
                   borderRadius: '6px',
                   color: 'var(--navy-dark)',
-                  fontSize: '13px',
                   fontWeight: 400,
                   textTransform: 'uppercase',
                   textDecoration: 'none',
