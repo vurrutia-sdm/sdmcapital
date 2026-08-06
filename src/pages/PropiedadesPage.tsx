@@ -33,10 +33,10 @@ function SinArriendos() {
         className="text-center mx-auto"
         style={{ maxWidth: 620, marginTop: 32, padding: '56px 32px', background: 'var(--off)', border: '1px solid var(--border)' }}
       >
-        <h2 className="font-serif font-light" style={{ fontSize: 30, lineHeight: 1.2, color: 'var(--navy-dark)' }}>
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
           Estamos actualizando nuestro <em>catálogo de arriendos</em>
         </h2>
-        <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.8, marginTop: 18 }}>
+        <p className="text-sdm-base" style={{ color: 'var(--muted)', lineHeight: 1.8, marginTop: 18 }}>
           En SDM Capital trabajamos con propiedades en arriendo. En este momento no
           tenemos unidades publicadas, pero recibimos disponibilidad nueva de forma
           constante. Escríbenos y te avisamos apenas tengamos algo que calce con lo
@@ -159,15 +159,15 @@ function MapView({ props }: { props: Propiedad[] }) {
             <img src={thumbUrl(selected.imagen_principal || selected.imagenes[0])} alt={selected.titulo} loading="lazy" decoding="async" style={{ width: '100%', height: 140, objectFit: 'cover' }} />
           )}
           <div style={{ padding: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 4 }}>{selected.titulo}</div>
-            <div style={{ fontSize: 13, color: 'var(--green)', fontWeight: 600, marginBottom: 12 }}>
+            <div className="text-sdm-sm" style={{ fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 4 }}>{selected.titulo}</div>
+            <div className="text-sdm-sm" style={{ color: 'var(--green)', fontWeight: 600, marginBottom: 12 }}>
               {selected.a_consultar ? 'A consultar' : selected.precio_uf ? `UF ${selected.precio_uf.toLocaleString('es-CL')}` : '—'}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <Link to={`/propiedades/${selected.slug || selected.id}`} style={{ flex: 1, textAlign: 'center', padding: '8px', background: 'var(--navy-dark)', color: '#fff', borderRadius: 2, textDecoration: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>
+              <Link className="text-sdm-sm tracking-sdm-wide" to={`/propiedades/${selected.slug || selected.id}`} style={{ flex: 1, textAlign: 'center', padding: '8px', background: 'var(--navy-dark)', color: '#fff', borderRadius: 2, textDecoration: 'none', fontWeight: 600, textTransform: 'uppercase' }}>
                 Ver propiedad
               </Link>
-              <button onClick={() => setSelected(null)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 2, background: '#fff', cursor: 'pointer', fontSize: 16 }}>×</button>
+              <button className="text-sdm-lg" onClick={() => setSelected(null)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 2, background: '#fff', cursor: 'pointer' }}>×</button>
             </div>
           </div>
         </div>
@@ -251,24 +251,24 @@ export default function PropiedadesPage() {
       <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[#e8edf2]">
         <div className="section-label" style={{ marginBottom: 14 }}>Catálogo</div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <h1 className="font-serif font-light" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.05, letterSpacing: '-0.5px' }}>
+          <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.05 }}>
             {pageTitle}
           </h1>
           <div className="flex items-center gap-3 mt-2">
             {/* View toggle */}
             <div className="flex" style={{ border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
-              <button onClick={() => setViewMode('grid')}
-                style={{ padding: '8px 14px', background: viewMode === 'grid' ? 'var(--navy-dark)' : '#fff', color: viewMode === 'grid' ? '#fff' : 'var(--muted)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 500, transition: 'all 0.2s' }}>
+              <button className="text-sdm-sm" onClick={() => setViewMode('grid')}
+                style={{ padding: '8px 14px', background: viewMode === 'grid' ? 'var(--navy-dark)' : '#fff', color: viewMode === 'grid' ? '#fff' : 'var(--muted)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, transition: 'all 0.2s' }}>
                 <Grid size={14} /> Lista
               </button>
-              <button onClick={() => setViewMode('map')}
-                style={{ padding: '8px 14px', background: viewMode === 'map' ? 'var(--navy-dark)' : '#fff', color: viewMode === 'map' ? '#fff' : 'var(--muted)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 500, transition: 'all 0.2s' }}>
+              <button className="text-sdm-sm" onClick={() => setViewMode('map')}
+                style={{ padding: '8px 14px', background: viewMode === 'map' ? 'var(--navy-dark)' : '#fff', color: viewMode === 'map' ? '#fff' : 'var(--muted)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, transition: 'all 0.2s' }}>
                 <Map size={14} /> Mapa
               </button>
             </div>
             <button onClick={() => setPanelOpen(v => !v)}
-              className="flex items-center gap-2"
-              style={{ fontSize: 13, color: panelOpen ? 'var(--green)' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase' }}>
+              className="flex items-center gap-2 text-sdm-sm tracking-sdm-wide"
+              style={{ color: panelOpen ? 'var(--green)' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, textTransform: 'uppercase' }}>
               <SlidersHorizontal size={14} />
               Filtros {activeFiltros.length > 0 && `(${activeFiltros.length})`}
             </button>
@@ -285,8 +285,8 @@ export default function PropiedadesPage() {
               { label: 'Precio',   key: 'precio_max', opts: PRECIOS },
             ].map(f => (
               <div key={f.key}>
-                <label style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>{f.label}</label>
-                <select value={(filtros as Record<string,unknown>)[f.key] as string || ''}
+                <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>{f.label}</label>
+                <select className="text-sdm-base" value={(filtros as Record<string,unknown>)[f.key] as string || ''}
                   onChange={e => {
                     const nuevos = new URLSearchParams(searchParams)
                     if (e.target.value) nuevos.set(f.key, e.target.value)
@@ -294,15 +294,15 @@ export default function PropiedadesPage() {
                     if (f.key === 'region') nuevos.delete('comuna')
                     setSearchParams(nuevos, { replace: true })
                   }}
-                  style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontSize: 14, fontFamily: 'inherit', color: 'var(--ink)', background: 'transparent', outline: 'none', cursor: 'pointer' }}>
+                  style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: 'var(--ink)', background: 'transparent', outline: 'none', cursor: 'pointer' }}>
                   {f.opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
             ))}
             {/* Comuna filter */}
             <div>
-              <label style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Comuna</label>
-              <select
+              <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Comuna</label>
+              <select className="text-sdm-base"
                 value={filtros.comuna || ''}
                 onChange={e => {
                   const nuevos = new URLSearchParams(searchParams)
@@ -311,7 +311,7 @@ export default function PropiedadesPage() {
                   setSearchParams(nuevos, { replace: true })
                 }}
                 disabled={!filtros.region}
-                style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontSize: 14, fontFamily: 'inherit', color: filtros.region ? 'var(--ink)' : 'var(--muted)', background: 'transparent', outline: 'none', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
+                style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: filtros.region ? 'var(--ink)' : 'var(--muted)', background: 'transparent', outline: 'none', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
               >
                 <option value="">{filtros.region ? 'Todas las comunas' : 'Primero elige región'}</option>
                 {filtros.region && getComunas(filtros.region).map(c => (
@@ -326,8 +326,8 @@ export default function PropiedadesPage() {
         {activeFiltros.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
             {activeFiltros.map(([key, val]) => (
-              <span key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer"
-                style={{ fontSize: 12, fontWeight: 400, background: '#fff', border: '1px solid var(--border)', color: 'var(--ink)', transition: 'border-color 0.2s, background 0.2s' }}
+              <span key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer text-sdm-sm"
+                style={{ fontWeight: 400, background: '#fff', border: '1px solid var(--border)', color: 'var(--ink)', transition: 'border-color 0.2s, background 0.2s' }}
                 onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--off)'; e.currentTarget.style.borderColor = 'var(--muted)' }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'var(--border)' }}>
@@ -341,7 +341,7 @@ export default function PropiedadesPage() {
 
       {/* Count */}
       <div className="px-4 lg:px-12 pt-6 pb-2">
-        <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+        <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
           {loading ? 'Cargando...' : `${displayProps.length} ${displayProps.length === 1 ? 'propiedad encontrada' : 'propiedades encontradas'}`}
         </p>
       </div>
@@ -354,7 +354,7 @@ export default function PropiedadesPage() {
       ) : displayProps.length === 0 ? (
         filtros.estado === 'en_arriendo' ? <SinArriendos /> : (
           <div className="text-center py-24">
-            <p style={{ fontSize: 18, color: 'var(--muted)', fontWeight: 300 }}>No se encontraron propiedades.</p>
+            <p className="text-sdm-xl" style={{ color: 'var(--muted)', fontWeight: 300 }}>No se encontraron propiedades.</p>
           </div>
         )
       ) : viewMode === 'map' ? (

@@ -81,28 +81,28 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
         {/* Columna izquierda — título fijo */}
         <div style={{ textAlign: 'center' }} className="lg:text-left">
           <div className="section-label" style={{ marginBottom: 18, justifyContent: 'center' }}>{t.sections.testimonios.label}</div>
-          <h2 className="font-serif font-light" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
+          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1 }}>
             {get('testimonios_titulo', 'Palabras de nuestros clientes')}
           </h2>
           <div style={{ width: 40, height: 1, background: 'var(--green)', margin: '24px auto 14px' }} />
-          <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>
+          <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>
             {get('testimonios_subtitulo', t.sections.testimonios.sub)}
           </p>
 
           {/* Controles */}
           {items.length > 1 && (
             <div className="flex items-center gap-4 mt-10" style={{ justifyContent: 'center' }}>
-              <button onClick={prev}
-                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: 'var(--navy-dark)', transition: 'all 0.2s' }}
+              <button className="text-sdm-xl" onClick={prev}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--navy-dark)', transition: 'all 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.borderColor = 'var(--border)' }}
               >↑</button>
-              <button onClick={next}
-                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: 'var(--navy-dark)', transition: 'all 0.2s' }}
+              <button className="text-sdm-xl" onClick={next}
+                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--navy-dark)', transition: 'all 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.borderColor = 'var(--border)' }}
               >↓</button>
-              <span style={{ fontSize: 12, color: 'var(--muted)', letterSpacing: '2px' }}>
+              <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>
                 {String(current + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
               </span>
             </div>
@@ -126,12 +126,12 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
               <p className="font-serif italic font-light" style={{ fontSize: 'clamp(18px,2.5vw,24px)', color: 'var(--ink)', lineHeight: 1.7, marginBottom: 20 }}>
                 "{item.texto}"
               </p>
-              <div style={{ fontSize: 13, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: item.url ? 12 : 0 }}>
+              <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: item.url ? 12 : 0 }}>
                 {item.autor}
               </div>
               {item.url && (
-                <a href={item.url} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green)', paddingBottom: 2 }}
+                <a className="text-sdm-sm tracking-sdm-wide" href={item.url} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12, fontWeight: 600, textTransform: 'uppercase', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green)', paddingBottom: 2 }}
                 >
                   Conoce la historia →
                 </a>
@@ -218,10 +218,10 @@ export default function HomePage() {
             <div className="section-label" style={{ marginBottom: 12, justifyContent: 'center' }}>
               {get('props_label', t.sections.propiedades.label)}
             </div>
-            <h2 className="font-serif font-light" style={{ fontSize: 'clamp(32px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
+            <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(32px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
               {get('props_titulo', 'Oportunidades')} <em>{get('props_titulo_em', 'en Chile')}</em>
             </h2>
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>
               {get('props_sub', t.sections.propiedades.sub)}
             </p>
           </div>
@@ -259,7 +259,7 @@ export default function HomePage() {
               {t.sections.financiamiento.title.split('financiamiento')[0]}
               <br /><em style={{ color: 'var(--sky)' }}>financiamiento</em>?
             </h2>
-            <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.9, color: 'rgba(255,255,255,0.5)', marginTop: 20 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: 'rgba(255,255,255,0.5)', marginTop: 20 }}>
               {get('financiamiento_body', t.sections.financiamiento.body)}
             </p>
           </div>
@@ -289,7 +289,7 @@ export default function HomePage() {
         >
           {finImg
             ? <img src={finImg} alt="Financiamiento" className="w-full h-full object-cover" style={{ minHeight: 440 }} />
-            : <span className="font-serif italic" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }}>Fotografía de apoyo</span>
+            : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.15)' }}>Fotografía de apoyo</span>
           }
         </div>
       </div>

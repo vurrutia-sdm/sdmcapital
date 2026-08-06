@@ -46,17 +46,14 @@ const REGIONES = [
 
 function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <button
+    <button className="text-sdm-xs tracking-sdm-wide"
       onClick={onClick}
-      style={{
-        padding: '6px 20px', fontSize: 11, fontWeight: active ? 600 : 400,
-        letterSpacing: '1.5px', textTransform: 'uppercase',
+      style={{ padding: '6px 20px', fontWeight: active ? 600 : 400, textTransform: 'uppercase',
         border: active ? '1px solid var(--navy-dark)' : '1px solid var(--border)',
         borderRadius: 20,
         background: active ? 'var(--navy-dark)' : 'transparent',
         color: active ? '#fff' : 'var(--muted)',
-        cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.18s', whiteSpace: 'nowrap',
-      }}
+        cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.18s', whiteSpace: 'nowrap' }}
     >
       {label}
     </button>
@@ -81,31 +78,26 @@ function DropSelect({ label, options, value, onChange }: {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen(v => !v)}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
+      <button className="text-sdm-sm" onClick={() => setOpen(v => !v)}
+        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
           background: value ? 'var(--navy-dark)' : '#fff',
           color: value ? '#fff' : 'var(--ink)',
           border: `1px solid ${value ? 'var(--navy-dark)' : 'var(--border)'}`,
-          borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
-          fontSize: 13, fontWeight: value ? 500 : 300, transition: 'all 0.18s', whiteSpace: 'nowrap',
-        }}
+          borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit', fontWeight: value ? 500 : 300, transition: 'all 0.18s', whiteSpace: 'nowrap' }}
       >
-        <span style={{ fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase', opacity: 0.6, marginRight: 2 }}>{label}</span>
+        <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', opacity: 0.6, marginRight: 2 }}>{label}</span>
         {selected.label}
         <ChevronDown size={12} style={{ opacity: 0.6, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, minWidth: 200, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden', maxHeight: 320, overflowY: 'auto' }}>
           {options.map(opt => (
-            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false) }}
-              style={{
-                width: '100%', padding: '11px 16px', textAlign: 'left', fontSize: 14, fontWeight: 300,
+            <button className="text-sdm-base" key={opt.value} onClick={() => { onChange(opt.value); setOpen(false) }}
+              style={{ width: '100%', padding: '11px 16px', textAlign: 'left', fontWeight: 300,
                 color: opt.value === value ? 'var(--navy-dark)' : 'var(--muted)',
                 background: opt.value === value ? 'var(--sky-pale)' : 'transparent',
                 border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s',
-              }}
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
               onMouseEnter={e => { if (opt.value !== value) e.currentTarget.style.background = 'var(--off)' }}
               onMouseLeave={e => { if (opt.value !== value) e.currentTarget.style.background = 'transparent' }}
             >
@@ -173,7 +165,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
         }}
       >
         <Search size={16} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-        <span style={{ flex: 1, fontSize: 15, fontWeight: 300, color: hasValue ? 'var(--ink)' : 'var(--muted)', fontFamily: 'inherit' }}>
+        <span className="text-sdm-base" style={{ flex: 1, fontWeight: 300, color: hasValue ? 'var(--ink)' : 'var(--muted)', fontFamily: 'inherit' }}>
           {label}
         </span>
         {hasValue && (
@@ -189,15 +181,15 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
 
           {/* Tabs región / comuna */}
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
-            <button
+            <button className="text-sdm-xs tracking-sdm-wide"
               onClick={() => setStep('region')}
-              style={{ flex: 1, padding: '10px 0', fontSize: 11, fontWeight: step === 'region' ? 600 : 400, letterSpacing: '1.5px', textTransform: 'uppercase', border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit', color: step === 'region' ? 'var(--navy-dark)' : 'var(--muted)', borderBottom: step === 'region' ? '2px solid var(--navy-dark)' : '2px solid transparent' }}
+              style={{ flex: 1, padding: '10px 0', fontWeight: step === 'region' ? 600 : 400, textTransform: 'uppercase', border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit', color: step === 'region' ? 'var(--navy-dark)' : 'var(--muted)', borderBottom: step === 'region' ? '2px solid var(--navy-dark)' : '2px solid transparent' }}
             >
               Región
             </button>
-            <button
+            <button className="text-sdm-xs tracking-sdm-wide"
               onClick={() => region && setStep('comuna')}
-              style={{ flex: 1, padding: '10px 0', fontSize: 11, fontWeight: step === 'comuna' ? 600 : 400, letterSpacing: '1.5px', textTransform: 'uppercase', border: 'none', background: 'none', cursor: region ? 'pointer' : 'not-allowed', fontFamily: 'inherit', color: step === 'comuna' ? 'var(--navy-dark)' : region ? 'var(--muted)' : 'var(--border)', borderBottom: step === 'comuna' ? '2px solid var(--navy-dark)' : '2px solid transparent', opacity: region ? 1 : 0.4 }}
+              style={{ flex: 1, padding: '10px 0', fontWeight: step === 'comuna' ? 600 : 400, textTransform: 'uppercase', border: 'none', background: 'none', cursor: region ? 'pointer' : 'not-allowed', fontFamily: 'inherit', color: step === 'comuna' ? 'var(--navy-dark)' : region ? 'var(--muted)' : 'var(--border)', borderBottom: step === 'comuna' ? '2px solid var(--navy-dark)' : '2px solid transparent', opacity: region ? 1 : 0.4 }}
             >
               Comuna
             </button>
@@ -206,14 +198,12 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
           {/* Lista */}
           <div style={{ maxHeight: 280, overflowY: 'auto' }}>
             {step === 'region' && REGIONES.map(r => (
-              <button key={r.value} onClick={() => handleRegion(r.value)}
-                style={{
-                  width: '100%', padding: '11px 16px', textAlign: 'left', fontSize: 14, fontWeight: 300,
+              <button className="text-sdm-base" key={r.value} onClick={() => handleRegion(r.value)}
+                style={{ width: '100%', padding: '11px 16px', textAlign: 'left', fontWeight: 300,
                   color: r.value === region ? 'var(--navy-dark)' : 'var(--muted)',
                   background: r.value === region ? 'var(--sky-pale)' : 'transparent',
                   border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s',
-                }}
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
                 onMouseEnter={e => { if (r.value !== region) e.currentTarget.style.background = 'var(--off)' }}
                 onMouseLeave={e => { if (r.value !== region) e.currentTarget.style.background = 'transparent' }}
               >
@@ -222,14 +212,12 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
               </button>
             ))}
             {step === 'comuna' && comunas.map(c => (
-              <button key={c} onClick={() => handleComuna(c)}
-                style={{
-                  width: '100%', padding: '11px 16px', textAlign: 'left', fontSize: 14, fontWeight: 300,
+              <button className="text-sdm-base" key={c} onClick={() => handleComuna(c)}
+                style={{ width: '100%', padding: '11px 16px', textAlign: 'left', fontWeight: 300,
                   color: c === comuna ? 'var(--navy-dark)' : 'var(--muted)',
                   background: c === comuna ? 'var(--sky-pale)' : 'transparent',
                   border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s',
-                }}
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
                 onMouseEnter={e => { if (c !== comuna) e.currentTarget.style.background = 'var(--off)' }}
                 onMouseLeave={e => { if (c !== comuna) e.currentTarget.style.background = 'transparent' }}
               >
@@ -289,8 +277,8 @@ export default function SearchBar() {
             onChangeComuna={setComuna}
           />
 
-          <button onClick={handleSearch}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+          <button className="text-sdm-sm tracking-sdm-wide" onClick={handleSearch}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--navy-dark)'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--green)'}
           >
@@ -300,12 +288,12 @@ export default function SearchBar() {
 
         {/* Fila 2: filtros opcionales */}
         <div className="flex items-center gap-3">
-          <span style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase', marginRight: 4 }}>Filtrar por</span>
+          <span className="text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase', marginRight: 4 }}>Filtrar por</span>
           <DropSelect label="Tipo · " options={TIPOS} value={tipo} onChange={setTipo} />
           <DropSelect label="Precio · " options={PRECIOS} value={precio} onChange={setPrecio} />
           {(tipo || precio || region || comuna) && (
-            <button onClick={() => { setTipo(''); setPrecio(''); setRegion(''); setComuna('') }}
-              style={{ fontSize: 12, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
+            <button className="text-sdm-sm" onClick={() => { setTipo(''); setPrecio(''); setRegion(''); setComuna('') }}
+              style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
               Limpiar filtros
             </button>
           )}
@@ -319,26 +307,26 @@ export default function SearchBar() {
             { key: 'comprar', label: 'Comprar' },
             { key: 'arrendar', label: 'Arrendar' },
           ] as { key: Tab; label: string }[]).map(item => (
-            <button key={item.key} onClick={() => setTab(item.key)}
-              style={{ flex: 1, padding: '7px 4px', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', border: 'none', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: tab === item.key ? 'var(--green)' : 'rgba(255,255,255,0.1)', color: tab === item.key ? '#fff' : 'rgba(255,255,255,0.6)' }}
+            <button className="text-sdm-xs tracking-sdm-wide" key={item.key} onClick={() => setTab(item.key)}
+              style={{ flex: 1, padding: '7px 4px', fontWeight: 600, textTransform: 'uppercase', border: 'none', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: tab === item.key ? 'var(--green)' : 'rgba(255,255,255,0.1)', color: tab === item.key ? '#fff' : 'rgba(255,255,255,0.6)' }}
             >{item.label}</button>
           ))}
         </div>
 
         {/* Región mobile */}
         <div className="mb-2" style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)' }}>
-          <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Región</div>
-          <select value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
-            style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 13, fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
+          <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Región</div>
+          <select className="text-sdm-sm" value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
+            style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
             {REGIONES.map(r => <option key={r.value} value={r.value} style={{ color: 'var(--ink)', background: '#fff' }}>{r.label}</option>)}
           </select>
         </div>
 
         {/* Comuna mobile */}
         <div className="mb-3" style={{ background: region ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)', opacity: region ? 1 : 0.5 }}>
-          <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Comuna</div>
-          <select value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
-            style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 13, fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed' }}>
+          <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Comuna</div>
+          <select className="text-sdm-sm" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
+            style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed' }}>
             <option value="" style={{ color: 'var(--ink)', background: '#fff' }}>{region ? 'Todas las comunas' : 'Primero elige región'}</option>
             {region && getComunas(region).map(c => <option key={c} value={c} style={{ color: 'var(--ink)', background: '#fff' }}>{c}</option>)}
           </select>
@@ -347,15 +335,15 @@ export default function SearchBar() {
         <div className="flex gap-2 mb-3">
           {[{ label: 'Tipo', options: TIPOS, value: tipo, onChange: setTipo }, { label: 'Precio', options: PRECIOS, value: precio, onChange: setPrecio }].map(f => (
             <div key={f.label} style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.12)' }}>
-              <div style={{ fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>{f.label}</div>
-              <select value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 12, fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>{f.label}</div>
+              <select className="text-sdm-sm" value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
                 {f.options.map(o => <option key={o.value} value={o.value} style={{ color: 'var(--ink)', background: '#fff' }}>{o.label}</option>)}
               </select>
             </div>
           ))}
         </div>
 
-        <button onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button className="text-sdm-sm tracking-sdm-wide" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
           <Search size={14} /> Buscar
         </button>
       </div>

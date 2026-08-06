@@ -42,7 +42,7 @@ export default function ContactSection() {
           <div className="section-label section-label--light justify-center" style={{ marginBottom: 16 }}>
             Contáctanos
           </div>
-          <h2 className="font-serif font-light" style={{ fontSize: 'clamp(36px,4vw,56px)', color: '#fff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(36px,4vw,56px)', color: '#fff', lineHeight: 1.1 }}>
             Hablemos de <em>tus metas</em>
           </h2>
         </div>
@@ -50,34 +50,34 @@ export default function ContactSection() {
         {/* Formulario centrado */}
         <div className="bg-white rounded-sm p-10 lg:p-14 mb-12">
           {status === 'ok' ? (
-            <div className="py-12 text-center" style={{ color: 'var(--green)', fontSize: 18 }}>
+            <div className="py-12 text-center text-sdm-xl" style={{ color: 'var(--green)' }}>
               ✓ Mensaje enviado. Te contactaremos pronto.
             </div>
           ) : (
             <form onSubmit={submit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div className="flex flex-col gap-2">
-                  <label style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Nombre</label>
+                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Nombre</label>
                   <input required className="input-line" value={form.nombre} onChange={set('nombre')} placeholder="Tu nombre completo" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Email</label>
+                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Email</label>
                   <input required type="email" className="input-line" value={form.email} onChange={set('email')} placeholder="tu@email.com" />
                 </div>
               </div>
               <div className="flex flex-col gap-2 mb-8">
-                <label style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Teléfono</label>
+                <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Teléfono</label>
                 <input type="tel" className="input-line" value={form.telefono} onChange={set('telefono')} placeholder="+56 9 ···" />
               </div>
               <div className="flex flex-col gap-2 mb-10">
-                <label style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Mensaje</label>
+                <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Mensaje</label>
                 <textarea required className="input-line resize-none" rows={4} value={form.mensaje} onChange={set('mensaje')} placeholder="¿En qué te podemos ayudar?" />
               </div>
               {status === 'error' && (
-                <p style={{ fontSize: 14, color: '#E24B4A', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
+                <p className="text-sdm-base" style={{ color: '#E24B4A', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
               )}
               <div className="flex justify-center">
-                <button type="submit" disabled={status === 'sending'} className="btn-primary disabled:opacity-60" style={{ padding: '13px 48px', fontSize: 12 }}>
+                <button type="submit" disabled={status === 'sending'} className="btn-primary disabled:opacity-60 text-sdm-sm" style={{ padding: '13px 48px' }}>
                   {status === 'sending' ? 'Enviando…' : 'Enviar →'}
                 </button>
               </div>
@@ -89,11 +89,11 @@ export default function ContactSection() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4">
           {CONTACT_INFO.map(item => (
             <div key={item.label} className="text-center">
-              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--sky)', marginBottom: 10, fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--sky)', marginBottom: 10, fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {item.label}
               </div>
               {item.lines.map((line, i) => (
-                <div key={i} style={{ fontSize: 16, fontWeight: 300, color: 'rgba(255,255,255,0.8)', lineHeight: 1.8, fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap' }}>
+                <div className="text-sdm-lg" key={i} style={{ fontWeight: 300, color: 'rgba(255,255,255,0.8)', lineHeight: 1.8, fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap' }}>
                   {line}
                 </div>
               ))}

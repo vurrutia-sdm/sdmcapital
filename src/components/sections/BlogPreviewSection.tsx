@@ -29,7 +29,7 @@ export default function BlogPreviewSection() {
   if (loading) return null
   if (posts.length === 0) return (
     <section style={{ paddingLeft: 'clamp(16px, 5vw, 48px)', paddingRight: 'clamp(16px, 5vw, 48px)', paddingTop: 40, paddingBottom: 40 }}>
-      <p style={{ fontSize: 13, color: 'var(--muted)' }}>DEBUG: BlogPreviewSection montado — 0 posts encontrados</p>
+      <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>DEBUG: BlogPreviewSection montado — 0 posts encontrados</p>
     </section>
   )
 
@@ -44,12 +44,12 @@ export default function BlogPreviewSection() {
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 48, flexWrap: 'wrap', gap: 16 }}>
         <div>
           <div className="section-label" style={{ marginBottom: 16 }}>Artículos y noticias</div>
-          <h2 className="font-serif font-light" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08, letterSpacing: '-0.5px' }}>
+          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
             Últimas <em>publicaciones</em>
           </h2>
         </div>
-        <Link to="/blog"
-          style={{ fontSize: 11, fontWeight: 400, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', textDecoration: 'none', borderBottom: '1px solid var(--navy-dark)', paddingBottom: 2, whiteSpace: 'nowrap' }}
+        <Link className="text-sdm-xs tracking-sdm-wide" to="/blog"
+          style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--navy-dark)', textDecoration: 'none', borderBottom: '1px solid var(--navy-dark)', paddingBottom: 2, whiteSpace: 'nowrap' }}
           onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--green)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--green)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--navy-dark)' }}
         >Ver todos los artículos →</Link>
@@ -73,12 +73,12 @@ export default function BlogPreviewSection() {
           </div>
           <div style={{ padding: '32px 36px 40px', flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
-              {main.categoria && <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--green)' }}>{main.categoria}</span>}
-              <span style={{ fontSize: 12, color: 'var(--border)' }}>·</span>
-              <span style={{ fontSize: 12, fontWeight: 300, color: 'var(--muted)' }}>{getFecha(main)}</span>
+              {main.categoria && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{main.categoria}</span>}
+              <span className="text-sdm-sm" style={{ color: 'var(--border)' }}>·</span>
+              <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(main)}</span>
             </div>
-            <h3 className="font-serif font-light" style={{ fontSize: 'clamp(22px,3vw,30px)', color: 'var(--navy-dark)', lineHeight: 1.2, letterSpacing: '-0.3px', marginBottom: 16, flex: 1 }}>{getTitle(main)}</h3>
-            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 2 }}>Leer artículo →</div>
+            <h3 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(22px,3vw,30px)', color: 'var(--navy-dark)', lineHeight: 1.2, marginBottom: 16, flex: 1 }}>{getTitle(main)}</h3>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 2 }}>Leer artículo →</div>
           </div>
         </Link>
 
@@ -99,12 +99,12 @@ export default function BlogPreviewSection() {
               </div>
               <div style={{ padding: '20px 24px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 10 }}>
-                  {post.categoria && <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--green)' }}>{post.categoria}</span>}
-                  <span style={{ fontSize: 12, color: 'var(--border)' }}>·</span>
-                  <span style={{ fontSize: 12, fontWeight: 300, color: 'var(--muted)' }}>{getFecha(post)}</span>
+                  {post.categoria && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{post.categoria}</span>}
+                  <span className="text-sdm-sm" style={{ color: 'var(--border)' }}>·</span>
+                  <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(post)}</span>
                 </div>
-                <h3 className="font-serif font-light" style={{ fontSize: 'clamp(16px,2vw,19px)', color: 'var(--navy-dark)', lineHeight: 1.25, letterSpacing: '-0.2px', flex: 1, marginBottom: 16 }}>{getTitle(post)}</h3>
-                <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 1 }}>Leer →</div>
+                <h3 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(16px,2vw,19px)', color: 'var(--navy-dark)', lineHeight: 1.25, flex: 1, marginBottom: 16 }}>{getTitle(post)}</h3>
+                <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 1 }}>Leer →</div>
               </div>
             </Link>
           ))}

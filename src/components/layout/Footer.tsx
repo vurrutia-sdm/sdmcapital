@@ -66,17 +66,17 @@ export default function Footer() {
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-serif text-[20px] font-semibold tracking-[3px]" style={{ color: 'var(--navy-dark)' }}>SDM</span>
-                <span style={{ fontSize: 9, letterSpacing: '5px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2, display: 'block' }}>Capital</span>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2, display: 'block' }}>Capital</span>
               </div>
             </div>
-            <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.9, color: 'var(--muted)', maxWidth: 220 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: 'var(--muted)', maxWidth: 220 }}>
               {get('footer_tagline', 'Tu socio confiable en el mundo de los bienes raíces.')}
             </p>
           </div>
 
           {/* Navegación */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
               Navegación
             </div>
             {[
@@ -88,13 +88,13 @@ export default function Footer() {
               { to: '/vende-con-nosotros', label: 'Vende con nosotros' },
               { to: 'https://www.flow.cl/uri/gHSdT2jVv', label: 'Reserva tu propiedad', external: true },
             ].map(l => l.external ? (
-              <a key={l.to} href={l.to} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'block', fontSize: 15, fontWeight: 300, marginBottom: 10, color: 'var(--navy-dark)', textDecoration: 'none', letterSpacing: '0.5px' }}
+              <a className="text-sdm-base tracking-sdm-wide" key={l.to} href={l.to} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'block', fontWeight: 300, marginBottom: 10, color: 'var(--navy-dark)', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
               >{l.label}</a>
             ) : (
-              <Link key={l.to} to={l.to} style={{ display: 'block', fontSize: 15, fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
+              <Link className="text-sdm-base" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
               >{l.label}</Link>
@@ -103,7 +103,7 @@ export default function Footer() {
 
           {/* Servicios */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
               Servicios
             </div>
             {[
@@ -111,7 +111,7 @@ export default function Footer() {
               { to: '/servicios/financiamiento-empresas', label: 'Financiamiento Empresas' },
               { to: '/servicios/inversion-internacional', label: 'Inversión Internacional' },
             ].map(l => (
-              <Link key={l.to} to={l.to} style={{ display: 'block', fontSize: 15, fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
+              <Link className="text-sdm-base" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
               >{l.label}</Link>
@@ -120,7 +120,7 @@ export default function Footer() {
 
           {/* Síguenos */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
               Síguenos
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -130,7 +130,7 @@ export default function Footer() {
                   <div style={{ width: 32, height: 32, minWidth: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e8edf2', borderRadius: '50%' }}>
                     <SocialIcon s={s} />
                   </div>
-                  <span style={{ fontSize: 15, fontWeight: 300, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
+                  <span className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
                     {s.label}
                   </span>
                 </a>
@@ -141,7 +141,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)', textAlign: 'center' }}>
+          <p className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)', textAlign: 'center' }}>
             © 2026 SDM Capital · Todos los derechos reservados · Diseño{' '}
             <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer"
               style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
@@ -167,7 +167,7 @@ export default function Footer() {
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
             >Eliminación de Datos</Link>
           </p>
-          <p style={{ fontSize: 12, fontWeight: 300, color: 'var(--border)', letterSpacing: '2px', textTransform: 'uppercase', textAlign: 'center' }}>
+          <p className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--border)', textTransform: 'uppercase', textAlign: 'center' }}>
             Las Condes · Santiago · Chile
           </p>
         </div>

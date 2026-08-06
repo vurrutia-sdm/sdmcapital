@@ -32,10 +32,10 @@ function AnimatedStat({ n, unit, label }: { n: number; unit: string; label: stri
   }, [])
   return (
     <div ref={ref} className="border-t pt-3" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
-      <div className="font-serif" style={{ fontSize: 38, fontWeight: 300, color: '#fff', lineHeight: 1 }}>
-        {count}<span style={{ fontSize: 28, color: 'var(--green)' }}>{unit}</span>
+      <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: '#fff' }}>
+        {count}<span className="text-sdm-display-sm" style={{ color: 'var(--green)' }}>{unit}</span>
       </div>
-      <div style={{ fontSize: 11, fontWeight: 400, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>
+      <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>
         {label}
       </div>
     </div>
@@ -196,7 +196,7 @@ export default function HeroSection() {
       <div className="relative h-full flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-14" style={{ zIndex: 4 }}>
 
         {/* Kicker */}
-        <div className="flex items-start gap-3" style={{ fontSize: 11, fontWeight: 400, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--green)' }}>
+        <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green)' }}>
           <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
           <span>
             Inversión inmobiliaria<br />
@@ -206,7 +206,7 @@ export default function HeroSection() {
 
         {/* Headline */}
         <div>
-          <div className="font-serif" style={{ fontSize: 'clamp(52px,6.5vw,88px)', fontWeight: 300, lineHeight: 1.03, letterSpacing: '-1.5px', color: '#fff' }}>
+          <div className="font-serif tracking-sdm-tight" style={{ fontSize: 'clamp(52px,6.5vw,88px)', fontWeight: 300, lineHeight: 1.03, color: '#fff' }}>
             <span style={{ display: 'block' }}>{titulo1}</span>
             <span style={{ display: 'block' }}>
               {titulo2.startsWith('en ') ? (
@@ -217,7 +217,7 @@ export default function HeroSection() {
             </span>
             <span style={{ display: 'block', fontWeight: 600 }}>{titulo3}</span>
           </div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.8)', borderLeft: '2px solid var(--green)', paddingLeft: 16, maxWidth: 460, lineHeight: 1.85, marginTop: 24 }}>
+          <p className="text-sdm-base" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.8)', borderLeft: '2px solid var(--green)', paddingLeft: 16, maxWidth: 460, lineHeight: 1.85, marginTop: 24 }}>
             {subtitulo}
           </p>
         </div>
@@ -232,7 +232,7 @@ export default function HeroSection() {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--green)' }} />
-              <span style={{ fontSize: 11, fontWeight: 300, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>
+              <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>
                 {location}
               </span>
             </div>

@@ -98,7 +98,7 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
                   }}
                 />
               ) : (
-                <span className="font-serif italic" style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>
+                <span className="font-serif italic text-sdm-sm" style={{ color: 'rgba(255,255,255,0.2)' }}>
                   {propiedad.tipo} · {propiedad.comuna}
                 </span>
               )}
@@ -125,50 +125,50 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
 
       {/* Body */}
       <div className="p-5 lg:p-6">
-        <div className="font-serif mb-1.5" style={{ fontSize: 21, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>
+        <div className="font-serif mb-1.5 text-sdm-2xl" style={{ fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>
           {priceDisplay}
           {priceLabel && (
-            <small className="font-sans ml-1.5" style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            <small className="font-sans ml-1.5 text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--muted)', textTransform: 'uppercase' }}>
               {priceLabel}
             </small>
           )}
         </div>
         {/* Precio anterior tachado */}
         {propiedad.baja_precio && propiedad.precio_anterior_uf && (
-          <div style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
+          <div className="text-sdm-sm" style={{ color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
             Antes: UF {propiedad.precio_anterior_uf.toLocaleString('es-CL')}
           </div>
         )}
-        <div className="font-sans font-light leading-[1.5] mb-2.5" style={{ fontSize: 15, color: 'var(--ink)' }}>
+        <div className="font-sans font-light leading-[1.5] mb-2.5 text-sdm-base" style={{ color: 'var(--ink)' }}>
           {titulo}
         </div>
         <div
-          className="font-sans font-light tracking-[1px] uppercase flex items-center gap-1.5 mb-3.5"
-          style={{ fontSize: 15, color: 'var(--muted)' }}
+          className="font-sans font-light tracking-[1px] uppercase flex items-center gap-1.5 mb-3.5 text-sdm-base"
+          style={{ color: 'var(--muted)' }}
         >
           <span style={{ width: 12, height: 1, background: 'var(--muted)', display: 'inline-block' }} />
           {propiedad.comuna} · {propiedad.region}
         </div>
         <div className="flex gap-4 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
           {propiedad.dormitorios !== undefined && (
-            <div style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>
-              <strong className="font-serif block" style={{ fontSize: 17, fontWeight: 400, color: 'var(--navy-dark)' }}>
+            <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
+              <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
                 {propiedad.dormitorios || '—'}
               </strong>
               {p.dormitorios}
             </div>
           )}
           {propiedad.banos !== undefined && (
-            <div style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>
-              <strong className="font-serif block" style={{ fontSize: 17, fontWeight: 400, color: 'var(--navy-dark)' }}>
+            <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
+              <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
                 {propiedad.banos || '—'}
               </strong>
               {p.banos}
             </div>
           )}
           {propiedad.superficie_total !== undefined && (
-            <div style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>
-              <strong className="font-serif block" style={{ fontSize: 17, fontWeight: 400, color: 'var(--navy-dark)' }}>
+            <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
+              <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
                 {propiedad.superficie_total || '—'}
               </strong>
               {p.superficie}
@@ -178,7 +178,7 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
 
         {/* Info de proyecto nuevo — etapa y fecha de entrega */}
         {propiedad.categoria === 'proyecto_nuevo' && (propiedad.etapa_construccion || propiedad.fecha_entrega) && (
-          <div className="mt-2.5 pt-2.5 border-t" style={{ borderColor: 'var(--border)', fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>
+          <div className="mt-2.5 pt-2.5 border-t text-sdm-sm" style={{ borderColor: 'var(--border)', fontWeight: 300, color: 'var(--muted)' }}>
             {[
               propiedad.etapa_construccion ? ETAPA_LABELS[propiedad.etapa_construccion] : null,
               propiedad.fecha_entrega ? `Entrega: ${propiedad.fecha_entrega}` : null,

@@ -39,9 +39,9 @@ export default function BannerPromo() {
     padding: '13px 30px',
     background: 'var(--green)',
     color: '#fff',
-    fontSize: 13,
+    fontSize: 'var(--sdm-text-sm)',
     fontWeight: 500,
-    letterSpacing: '1.5px',
+    letterSpacing: 'var(--sdm-tracking-wide)',
     textTransform: 'uppercase',
     textDecoration: 'none',
     borderRadius: 2,
@@ -127,8 +127,8 @@ export default function BannerPromo() {
           )}
 
           <h2
-            className="font-serif"
-            style={{ fontWeight: 300, fontSize: 'clamp(30px,3.4vw,42px)', color: '#fff', lineHeight: 1.1, letterSpacing: '-0.4px' }}
+            className="font-serif tracking-sdm-tight"
+            style={{ fontWeight: 300, fontSize: 'clamp(30px,3.4vw,42px)', color: '#fff', lineHeight: 1.1 }}
           >
             {titulo}
           </h2>
@@ -136,7 +136,7 @@ export default function BannerPromo() {
           <div aria-hidden="true" style={{ width: 44, height: 2, background: 'var(--green)', marginTop: 18, marginBottom: 18 }} />
 
           {subtitulo && (
-            <p style={{ fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.62)', lineHeight: 1.6, maxWidth: 460, marginBottom: 26 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.62)', lineHeight: 1.6, maxWidth: 460, marginBottom: 26 }}>
               {subtitulo}
             </p>
           )}

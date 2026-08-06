@@ -30,7 +30,7 @@ export default function Header() {
   }
 
   const navLinkStyle = (active: boolean) => ({
-    fontSize: 11, fontWeight: 400, letterSpacing: '1.2px' as const,
+    fontSize: 'var(--sdm-text-xs)', fontWeight: 400, letterSpacing: 'var(--sdm-tracking-wide)' as const,
     textTransform: 'uppercase' as const, padding: '8px 12px',
     color: active ? 'var(--navy-dark)' : 'var(--muted)',
     textDecoration: 'none', whiteSpace: 'nowrap' as const, transition: 'color 0.2s',
@@ -50,7 +50,7 @@ export default function Header() {
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-serif text-[22px] font-semibold tracking-[3px]" style={{ color: 'var(--navy-dark)' }}>SDM</span>
-            <span style={{ fontSize: 9, fontWeight: 400, letterSpacing: '5px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2, display: 'block' }}>Capital</span>
+            <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2, display: 'block' }}>Capital</span>
           </div>
         </Link>
 
@@ -75,19 +75,19 @@ export default function Header() {
             </Link>
             {propiedadesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
-                <Link to="/propiedades-usadas?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
+                <Link className="text-sdm-sm" to="/propiedades-usadas?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
                 >En Venta</Link>
-                <Link to="/propiedades-usadas?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
+                <Link className="text-sdm-sm" to="/propiedades-usadas?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
                 >En Arriendo</Link>
-                <Link to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
+                <Link className="text-sdm-sm" to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
                 >Ver todas</Link>
-                <Link to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
+                <Link className="text-sdm-sm" to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
                   onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
                 >Vende con nosotros</Link>
@@ -110,7 +110,7 @@ export default function Header() {
             {servicesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 240, borderRadius: 2 }}>
                 {SERVICES.map(s => (
-                  <Link key={s.slug} to={`/servicios/${s.slug}`} style={{ display: 'block', padding: '10px 20px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
+                  <Link className="text-sdm-sm" key={s.slug} to={`/servicios/${s.slug}`} style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
                     onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
                     onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
                   >{s.label}</Link>
@@ -119,8 +119,8 @@ export default function Header() {
             )}
           </div>
 
-          <button onClick={handleContacto}
-            style={{ fontSize: 11, fontWeight: 400, letterSpacing: '1.2px', textTransform: 'uppercase', padding: '8px 12px', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+          <button className="text-sdm-xs tracking-sdm-wide" onClick={handleContacto}
+            style={{ fontWeight: 400, textTransform: 'uppercase', padding: '8px 12px', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
             onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
             onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
           >Contacto</button>
@@ -139,24 +139,24 @@ export default function Header() {
             { to: '/', label: 'Inicio' },
             { to: '/quienes-somos', label: 'Quiénes Somos' },
           ].map(l => (
-            <Link key={l.to} to={l.to} style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            <Link className="text-sdm-base tracking-sdm-wide" key={l.to} to={l.to} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
               {l.label}
             </Link>
           ))}
 
           {/* Propiedades Usadas */}
-          <Link to="/propiedades-usadas" style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+          <Link className="text-sdm-base tracking-sdm-wide" to="/propiedades-usadas" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
             Propiedades Usadas
           </Link>
-          <Link to="/propiedades-usadas?estado=en_venta" style={{ fontSize: 13, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+          <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas?estado=en_venta" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
             → En Venta
           </Link>
-          <Link to="/propiedades-usadas?estado=en_arriendo" style={{ fontSize: 13, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+          <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas?estado=en_arriendo" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
             → En Arriendo
           </Link>
 
           {/* Proyectos Nuevos */}
-          <Link to="/proyectos-nuevos" style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+          <Link className="text-sdm-base tracking-sdm-wide" to="/proyectos-nuevos" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
             Proyectos Nuevos
           </Link>
 
@@ -164,11 +164,11 @@ export default function Header() {
             { to: '/servicios', label: 'Servicios' },
             { to: '/rental',    label: 'SDM Rental' },
           ].map(l => (
-            <Link key={l.to} to={l.to} style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            <Link className="text-sdm-base tracking-sdm-wide" key={l.to} to={l.to} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
               {l.label}
             </Link>
           ))}
-          <button onClick={handleContacto} style={{ fontSize: 14, fontWeight: 300, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+          <button className="text-sdm-base tracking-sdm-wide" onClick={handleContacto} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
             Contacto
           </button>
         </div>
