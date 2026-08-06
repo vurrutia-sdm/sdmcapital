@@ -1212,7 +1212,15 @@ contenido guardado en `paginas_legales`, `blog` y `propiedades` tiene **cero**
 `text-align: center`; y los únicos contenedores con centrado por flexbox son
 los dos deliberados de arriba.
 
-Si el centrado se sigue viendo, no sale del admin.
+##### CERRADO: era contenido de base de datos, no estilo
+
+Falsa alarma, resuelta el 2026-08-06. Lo que se veía centrado en **Páginas
+Legales** es contenido guardado en la tabla, centrado en su momento desde el
+botón de alineación del editor. Es **dato editable, no estilo**, así que no se
+toca desde el código: se cambia desde el propio editor del admin.
+
+La conclusión del análisis era correcta: el centrado no existía en el código.
+Queda fuera de la lista de pendientes.
 
 #### Pendiente: las tablas siguen sin layout móvil
 
@@ -1277,9 +1285,24 @@ elemento:
 | 0.08em | 12px | **1,0px** | Showcase ×1 |
 
 **Los 17 caerían en `tracking-sdm-wide` (2px)**, pero sus valores reales van de
-1,0 a 4,0px. Convertirlos partiría a la mitad los cuatro más abiertos —los
-"eyebrow" en versalitas de 10px, que son la firma tipográfica de esa página— y
-duplicaría el más cerrado. Por eso quedan intactos hasta que se decida.
+1,0 a 4,0px.
+
+##### DECIDIDO: quedan como están. NO los conviertas.
+
+Excepción documentada, cerrada el 2026-08-06. Si abres
+`ElBarrancoShowcase.tsx` o `ElBarrancoBanner.tsx` y ves `letterSpacing` en
+`em` en vez de un token, **está bien y es deliberado**.
+
+Los cuatro más abiertos son *eyebrows* en versalitas de 10px, y a ese tamaño en
+mayúsculas el tracking amplio es justamente lo que los hace legibles — es el
+mismo principio que el sistema de diseño aplica en `.section-label` (`sans`
+uppercase de 13px con tracking de 3px). Colapsarlos a los 2px de
+`tracking-sdm-wide` los rompe.
+
+**Tampoco se crea un token propio.** Dos tokens de tracking ancho para
+distinguir 2px de 4px es una distinción que nadie recuerda y que termina
+aplicándose al azar. Vale más una excepción explícita en dos archivos que un
+token mal usado en veinte.
 
 #### Las constantes no pueden llevar `className`
 
