@@ -80,6 +80,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | RLS / exposición de datos | Diagnóstico de lectura anónima en Supabase. Solo investigación | Cerrada — derivó en la migración `20260805000300` |
 | 2026-08-05 | RLS / cierre de escritura anónima | Migración `20260805000300`: RLS en `propiedades`, `ficha_clientes`, `ficha_propiedades` y `sdm_agentes`. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada contra producción |
 | 2026-08-05 | RLS / `envios_plantilla` | Migración `20260805000400`: RLS en la última tabla de `public` que lo tenía apagado. Tabla de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada. **Falta confirmar que Sofía siga registrando envíos** |
+| 2026-08-05 | RLS / vistas de métricas | Migración `20260805000500`: `security_invoker` en las 4 vistas `metricas_*`, que evadían el RLS de las tablas de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada con medición antes/después |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -195,6 +196,66 @@ select count(*), max(created_at) from public.envios_plantilla;
 Si tras un envío real de plantilla ese conteo sigue en 0, el Worker está
 usando la anon key y no `service_role`. En ese caso **no** agregar una política
 para `anon`: hay que arreglar el Worker.
+
+### Sesión RLS vistas de métricas — 2026-08-05
+
+Migración `20260805000500_rls_vistas_metricas.sql`, aplicada.
+
+#### Una vista sin `security_invoker` es un bypass de RLS
+
+`metricas_calidad`, `metricas_costo`, `metricas_descartes` y
+`metricas_operacion` eran vistas con dueño `postgres` y sin
+`security_invoker`. Una vista sin esa opción **se evalúa con los privilegios
+de su dueño**, no con los de quien consulta. `postgres` es superusuario, así
+que saltaba RLS por completo.
+
+Con `GRANT SELECT` para `anon` sobre las cuatro, cualquiera con la anon key
+del bundle leía a través de ellas las tablas internas de Sofía que están en
+deny-all.
+
+Medición con la anon key, antes y después de la migración:
+
+| Vista | Antes | Después |
+|---|---:|---:|
+| `metricas_calidad` | 3 | 0 |
+| `metricas_costo` | 3 | 0 |
+| `metricas_descartes` | 1 | 0 |
+| `metricas_operacion` | 3 | 0 |
+
+Al mismo tiempo, `eventos_turno`, `mensajes_pendientes`, `decisiones_shadow` y
+`eventos_procesados` devolvían 0 a `anon`. **Las tablas negaban el acceso y
+las vistas lo concedían igual.**
+
+#### Por qué este agujero es fácil de pasar por alto
+
+No aparece en `pg_policies`: las vistas no tienen políticas. Tampoco aparece
+en `pg_class` filtrado por `relkind = 'r'`, porque una vista es `relkind = 'v'`.
+Una auditoría que solo mire tablas y políticas lo da por cerrado.
+
+Para encontrarlas:
+
+```sql
+select c.relname, c.reloptions
+from pg_class c
+where c.relnamespace = 'public'::regnamespace and c.relkind = 'v';
+```
+
+Si `reloptions` no incluye `security_invoker=true`, la vista corre con los
+privilegios de su dueño.
+
+**Regla para el futuro: toda vista nueva sobre tablas con RLS debe crearse con
+`WITH (security_invoker = true)`.** Lo mismo aplica a las funciones
+`SECURITY DEFINER`.
+
+#### Sobre los paneles
+
+Ningún archivo de este repo consulta las cuatro vistas. Si algún panel del
+admin las usara, quedaría vacío: el admin consulta como `authenticated`, y las
+tablas base están en deny-all también para ese rol.
+
+Si eso pasa, **no** agregar políticas para `authenticated` sobre las tablas
+base. La salida correcta es una función `SECURITY DEFINER` acotada que
+devuelva solo el agregado que el panel necesita.
 
 ### Sesión banner promocional — 2026-08-05
 
