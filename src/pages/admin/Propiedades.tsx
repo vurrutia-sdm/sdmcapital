@@ -695,10 +695,16 @@ export default function Propiedades() {
                     {p.activo === false ? <><Pause size={14} strokeWidth={2} />Pausada</> : <><Check size={14} strokeWidth={2} />Activa</>}
                   </button>
                 </td>
-                <td className="py-3" draggable={false} onDragStart={e => e.preventDefault()}>
+                {/* pr-4 como el resto de las celdas: era la unica sin el, asi que
+                    "Eliminar" quedaba pegado al borde del contenedor. El nowrap
+                    evita que se parta. Es paliativo: el problema de fondo es que
+                    la tabla desborda debajo de ~1100px de viewport, y eso se
+                    resuelve con el rediseno a tarjetas apiladas que esta
+                    pendiente. */}
+                <td className="py-3 pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
                   <div className="flex gap-3">
-                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
+                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500, whiteSpace: 'nowrap' }}>Editar</button>
+                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Eliminar</button>
                   </div>
                 </td>
               </tr>
