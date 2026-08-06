@@ -107,11 +107,11 @@ export default function PropertyMap({ address, lat, lng, comuna, region }: Prope
 
   return (
     <div>
-      <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>
+      <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>
         Ubicación aproximada
       </div>
       <div ref={mapRef} style={{ width: '100%', height: 320, borderRadius: 2, overflow: 'hidden', background: '#f0f4f7' }} />
-      <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, fontStyle: 'italic' }}>
+      <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8, fontStyle: 'italic' }}>
         La ubicación mostrada es referencial. Consulta al agente para la dirección exacta.
       </p>
     </div>

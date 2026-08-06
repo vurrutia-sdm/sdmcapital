@@ -50,10 +50,9 @@ function ShareButtons({ titulo }: { titulo: string }) {
   return (
     <div ref={wrapperRef} style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
       {/* Trigger */}
-      <button
+      <button className="text-sdm-sm tracking-sdm-normal"
         onClick={() => setOpen(o => !o)}
-        style={{
-          display: 'inline-flex',
+        style={{ display: 'inline-flex',
           alignItems: 'center',
           gap: 7,
           padding: '8px 16px',
@@ -61,13 +60,10 @@ function ShareButtons({ titulo }: { titulo: string }) {
           border: `1px solid ${copied ? '#3DAA6E' : '#e8edf2'}`,
           borderRadius: 2,
           color: copied ? '#3DAA6E' : '#0F2535',
-          fontSize: 13,
           fontFamily: 'Inter, sans-serif',
           fontWeight: 500,
-          letterSpacing: '0.2px',
           cursor: 'pointer',
-          transition: 'border-color 0.15s, color 0.15s',
-        }}
+          transition: 'border-color 0.15s, color 0.15s' }}
         onMouseEnter={e => { if (!copied) { e.currentTarget.style.borderColor = '#3DAA6E'; e.currentTarget.style.color = '#3DAA6E' } }}
         onMouseLeave={e => { if (!copied) { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.color = '#0F2535' } }}
       >
@@ -90,29 +86,25 @@ function ShareButtons({ titulo }: { titulo: string }) {
           overflow: 'hidden',
         }}>
           {SHARE_NETWORKS.map(net => (
-            <a
+            <a className="text-sdm-base"
               key={net.key}
               href={net.getHref(pageUrl, pageText)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              style={{
-                display: 'flex',
+              style={{ display: 'flex',
                 alignItems: 'center',
                 gap: 11,
                 padding: '9px 14px',
-                fontSize: 14,
                 color: '#0F2535',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 400,
                 textDecoration: 'none',
-                transition: 'background 0.1s',
-              }}
+                transition: 'background 0.1s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#f4f8fb' }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
             >
-              <span style={{
-                display: 'inline-flex',
+              <span className="tracking-sdm-tight" style={{ display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 24,
@@ -122,9 +114,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
                 color: '#fff',
                 fontSize: net.symbol === '𝕏' ? 11 : net.symbol === 'in' ? 9 : 11,
                 fontWeight: 700,
-                flexShrink: 0,
-                letterSpacing: '-0.5px',
-              }}>
+                flexShrink: 0 }}>
                 {net.symbol}
               </span>
               {net.label}
@@ -135,14 +125,12 @@ function ShareButtons({ titulo }: { titulo: string }) {
           <div style={{ height: 1, background: '#e8edf2', margin: '2px 0' }} />
 
           {/* Copy link */}
-          <button
+          <button className="text-sdm-base"
             onClick={copyLink}
-            style={{
-              display: 'flex',
+            style={{ display: 'flex',
               alignItems: 'center',
               gap: 11,
               padding: '9px 14px',
-              fontSize: 14,
               color: '#0F2535',
               fontFamily: 'Inter, sans-serif',
               fontWeight: 400,
@@ -150,13 +138,11 @@ function ShareButtons({ titulo }: { titulo: string }) {
               border: 'none',
               width: '100%',
               cursor: 'pointer',
-              transition: 'background 0.1s',
-            }}
+              transition: 'background 0.1s' }}
             onMouseEnter={e => { e.currentTarget.style.background = '#f4f8fb' }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
           >
-            <span style={{
-              display: 'inline-flex',
+            <span className="text-sdm-sm" style={{ display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               width: 24,
@@ -164,9 +150,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
               borderRadius: '50%',
               background: '#6B7280',
               color: '#fff',
-              fontSize: 13,
-              flexShrink: 0,
-            }}>
+              flexShrink: 0 }}>
               🔗
             </span>
             Copiar enlace
@@ -295,10 +279,10 @@ export default function PropiedadDetailPage() {
         type="article"
       />
       {/* Breadcrumb */}
-      <div className="px-8 lg:px-12 py-4 border-b border-[#e8edf2] flex items-center gap-2" style={{ fontSize: 13, color: 'var(--muted)' }}>
+      <div className="px-8 lg:px-12 py-4 border-b border-[#e8edf2] flex items-center gap-2 text-sdm-sm" style={{ color: 'var(--muted)' }}>
         <Link to="/propiedades" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Propiedades</Link>
         <span>›</span>
-        <span style={{ color: 'var(--navy-dark)', fontSize: 13 }}>{titulo}</span>
+        <span className="text-sdm-sm" style={{ color: 'var(--navy-dark)' }}>{titulo}</span>
       </div>
 
       {/* ── Banner Showcase El Barranco ── */}
@@ -323,13 +307,13 @@ export default function PropiedadDetailPage() {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="font-serif italic" style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }}>{titulo}</span>
+                  <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.2)' }}>{titulo}</span>
                 </div>
               )}
 
               {/* Hint ampliación */}
               {allImgs.length > 0 && (
-                <div style={{ position: 'absolute', bottom: 10, right: 12, background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 11, padding: '4px 10px', borderRadius: 2, letterSpacing: '1px', textTransform: 'uppercase' }}>
+                <div className="text-sdm-xs tracking-sdm-wide" style={{ position: 'absolute', bottom: 10, right: 12, background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '4px 10px', borderRadius: 2, textTransform: 'uppercase' }}>
                   Ver ampliada
                 </div>
               )}
@@ -365,16 +349,16 @@ export default function PropiedadDetailPage() {
           <div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               {prop.bono_pie && (
-                <span style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, background: 'var(--green)', color: '#fff', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ padding: '5px 14px', borderRadius: 1, background: 'var(--green)', color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>
                   Bono Pie{prop.bono_pie_porcentaje ? ` ${prop.bono_pie_porcentaje}%` : ''}
                 </span>
               )}
               {prop.baja_precio && (
-                <span style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, background: '#c0392b', color: '#fff', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ padding: '5px 14px', borderRadius: 1, background: '#c0392b', color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>
                   Precio rebajado
                 </span>
               )}
-              <span style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, border: '1px solid var(--border)', color: 'var(--muted)', fontWeight: 400, letterSpacing: '2px', textTransform: 'uppercase' }}>
+              <span className="text-sdm-xs tracking-sdm-wide" style={{ padding: '5px 14px', borderRadius: 1, border: '1px solid var(--border)', color: 'var(--muted)', fontWeight: 400, textTransform: 'uppercase' }}>
                 {prop.tipo}
               </span>
             </div>
@@ -382,20 +366,20 @@ export default function PropiedadDetailPage() {
             {/* Banner destacado de estado — vendida / reservada / arrendada */}
             {destacado && (
               <div className="mb-5 px-5 py-3" style={{ background: destacado.bg, borderRadius: 2 }}>
-                <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#fff' }}>
+                <div className="text-sdm-lg tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: '#fff' }}>
                   {destacado.label}
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginTop: 2 }}>
+                <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.9)', marginTop: 2 }}>
                   {destacado.sub}
                 </div>
               </div>
             )}
 
-            <h1 className="font-serif font-light mb-4" style={{ fontSize: 40, color: 'var(--navy-dark)', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
+            <h1 className="font-serif font-light mb-4 text-sdm-display-md" style={{ color: 'var(--navy-dark)' }}>
               {titulo}
             </h1>
 
-            <div className="flex items-center gap-2 mb-4" style={{ color: 'var(--muted)', fontSize: 15 }}>
+            <div className="flex items-center gap-2 mb-4 text-sdm-base" style={{ color: 'var(--muted)' }}>
               <MapPin size={14} style={{ color: 'var(--green)', flexShrink: 0 }} />
               {prop.comuna}, {prop.region}
             </div>
@@ -406,11 +390,11 @@ export default function PropiedadDetailPage() {
             {(prop.a_consultar || prop.precio_uf || prop.precio_usd || prop.precio_clp) && (
               <div className="mb-6 pb-6 border-b border-[#e8edf2]">
                 {prop.baja_precio && prop.precio_anterior_uf && (
-                  <div style={{ fontSize: 18, color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
+                  <div className="text-sdm-xl" style={{ color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
                     UF {prop.precio_anterior_uf.toLocaleString('es-CL')} — precio anterior
                   </div>
                 )}
-                <div className="font-serif" style={{ fontSize: 44, fontWeight: 300, color: prop.baja_precio ? '#E24B4A' : 'var(--navy-dark)', lineHeight: 1 }}>
+                <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: prop.baja_precio ? '#E24B4A' : 'var(--navy-dark)' }}>
                   {prop.a_consultar
                     ? 'A consultar'
                     : prop.precio_uf
@@ -421,7 +405,7 @@ export default function PropiedadDetailPage() {
                     ? `USD ${prop.precio_usd.toLocaleString()}`
                     : ''}
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 300, color: 'var(--muted)', marginTop: 6, letterSpacing: '1px', textTransform: 'uppercase' }}>{estado}</div>
+                <div className="text-sdm-base tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 6, textTransform: 'uppercase' }}>{estado}</div>
               </div>
             )}
 
@@ -433,9 +417,9 @@ export default function PropiedadDetailPage() {
                 prop.banos            ? { icon: <Bath size={22} style={{ color: 'var(--navy)' }} />,         val: prop.banos,                  label: 'Baños' }          : null,
                 prop.superficie_total ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)' }} />,   val: `${prop.superficie_total} m²`, label: 'Sup. total' }     : null,
                 p.superficie_util     ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)', opacity: 0.6 }} />, val: `${p.superficie_util} m²`, label: 'Sup. construida' } : null,
-                prop.estacionamientos ? { icon: <span style={{ fontSize: 20 }}>🅿</span>, val: prop.estacionamientos, label: 'Estacionam.' } : null,
-                p.bodegas             ? { icon: <span style={{ fontSize: 20 }}>📦</span>,                   val: p.bodegas as number,         label: 'Bodegas' }         : null,
-                prop.ano_construccion ? { icon: <span style={{ fontSize: 20 }}>🏗</span>,                   val: prop.ano_construccion,       label: 'Año const.' }      : null,
+                prop.estacionamientos ? { icon: <span className="text-sdm-xl">🅿</span>, val: prop.estacionamientos, label: 'Estacionam.' } : null,
+                p.bodegas             ? { icon: <span className="text-sdm-xl">📦</span>,                   val: p.bodegas as number,         label: 'Bodegas' }         : null,
+                prop.ano_construccion ? { icon: <span className="text-sdm-xl">🏗</span>,                   val: prop.ano_construccion,       label: 'Año const.' }      : null,
               ].filter(Boolean)
 
               if (specs.length === 0) return null
@@ -446,8 +430,8 @@ export default function PropiedadDetailPage() {
                       <div style={{ height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {s.icon}
                       </div>
-                      <div className="font-serif" style={{ fontSize: 26, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>{s.val}</div>
-                      <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', textAlign: 'center' }}>{s.label}</div>
+                      <div className="font-serif text-sdm-2xl" style={{ fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1 }}>{s.val}</div>
+                      <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', textAlign: 'center' }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
@@ -464,16 +448,12 @@ export default function PropiedadDetailPage() {
               return (
                 <div className="flex gap-3 mb-8 flex-wrap">
                   {tags.map((tag, i) => (
-                    <span key={i} style={{
-                      fontSize: 11,
-                      padding: '6px 16px',
+                    <span className="text-sdm-xs tracking-sdm-wide" key={i} style={{ padding: '6px 16px',
                       borderRadius: 1,
                       background: tag.dark ? '#4a4a4a' : 'var(--green)',
                       color: '#fff',
                       fontWeight: 500,
-                      letterSpacing: '2px',
-                      textTransform: 'uppercase',
-                    }}>
+                      textTransform: 'uppercase' }}>
                       {tag.label}
                     </span>
                   ))}
@@ -484,8 +464,8 @@ export default function PropiedadDetailPage() {
             {/* Descripción */}
             {prop.descripcion && (
               <div
-                className="prose-sdm"
-                style={{ fontSize: 16, fontWeight: 300, color: 'var(--muted)', marginBottom: 24 }}
+                className="prose-sdm text-sdm-lg"
+                style={{ fontWeight: 300, color: 'var(--muted)', marginBottom: 24 }}
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(prop.descripcion) }}
               />
             )}
@@ -500,16 +480,16 @@ export default function PropiedadDetailPage() {
               const hayPendientes = conSuperficie.length < unidades.length
 
               const rotulo: CSSProperties = {
-                fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase',
+                fontSize: 'var(--sdm-text-xs)', letterSpacing: 'var(--sdm-tracking-wide)', textTransform: 'uppercase',
                 color: 'var(--muted)', fontWeight: 400,
                 padding: '0 0 8px', borderBottom: '1px solid var(--border)',
               }
               const celda: CSSProperties = { padding: '10px 0', borderBottom: '1px solid var(--border)' }
-              const cifra: CSSProperties = { fontSize: 20, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1.2 }
+              const cifra: CSSProperties = { fontSize: 'var(--sdm-text-xl)', fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1.2 }
 
               return (
                 <div className="mb-6 pb-6" style={{ borderBottom: '1px solid var(--border)' }}>
-                  <h2 className="font-serif font-light mb-4" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>
+                  <h2 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>
                     Unidades disponibles
                   </h2>
 
@@ -527,7 +507,7 @@ export default function PropiedadDetailPage() {
                           <td style={{ ...celda, textAlign: 'left' }}>
                             <span className="font-serif" style={cifra}>{u.piso}</span>
                             {u.nota && (
-                              <div style={{ fontSize: 12, fontWeight: 300, color: 'var(--muted)', marginTop: 2 }}>
+                              <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 2 }}>
                                 {u.nota}
                               </div>
                             )}
@@ -536,7 +516,7 @@ export default function PropiedadDetailPage() {
                             {typeof u.m2 === 'number' ? (
                               <span className="font-serif" style={cifra}>{u.m2.toLocaleString('es-CL')} m²</span>
                             ) : (
-                              <span style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>Por confirmar</span>
+                              <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>Por confirmar</span>
                             )}
                           </td>
                         </tr>
@@ -546,19 +526,19 @@ export default function PropiedadDetailPage() {
                     <tfoot>
                       <tr>
                         <td style={{ padding: '14px 0 0', textAlign: 'left', verticalAlign: 'bottom' }}>
-                          <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>
+                          <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>
                             Total
                           </div>
-                          <div className="font-serif" style={{ ...cifra, fontSize: 22 }}>
+                          <div className="font-serif text-sdm-2xl" style={{ ...cifra }}>
                             {unidades.length} {unidades.length === 1 ? 'unidad' : 'unidades'}
                           </div>
                         </td>
                         <td style={{ padding: '14px 0 0', textAlign: 'right', verticalAlign: 'bottom' }}>
-                          <div className="font-serif" style={{ ...cifra, fontSize: 22 }}>
+                          <div className="font-serif text-sdm-2xl" style={{ ...cifra }}>
                             {totalM2.toLocaleString('es-CL')} m²
                           </div>
                           {hayPendientes && (
-                            <div style={{ fontSize: 12, fontWeight: 300, color: 'var(--muted)', marginTop: 2 }}>
+                            <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 2 }}>
                               No incluye las unidades por confirmar
                             </div>
                           )}
@@ -580,25 +560,25 @@ export default function PropiedadDetailPage() {
               if (!items.length && !subsidios.length) return null
               return (
                 <div className="mb-6 pb-6 border-b border-[#e8edf2]">
-                  <h2 className="font-serif font-light mb-4" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>
+                  <h2 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>
                     Información del Proyecto
                   </h2>
                   {items.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                       {items.map((item, i) => (
                         <div key={i}>
-                          <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>{item.label}</div>
-                          <div style={{ fontSize: 16, fontWeight: 300, color: 'var(--ink)' }}>{item.value}</div>
+                          <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>{item.label}</div>
+                          <div className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--ink)' }}>{item.value}</div>
                         </div>
                       ))}
                     </div>
                   )}
                   {subsidios.length > 0 && (
                     <div>
-                      <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>Subsidios aplicables</div>
+                      <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>Subsidios aplicables</div>
                       <div className="flex flex-wrap gap-2">
                         {subsidios.map(value => (
-                          <span key={value} style={{ fontSize: 11, padding: '5px 14px', borderRadius: 1, background: 'var(--navy)', color: '#fff', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
+                          <span className="text-sdm-xs tracking-sdm-wide" key={value} style={{ padding: '5px 14px', borderRadius: 1, background: 'var(--navy)', color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>
                             {SUBSIDIO_LABELS[value] || value}
                           </span>
                         ))}
@@ -619,18 +599,18 @@ export default function PropiedadDetailPage() {
               if (!all.length) return null
               return (
                 <div className="mb-6">
-                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>Documentos adjuntos</div>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>Documentos adjuntos</div>
                   <div className="flex flex-col gap-2">
                     {all.map((d, i) => (
                       <a key={i} href={d.url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-3 px-4 py-3 rounded-sm"
-                        style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)', textDecoration: 'none', fontSize: 14, color: 'var(--navy)', transition: 'background 0.15s' }}
+                        className="inline-flex items-center gap-3 px-4 py-3 rounded-sm text-sdm-base"
+                        style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)', textDecoration: 'none', color: 'var(--navy)', transition: 'background 0.15s' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#dbeaf5'}
                         onMouseLeave={e => e.currentTarget.style.background = 'var(--sky-pale)'}
                       >
-                        <span style={{ fontSize: 18 }}>📄</span>
+                        <span className="text-sdm-xl">📄</span>
                         <span style={{ flex: 1 }}>{dossierTitle(d)}</span>
-                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>Descargar ↗</span>
+                        <span className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Descargar ↗</span>
                       </a>
                     ))}
                   </div>
@@ -641,8 +621,8 @@ export default function PropiedadDetailPage() {
             <div className="flex gap-3 flex-wrap">
               {noDisponible ? (
                 <div
-                  className="inline-flex items-center"
-                  style={{ padding: '13px 24px', borderRadius: 6, background: 'var(--sky-pale)', color: 'var(--muted)', fontSize: 13, fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase' }}
+                  className="inline-flex items-center text-sdm-sm tracking-sdm-wide"
+                  style={{ padding: '13px 24px', borderRadius: 6, background: 'var(--sky-pale)', color: 'var(--muted)', fontWeight: 500, textTransform: 'uppercase' }}
                 >
                   Esta propiedad ya no está disponible
                 </div>
@@ -666,12 +646,11 @@ export default function PropiedadDetailPage() {
             </div>
 
             {prop.mostrar_boton_flow !== false && !destacado && (
-              <a
+              <a className="tracking-sdm-wide"
                 href="https://www.flow.cl/uri/gHSdT2jVv"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
+                style={{ display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '10px',
@@ -682,11 +661,9 @@ export default function PropiedadDetailPage() {
                   color: 'var(--navy-dark)',
                   fontSize: '13px',
                   fontWeight: 400,
-                  letterSpacing: '2px',
                   textTransform: 'uppercase',
                   textDecoration: 'none',
-                  transition: 'all 0.2s ease',
-                }}
+                  transition: 'all 0.2s ease' }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLAnchorElement;
                   el.style.background = 'var(--navy-dark)';
@@ -721,7 +698,7 @@ export default function PropiedadDetailPage() {
           </button>
 
           {/* Contador */}
-          <div style={{ position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.6)', fontSize: 14, letterSpacing: '2px' }}>
+          <div className="text-sdm-base tracking-sdm-wide" style={{ position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.6)' }}>
             {imgIdx + 1} / {allImgs.length}
           </div>
 
@@ -774,7 +751,7 @@ export default function PropiedadDetailPage() {
         const videoId = match?.[1]
         return videoId ? (
           <div className="px-8 lg:px-12 pb-12">
-            <h2 className="font-serif font-light mb-6" style={{ fontSize: 28, color: 'var(--navy-dark)' }}>
+            <h2 className="font-serif font-light mb-6 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
               Video de la propiedad
             </h2>
             <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: 2, overflow: 'hidden', background: '#000' }}>

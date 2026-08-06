@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 const TIPOS_PROPIEDAD = ['Departamento', 'Casa', 'Oficina', 'Local comercial', 'Parcela', 'Terreno']
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 11, fontWeight: 500, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)',
+  fontSize: 'var(--sdm-text-xs)', fontWeight: 500, letterSpacing: 'var(--sdm-tracking-wide)', textTransform: 'uppercase', color: 'var(--muted)',
 }
 
 interface FormState {
@@ -175,10 +175,10 @@ export default function SolicitudCreditoForm({
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(61,170,110,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
           <Check size={28} color="var(--green)" />
         </div>
-        <h3 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginBottom: 10 }}>
+        <h3 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: 10 }}>
           {successTitle}
         </h3>
-        <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 420, marginBottom: successAction ? 28 : 0 }}>
+        <p className="text-sdm-base" style={{ color: 'var(--muted)', lineHeight: 1.7, maxWidth: 420, marginBottom: successAction ? 28 : 0 }}>
           {successMessage}
         </p>
         {successAction}
@@ -188,11 +188,11 @@ export default function SolicitudCreditoForm({
 
   return (
     <>
-      <h3 className="font-serif font-light" style={{ fontSize: 24, color: 'var(--navy-dark)', marginBottom: subtitle ? 8 : 24 }}>
+      <h3 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: subtitle ? 8 : 24 }}>
         {title}
       </h3>
       {subtitle && (
-        <p style={{ fontSize: 14, fontWeight: 300, color: 'var(--muted)', marginBottom: 24, lineHeight: 1.6 }}>
+        <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', marginBottom: 24, lineHeight: 1.6 }}>
           {subtitle}
         </p>
       )}
@@ -261,11 +261,11 @@ export default function SolicitudCreditoForm({
           <label style={labelStyle}>Valor de la propiedad (UF)</label>
           <input required type="number" min="0" className="input-line" value={form.valor_uf} onChange={set('valor_uf')} placeholder="Ej: 5000" />
           {uf.loading ? (
-            <p style={{ fontSize: 13, color: 'var(--muted)' }}>Consultando valor UF…</p>
+            <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Consultando valor UF…</p>
           ) : uf.error ? (
-            <p style={{ fontSize: 13, color: 'var(--muted)' }}>Consulte el valor vigente en mindicador.cl</p>
+            <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Consulte el valor vigente en mindicador.cl</p>
           ) : (
-            <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+            <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
               Valor UF hoy: ${Math.round(uf.valor as number).toLocaleString('es-CL')} CLP
             </p>
           )}
@@ -294,7 +294,7 @@ export default function SolicitudCreditoForm({
         </div>
 
         {status === 'error' && (
-          <p style={{ fontSize: 14, color: '#E24B4A' }}>{errorMsg || 'Error al enviar. Intenta de nuevo.'}</p>
+          <p className="text-sdm-base" style={{ color: '#E24B4A' }}>{errorMsg || 'Error al enviar. Intenta de nuevo.'}</p>
         )}
 
         <button type="submit" disabled={!canSubmit} className="btn-primary disabled:opacity-50 justify-center">

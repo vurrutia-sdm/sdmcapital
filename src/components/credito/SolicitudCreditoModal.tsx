@@ -37,24 +37,24 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
         <div style={{ backgroundColor: '#1C2B3A', color: '#FFFFFF', padding: '48px 36px 48px 36px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, backgroundColor: 'transparent' }}>
             <span style={{ display: 'block', width: 24, height: 1, backgroundColor: 'rgba(168,196,220,0.85)' }} />
-            <span style={{ fontSize: 13, fontWeight: 400, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(168,196,220,0.85)', backgroundColor: 'transparent' }}>
+            <span className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'rgba(168,196,220,0.85)', backgroundColor: 'transparent' }}>
               Financiamiento Personas
             </span>
           </div>
 
-          <h2 className="font-serif font-light" style={{ fontSize: 28, lineHeight: 1.15, marginBottom: 6, backgroundColor: 'transparent', color: '#FFFFFF' }}>
+          <h2 className="font-serif font-light text-sdm-display-sm" style={{ marginBottom: 6, backgroundColor: 'transparent', color: '#FFFFFF' }}>
             Asesoría Hipotecaria <em style={{ backgroundColor: 'transparent', color: 'inherit' }}>Integral</em>
           </h2>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', marginBottom: 24, backgroundColor: 'transparent' }}>
+          <p className="text-sdm-base" style={{ color: 'rgba(255,255,255,0.55)', marginBottom: 24, backgroundColor: 'transparent' }}>
             Roberto Urrutia · Director Comercial SDM Capital · +20 años en banca
           </p>
 
-          <p style={{ fontSize: 15, fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.85)', marginBottom: 28, backgroundColor: 'transparent' }}>
+          <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.85)', marginBottom: 28, backgroundColor: 'transparent' }}>
             Acompañamos todo el proceso de obtención de tu crédito hipotecario, desde la preevaluación
             hasta la inscripción en el Conservador de Bienes Raíces. Sin pagos adelantados.
           </p>
 
-          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--sky)', marginBottom: 14, backgroundColor: 'transparent' }}>
+          <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--sky)', marginBottom: 14, backgroundColor: 'transparent' }}>
             Lo que incluye
           </div>
           <ul style={{ marginBottom: 28, listStyle: 'none', backgroundColor: 'transparent' }}>
@@ -66,7 +66,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
               'Acompañamiento en firma de escrituras',
               'Seguimiento hasta la inscripción de dominio',
             ].map(item => (
-              <li key={item} className="flex items-start gap-2" style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.6, color: 'rgba(255,255,255,0.85)', marginBottom: 10, backgroundColor: 'transparent' }}>
+              <li key={item} className="flex items-start gap-2 text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.6, color: 'rgba(255,255,255,0.85)', marginBottom: 10, backgroundColor: 'transparent' }}>
                 <Check size={15} color="#3DAA6E" style={{ marginTop: 3, flexShrink: 0, backgroundColor: 'transparent' }} />
                 <span style={{ backgroundColor: 'transparent', color: 'inherit' }}>{item}</span>
               </li>
@@ -74,25 +74,25 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
           </ul>
 
           <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid #5C9B7E', padding: '1rem', borderRadius: '6px', marginBottom: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
+            <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
               Honorarios
             </div>
-            <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: '#FFFFFF', margin: 0, backgroundColor: 'transparent' }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.7, color: '#FFFFFF', margin: 0, backgroundColor: 'transparent' }}>
               Nuestros honorarios se pagan únicamente contra el éxito de la operación.
               Sin cobros anticipados en ninguna etapa del proceso.
             </p>
           </div>
 
           <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid #5C9B7E', padding: '1rem', borderRadius: '6px', marginBottom: 24 }}>
-            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
+            <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
               Preevaluación gratuita
             </div>
-            <p style={{ fontSize: 14, fontWeight: 300, lineHeight: 1.7, color: '#FFFFFF', margin: 0, backgroundColor: 'transparent' }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.7, color: '#FFFFFF', margin: 0, backgroundColor: 'transparent' }}>
               Realizamos una preevaluación hipotecaria sin costo. Resultado en aprox. 5 días hábiles.
             </p>
           </div>
 
-          <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#5C9B7E', marginBottom: 12, backgroundColor: 'transparent' }}>
+          <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#5C9B7E', marginBottom: 12, backgroundColor: 'transparent' }}>
             Documentos necesarios (trabajador dependiente)
           </div>
           <ul style={{ listStyle: 'none', backgroundColor: 'transparent' }}>
@@ -102,7 +102,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
               'Certificado de cotizaciones AFP últimos 24 meses (con RUT empleador)',
               'Certificado de deudas CMF actualizado (con Clave Única)',
             ].map(item => (
-              <li key={item} style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.6, color: '#CBD5E1', marginBottom: 6, backgroundColor: 'transparent' }}>
+              <li className="text-sdm-sm" key={item} style={{ fontWeight: 300, lineHeight: 1.6, color: '#CBD5E1', marginBottom: 6, backgroundColor: 'transparent' }}>
                 — {item}
               </li>
             ))}

@@ -113,18 +113,16 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
     <div>
       {/* Autocomplete input */}
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+        <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
           Dirección
         </div>
-        <input
+        <input className="text-sdm-base"
           ref={inputRef}
           defaultValue={address}
           placeholder="Escribe la dirección — aparecerán sugerencias"
-          style={{
-            width: '100%', border: 'none', borderBottom: '1px solid var(--border)',
-            padding: '8px 0', fontSize: 15, fontFamily: 'inherit',
-            color: 'var(--ink)', background: 'transparent', outline: 'none',
-          }}
+          style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)',
+            padding: '8px 0', fontFamily: 'inherit',
+            color: 'var(--ink)', background: 'transparent', outline: 'none' }}
         />
       </div>
 
@@ -132,15 +130,15 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
       {showMap ? (
         <div>
           <div ref={mapRef} style={{ width: '100%', height: 280, borderRadius: 2, overflow: 'hidden', background: '#f0f4f7', marginBottom: 8 }} />
-          <p style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>
+          <p className="text-sdm-xs" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>
             📌 Arrastra el pin verde o haz clic en el mapa para ajustar la ubicación exacta.
           </p>
         </div>
       ) : (
-        <button
+        <button className="text-sdm-sm"
           type="button"
           onClick={() => setShowMap(true)}
-          style={{ fontSize: 12, color: 'var(--green)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}
+          style={{ color: 'var(--green)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}
         >
           + Mostrar mapa para ajustar pin
         </button>
@@ -148,7 +146,7 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
 
       {/* Coords display */}
       {lat && lng && (
-        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
+        <div className="text-sdm-xs" style={{ color: 'var(--muted)', marginTop: 6 }}>
           Coordenadas: {lat.toFixed(6)}, {lng.toFixed(6)}
         </div>
       )}
