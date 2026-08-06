@@ -17,6 +17,7 @@
 // árbol entero (ver SINCRONIA.md).
 
 import { useState, useEffect, useRef } from 'react'
+import { BarChart3, Briefcase, Building, Camera, Eye, EyeOff, FileText, FolderTree, Globe, HeartHandshake, Home, Image, MapPin, MessageCircle, Smartphone, Users, Wallet } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { subirImagen } from '@/lib/subirImagen'
@@ -360,10 +361,10 @@ export default function Contenido() {
   }
 
   const PAGINAS = [
-    { key: 'inicio', label: '🏠 Inicio' }, { key: 'testimonios', label: '💬 Testimonios' },
-    { key: 'quienes', label: '👥 Quiénes Somos' }, { key: 'servicios', label: '💼 Servicios' },
-    { key: 'asociados', label: '🤝 Asociados' }, { key: 'blog', label: '📝 Blog' },
-    { key: 'contacto', label: '📍 Contacto y Redes' },
+    { key: 'inicio', label: 'Inicio', icon: Home }, { key: 'testimonios', label: 'Testimonios', icon: MessageCircle },
+    { key: 'quienes', label: 'Quiénes Somos', icon: Users }, { key: 'servicios', label: 'Servicios', icon: Briefcase },
+    { key: 'asociados', label: 'Asociados', icon: HeartHandshake }, { key: 'blog', label: 'Blog', icon: FileText },
+    { key: 'contacto', label: 'Contacto y Redes', icon: MapPin },
   ] as const
 
   return (
@@ -379,20 +380,20 @@ export default function Contenido() {
       <div className="flex flex-wrap gap-2 mb-8">
         {PAGINAS.map(p => (
           <button key={p.key} onClick={() => handlePaginaChange(p.key)}
-            style={{ padding: '8px 16px', fontSize: 13, fontWeight: pagina === p.key ? 600 : 300, borderRadius: 2, border: pagina === p.key ? '2px solid var(--green)' : '1px solid var(--border)', background: pagina === p.key ? 'var(--green)' : '#fff', color: pagina === p.key ? '#fff' : 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
-            {p.label}
+            style={{ padding: '8px 16px', fontSize: 13, fontWeight: pagina === p.key ? 600 : 300, borderRadius: 2, border: pagina === p.key ? '2px solid var(--green)' : '1px solid var(--border)', background: pagina === p.key ? 'var(--green)' : '#fff', color: pagina === p.key ? '#fff' : 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <p.icon size={14} strokeWidth={2} />{p.label}
           </button>
         ))}
       </div>
 
       {pagina === 'inicio' && <>
-        <Sec title="🖼 Fotos del hero — Carrusel">
+        <Sec title={<><Image size={18} strokeWidth={1.75} />Fotos del hero — Carrusel</>}>
           <Full>
             <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>Sube hasta 5 fotos. <strong>Arrastra para reordenar.</strong></p>
             <CarouselPhotoManager d={d as unknown as Record<string, string>} setD={setD as unknown as (fn: (prev: Record<string, string>) => Record<string, string>) => void} />
           </Full>
         </Sec>
-        <Sec title="📝 Título y subtítulo del hero">
+        <Sec title={<><FileText size={18} strokeWidth={1.75} />Título y subtítulo del hero</>}>
           <Field label="Línea 1"><Inp value={d.hero_titulo_1} onChange={set('hero_titulo_1')} /></Field>
           <Field label="Línea 2"><Inp value={d.hero_titulo_2} onChange={set('hero_titulo_2')} /></Field>
           <Field label="Línea 3 (negrita)"><Inp value={d.hero_titulo_3} onChange={set('hero_titulo_3')} /></Field>
@@ -400,7 +401,7 @@ export default function Contenido() {
           <Full><Field label="Subtítulo"><Txa value={d.hero_subtitulo} onChange={set('hero_subtitulo')} rows={2} /></Field></Full>
           <Field label="Texto de ubicación"><Inp value={d.hero_location} onChange={set('hero_location')} /></Field>
         </Sec>
-        <Sec title="📊 Estadísticas animadas">
+        <Sec title={<><BarChart3 size={18} strokeWidth={1.75} />Estadísticas animadas</>}>
           <Field label="Propiedades"><Inp type="number" value={d.stats_propiedades} onChange={set('stats_propiedades')} /></Field>
           <Field label="Años de experiencia"><Inp type="number" value={d.stats_anios} onChange={set('stats_anios')} /></Field>
           <Field label="Países"><Inp type="number" value={d.stats_paises} onChange={set('stats_paises')} /></Field>
@@ -409,7 +410,7 @@ export default function Contenido() {
         {(() => {
           const activo = d.banner_activo === 'true'
           return (
-            <Sec title={`${activo ? '👁' : '🚫'} Banner promocional`}>
+            <Sec title={<>{activo ? <Eye size={18} strokeWidth={1.75} /> : <EyeOff size={18} strokeWidth={1.75} />}Banner promocional</>}>
               <Full>
                 <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.7 }}>
                   Pieza que aparece en el inicio, justo debajo del buscador. Se muestra a todos los
@@ -436,7 +437,7 @@ export default function Contenido() {
             </Sec>
           )
         })()}
-        <Sec title="🗂 Orden del catálogo">
+        <Sec title={<><FolderTree size={18} strokeWidth={1.75} />Orden del catálogo</>}>
           <Full>
             <Field label="¿Cómo se ordenan las propiedades?">
               <Sel value={d.catalogo_orden || 'manual'} onChange={set('catalogo_orden')}
@@ -449,19 +450,19 @@ export default function Contenido() {
             </Field>
           </Full>
         </Sec>
-        <Sec title="🏠 Propiedades destacadas en el Inicio">
+        <Sec title={<><Home size={18} strokeWidth={1.75} />Propiedades destacadas en el Inicio</>}>
           <Full><HomeDestacadasSelector value={d.home_destacadas_ids || '[]'} onChange={v => setD(p => ({ ...p, home_destacadas_ids: v }))} /></Full>
         </Sec>
-        <Sec title="💰 Sección Financiamiento">
+        <Sec title={<><Wallet size={18} strokeWidth={1.75} />Sección Financiamiento</>}>
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>
           <Full><Field label="Descripción"><Txa value={d.financiamiento_body} onChange={set('financiamiento_body')} rows={3} /></Field></Full>
           <Full><Field label="Foto de apoyo"><ImageUploader currentUrl={d.financiamiento_imagen} folder="paginas" onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} /></Field></Full>
         </Sec>
-        <Sec title="🌎 Fotos de destinos internacionales">
+        <Sec title={<><Globe size={18} strokeWidth={1.75} />Fotos de destinos internacionales</>}>
           {[
-            { key: 'dest_miami_img', label: '🏙 Miami' }, { key: 'dest_punta_cana_img', label: '🏖 Punta Cana' },
-            { key: 'dest_orlando_img', label: '🎡 Orlando' }, { key: 'dest_espana_img', label: '🇪🇸 España' },
-            { key: 'dest_uruguay_img', label: '🇺🇾 Uruguay' }, { key: 'dest_nueva_york_img', label: '🗽 Nueva York' },
+            { key: 'dest_miami_img', label: 'Miami' }, { key: 'dest_punta_cana_img', label: 'Punta Cana' },
+            { key: 'dest_orlando_img', label: 'Orlando' }, { key: 'dest_espana_img', label: '🇪🇸 España' },
+            { key: 'dest_uruguay_img', label: '🇺🇾 Uruguay' }, { key: 'dest_nueva_york_img', label: 'Nueva York' },
           ].map(({ key, label }) => (
             <Full key={key}><Field label={label}><ImageUploader currentUrl={(d as Record<string,string>)[key] || ''} folder="destinos" onUploaded={url => setD(p => ({ ...p, [key]: url }))} /></Field></Full>
           ))}
@@ -469,7 +470,7 @@ export default function Contenido() {
       </>}
 
       {pagina === 'testimonios' && <>
-        <Sec title="💬 Testimonios">
+        <Sec title={<><MessageCircle size={18} strokeWidth={1.75} />Testimonios</>}>
           <Full><Field label="Título"><Inp value={d.testimonios_titulo} onChange={set('testimonios_titulo')} /></Field></Full>
           <Full><Field label="Subtítulo"><Inp value={d.testimonios_subtitulo} onChange={set('testimonios_subtitulo')} /></Field></Full>
           {[1,2,3,4,5,6,7,8].map(n => (
@@ -486,18 +487,18 @@ export default function Contenido() {
       </>}
 
       {pagina === 'quienes' && <>
-        <Sec title="👥 Quiénes Somos">
+        <Sec title={<><Users size={18} strokeWidth={1.75} />Quiénes Somos</>}>
           <Field label="Título principal"><Inp value={d.qs_titulo} onChange={set('qs_titulo')} /></Field>
           <Full><Field label="Subtítulo"><Txa value={d.qs_subtitulo} onChange={set('qs_subtitulo')} rows={3} /></Field></Full>
           <Full><Field label="Párrafo 1"><Txa value={d.qs_historia_1} onChange={set('qs_historia_1')} rows={3} /></Field></Full>
           <Full><Field label="Párrafo 2"><Txa value={d.qs_historia_2} onChange={set('qs_historia_2')} rows={3} /></Field></Full>
           <Full><Field label="Párrafo 3"><Txa value={d.qs_historia_3} onChange={set('qs_historia_3')} rows={3} /></Field></Full>
-          <Full><Field label="📷 Foto oficina / equipo"><ImageUploader currentUrl={d.quienes_imagen_historia} folder="paginas" onUploaded={url => setD(p => ({ ...p, quienes_imagen_historia: url }))} /></Field></Full>
+          <Full><Field label={<><Camera size={14} strokeWidth={2} />Foto oficina / equipo</>}><ImageUploader currentUrl={d.quienes_imagen_historia} folder="paginas" onUploaded={url => setD(p => ({ ...p, quienes_imagen_historia: url }))} /></Field></Full>
         </Sec>
       </>}
 
       {pagina === 'servicios' && <>
-        <Sec title="💼 Servicios — Introducción">
+        <Sec title={<><Briefcase size={18} strokeWidth={1.75} />Servicios — Introducción</>}>
           <Full><Field label="Texto introductorio"><Txa value={d.servicios_intro} onChange={set('servicios_intro')} rows={2} /></Field></Full>
         </Sec>
         {[
@@ -509,7 +510,7 @@ export default function Contenido() {
         ].map(({ key, label, imgKey }) => {
           const isVisible = (d as Record<string,string>)[`servicio_${key}_visible`] !== 'false'
           return (
-            <Sec key={key} title={`${isVisible ? '👁' : '🚫'} ${label}`}>
+            <Sec key={key} title={<>{isVisible ? <Eye size={18} strokeWidth={1.75} /> : <EyeOff size={18} strokeWidth={1.75} />}{label}</>}>
               <Full>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: isVisible ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${isVisible ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
                   <button onClick={() => setD(p => ({ ...p, [`servicio_${key}_visible`]: isVisible ? 'false' : 'true' }))}
@@ -529,21 +530,21 @@ export default function Contenido() {
       </>}
 
       {pagina === 'asociados' && <>
-        <Sec title="🤝 Asociados">
+        <Sec title={<><HeartHandshake size={18} strokeWidth={1.75} />Asociados</>}>
           <Full><Field label="Párrafo introductorio"><Txa value={d.asociados_intro} onChange={set('asociados_intro')} rows={3} /></Field></Full>
           <Full><Field label="CTA para nuevos socios"><Txa value={d.asociados_cta} onChange={set('asociados_cta')} rows={2} /></Field></Full>
         </Sec>
       </>}
 
       {pagina === 'blog' && <>
-        <Sec title="📝 Blog — Encabezado">
+        <Sec title={<><FileText size={18} strokeWidth={1.75} />Blog — Encabezado</>}>
           <Field label="Título"><Inp value={d.blog_titulo} onChange={set('blog_titulo')} /></Field>
           <Field label="Subtítulo"><Inp value={d.blog_subtitulo} onChange={set('blog_subtitulo')} /></Field>
         </Sec>
       </>}
 
       {pagina === 'contacto' && <>
-        <Sec title="🏢 Datos de la empresa">
+        <Sec title={<><Building size={18} strokeWidth={1.75} />Datos de la empresa</>}>
           <Field label="Nombre empresa"><Inp value={d.empresa_nombre} onChange={set('empresa_nombre')} /></Field>
           <Full><Field label="Texto del footer"><Txa value={d.footer_tagline} onChange={set('footer_tagline')} rows={2} /></Field></Full>
           <Field label="Dirección"><Inp value={d.direccion} onChange={set('direccion')} /></Field>
@@ -553,7 +554,7 @@ export default function Contenido() {
           <Field label="Email"><Inp type="email" value={d.email} onChange={set('email')} /></Field>
           <Field label="WhatsApp (solo números)"><Inp value={d.whatsapp} onChange={set('whatsapp')} placeholder="56931038954" /></Field>
         </Sec>
-        <Sec title="📱 Redes sociales">
+        <Sec title={<><Smartphone size={18} strokeWidth={1.75} />Redes sociales</>}>
           <Field label="Facebook"><Inp value={d.facebook} onChange={set('facebook')} /></Field>
           <Field label="Instagram"><Inp value={d.instagram} onChange={set('instagram')} /></Field>
           <Field label="TikTok"><Inp value={d.tiktok} onChange={set('tiktok')} /></Field>

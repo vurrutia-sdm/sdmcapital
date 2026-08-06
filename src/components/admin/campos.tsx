@@ -9,8 +9,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 
-export function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div className="flex flex-col gap-2"><label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>{label}</label>{children}</div>
+export function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+  return <div className="flex flex-col gap-2"><label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>{label}</label>{children}</div>
 }
 
 export function Inp({ value, onChange, type = 'text', placeholder = '', min, max }: {

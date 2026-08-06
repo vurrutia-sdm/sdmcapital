@@ -6,6 +6,7 @@
 // pestañas se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
+import { BarChart3, Bed, BookOpen, Building2, Clapperboard, ClipboardList, Image, Lightbulb, Wallet, Waves, Wind } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Sec, Full } from '@/components/admin/layout'
@@ -173,7 +174,7 @@ export default function Barranco() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif font-light" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>🏨 El Barranco — Showcase</h2>
+        <h2 className="font-serif font-light flex items-center gap-2" style={{ fontSize: 30, color: 'var(--navy-dark)' }}><Building2 size={18} strokeWidth={1.75} />El Barranco — Showcase</h2>
         <div className="flex items-center gap-4">
           {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
           <SaveBtn onClick={save} loading={saving} />
@@ -181,7 +182,7 @@ export default function Barranco() {
       </div>
 
       {/* ── Hero ── */}
-      <Sec title="🎬 Hero">
+      <Sec title={<><Clapperboard size={18} strokeWidth={1.75} />Hero</>}>
         <Field label="Título (igual EN/ES)"><Inp value={d.hero_titulo} onChange={set('hero_titulo')} /></Field>
         <div />
         {bi('hero_subtitulo', 'hero_subtitulo_es', 'Subtítulo')}
@@ -198,7 +199,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Carousel ── */}
-      <Sec title="🖼 Carousel Hero (4 fotos)">
+      <Sec title={<><Image size={18} strokeWidth={1.75} />Carousel Hero (4 fotos)</>}>
         {(['hero_img_1', 'hero_img_2', 'hero_img_3', 'hero_img_4'] as const).map((k, i) => (
           <Full key={k}><Field label={`Foto carousel ${i + 1}`}>
             <ImageUploader currentUrl={d[k]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [k]: url }))} />
@@ -207,7 +208,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Destino ── */}
-      <Sec title="🌊 Sección Destino">
+      <Sec title={<><Waves size={18} strokeWidth={1.75} />Sección Destino</>}>
         {bi('dest_eyebrow', 'dest_eyebrow_es', 'Eyebrow / kicker')}
         {bi('dest_titulo', 'dest_titulo_es', 'Título de sección')}
         {biTxa('destination_p1', 'destination_p1_es', 'Párrafo 1')}
@@ -224,7 +225,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Actividades ── */}
-      <Sec title="🏄 Actividades (3 cards)">
+      <Sec title={<><Wind size={18} strokeWidth={1.75} />Actividades (3 cards)</>}>
         {bi('exp_eyebrow', 'exp_eyebrow_es', 'Eyebrow / kicker')}
         {bi('exp_titulo', 'exp_titulo_es', 'Título de sección')}
         {([1, 2, 3] as const).map(n => (
@@ -245,7 +246,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── La Propiedad ── */}
-      <Sec title="🏨 La Propiedad">
+      <Sec title={<><Building2 size={18} strokeWidth={1.75} />La Propiedad</>}>
         {bi('prop_eyebrow', 'prop_eyebrow_es', 'Eyebrow / kicker')}
         {bi('prop_titulo', 'prop_titulo_es', 'Título de sección')}
         {biTxa('propiedad_desc', 'propiedad_desc_es', 'Descripción introductoria', 4)}
@@ -257,7 +258,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Amenidades ── */}
-      <Sec title="🛏 Amenidades (8 cards)">
+      <Sec title={<><Bed size={18} strokeWidth={1.75} />Amenidades (8 cards)</>}>
         {([1, 2, 3, 4, 5, 6, 7, 8] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '14px 18px', marginBottom: 4 }}>
@@ -272,7 +273,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── La Oportunidad ── */}
-      <Sec title="💡 La Oportunidad — Encabezado y tabs">
+      <Sec title={<><Lightbulb size={18} strokeWidth={1.75} />La Oportunidad — Encabezado y tabs</>}>
         {bi('opp_eyebrow', 'opp_eyebrow_es', 'Eyebrow / kicker')}
         {bi('opp_titulo', 'opp_titulo_es', 'Título de sección')}
         {bi('opp_tab_story', 'opp_tab_story_es', 'Tab — The Story')}
@@ -280,7 +281,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Investment Brief — Números ── */}
-      <Sec title="📊 Investment Brief — Números">
+      <Sec title={<><BarChart3 size={18} strokeWidth={1.75} />Investment Brief — Números</>}>
         <Field label="Precio (num grande)"><Inp value={d.brief_precio}  onChange={set('brief_precio')}  placeholder="USD 3M" /></Field>
         <Field label="Revenue peak (CLP)"><Inp value={d.brief_revenue} onChange={set('brief_revenue')} placeholder="$181M" /></Field>
         <Field label="Meses operación"><Inp   value={d.brief_meses}   onChange={set('brief_meses')}   placeholder="6 → 12" /></Field>
@@ -300,14 +301,14 @@ export default function Barranco() {
       </Sec>
 
       {/* ── The Story ── */}
-      <Sec title="📖 The Story">
+      <Sec title={<><BookOpen size={18} strokeWidth={1.75} />The Story</>}>
         {biTxa('story_p1', 'story_p1_es', 'Párrafo 1 (azul destacado)', 3)}
         {biTxa('story_p2', 'story_p2_es', 'Párrafo 2', 4)}
         {biTxa('story_p3', 'story_p3_es', 'Párrafo 3', 4)}
       </Sec>
 
       {/* ── Property Details — Encabezado y tabs ── */}
-      <Sec title="📋 Property Details — Encabezado y tabs">
+      <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Property Details — Encabezado y tabs</>}>
         {bi('details_eyebrow', 'details_eyebrow_es', 'Eyebrow / kicker')}
         {bi('details_titulo', 'details_titulo_es', 'Título de sección')}
         {bi('details_tab_infra', 'details_tab_infra_es', 'Tab — Infrastructure')}
@@ -317,7 +318,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Ficha Técnica — Infrastructure ── */}
-      <Sec title="📋 Ficha — Infrastructure (7 filas)">
+      <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Infrastructure (7 filas)</>}>
         {([1,2,3,4,5,6,7] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
@@ -332,7 +333,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Ficha Técnica — Equipment ── */}
-      <Sec title="📋 Ficha — Equipment Included (7 filas)">
+      <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Equipment Included (7 filas)</>}>
         {([1,2,3,4,5,6,7] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
@@ -347,7 +348,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Ficha Técnica — Legal ── */}
-      <Sec title="📋 Ficha — Legal (6 filas)">
+      <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Legal (6 filas)</>}>
         {([1,2,3,4,5,6] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
@@ -362,7 +363,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Ficha Técnica — Operations ── */}
-      <Sec title="📋 Ficha — Operations (6 filas)">
+      <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Operations (6 filas)</>}>
         {([1,2,3,4,5,6] as const).map(n => (
           <Full key={n}>
             <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
@@ -377,7 +378,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Gallery ── */}
-      <Sec title="🖼 Galería (7 fotos)">
+      <Sec title={<><Image size={18} strokeWidth={1.75} />Galería (7 fotos)</>}>
         {bi('gallery_eyebrow', 'gallery_eyebrow_es', 'Eyebrow / kicker')}
         {bi('gallery_titulo', 'gallery_titulo_es', 'Título de sección')}
         <Full><Field label="Foto 1 — grande 2×2 (izquierda)">
@@ -391,7 +392,7 @@ export default function Barranco() {
       </Sec>
 
       {/* ── Contacto ── */}
-      <Sec title="💰 Contacto — Precio y datos">
+      <Sec title={<><Wallet size={18} strokeWidth={1.75} />Contacto — Precio y datos</>}>
         {bi('contact_eyebrow', 'contact_eyebrow_es', 'Eyebrow / kicker')}
         {bi('contact_titulo', 'contact_titulo_es', 'Título de sección')}
         <Field label="Precio principal (grande, sin traducir)"><Inp value={d.precio_display} onChange={set('precio_display')} placeholder="USD 3,000,000" /></Field>

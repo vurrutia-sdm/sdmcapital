@@ -6,6 +6,7 @@
 // se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
+import { FileText, Image, Landmark, RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
@@ -64,13 +65,13 @@ export default function Vende() {
         {saved && <span style={{ fontSize: 14, color: 'var(--green)', fontWeight: 500 }}>✓ Guardado correctamente</span>}
       </div>
 
-      <Sec title="🖼 Hero">
+      <Sec title={<><Image size={18} strokeWidth={1.75} />Hero</>}>
         <Full><Field label="Imagen de fondo Hero"><ImageUploader currentUrl={d.vende_hero_img} folder="vende" onUploaded={url => set('vende_hero_img')(url)} /></Field></Full>
         <Full><Field label="Título"><Inp value={d.vende_hero_titulo} onChange={set('vende_hero_titulo')} /></Field></Full>
         <Full><Field label="Subtítulo"><Txa value={d.vende_hero_subtitulo} onChange={set('vende_hero_subtitulo')} rows={3} /></Field></Full>
       </Sec>
 
-      <Sec title="🏛 Pilares">
+      <Sec title={<><Landmark size={18} strokeWidth={1.75} />Pilares</>}>
         <Full><Field label="Título de la sección"><Inp value={d.vende_pilares_titulo} onChange={set('vende_pilares_titulo')} /></Field></Full>
 
         {[1, 2, 3].map(n => (
@@ -87,14 +88,14 @@ export default function Vende() {
         ))}
       </Sec>
 
-      <Sec title="🔁 Proceso">
+      <Sec title={<><RefreshCw size={18} strokeWidth={1.75} />Proceso</>}>
         <Full><Field label="Título de la sección"><Inp value={d.vende_proceso_titulo} onChange={set('vende_proceso_titulo')} /></Field></Full>
         {[1, 2, 3, 4, 5, 6].map(n => (
           <Full key={n}><Field label={`Paso ${n}`}><Inp value={(d as Record<string,string>)[`vende_paso_${n}`]} onChange={set(`vende_paso_${n}`)} /></Field></Full>
         ))}
       </Sec>
 
-      <Sec title="📝 Formulario">
+      <Sec title={<><FileText size={18} strokeWidth={1.75} />Formulario</>}>
         <Field label="Título"><Inp value={d.vende_form_titulo} onChange={set('vende_form_titulo')} /></Field>
         <Field label="Subtítulo (etiqueta superior)"><Inp value={d.vende_form_subtitulo} onChange={set('vende_form_subtitulo')} /></Field>
       </Sec>

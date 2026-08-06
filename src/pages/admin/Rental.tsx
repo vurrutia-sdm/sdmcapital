@@ -5,6 +5,7 @@
 // se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
+import { Home, Image, KeyRound, Scale, Users, Wallet } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
@@ -85,18 +86,18 @@ export default function Rental() {
         </div>
       </div>
 
-      <Sec title="🖼 Hero">
+      <Sec title={<><Image size={18} strokeWidth={1.75} />Hero</>}>
         <Full><Field label="Imagen de fondo"><ImageUploader currentUrl={d.rental_hero_img} folder="rental" onUploaded={url => setD(p => ({ ...p, rental_hero_img: url }))} /></Field></Full>
         <Full><Field label="Título"><Inp value={d.rental_hero_titulo} onChange={set('rental_hero_titulo')} /></Field></Full>
         <Full><Field label="Subtítulo"><Txa value={d.rental_hero_subtitulo} onChange={set('rental_hero_subtitulo')} rows={3} /></Field></Full>
       </Sec>
 
-      <Sec title="👥 Quiénes Somos Rental">
+      <Sec title={<><Users size={18} strokeWidth={1.75} />Quiénes Somos Rental</>}>
         <Field label="Título"><Inp value={d.rental_quienes_titulo} onChange={set('rental_quienes_titulo')} /></Field>
         <Full><Field label="Texto"><Txa value={d.rental_quienes_somos} onChange={set('rental_quienes_somos')} rows={5} /></Field></Full>
       </Sec>
 
-      <Sec title="🏠 Para Propietarios">
+      <Sec title={<><Home size={18} strokeWidth={1.75} />Para Propietarios</>}>
         <Field label="Título"><Inp value={d.rental_prop_titulo} onChange={set('rental_prop_titulo')} /></Field>
         <Full><Field label="Subtítulo"><Txa value={d.rental_prop_subtitulo} onChange={set('rental_prop_subtitulo')} rows={2} /></Field></Full>
         <Full><Field label="Ítem 1"><Inp value={d.rental_check_1} onChange={set('rental_check_1')} /></Field></Full>
@@ -106,19 +107,19 @@ export default function Rental() {
         <Full><Field label="Ítem 5"><Inp value={d.rental_check_5} onChange={set('rental_check_5')} /></Field></Full>
       </Sec>
 
-      <Sec title="💰 Comisiones">
+      <Sec title={<><Wallet size={18} strokeWidth={1.75} />Comisiones</>}>
         <Field label="Arriendo Tradicional — %"><Inp value={d.rental_comision_trad_pct} onChange={set('rental_comision_trad_pct')} /></Field>
         <Field label="Arriendo Tradicional — descripción"><Inp value={d.rental_comision_trad_desc} onChange={set('rental_comision_trad_desc')} /></Field>
         <Field label="Administración Completa — %"><Inp value={d.rental_comision_adm_pct} onChange={set('rental_comision_adm_pct')} /></Field>
         <Field label="Administración Completa — descripción"><Inp value={d.rental_comision_adm_desc} onChange={set('rental_comision_adm_desc')} /></Field>
       </Sec>
 
-      <Sec title="🔑 Para Arrendatarios">
+      <Sec title={<><KeyRound size={18} strokeWidth={1.75} />Para Arrendatarios</>}>
         <Field label="Título"><Inp value={d.rental_arr_titulo} onChange={set('rental_arr_titulo')} /></Field>
         <Full><Field label="Subtítulo"><Txa value={d.rental_arr_subtitulo} onChange={set('rental_arr_subtitulo')} rows={2} /></Field></Full>
       </Sec>
 
-      <Sec title="⚖️ Comparativo">
+      <Sec title={<><Scale size={18} strokeWidth={1.75} />Comparativo</>}>
         <Full><Field label="Título de la sección"><Inp value={d.rental_comp_titulo} onChange={set('rental_comp_titulo')} /></Field></Full>
 
         <Full>

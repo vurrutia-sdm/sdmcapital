@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
-import { FileText, Users, MessageCircle } from 'lucide-react'
+import { Building2, ClipboardList, CreditCard, FileText, HeartHandshake, Image, KeyRound, Lock, MessageCircle, PenLine, Tag, Users } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { subirImagen } from '@/lib/subirImagen'
 import Mensajes from '@/pages/admin/Mensajes'
@@ -134,20 +135,20 @@ function FotosAdmin() {
 }
 
 // ─── SIDEBAR ──────────────────────────────────────────────────────────────────
-const DEFAULT_TABS: { key: Tab; label: string; icon: string }[] = [
-  { key: 'propiedades',  label: 'Propiedades',     icon: '🏠' },
-  { key: 'cotizaciones', label: 'Cotizaciones',    icon: '📋' },
-  { key: 'blog',         label: 'Blog',            icon: '📝' },
-  { key: 'equipo',       label: 'Equipo',          icon: '👥' },
-  { key: 'asociados',    label: 'Asociados',       icon: '🤝' },
-  { key: 'mensajes',     label: 'Mensajes',        icon: '💬' },
-  { key: 'contenido',    label: 'Textos del sitio',icon: '✏️' },
-  { key: 'fotos',        label: 'Imágenes',        icon: '🖼' },
-  { key: 'barranco',     label: 'El Barranco',     icon: '🏨' },
-  { key: 'tarjetas',     label: 'Tarjetas',        icon: '💳' },
-  { key: 'legal',        label: 'Páginas Legales', icon: '🔒' },
-  { key: 'rental',       label: 'Rental',          icon: '🏘' },
-  { key: 'vende',        label: 'Vende con nosotros', icon: '🏷' },
+const DEFAULT_TABS: { key: Tab; label: string; icon: LucideIcon }[] = [
+  { key: 'propiedades',  label: 'Propiedades',     icon: Building2 },
+  { key: 'cotizaciones', label: 'Cotizaciones',    icon: ClipboardList },
+  { key: 'blog',         label: 'Blog',            icon: FileText },
+  { key: 'equipo',       label: 'Equipo',          icon: Users },
+  { key: 'asociados',    label: 'Asociados',       icon: HeartHandshake },
+  { key: 'mensajes',     label: 'Mensajes',        icon: MessageCircle },
+  { key: 'contenido',    label: 'Textos del sitio',icon: PenLine },
+  { key: 'fotos',        label: 'Imágenes',        icon: Image },
+  { key: 'barranco',     label: 'El Barranco',     icon: Building2 },
+  { key: 'tarjetas',     label: 'Tarjetas',        icon: CreditCard },
+  { key: 'legal',        label: 'Páginas Legales', icon: Lock },
+  { key: 'rental',       label: 'Rental',          icon: KeyRound },
+  { key: 'vende',        label: 'Vende con nosotros', icon: Tag },
 ]
 
 const STORAGE_KEY = 'sdm_admin_tab_order'
@@ -213,7 +214,7 @@ export default function AdminPage() {
               onClick={() => setTab(t.key)} className="flex items-center gap-3 transition-all duration-150"
               style={{ padding: '11px 16px', fontSize: 13, fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none' }}>
               <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" style={{ opacity: 0.3, flexShrink: 0 }}><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
-              <span style={{ fontSize: 16 }}>{t.icon}</span>
+              <t.icon size={16} strokeWidth={1.75} style={{ flexShrink: 0 }} />
               {t.label}
             </div>
           ))}

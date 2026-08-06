@@ -20,6 +20,7 @@
 // no proxea `/api`. Esa parte se prueba en producción.
 
 import { useState, useEffect, useRef } from 'react'
+import { Briefcase, File, MapPin, Youtube } from 'lucide-react'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
@@ -554,7 +555,7 @@ export default function Propiedades() {
           )}
 
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📍 Ubicación en mapa</div>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14} strokeWidth={2} />Ubicación en mapa</div>
             <MapPicker
               address={editing.map_address || ''}
               lat={editing.map_lat}
@@ -564,7 +565,7 @@ export default function Propiedades() {
           </div>
 
           <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>💼 Comisión y Beneficios</div>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><Briefcase size={14} strokeWidth={2} />Comisión y Beneficios</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Comisión corredora (%)">
                 <Inp type="number" value={editing.comision_porcentaje ?? 2}
@@ -594,7 +595,7 @@ export default function Propiedades() {
           </div>
 
           <div className="mb-6">
-            <Field label="🎥 Link de YouTube">
+            <Field label={<><Youtube size={14} strokeWidth={2} />Link de YouTube</>}>
               <Inp
                 value={editing.youtube_url || ''}
                 onChange={v => setEditing(p => ({ ...p, youtube_url: v }))}
@@ -604,7 +605,7 @@ export default function Propiedades() {
           </div>
 
           <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>📄 Dossiers / Fichas técnicas</div>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><File size={14} strokeWidth={2} />Dossiers / Fichas técnicas</div>
             <DossierUploader
               items={editing.dossiers || []}
               onChanged={items => setEditing(p => ({ ...p, dossiers: items }))}
