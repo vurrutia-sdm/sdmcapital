@@ -77,21 +77,65 @@ línea o se marca como cerrada.
 | 2026-08-05 | Inventario oficinas | Carga de 10 edificios de oficinas en arriendo (42 unidades). Toca `src/types/index.ts`, `supabase/migrations/` y `src/pages/PropiedadDetailPage.tsx` | Commit `a1a0728`, pusheado |
 | 2026-08-05 | Inventario oficinas (cambio de estrategia) | Los 10 edificios pasan a referencia interna permanente; se publica una ficha genérica en su lugar. Solo toca `supabase/migrations/` | Cerrada — commit `06d32b1`, migración aplicada y pusheada. Sin deploy propio: era SQL, no cambiaba el bundle |
 | 2026-08-05 | Banner promocional | Barra promocional en el home controlada desde el admin. Toca `src/components/sections/BannerPromo.tsx`, `src/pages/HomePage.tsx` y `ContenidoAdmin` dentro de `src/pages/AdminPage.tsx` | Cerrada — commiteada y desplegada |
-| 2026-08-05 | RLS / exposición de datos | Diagnóstico de lectura anónima en Supabase. **Solo investigación, sin cambios aplicados.** Afectaría `supabase/migrations/` y potencialmente todas las lecturas del sitio | Diagnóstico entregado, esperando revisión |
+| 2026-08-05 | RLS / exposición de datos | Diagnóstico de lectura anónima en Supabase. Solo investigación | Cerrada — derivó en la migración `20260805000300` |
+| 2026-08-05 | RLS / cierre de escritura anónima | Migración `20260805000300`: RLS en `propiedades`, `ficha_clientes`, `ficha_propiedades` y `sdm_agentes`. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada contra producción |
 | — | Sofía / chatbot | — | — |
 
-### Sesión RLS — 2026-08-05 (diagnóstico, sin cambios)
+### Sesión RLS — 2026-08-05
 
-Hallazgo: **las 19 tablas de `public` son legibles con la anon key**, que viaja
-en el bundle del sitio. `propiedades` devuelve las 65 filas, incluidas las 12
-con `activo = false` y su `direccion`.
+Diagnóstico inicial: **las 19 tablas de `public` eran legibles con la anon
+key**, que viaja en el bundle del sitio. `propiedades` devolvía las 65 filas,
+incluidas las 12 con `activo = false` y su `direccion`. El inventario de
+`pg_policies` mostró además políticas PERMISSIVE sobre el rol `public` con
+`FOR ALL / USING (true)`: como `public` incluye a `anon`, cualquiera podía
+hacer DELETE o UPDATE sobre cuatro tablas.
 
-No se aplicó ningún cambio. Antes de tocar RLS hay que inventariar las
-políticas existentes: si ya hay una permisiva de SELECT, agregar otra no
-restringe nada — las políticas permisivas se suman con OR.
+Se aplicó la migración `20260805000300_rls_cerrar_escritura_anonima.sql` sobre
+`propiedades`, `ficha_clientes`, `ficha_propiedades` y `sdm_agentes`.
 
-**Advertencia para cualquier sesión: no agregar políticas a ciegas.** Una
-política mal puesta sobre `propiedades` deja el catálogo público en blanco.
+#### Las políticas `Allow all` fueron ELIMINADAS. No recrearlas.
+
+Se borraron `"Allow all"`, `"Allow all updates"`, `"Allow authenticated
+updates"`, `propiedades_select` y `propiedades_write`.
+
+El motivo de borrarlas en vez de sumar una política nueva encima: **las
+políticas permisivas se combinan con OR**. Basta una que diga `USING (true)`
+para que todas las demás dejen de restringir nada. De hecho `propiedades`
+*ya tenía* una política de escritura correcta (`propiedades_write`), y estaba
+completamente anulada por las permisivas que convivían con ella.
+
+Si alguien recrea una `Allow all` desde el dashboard —es el default que ofrece
+la UI al habilitar RLS— el agujero vuelve entero y en silencio: nada falla,
+simplemente se vuelve a poder escribir sin autenticar.
+
+#### Estado resultante
+
+| Tabla | `anon` | `authenticated` |
+|---|---|---|
+| `propiedades` | SELECT solo `activo IS TRUE` | todo |
+| `ficha_clientes` | SELECT | todo |
+| `ficha_propiedades` | SELECT | todo |
+| `sdm_agentes` | SELECT | todo |
+
+La lectura anónima se conserva en las tres últimas porque el cliente abre su
+ficha sin login.
+
+#### Cómo verificar que sigue cerrado
+
+Un `DELETE` con un filtro que no coincide con nada **no sirve** como prueba:
+RLS no lanza error, filtra filas. Borrar 0 filas devuelve 204 tanto si la
+escritura está permitida como si está bloqueada.
+
+La prueba que sí discrimina es un `PATCH` sobre una fila **visible**, poniendo
+una columna a su valor actual, con `Prefer: return=representation`: si
+devuelve `[]` la escritura está bloqueada; si devuelve la fila, pasó. Al poner
+el mismo valor, no cambia nada en ninguno de los dos casos.
+
+#### Pendiente
+
+Quedan sin revisar las otras 15 tablas de `public`. `cotizaciones` y
+`contacto_mensajes` daban 0 filas en el diagnóstico, pero eso no distingue
+"vacía" de "RLS la oculta": hay que confirmarlo antes de darlas por seguras.
 
 ### Sesión banner promocional — 2026-08-05
 
