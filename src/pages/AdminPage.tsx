@@ -46,18 +46,18 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--navy-dark)' }}>
       <div className="bg-white p-12 w-full max-w-sm" style={{ borderRadius: 2 }}>
         <div className="logo-stripes mb-6"><div className="logo-stripe logo-stripe--sky" /><div className="logo-stripe logo-stripe--green" /><div className="logo-stripe logo-stripe--navy" /></div>
-        <h1 className="font-serif font-light mb-1" style={{ fontSize: 30, color: 'var(--navy-dark)' }}>Admin</h1>
-        <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 28 }}>SDM Capital · Panel de gestión</p>
+        <h1 className="font-serif font-light mb-1 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Admin</h1>
+        <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 28 }}>SDM Capital · Panel de gestión</p>
         <form onSubmit={login} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Email</label>
+            <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Email</label>
             <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="input-line" placeholder="admin@sdmcapital.cl" />
           </div>
           <div className="flex flex-col gap-2">
-            <label style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Contraseña</label>
+            <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Contraseña</label>
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="input-line" placeholder="••••••••" />
           </div>
-          {error && <p style={{ fontSize: 13, color: '#E24B4A' }}>{error}</p>}
+          {error && <p className="text-sdm-sm" style={{ color: '#E24B4A' }}>{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary justify-center mt-2">{loading ? 'Ingresando…' : 'Ingresar →'}</button>
         </form>
       </div>
@@ -114,7 +114,7 @@ export default function AdminPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next.map(t => t.key)))
   }
 
-  if (checking) return <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--navy-dark)' }}><div className="font-serif italic" style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }}>Verificando sesión…</div></div>
+  if (checking) return <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--navy-dark)' }}><div className="font-serif italic text-sdm-xl" style={{ color: 'rgba(255,255,255,0.4)' }}>Verificando sesión…</div></div>
   if (!authed)  return <LoginForm />
 
   return (
@@ -123,26 +123,26 @@ export default function AdminPage() {
         <div className="flex items-center gap-3">
           <div className="logo-stripes"><div className="logo-stripe logo-stripe--sky"/><div className="logo-stripe logo-stripe--green"/><div className="logo-stripe logo-stripe--navy"/></div>
           <div>
-            <div className="font-serif" style={{ fontSize: 18, color: 'var(--navy-dark)', letterSpacing: '2px' }}>SDM Capital</div>
-            <div style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: '2px', textTransform: 'uppercase' }}>Panel Admin</div>
+            <div className="font-serif text-sdm-xl tracking-sdm-wide" style={{ color: 'var(--navy-dark)' }}>SDM Capital</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase' }}>Panel Admin</div>
           </div>
         </div>
         <div className="flex items-center gap-5">
-          <a href="/" target="_blank" style={{ fontSize: 12, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>Ver sitio <ExternalLink size={14} strokeWidth={2} /></a>
-          <button onClick={() => supabase.auth.signOut()} style={{ fontSize: 12, color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Cerrar sesión</button>
+          <a className="text-sdm-sm tracking-sdm-wide" href="/" target="_blank" style={{ color: 'var(--muted)', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>Ver sitio <ExternalLink size={14} strokeWidth={2} /></a>
+          <button className="text-sdm-sm tracking-sdm-wide" onClick={() => supabase.auth.signOut()} style={{ color: 'var(--muted)', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Cerrar sesión</button>
         </div>
       </div>
 
       <div className="flex overflow-visible">
         <aside className="w-56 h-[calc(100vh-57px)] overflow-y-auto bg-white border-r border-[#e8edf2] py-6 flex-shrink-0 fixed top-[57px] left-0 z-30">
-          <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <svg width="10" height="14" viewBox="0 0 10 14" fill="var(--muted)"><circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/><circle cx="2" cy="7" r="1.5"/><circle cx="8" cy="7" r="1.5"/><circle cx="2" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/></svg>
             Arrastra para ordenar
           </div>
           {tabs.map((t, i) => (
             <div key={t.key} draggable onDragStart={() => onTabDragStart(i)} onDragEnter={() => onTabDragEnter(i)} onDragEnd={onTabDragEnd}
-              onClick={() => setTab(t.key)} className="flex items-center gap-3 transition-all duration-150"
-              style={{ padding: '11px 16px', fontSize: 13, fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none' }}>
+              onClick={() => setTab(t.key)} className="flex items-center gap-3 transition-all duration-150 text-sdm-sm"
+              style={{ padding: '11px 16px', fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none' }}>
               <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" style={{ opacity: 0.3, flexShrink: 0 }}><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
               <t.icon size={16} strokeWidth={1.75} style={{ flexShrink: 0 }} />
               {t.label}
@@ -150,23 +150,23 @@ export default function AdminPage() {
           ))}
           {/* ── Herramientas ── */}
           <div style={{ borderTop: '1px solid var(--border)', marginTop: 12, paddingTop: 12 }}>
-            <div style={{ fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 8px' }}>Herramientas</div>
-            <RouterLink to="/admin/ficha-cliente"
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 8px' }}>Herramientas</div>
+            <RouterLink className="text-sdm-sm" to="/admin/ficha-cliente"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
               <FileText size={15} style={{ flexShrink: 0 }} />
               Ficha para cliente
             </RouterLink>
-            <RouterLink to="/admin/agentes"
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
+            <RouterLink className="text-sdm-sm" to="/admin/agentes"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
               <Users size={15} style={{ flexShrink: 0 }} />
               Agentes
             </RouterLink>
-            <RouterLink to="/admin/captacion"
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontSize: 13, fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
+            <RouterLink className="text-sdm-sm" to="/admin/captacion"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
               <MessageCircle size={15} style={{ flexShrink: 0 }} />
