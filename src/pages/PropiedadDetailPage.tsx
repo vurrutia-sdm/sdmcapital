@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { MapPin, Home, Bath, Maximize2, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
 import DOMPurify from 'dompurify'
@@ -488,6 +489,86 @@ export default function PropiedadDetailPage() {
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(prop.descripcion) }}
               />
             )}
+
+            {/* Unidades disponibles — edificios con varios pisos en arriendo */}
+            {(() => {
+              const unidades = Array.isArray(prop.unidades) ? prop.unidades : []
+              if (!unidades.length) return null
+
+              const conSuperficie = unidades.filter(u => typeof u.m2 === 'number')
+              const totalM2 = conSuperficie.reduce((suma, u) => suma + (u.m2 as number), 0)
+              const hayPendientes = conSuperficie.length < unidades.length
+
+              const rotulo: CSSProperties = {
+                fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase',
+                color: 'var(--muted)', fontWeight: 400,
+                padding: '0 0 8px', borderBottom: '1px solid var(--border)',
+              }
+              const celda: CSSProperties = { padding: '10px 0', borderBottom: '1px solid var(--border)' }
+              const cifra: CSSProperties = { fontSize: 20, fontWeight: 300, color: 'var(--navy-dark)', lineHeight: 1.2 }
+
+              return (
+                <div className="mb-6 pb-6" style={{ borderBottom: '1px solid var(--border)' }}>
+                  <h2 className="font-serif font-light mb-4" style={{ fontSize: 22, color: 'var(--navy-dark)' }}>
+                    Unidades disponibles
+                  </h2>
+
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ ...rotulo, textAlign: 'left' }}>Piso</th>
+                        <th style={{ ...rotulo, textAlign: 'right' }}>Superficie</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {unidades.map((u, i) => (
+                        <tr key={i}>
+                          <td style={{ ...celda, textAlign: 'left' }}>
+                            <span className="font-serif" style={cifra}>{u.piso}</span>
+                            {u.nota && (
+                              <div style={{ fontSize: 12, fontWeight: 300, color: 'var(--muted)', marginTop: 2 }}>
+                                {u.nota}
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ ...celda, textAlign: 'right' }}>
+                            {typeof u.m2 === 'number' ? (
+                              <span className="font-serif" style={cifra}>{u.m2.toLocaleString('es-CL')} m²</span>
+                            ) : (
+                              <span style={{ fontSize: 13, fontWeight: 300, color: 'var(--muted)' }}>Por confirmar</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+
+                    <tfoot>
+                      <tr>
+                        <td style={{ padding: '14px 0 0', textAlign: 'left', verticalAlign: 'bottom' }}>
+                          <div style={{ fontSize: 11, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>
+                            Total
+                          </div>
+                          <div className="font-serif" style={{ ...cifra, fontSize: 22 }}>
+                            {unidades.length} {unidades.length === 1 ? 'unidad' : 'unidades'}
+                          </div>
+                        </td>
+                        <td style={{ padding: '14px 0 0', textAlign: 'right', verticalAlign: 'bottom' }}>
+                          <div className="font-serif" style={{ ...cifra, fontSize: 22 }}>
+                            {totalM2.toLocaleString('es-CL')} m²
+                          </div>
+                          {hayPendientes && (
+                            <div style={{ fontSize: 12, fontWeight: 300, color: 'var(--muted)', marginTop: 2 }}>
+                              No incluye las unidades por confirmar
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )
+            })()}
 
             {/* Información del Proyecto — solo proyectos nuevos */}
             {prop.categoria === 'proyecto_nuevo' && (() => {

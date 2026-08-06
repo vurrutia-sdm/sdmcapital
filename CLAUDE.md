@@ -15,8 +15,42 @@ Ahí mismo está el registro donde cada sesión anota en qué está trabajando.
 
 ## Migraciones de base de datos (Supabase)
 
-El proyecto está linkeado a `ugfhgfpgxyfzafudxaeo` y la CLI de Supabase está
-autenticada, así que el DDL se aplica desde acá.
+El proyecto está linkeado a `ugfhgfpgxyfzafudxaeo`, así que el DDL se aplica
+desde acá — siempre que la CLI esté autenticada con la cuenta correcta.
+
+### Antes de cualquier DDL: verificar con qué cuenta quedó la CLI
+
+El login de `supabase` es **global de la máquina, no por proyecto**. Al alternar
+entre SDM y BookFindería hay que reloguearse cada vez. El link
+(`supabase/.temp/project-ref`) no cambia, así que el repo se ve perfectamente
+normal aunque la CLI esté apuntando a la cuenta equivocada.
+
+```bash
+supabase projects list
+```
+
+`ugfhgfpgxyfzafudxaeo` ("SDM New Website") tiene que aparecer en la lista, con
+`"linked": true`. Si no está, la CLI quedó en la otra cuenta.
+
+Síntoma cuando pasa eso:
+
+```
+Initialising login role...
+unexpected login role status 403: {"message":"Your account does not have the
+necessary privileges to access this endpoint. ..."}
+Connect to your database by setting the env var correctly: SUPABASE_DB_PASSWORD
+```
+
+Ese 403 **no** es un problema de permisos dentro del proyecto: es que la cuenta
+autenticada no ve el proyecto. Se resuelve con:
+
+```bash
+supabase login
+```
+
+El mensaje sugiere `SUPABASE_DB_PASSWORD` y es una pista falsa: lleva a
+conectarse por fuera de la autenticación normal. **Nunca** pedir ni usar la
+contraseña de la base para esquivar este error — la solución es reloguearse.
 
 ### Los 10 archivos SQL antiguos de `supabase/migrations/` NO deben renombrarse
 

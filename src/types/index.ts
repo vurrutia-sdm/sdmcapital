@@ -11,6 +11,22 @@ export interface DossierItem {
   titulo?: string
 }
 
+/**
+ * Una unidad arrendable dentro de una propiedad — típicamente un piso de un
+ * edificio de oficinas.
+ *
+ * `piso` es texto y no número porque el catálogo real trae etiquetas como
+ * "701", "702" o "23 a 25".
+ *
+ * `m2` admite null: hay unidades cuya superficie todavía no está verificada.
+ * La ficha las muestra como "Por confirmar" en lugar de omitirlas.
+ */
+export interface UnidadPropiedad {
+  piso: string
+  m2: number | null
+  nota?: string
+}
+
 export interface Propiedad {
   id: string
   slug?: string
@@ -29,6 +45,7 @@ export interface Propiedad {
   banos?: number
   superficie_total?: number
   superficie_util?: number
+  unidades?: UnidadPropiedad[]
   estacionamientos?: number
   region: string
   comuna: string

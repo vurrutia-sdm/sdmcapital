@@ -74,7 +74,21 @@ línea o se marca como cerrada.
 |---|---|---|---|
 | 2026-08-02 | Admin | Cotizaciones: columnas `prop_pais`/`prop_ciudad` en Supabase, errores de escritura visibles en todo el admin (`avisarError`), catálogo como modo por defecto en el Paso 2, PDF bajo demanda | **Cerrada** — todo commiteado y desplegado |
 | 2026-08-02 | Web pública | Componente `SinArriendos` en `PropiedadesPage.tsx` | Cerrado — commit `0b7e80a`, ya en producción |
+| 2026-08-05 | Inventario oficinas | Carga de 10 edificios de oficinas en arriendo (42 unidades). Toca `src/types/index.ts`, `supabase/migrations/` y `src/pages/PropiedadDetailPage.tsx` | En curso |
 | — | Sofía / chatbot | — | — |
+
+### Sesión inventario oficinas — 2026-08-05
+
+`src/pages/PropiedadDetailPage.tsx` es dominio de la **sesión web pública**, y
+`src/types/index.ts` es zona compartida. Esta sesión los toca de todas formas
+para el render de unidades; queda avisado acá. El admin y el banner del home
+**no** se tocan — eso viene en una etapa posterior.
+
+Migraciones `20260805000000` y `20260805000100` **ya aplicadas** contra
+`ugfhgfpgxyfzafudxaeo`. La base cambió: `propiedades` tiene columna `unidades`
+(jsonb, nullable) y 10 filas nuevas de tipo `oficina`. Las 10 quedan con
+`activo = false`, así que no aparecen en el catálogo público hasta que se
+carguen las fotos desde el admin.
 
 ### Sesión admin cerrada el 2026-08-02
 
