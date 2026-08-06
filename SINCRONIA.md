@@ -92,6 +92,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, limpieza | Borrar `FotosAdmin` y corregir los comentarios desactualizados | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 1) | **Definición de tokens en ZONA COMPARTIDA** (`src/styles/globals.css` y `tailwind.config.js`). No toca componentes | Commiteada y pusheada, **sin desplegar** — no cambia nada visible |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
+| 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -1047,6 +1048,107 @@ es un error — el admin no tiene tipografía por encima de 30px ni tracking
 negativo. Aparecerán con la tanda de web pública.
 
 CSS: 26.879 → 27.200 bytes (**+321**).
+
+### Admin — layout móvil: el sidebar pasa a cajón — 2026-08-06
+
+**El admin no tenía layout móvil.** No es que duplicara markup como el resto
+del proyecto: simplemente nunca se adaptó. Cero `matchMedia`, cero
+`innerWidth`; los breakpoints de Tailwind se usaban solo para grillas de
+formulario (`md:grid-cols-2` y parientes, 28 apariciones), y del layout
+general había **una sola**: `lg:p-10` en el `<main>`.
+
+El `aside` medía `w-56` (224px fijos) y el `main` llevaba `ml-56` (otros 224
+fijos). La aritmética era el problema entero.
+
+#### Medido, no calculado
+
+Chrome headless, `getBoundingClientRect`. **Cuidado con el método:** headless
+tiene un piso de viewport de ~500px que ignora `--window-size`, así que las
+primeras medidas móviles daban 500px y eran falsas. Lo que sirve es cargar la
+página en **iframes del ancho real** dentro de una ventana grande.
+
+| Viewport | Contenido antes | Contenido ahora |
+|---:|---:|---:|
+| 360px | **72px** | 328px |
+| 390px | **102px** | 358px |
+| 430px | 142px | 398px |
+| 1024px | 736px | 736px |
+| 1440px | 1136px | 1136px |
+
+72px de ancho útil es más angosto que la palabra "Propiedades" en el serif de
+28px de los títulos. De ahí que se rompieran letra por letra.
+
+#### Qué se hizo
+
+Debajo de `lg` (1024px) el `aside` es un cajón de 256px fuera de pantalla
+(`-translate-x-full`) que se superpone con backdrop y **no empuja el layout**.
+Lo abre una hamburguesa en el header; se cierra al elegir pestaña, al tocar el
+backdrop, al navegar a una herramienta y con Escape. El `main` pierde el
+`ml-56` y baja el padding a `p-4 lg:p-8 xl:p-10`.
+
+**De `lg` para arriba no cambia nada.** Verificado a 1024 y 1440: aside en
+x=0 w=224, main con `ml-56`, mismas medidas que antes.
+
+Todo con breakpoints de Tailwind. El único estado en JS es abierto/cerrado.
+
+#### El `top-[57px]` era un número mágico desalineado
+
+El header mide **79,50px** medidos, y el aside arrancaba en 57. El header es
+`sticky z-40` y el aside `fixed z-30`, así que le tapaba los primeros ~22px —
+justamente la etiqueta "Arrastra para ordenar". Bug de escritorio,
+preexistente.
+
+Ahora hay **una sola definición**, `--admin-header-h: 80px`, declarada en el
+div raíz del admin y referenciada por los dos:
+
+```
+header  lg:h-[var(--admin-header-h)]              ← la FUERZA
+aside   lg:top-[var(--admin-header-h)]
+        lg:h-[calc(100vh-var(--admin-header-h))]
+```
+
+Al forzarla en el header, no puede volver a desalinearse. Medido después:
+header 80,0px, aside top 80,0px, sin solape. En móvil el cajón es `top-0
+h-screen`, así que no depende de esa altura.
+
+**Por qué no se rehizo como app-shell** (`h-screen flex flex-col` con scroll
+interno en el `main`), que habría eliminado el número por completo:
+`Contenido.tsx` guarda y restaura la posición con `window.scrollY` y
+`window.scrollTo` al cambiar de página. Con scroll interno, `window.scrollY`
+es siempre 0 y esa función se rompe en silencio.
+
+#### El header móvil no se desbordaba: crecía
+
+Medido, el header anterior daba **126px a 360px** y **110px entre 390 y 430**,
+contra 80 en escritorio. No había overflow horizontal —`scrollWidth` igual al
+viewport en todos los anchos—: los flex items partían su texto en varias
+líneas.
+
+Debajo de `lg` se ocultan el subtítulo "Panel Admin" y las etiquetas de "Ver
+sitio" y "Cerrar sesión", que quedan solo con su icono. El header baja a
+**63px** y entra en una línea. Se prefirió reducir antes que dejarlo envolver
+porque el alto es lo escaso en un teléfono, y porque un header de alto
+variable es la fragilidad que se acababa de quitar.
+
+#### El arrastre no funciona en táctil, y ahora no lo aparenta
+
+El reordenamiento usa la **API HTML5 de drag and drop**: `draggable` con
+`onDragStart` / `onDragEnter` / `onDragEnd`, sin un solo `onTouchStart` ni
+`onPointerDown` en todo el admin. Esa API **no dispara desde eventos
+táctiles** en iOS ni Android, así que en teléfono la etiqueta "Arrastra para
+ordenar" mentía.
+
+Debajo de `lg` se ocultan la etiqueta y la manija de cada fila. **El orden
+guardado en `localStorage` se sigue respetando y renderizando igual**; solo no
+se puede cambiar desde el teléfono. Reimplementarlo con Pointer Events es
+trabajo aparte.
+
+#### Sin tocar `globals.css`
+
+El `overflow-x: hidden` del `body` queda como estaba, y la solución no depende
+de él. El único archivo del diff es `AdminPage.tsx`.
+
+Chunk `AdminPage`: 175,55 → 177,29 kB (**+1,74**).
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
