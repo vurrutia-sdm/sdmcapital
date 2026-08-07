@@ -278,12 +278,12 @@ export function TarjetasEquipo() {
           {tarjetas.map((t, i) => (
             <div
               key={t.id}
-              className="bg-white flex items-center gap-5 p-4"
+              className="bg-white flex flex-wrap items-center gap-x-3 gap-y-2 p-3 lg:flex-nowrap lg:gap-5 lg:p-4"
               style={{ border: '1px solid var(--border)', borderRadius: 2 }}
             >
-              <Miniatura tarjeta={t} />
+              <div className="order-1 lg:order-none"><Miniatura tarjeta={t} /></div>
 
-              <div className="flex-1 min-w-0">
+              <div className="order-3 w-full min-w-0 lg:order-none lg:w-auto lg:flex-1">
                 <div className="text-sdm-lg" style={{ fontFamily: "'Lora', serif", fontWeight: 600, color: 'var(--navy-dark)' }}>
                   {t.nombre}
                 </div>
@@ -297,15 +297,16 @@ export function TarjetasEquipo() {
                 </div>
               </div>
 
-              {/* Reordenar */}
-              <div className="flex flex-col gap-1">
-                <button className="text-sdm-sm"
+              {/* Reordenar. En movil va a la derecha de la miniatura, en su misma
+                  linea; en lg vuelve a su columna entre el texto y las acciones. */}
+              <div className="order-2 ml-auto flex gap-1 lg:order-none lg:ml-0 lg:flex-col">
+                <button className="text-sdm-sm min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
                   onClick={() => move(i, -1)}
                   disabled={i === 0 || moving === t.id}
                   title="Subir"
                   style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: i === 0 ? 'default' : 'pointer', color: i === 0 ? 'var(--border)' : 'var(--navy-dark)', padding: '2px 8px' }}
                 >▲</button>
-                <button className="text-sdm-sm"
+                <button className="text-sdm-sm min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
                   onClick={() => move(i, 1)}
                   disabled={i === tarjetas.length - 1 || moving === t.id}
                   title="Bajar"
@@ -313,16 +314,18 @@ export function TarjetasEquipo() {
                 >▼</button>
               </div>
 
-              {/* Acciones */}
-              <div className="flex flex-col items-end gap-2" style={{ flexShrink: 0 }}>
-                <button onClick={() => imprimirTarjeta(t)} className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}>
+              {/* Acciones. Debajo de lg: fila propia con borde superior, con
+                  Imprimir / PDF junto a Editar y Eliminar en vez de flotando
+                  encima del texto. 44px de alto tactil y 24px entre botones. */}
+              <div className="order-4 w-full flex items-center justify-end gap-6 mt-1 pt-2 border-t border-[#e8edf2] lg:order-none lg:w-auto lg:flex-col lg:items-end lg:gap-2 lg:mt-0 lg:pt-0 lg:border-t-0" style={{ flexShrink: 0 }}>
+                <button onClick={() => imprimirTarjeta(t)} className="btn-primary text-sdm-xs min-h-[44px] lg:min-h-0" style={{ padding: '8px 14px' }}>
                   🖨️ Imprimir / PDF
                 </button>
-                <div className="flex gap-3">
-                  <button className="text-sdm-sm" onClick={() => openEdit(t)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>
+                <div className="flex items-center gap-6 lg:gap-3">
+                  <button className="text-sdm-sm min-h-[44px] lg:min-h-0" onClick={() => openEdit(t)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>
                     Editar
                   </button>
-                  <button className="text-sdm-sm" onClick={() => del(t.id)} disabled={deleting === t.id} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>
+                  <button className="text-sdm-sm min-h-[44px] lg:min-h-0" onClick={() => del(t.id)} disabled={deleting === t.id} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>
                     {deleting === t.id ? 'Eliminando…' : 'Eliminar'}
                   </button>
                 </div>
