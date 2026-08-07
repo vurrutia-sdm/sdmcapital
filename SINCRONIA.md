@@ -1775,6 +1775,109 @@ Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
 
+### Fase 3 — Tailwind: hover a CSS y la migración masiva DESCARTADA — 2026-08-07
+
+Cuatro commits. Ninguno migra `style={{}}` a clases: esta etapa solo hace lo
+que **borra** código.
+
+| Commit | Qué | Saldo |
+|---|---|---|
+| `f86250e` | 17 clases muertas fuera de `globals.css` | −15 líneas |
+| `9748d55` | los 20 hover del admin pasan a `hover:` | −20 handlers |
+| `9f8208f` | Header (20) y Footer (14) | −34 handlers |
+| `8d5ca39` | las 10 páginas públicas restantes | −36 handlers |
+
+#### La decisión: NO se migran los 1.457 `style={{}}`
+
+El inventario del paso 0 midió el objetivo antes de tocarlo, y el número lo
+desaconsejó:
+
+| | |
+|---|---|
+| objetos `style={{}}` | **1.457** en 56 archivos |
+| peso en el bundle | **115,8 kB**, el **3,2 %** |
+| propiedad más repetida | `border` (158), después `lineHeight` (112) |
+
+El 3,2 % no es lo que decide. Lo que decide es que **migrar transforma, no
+elimina**: un `style={{ border: '1px solid var(--border)' }}` que pasa a
+`className="border border-[var(--border)]"` sigue ocupando bytes, ahora en el
+CSS en vez del JS. En `border` y `lineHeight` —las dos propiedades más
+repetidas, 270 apariciones entre las dos— la migración no gana nada: Tailwind
+genera una utilidad por valor distinto y el ahorro se lo come la clase.
+
+Se descarta 1.457 ediciones de riesgo real sobre un sitio en producción a
+cambio de un ahorro que no está demostrado. Si alguien lo vuelve a proponer,
+el número que hay que rebatir es ese: **3,2 %, y transformando en vez de
+eliminando**.
+
+#### Lo que sí se hizo: hover
+
+Los 90 `onMouseEnter`/`onMouseLeave` que solo cambiaban apariencia sí eran
+JavaScript eliminable de verdad. Quedan **4** en todo el proyecto, los del
+`Header` que abren los desplegables — ésos mueven estado, no color.
+`Captacion.tsx` no tenía ninguno.
+
+Con ellos se fueron tres `useState` de `ElBarrancoShowcase`, que existían solo
+para escalar una imagen. El wrapper lleva `group` y el `<img>`
+`group-hover:scale-[1.06]`.
+
+**La trampa:** el `style` inline gana siempre sobre la clase. Si el handler
+pisaba una propiedad que también estaba en el `style`, hay que **sacarla del
+`style`** — dejarla anula el `hover:` en silencio, sin error de build y sin
+que se note salvo pasando el mouse por encima.
+
+#### El bundle SUBIÓ, y era previsible
+
+Se esperaba que bajara. Medido contra `7d1994b`, construyendo las dos puntas:
+
+| | sin comprimir | gzip |
+|---|---|---|
+| JS | **−5,49 kB** | −0,18 kB |
+| CSS | **+3,54 kB** | +0,46 kB |
+| **total** | **−1,91 kB** | **+0,28 kB** |
+
+Sin comprimir baja; **gzipeado sube**, que es lo que se transfiere. El JS que
+se borró era la misma cadena repetida 90 veces y gzip ya la reducía casi a
+nada; las utilidades `hover:` que la reemplazan son cadenas distintas entre
+sí. La razón para hacer este cambio es que hay 90 handlers menos que mantener,
+no el peso.
+
+#### Las 17 clases muertas eran 17, no 13
+
+Se listaron 13 —"ocho de color"— y eran **doce**: `.text-navy`,
+`.text-navy-dark`, `.text-green-sdm`, `.text-sky-sdm`, `.text-muted`,
+`.bg-navy`, `.bg-navy-dark`, `.bg-navy-deeper`, `.bg-green-sdm`,
+`.bg-sky-pale`, `.bg-off`, `.border-sdm`. Todas duplicaban lo que Tailwind ya
+genera desde la paleta de `tailwind.config.js`.
+
+Verificado con `querySelectorAll` sobre la página renderizada en 14 rutas —
+**no con grep**, por lo que pasó con `section.relative` en `mobile.css`: un
+`class="relative …"` donde la clase no va primera no aparece en un grep
+posicional y se declara muerto lo que está vivo.
+
+#### El `hover:` se queda pegado en táctil — y ya se quedaba antes
+
+En Tailwind 3.4 `hover:` **no** va envuelto en `@media (hover: hover)`; eso es
+opt-in vía `future.hoverOnlyWhenSupported`, y este proyecto no lo tiene. Así
+que en teléfono el estado persiste tras el toque.
+
+Medido en Chrome con touch emulado, dos botones idénticos lado a lado, uno con
+`:hover` de CSS y otro con `onmouseenter`, tocando **uno por vez**:
+
+| | reposo | tras tocarlo | tras tocar afuera |
+|---|---|---|---|
+| CSS `:hover` | verde | **navy** | verde |
+| JS `onmouseenter` | verde | **navy** | verde |
+
+Idénticos. La persistencia existía antes de la migración y existe después: el
+navegador sintetiza `mouseenter` en el toque y no manda `mouseleave` hasta el
+siguiente toque en otro lado. **No es una regresión** y no hay nada que
+arreglar acá.
+
+El primer intento de esta medición tocaba los dos botones seguidos, así que el
+primero perdía el hover porque se tocó el segundo, no por el mecanismo. Si se
+vuelve a medir: **un elemento por vez**.
+
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
 Dos commits. Cierra las dos deudas que el refactor fue dejando anotadas.
