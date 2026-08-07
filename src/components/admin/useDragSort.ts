@@ -21,6 +21,8 @@
 import { useState, useEffect, useRef, useId } from 'react'
 import type { Dispatch, SetStateAction, CSSProperties, PointerEvent as EventoPuntero, MouseEvent as EventoRaton } from 'react'
 
+type Oyente = [string, (e: PointerEvent) => void]
+
 // Píxeles a recorrer antes de que esto cuente como arrastre. Sin umbral, el
 // temblor de uno o dos píxeles que trae cualquier toque con el dedo bastaría
 // para reordenar la lista al tocar la manija.
@@ -39,12 +41,19 @@ export function usePointerSort<T>(
   const activo = useRef(false)
   const movio = useRef(false)
   const tragarClick = useRef(false)
+  const oyentes = useRef<Oyente[] | null>(null)
 
   // El commit final sale de este ref y no de la clausura: durante el arrastre la
   // lista se reordena en vivo, así que al soltar hace falta el orden que quedó,
   // no el que había cuando se creó el handler.
   const ultimo = useRef(items)
   ultimo.current = items
+
+  // Lo mismo con la función de guardado: los consumidores la pasan como arrow
+  // inline, así que cambia de identidad en cada render. Los oyentes de window se
+  // instalan una sola vez por arrastre y sobreviven a esos renders.
+  const guardar = useRef(alSoltar)
+  guardar.current = alSoltar
 
   // Con setPointerCapture todos los eventos siguen apuntando a la fila donde
   // empezó el arrastre, así que la fila de destino hay que buscarla por
@@ -55,32 +64,31 @@ export function usePointerSort<T>(
     return n == null ? null : Number(n)
   }
 
+  const soltarOyentes = () => {
+    oyentes.current?.forEach(([tipo, fn]) => window.removeEventListener(tipo, fn as EventListener))
+    oyentes.current = null
+  }
+
   const limpiar = () => {
+    soltarOyentes()
     desde.current = null; origen.current = null
     activo.current = false; movio.current = false
     setArrastrando(null)
   }
 
-  const filaProps = (i: number) => ({
-    'data-orden-zona': zona,
-    'data-orden-idx': i,
+  useEffect(() => soltarOyentes, [])
 
-    onPointerDown: (e: EventoPuntero<HTMLElement>) => {
-      // Con ratón se arrastra desde cualquier parte de la fila, igual que con la
-      // API HTML5 que había antes: es la interacción que hoy se usa y no se
-      // degrada. Con el dedo, solo desde la manija — si se pudiera arrastrar
-      // desde cualquier parte no quedaría forma de scrollear la lista.
-      if (e.pointerType === 'mouse') { if (e.button !== 0) return }
-      else if (!(e.target as Element).closest('[data-orden-manija]')) return
-
-      desde.current = i
-      origen.current = { x: e.clientX, y: e.clientY }
-      activo.current = false
-      movio.current = false
-      e.currentTarget.setPointerCapture(e.pointerId)
-    },
-
-    onPointerMove: (e: EventoPuntero<HTMLElement>) => {
+  // El arrastre se sigue y se termina desde `window`, no desde la fila.
+  //
+  // Medido: si el `pointerup` dependiera de caer sobre una fila, soltar fuera de
+  // la lista dejaba el reordenamiento hecho EN PANTALLA pero sin guardar — y el
+  // commit salía después, pegado a un toque cualquiera y sin relación con él.
+  // En una grilla de miniaturas de tres columnas soltar fuera es facilísimo, y
+  // ahí el orden de las fotos es dato, no presentación. `setPointerCapture` no
+  // alcanza para cubrirlo: si React desmonta la fila que capturó —le pasa a
+  // cualquier lista con el índice dentro de la `key`— la captura se va con ella.
+  const montarOyentes = () => {
+    const mover = (e: PointerEvent) => {
       if (desde.current === null || origen.current === null) return
 
       if (!activo.current) {
@@ -101,19 +109,43 @@ export function usePointerSort<T>(
         next.splice(destino, 0, next.splice(previo, 1)[0])
         return next
       })
-    },
+    }
 
-    onPointerUp: () => {
+    const soltar = () => {
       const hubo = activo.current && movio.current
       // Se traga el click si hubo arrastre de verdad, aunque no haya cambiado
       // nada de orden: soltar sobre la posición de origen tampoco debería
       // contar como click.
       tragarClick.current = activo.current
       limpiar()
-      if (hubo) alSoltar(ultimo.current)
-    },
+      if (hubo) guardar.current(ultimo.current)
+    }
 
-    onPointerCancel: () => { tragarClick.current = false; limpiar() },
+    const cancelar = () => { tragarClick.current = false; limpiar() }
+
+    oyentes.current = [['pointermove', mover], ['pointerup', soltar], ['pointercancel', cancelar]]
+    oyentes.current.forEach(([tipo, fn]) => window.addEventListener(tipo, fn as EventListener))
+  }
+
+  const filaProps = (i: number) => ({
+    'data-orden-zona': zona,
+    'data-orden-idx': i,
+
+    onPointerDown: (e: EventoPuntero<HTMLElement>) => {
+      // Con ratón se arrastra desde cualquier parte de la fila, igual que con la
+      // API HTML5 que había antes: es la interacción que hoy se usa y no se
+      // degrada. Con el dedo, solo desde la manija — si se pudiera arrastrar
+      // desde cualquier parte no quedaría forma de scrollear la lista.
+      if (e.pointerType === 'mouse') { if (e.button !== 0) return }
+      else if (!(e.target as Element).closest('[data-orden-manija]')) return
+
+      soltarOyentes()
+      desde.current = i
+      origen.current = { x: e.clientX, y: e.clientY }
+      activo.current = false
+      movio.current = false
+      montarOyentes()
+    },
 
     // Después de un arrastre el navegador manda igual un click, y en el sidebar
     // eso cambiaría de pestaña justo al terminar de ordenar. La API HTML5 se lo
