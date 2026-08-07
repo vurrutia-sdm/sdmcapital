@@ -3,6 +3,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { Building2, ClipboardList, CreditCard, ExternalLink, FileText, HeartHandshake, KeyRound, LogOut, Lock, Menu, MessageCircle, PenLine, Tag, Users, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { usePointerSort } from '@/components/admin/useDragSort'
 import Mensajes from '@/pages/admin/Mensajes'
 import Blog from '@/pages/admin/Blog'
 import Equipo from '@/pages/admin/Equipo'
@@ -100,8 +101,12 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('propiedades')
   const [tabs, setTabs] = useState(loadTabOrder)
   const [menuAbierto, setMenuAbierto] = useState(false)
-  const dragTab = useRef<number | null>(null)
-  const dragOverTab = useRef<number | null>(null)
+
+  // El sidebar no usa `useDragSort` sino solo su mecánica: su orden vive en
+  // localStorage y en este estado local, no llega por props, así que la
+  // sincronización que hace `useDragSort` acá sobraría y pelearía.
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(tabs, setTabs, next =>
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next.map(t => t.key))))
 
   // Alto real del header, medido justo antes de abrir el cajón. Ver el comentario
   // del efecto: mientras el cajón está abierto el header deja de ser `sticky` y
@@ -165,18 +170,6 @@ export default function AdminPage() {
     }
   }, [menuAbierto])
 
-  const onTabDragStart = (i: number) => { dragTab.current = i }
-  const onTabDragEnter = (i: number) => { dragOverTab.current = i }
-  const onTabDragEnd   = () => {
-    if (dragTab.current === null || dragOverTab.current === null) return
-    const next = [...tabs]
-    const dragged = next.splice(dragTab.current, 1)[0]
-    next.splice(dragOverTab.current, 0, dragged)
-    dragTab.current = null; dragOverTab.current = null
-    setTabs(next)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next.map(t => t.key)))
-  }
-
   if (checking) return <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--navy-dark)' }}><div className="font-serif italic text-sdm-xl" style={{ color: 'rgba(255,255,255,0.4)' }}>Verificando sesión…</div></div>
   if (!authed)  return <LoginForm />
 
@@ -225,19 +218,20 @@ export default function AdminPage() {
               <X size={18} strokeWidth={2} />
             </button>
           </div>
-          {/* El reordenamiento por arrastre usa la API HTML5 de drag and drop,
-              que no dispara desde eventos táctiles. En móvil se oculta la
-              etiqueta y la manija: el orden guardado se sigue respetando, solo
-              no se puede cambiar desde el teléfono. */}
-          <div className="hidden lg:flex text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, alignItems: 'center', gap: 6 }}>
+          <div className="flex text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, alignItems: 'center', gap: 6 }}>
             <svg width="10" height="14" viewBox="0 0 10 14" fill="var(--muted)"><circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/><circle cx="2" cy="7" r="1.5"/><circle cx="8" cy="7" r="1.5"/><circle cx="2" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/></svg>
             Arrastra para ordenar
           </div>
           {tabs.map((t, i) => (
-            <div key={t.key} draggable onDragStart={() => onTabDragStart(i)} onDragEnter={() => onTabDragEnter(i)} onDragEnd={onTabDragEnd}
+            <div key={t.key} {...filaProps(i)}
               onClick={() => { setTab(t.key); setMenuAbierto(false) }} className="flex items-center gap-3 transition-all duration-150 text-sdm-sm"
-              style={{ padding: '11px 16px', fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none' }}>
-              <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" className="hidden lg:block" style={{ opacity: 0.3, flexShrink: 0 }}><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
+              style={{ padding: '11px 16px', fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none', opacity: arrastrando === i ? 0.45 : 1 }}>
+              {/* El relleno le da al dedo un blanco de ~20x36 sobre un icono de
+                  8x12; los márgenes negativos se lo devuelven a la fila para que
+                  no crezca. */}
+              <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: '12px 6px', margin: '-12px -2px -12px -6px', flexShrink: 0 }}>
+                <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" style={{ opacity: 0.3 }}><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
+              </span>
               <t.icon size={16} strokeWidth={1.75} style={{ flexShrink: 0 }} />
               {t.label}
             </div>

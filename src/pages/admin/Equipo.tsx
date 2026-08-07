@@ -22,7 +22,7 @@ export default function Equipo() {
   const load = () => supabase.from('equipo').select('*').order('orden').then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
-  const { items: sorted, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
+  const { items: sorted, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
     const fallo = (await Promise.all(reordered.map((m, i) => supabase.from('equipo').update({ orden: i + 1 }).eq('id', m.id)))).find(r => r.error)
     avisarError('No se pudo guardar el nuevo orden del equipo', fallo?.error ?? null)
     load()
@@ -90,10 +90,12 @@ export default function Equipo() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sorted.map((m, i) => (
-          <div key={m.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab" style={{ borderTop: '3px solid var(--green)' }}>
+          <div key={m.id} {...filaProps(i)}
+            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab" style={{ borderTop: '3px solid var(--green)', opacity: arrastrando === i ? 0.45 : 1 }}>
             <div className="flex items-center gap-4 mb-4">
-              <GripVertical size={18} strokeWidth={2} style={{ color: 'var(--muted)', flexShrink: 0 }} />
+              <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: -10, flexShrink: 0 }}>
+                <GripVertical size={18} strokeWidth={2} style={{ color: 'var(--muted)' }} />
+              </span>
               {m.foto
                 ? <img src={m.foto} alt={m.nombre} className="w-14 h-14 object-cover rounded-full" style={{ border: '2px solid var(--border)' }} />
                 : <div className="w-14 h-14 rounded-full flex items-center justify-center font-serif flex-shrink-0 text-sdm-xl" style={{ background: 'var(--navy)', color: 'var(--sky)' }}>{m.nombre.split(' ').map(n => n[0]).join('').slice(0,2)}</div>

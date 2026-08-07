@@ -310,7 +310,7 @@ export default function Propiedades() {
     }
   }
 
-  const { items: dragged, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
+  const { items: dragged, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
     const updates = reordered.map((p, i) => supabase.from('propiedades').update({ destacada: i < 6 }).eq('id', p.id))
     const fallo = (await Promise.all(updates)).find(r => r.error)
     avisarError('No se pudo guardar el nuevo orden de las propiedades', fallo?.error ?? null)
@@ -661,14 +661,18 @@ export default function Propiedades() {
             {displayItems.map((p, i) => (
               <tr
                 key={p.id}
-                draggable
-                onDragStart={() => onDragStart(i)}
-                onDragEnter={() => onDragEnter(i)}
-                onDragEnd={onDragEnd}
+                {...filaProps(i)}
                 className="flex flex-wrap items-center gap-y-0.5 rounded-sm border border-[#e8edf2] p-3 mb-2 lg:table-row lg:rounded-none lg:border-0 lg:p-0 lg:mb-0"
-                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', opacity: p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
+                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', opacity: arrastrando === i ? 0.45 : p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
-                <td className="hidden lg:table-cell lg:py-3 lg:pr-2" style={{ color: 'var(--muted)' }}><GripVertical size={16} strokeWidth={2} /></td>
+                {/* Debajo de lg la manija es una franja propia arriba de la
+                    tarjeta: la fila es flex-wrap y la celda del titulo lleva
+                    w-full, asi que cualquier order la empuja a su propia linea. */}
+                <td className="order-first lg:table-cell lg:py-3 lg:pr-2" style={{ color: 'var(--muted)' }}>
+                  <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: '8px 10px', margin: '-8px -10px' }}>
+                    <GripVertical size={16} strokeWidth={2} />
+                  </span>
+                </td>
                 {/* El numero de orden a secas es ruido en movil: no se puede
                     reordenar desde el telefono. Solo se muestra la linea de las
                     6 primeras, que son las que salen publicadas en el Inicio. */}

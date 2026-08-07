@@ -22,7 +22,7 @@ export default function Asociados() {
   const load = () => supabase.from('asociados').select('*').order('orden').then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
-  const { items: sorted, onDragStart, onDragEnter, onDragEnd } = useDragSort(items, async (reordered) => {
+  const { items: sorted, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
     const fallo = (await Promise.all(reordered.map((a, i) => supabase.from('asociados').update({ orden: i + 1 }).eq('id', a.id)))).find(r => r.error)
     avisarError('No se pudo guardar el nuevo orden de los asociados', fallo?.error ?? null)
     load()
@@ -86,9 +86,12 @@ export default function Asociados() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {sorted.map((a, i) => (
-          <div key={a.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab flex flex-col items-center text-center">
-            <GripVertical size={16} strokeWidth={2} style={{ color: 'var(--muted)', marginBottom: 8 }} />
+          <div key={a.id} {...filaProps(i)}
+            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab flex flex-col items-center text-center"
+            style={{ opacity: arrastrando === i ? 0.45 : 1 }}>
+            <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: '-10px -10px -2px' }}>
+              <GripVertical size={16} strokeWidth={2} style={{ color: 'var(--muted)' }} />
+            </span>
             {a.logo
               ? <img src={a.logo} alt={a.nombre} style={{ height: 44, objectFit: 'contain', maxWidth: '100%', marginBottom: 10 }} />
               : <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}><span className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{a.nombre}</span></div>
