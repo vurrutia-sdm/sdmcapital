@@ -202,7 +202,7 @@ export default function FichaClienteNueva() {
 
         {/* Propiedad */}
         <SCard title="Datos de la propiedad">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px 24px' }}>
+          <div className="grid grid-cols-1 gap-y-5 gap-x-6 md:grid-cols-2">
             <FLabel label="Tipo de propiedad">
               <select value={form.tipo} onChange={set('tipo')} style={sel}>
                 {['Departamento','Casa','Oficina','Local comercial','Terreno'].map(o => <option key={o}>{o}</option>)}
@@ -263,7 +263,7 @@ export default function FichaClienteNueva() {
               Gestionar agentes →
             </a>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px 24px' }}>
+          <div className="grid grid-cols-1 gap-y-5 gap-x-6 md:grid-cols-2 lg:grid-cols-3">
             <FLabel label="Nombre">
               <input value={form.asesorNombre} onChange={set('asesorNombre')} style={inp} placeholder="Juan Pérez" />
             </FLabel>
