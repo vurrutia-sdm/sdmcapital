@@ -94,8 +94,8 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
-| 2026-08-07 | Admin — acotar `mobile.css` al sitio público | **INVASIÓN DE DOMINIO**: `src/components/layout/Layout.tsx`, `src/pages/ElBarrancoShowcase.tsx` y `src/pages/EvaluacionGratuitaPage.tsx` reciben `className="sitio-publico"`, para que los selectores genéricos de `mobile.css` dejen de alcanzar el admin | En curso |
-| 2026-08-07 | Admin — limpieza de `mobile.css` | **CAMBIO EN ZONA COMPARTIDA**: se borran las reglas muertas y se acotan al sitio público los selectores genéricos que alcanzaban el admin. **Afecta a todo el sitio debajo de 768px** | En curso |
+| 2026-08-07 | Admin — acotar `mobile.css` al sitio público | **INVASIÓN DE DOMINIO**: `Layout`, `ElBarrancoShowcase` y `EvaluacionGratuitaPage` reciben `className="sitio-publico"` | Cerrada — 26 combinaciones del sitio público sin cambio, admin liberado |
+| 2026-08-07 | Admin — limpieza de `mobile.css` | **CAMBIO EN ZONA COMPARTIDA**: se borran 6 reglas muertas. **Afecta a todo el sitio debajo de 768px** | Cerrada — de 26 reglas quedan 20 |
 | 2026-08-07 | Admin — cierre del layout móvil | `Cotizaciones` a breakpoint `xl`, `TarjetasEquipo` apilado y grids responsive en `FichaCliente` Nueva/Editar | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — Cotizaciones a tarjetas | Rediseño móvil de `CotizacionesAdmin` y eliminación de los 23 fondos `var(--off)` inline que disparaban el selector de `mobile.css` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — tablas a tarjetas | Rediseño móvil de las tablas de `Propiedades` y `Blog`, y corrección del `<thead>` desalineado de Propiedades | Cerrada — commiteada, desplegada y verificada |
@@ -1670,6 +1670,109 @@ scroll vertical, así que `lg` (min-width 1024) **no matchea**. Una medición a
 aislado: a 1023 y 1024 da 2 columnas, a 1030 da 3.
 
 Para comprobar un breakpoint exacto hay que medir unos píxeles por encima.
+
+### `mobile.css` limpiado y acotado a `.sitio-publico` — 2026-08-07
+
+El archivo nació el **2026-04-30** en `d91b373`, *"fix: mobile responsive"*, tres
+meses antes del refactor del admin. Arregló el responsive de la web pública a
+base de `!important` sobre selectores genéricos, y desde entonces venía
+alcanzando al admin sin que nadie lo notara.
+
+De **26 reglas quedan 20**; de **36 declaraciones con `!important`, 29**.
+
+#### Ahora está acotado: `.sitio-publico`
+
+Los nueve selectores genéricos van prefijados con `.sitio-publico`, clase que
+llevan **`Layout`, `ElBarrancoShowcase` y `EvaluacionGratuitaPage`**.
+`ReservaConfirmacionPage` no la lleva porque no usa ninguna regla.
+
+**Se acotó en positivo, no con `:not()`.** Dos razones:
+
+1. Hay **ocho rutas de admin** y solo una cuelga del root de `AdminPage`. Las
+   otras siete —`FichaCliente` ×5, `Agentes` y `Captacion`— son rutas
+   hermanas. Una clase en el root del admin dejaba siete sin proteger.
+2. `:not(.admin *)` exige Safari 16.4.
+
+**Consecuencia que conviene recordar: una ruta o panel nuevo queda protegido
+por defecto.** Para que `mobile.css` le aplique hay que optar explícitamente
+poniéndole la clase.
+
+#### Las dos correcciones al diagnóstico
+
+El diagnóstico previo dio por muertas dos reglas que **no lo estaban**. Las dos
+fallas son instructivas:
+
+**`section.relative` sí existe.** Hay un `<section class="relative …">` en el
+home. El grep falló porque buscaba `<section className="relative` y la clase no
+va en primera posición. **Buscar clases con grep posicional es poco fiable; lo
+que decide es `querySelectorAll` sobre la página renderizada.**
+
+**`.lg\:grid-cols-3` matchea aunque la utilidad no esté activa.** Entre 768 y
+1024 la *utilidad* `lg:grid-cols-3` no aplica —su media query empieza en
+1024—, pero **la clase sigue estando en el atributo**, así que el selector
+`.lg\:grid-cols-3` la matchea igual. Sin esa regla el grid del home pasa de 2
+columnas a 1.
+
+> **La distinción que causó el error: "la utilidad no aplica" ≠ "el selector no
+> matchea".** Una clase de Tailwind es un nombre en el atributo `class` esté
+> activa o no; cualquier CSS puede engancharse a ella fuera de su breakpoint.
+
+#### Los selectores por subcadena de atributo: no usar más
+
+`[style*="…"]` y `[class*="…"]` **causaron los dos bugs de esta jornada**:
+
+- `[style*="background: var(--off)"]` centraba con `!important` todo `h2`, `p`
+  y `.flex.items-center` del admin, porque el root tenía ese fondo inline.
+- El `overflow-x: hidden` de `body` rompía el `position: sticky` del header.
+  (Distinto mecanismo, misma familia: reglas globales con efectos a distancia.)
+
+No miran una clase ni un componente: miran el **texto literal** del atributo.
+Cualquiera que escriba ese string, en cualquier parte del sitio, hereda el
+efecto. Son cinco en este archivo y ahora están acotados, pero **no deben
+escribirse más**.
+
+#### Cómo se verificó
+
+**Sitio público — que nada cambie.** Para cada uno de los nueve selectores se
+contó cuántos elementos matchea y cuántos de esos están dentro de
+`.sitio-publico`, en **13 páginas × 2 anchos**. Los 26 casos dan *todos
+dentro*: 469 elementos por ancho, ninguno fuera. Si el conteo coincide,
+prefijar no le quitó efecto a nada.
+
+Se descartó una primera prueba que cargaba el CSS viejo y el nuevo en secuencia
+y comparaba el estilo computado: **el DOM cambia entre medio** por animaciones
+y carruseles, y daba falsos positivos —la misma página llegaba a reportar 285 y
+148 nodos—.
+
+**Admin — que quede libre.** Medido a 390, 767, 800 y 1040:
+
+| | antes | ahora |
+|---|---|---|
+| `.font-serif` | `word-break: break-word` | `normal` |
+| `.grid-cols-3` | 1 columna | 3 columnas |
+| header padding | 16px forzado | 16px de `px-4`, sin forzar |
+| `.btn-primary` justify | `center` | `normal` |
+| `[style*=repeat(2]` | 12px | 0px |
+
+**El `word-break: break-word` era el que hacía que los títulos del admin se
+partieran letra por letra** cuando la columna era angosta.
+
+#### Las reglas borradas, y las dos que se salvaron
+
+Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
+
+| Borrada | Por qué era segura |
+|---|---|
+| `.px-8` | `[class*="px-8"]` matchea los mismos 35 elementos con las mismas declaraciones |
+| `.font-serif.display` | 0 elementos |
+| `.propiedades-grid` | 0 elementos; su única aparición era la propia regla |
+| `[style*="gridTemplateColumns"]…` | **no puede matchear nunca**: React convierte a kebab-case |
+| `.lg\:order-1, .lg\:order-2` | debajo de 768 el `order` ya es 0, igual que `unset` |
+| `footer .lg\:grid-cols-4` | 9 elementos, todos idénticos con y sin ella |
+
+Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
+tablet— quedaron con un comentario en el archivo explicando por qué no se
+borran.
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
