@@ -22,14 +22,10 @@
   }
 
   /* ── Hero ── */
+  /* NO borrar: hay un <section class="relative"> en el home y sin esta regla
+     su min-height cambia a 390 y 767px. Verificado borrandola del CSSOM. */
   section.relative {
     min-height: 480px !important;
-  }
-
-  /* ── Secciones con padding grande ── */
-  .px-8 {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
   }
 
   /* ── Títulos display grandes ── */
@@ -47,16 +43,6 @@
   footer .grid {
     grid-template-columns: 1fr 1fr !important;
     gap: 24px !important;
-  }
-
-  /* ── Propiedades: 1 columna ── */
-  .propiedades-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* ── Texto más legible en mobile ── */
-  .font-serif.display {
-    font-size: clamp(32px, 8vw, 52px) !important;
   }
 
   /* ── Botones full width en mobile ── */
@@ -105,12 +91,6 @@
     padding-right: 16px !important;
   }
 
-  /* ── Servicios: sin alternancia en mobile ── */
-  .lg\:order-1,
-  .lg\:order-2 {
-    order: unset !important;
-  }
-
   /* ────────────────────────────────────────────────────────── */
   /* FIX 1 — Propiedades: margen derecho en grid de 2 columnas */
   /* ────────────────────────────────────────────────────────── */
@@ -124,11 +104,6 @@
   /* ────────────────────────────────────────── */
   /* FIX 2 — Blog: artículos no se cortan       */
   /* ────────────────────────────────────────── */
-  /* El grid del blog en mobile cambia a 1 columna
-     y cada card no desborda su contenedor */
-  [style*="gridTemplateColumns"][style*="repeat(3"] {
-    grid-template-columns: 1fr !important;
-  }
 
   /* Cards del blog: texto no desborda */
   a.group.block {
@@ -167,13 +142,11 @@
 /* ── Tablet (768px - 1024px) ── */
 @media (min-width: 768px) and (max-width: 1024px) {
 
-  /* Grid de propiedades: 2 columnas en tablet */
+  /* Grid de propiedades: 2 columnas en tablet.
+     NO borrar: entre 768 y 1024 la utilidad lg no esta activa, pero la CLASE
+     si esta en el atributo, asi que el selector matchea. Sin esta regla el
+     grid del home pasa de 2 columnas a 1. Verificado a 800 y 1000px. */
   .lg\:grid-cols-3 {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-
-  /* Footer: 2 columnas */
-  footer .lg\:grid-cols-4 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
