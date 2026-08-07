@@ -103,13 +103,66 @@ export default function AdminPage() {
   const dragTab = useRef<number | null>(null)
   const dragOverTab = useRef<number | null>(null)
 
-  // El cajón se cierra con Escape. Solo escucha mientras está abierto, y en
-  // escritorio nunca se abre, así que el listener no existe ahí.
+  // Alto real del header, medido justo antes de abrir el cajón. Ver el comentario
+  // del efecto: mientras el cajón está abierto el header deja de ser `sticky` y
+  // pasa a `fixed`, y este número es el relleno que compensa que salga del flujo.
+  const header = useRef<HTMLDivElement>(null)
+  const [altoHeader, setAltoHeader] = useState(0)
+  const abrirMenu = () => {
+    setAltoHeader(header.current?.getBoundingClientRect().height ?? 0)
+    setMenuAbierto(true)
+  }
+
+  // El cajón se cierra con Escape y mientras está abierto el fondo no scrollea.
+  // Solo corre mientras está abierto, y en escritorio nunca se abre, así que ni
+  // el listener ni el bloqueo existen ahí.
   useEffect(() => {
     if (!menuAbierto) return
+
     const alTeclear = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuAbierto(false) }
     window.addEventListener('keydown', alTeclear)
-    return () => window.removeEventListener('keydown', alTeclear)
+
+    // Se guarda lo que había, no un valor fijo. Si mañana alguien pone algo en
+    // body desde otro lado, o si este efecto se interrumpe a mitad, el sitio
+    // tiene que volver exactamente a como estaba y no a un `overflow: visible`
+    // inventado por nosotros.
+    const estilo = document.body.style
+    const previo = {
+      overflow: estilo.overflow, position: estilo.position,
+      top: estilo.top, left: estilo.left, right: estilo.right, width: estilo.width,
+    }
+    const scrollPrevio = window.scrollY
+
+    // `overflow: hidden` sobre body NO alcanza en iOS: Safari sigue scrolleando
+    // el documento igual. Lo único que lo detiene es sacar el body del flujo con
+    // `position: fixed`, y eso tiene un precio — el body deja de estar
+    // desplazado, así que hay que compensarlo con `top: -scrollY` para que la
+    // página se vea donde estaba, y devolver el scroll a mano al cerrar. Sin
+    // esas dos cosas el cajón te deja arriba del todo cada vez que lo cierras.
+    //
+    // Y hay un segundo precio, medido: con esto el header sticky se va de la
+    // pantalla. No es un defecto de esta técnica sino de todas — `sticky` ES
+    // función del scroll, y si el documento deja de scrollear el header vuelve a
+    // su posición natural, que a scroll 1200 está 1200 px por encima del
+    // viewport. Comprobado con las tres variantes (`position: fixed`,
+    // `overflow: hidden` en body, y en html + body): las tres dan
+    // header.top = −1200. Por eso mientras el cajón está abierto el header pasa
+    // a `fixed` y el contenedor lleva un relleno de su alto, para que el
+    // contenido no salte al sacarlo del flujo.
+    estilo.overflow = 'hidden'
+    estilo.position = 'fixed'
+    estilo.top = `-${scrollPrevio}px`
+    estilo.left = '0'
+    estilo.right = '0'
+    estilo.width = '100%'
+
+    return () => {
+      window.removeEventListener('keydown', alTeclear)
+      Object.assign(estilo, previo)
+      // `instant` a propósito: globals.css pone `scroll-behavior: smooth` en
+      // html, y sin esto la vuelta a la posición se ve como un salto animado.
+      window.scrollTo({ top: scrollPrevio, behavior: 'instant' })
+    }
   }, [menuAbierto])
 
   const onTabDragStart = (i: number) => { dragTab.current = i }
@@ -133,10 +186,12 @@ export default function AdminPage() {
     // posiciona justo debajo. Antes eran dos números sueltos: el header medía
     // 79,5 px y el aside arrancaba en 57, así que el header le tapaba los
     // primeros 22 px. Medido con getBoundingClientRect: 79,50 px.
-    <div className="min-h-screen bg-[var(--off)]" style={{ '--admin-header-h': '80px' } as React.CSSProperties}>
-      <div className="bg-white border-b border-[#e8edf2] px-4 lg:px-8 py-4 flex items-center justify-between sticky top-0 z-40 lg:h-[var(--admin-header-h)]">
+    <div className="min-h-screen bg-[var(--off)]"
+      style={{ '--admin-header-h': '80px', paddingTop: menuAbierto ? altoHeader : undefined } as React.CSSProperties}>
+      <div ref={header}
+        className={`bg-white border-b border-[#e8edf2] px-4 lg:px-8 py-4 flex items-center justify-between z-40 lg:h-[var(--admin-header-h)] ${menuAbierto ? 'fixed top-0 left-0 right-0' : 'sticky top-0'}`}>
         <div className="flex items-center gap-3">
-          <button onClick={() => setMenuAbierto(true)} aria-label="Abrir menú" aria-expanded={menuAbierto}
+          <button onClick={abrirMenu} aria-label="Abrir menú" aria-expanded={menuAbierto}
             className="lg:hidden flex items-center justify-center -ml-1 p-1"
             style={{ color: 'var(--navy-dark)', background: 'none', border: 'none', cursor: 'pointer' }}>
             <Menu size={22} strokeWidth={1.75} />
