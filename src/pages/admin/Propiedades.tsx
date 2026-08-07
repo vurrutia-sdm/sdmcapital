@@ -643,6 +643,7 @@ export default function Propiedades() {
                 { label: 'Tipo', field: 'tipo' },
                 { label: 'Estado', field: 'estado' },
                 { label: 'Precio', field: 'precio_uf' },
+                { label: 'País', field: null },
                 { label: 'Activo', field: null },
                 { label: 'Acciones', field: null },
               ].map(({ label, field }) => (
@@ -709,7 +710,7 @@ export default function Propiedades() {
                 </td>
               </tr>
             ))}
-            {displayItems.length === 0 && <tr><td colSpan={8} className="py-12 text-center text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
+            {displayItems.length === 0 && <tr><td colSpan={9} className="py-12 text-center text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
           </tbody>
         </table>
       </div>
