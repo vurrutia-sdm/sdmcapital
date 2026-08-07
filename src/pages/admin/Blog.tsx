@@ -88,20 +88,24 @@ export default function Blog() {
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead><tr style={{ borderBottom: '1px solid var(--border)' }}>{['Título','Categoría','Autor','Estado','Acciones'].map(h => <th key={h} className="text-left pb-3 pr-6 text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>)}</tr></thead>
-          <tbody>
+      {/* Un solo arbol de markup. Debajo de lg la tabla pasa a bloques y cada
+          <tr> a flex-wrap, asi sus <td> se vuelven flex items que se pueden
+          reordenar y dimensionar sin envolverlos en nada. De lg para arriba
+          vuelve a ser table-row / table-cell, identica a como estaba. */}
+      <div className="lg:overflow-x-auto">
+        <table className="w-full border-collapse block lg:table">
+          <thead className="hidden lg:table-header-group"><tr style={{ borderBottom: '1px solid var(--border)' }}>{['Título','Categoría','Autor','Estado','Acciones'].map(h => <th key={h} className="text-left pb-3 pr-6 text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>)}</tr></thead>
+          <tbody className="block lg:table-row-group">
             {posts.map(p => (
-              <tr key={p.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td className="py-4 pr-6"><div className="text-sdm-base" style={{ fontWeight: 500 }}>{p.titulo}</div><div className="text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.slug}</div></td>
-                <td className="py-4 pr-6 text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.categoria}</td>
-                <td className="py-4 pr-6 text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.autor_nombre}</td>
-                <td className="py-4 pr-6"><Badge label={p.publicado ? 'Publicado' : 'Borrador'} color={p.publicado ? 'var(--green)' : 'var(--muted)'} /></td>
-                <td className="py-4"><div className="flex gap-3"><button className="text-sdm-sm" onClick={() => setEditing(p)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button className="text-sdm-sm" onClick={() => del(p.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
+              <tr key={p.id} className="flex flex-wrap items-center gap-y-2 rounded-sm border border-[#e8edf2] bg-white p-4 mb-3 lg:table-row lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:mb-0" style={{ borderBottom: '1px solid var(--border)' }}>
+                <td className="block w-full order-1 lg:table-cell lg:w-auto lg:py-4 lg:pr-6"><div className="text-sdm-base" style={{ fontWeight: 500 }}>{p.titulo}</div><div className="text-sdm-xs opacity-70 lg:text-sdm-sm lg:opacity-100" style={{ color: 'var(--muted)' }}>{p.slug}</div></td>
+                <td className="order-3 text-sdm-sm lg:table-cell lg:py-4 lg:pr-6" style={{ color: 'var(--muted)' }}>{p.categoria}</td>
+                <td className="order-4 text-sdm-sm lg:table-cell lg:py-4 lg:pr-6" style={{ color: 'var(--muted)' }}><span className="lg:hidden" aria-hidden> · </span>{p.autor_nombre}</td>
+                <td className="block w-full order-2 lg:table-cell lg:w-auto lg:py-4 lg:pr-6"><Badge label={p.publicado ? 'Publicado' : 'Borrador'} color={p.publicado ? 'var(--green)' : 'var(--muted)'} /></td>
+                <td className="block w-full order-5 mt-3 pt-3 border-t border-[#e8edf2] lg:table-cell lg:w-auto lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-4"><div className="flex justify-end gap-6 lg:justify-start lg:gap-3"><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => setEditing(p)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => del(p.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
               </tr>
             ))}
-            {posts.length === 0 && <tr><td colSpan={5} className="py-12 text-center text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>No hay artículos aún.</td></tr>}
+            {posts.length === 0 && <tr className="block lg:table-row"><td colSpan={5} className="block py-12 text-center text-sdm-base lg:table-cell" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>No hay artículos aún.</td></tr>}
           </tbody>
         </table>
       </div>

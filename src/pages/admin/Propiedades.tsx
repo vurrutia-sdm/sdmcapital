@@ -632,9 +632,14 @@ export default function Propiedades() {
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
+      {/* Un solo arbol de markup. Debajo de lg la tabla pasa a bloques y cada
+          <tr> a flex-wrap, asi sus <td> se vuelven flex items que se reordenan
+          con order-* y se dimensionan con w-full, sin envolverlos en nada. De
+          lg para arriba vuelve a table-row / table-cell, identica a como
+          estaba. Sin display:contents y sin doble render. */}
+      <div className="lg:overflow-x-auto">
+        <table className="w-full border-collapse block lg:table">
+          <thead className="hidden lg:table-header-group">
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               {[
                 { label: '', field: null },
@@ -656,7 +661,7 @@ export default function Propiedades() {
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="block lg:table-row-group">
             {displayItems.map((p, i) => (
               <tr
                 key={p.id}
@@ -664,31 +669,39 @@ export default function Propiedades() {
                 onDragStart={() => onDragStart(i)}
                 onDragEnter={() => onDragEnter(i)}
                 onDragEnd={onDragEnd}
+                className="flex flex-wrap items-center gap-y-1 rounded-sm border border-[#e8edf2] p-4 mb-3 lg:table-row lg:rounded-none lg:border-0 lg:p-0 lg:mb-0"
                 style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', opacity: p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
-                <td className="py-3 pr-2" style={{ color: 'var(--muted)' }}><GripVertical size={16} strokeWidth={2} /></td>
-                <td className="py-3 pr-4">
-                  <span className="text-sdm-sm" style={{ fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
+                <td className="hidden lg:table-cell lg:py-3 lg:pr-2" style={{ color: 'var(--muted)' }}><GripVertical size={16} strokeWidth={2} /></td>
+                {/* El numero de orden a secas es ruido en movil: no se puede
+                    reordenar desde el telefono. Solo se muestra la linea de las
+                    6 primeras, que son las que salen publicadas en el Inicio. */}
+                <td className={`${i < 6 ? 'block w-full order-6' : 'hidden'} lg:table-cell lg:w-auto lg:py-3 lg:pr-4`}>
+                  <span className="hidden lg:inline text-sdm-sm" style={{ fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
                   {i < 6 && <Star size={11} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.15em', marginLeft: 4, color: 'var(--green)' }} />}
+                  {i < 6 && <span className="lg:hidden text-sdm-xs" style={{ color: 'var(--green)', marginLeft: 6 }}>aparece en el Inicio</span>}
                 </td>
-                <td className="py-3 pr-8 lg:pr-4">
+                <td className="block w-full order-1 lg:table-cell lg:w-auto lg:py-3 lg:pr-4">
                   <div className="flex items-center gap-3">
                     {(p.imagen_principal || p.imagenes?.[0])
                       ? <img src={thumbUrl(p.imagen_principal || p.imagenes[0])} alt="" loading="lazy" decoding="async" className="w-10 h-10 object-cover rounded flex-shrink-0" />
                       : <div className="w-10 h-10 rounded flex-shrink-0" style={{ background: 'var(--navy)', opacity: 0.3 }} />
                     }
                     <div>
-                      <div style={{ fontWeight: 500, maxWidth: 220 }} className="truncate text-sdm-base">{p.titulo}</div>
+                      <div style={{ fontWeight: 500 }} className="lg:max-w-[220px] lg:truncate text-sdm-base">{p.titulo}</div>
                       <div className="text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.comuna}</div>
                     </div>
                   </div>
                 </td>
-                <td className="py-3 pr-4 text-sdm-sm" style={{ color: 'var(--muted)' }}>{p.tipo}</td>
-                <td className="py-3 pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'#c0392b':p.estado==='reservada'?'#d97706':p.estado==='arrendada'?'#2563eb':'#999'} /></td>
-                <td className="py-3 pr-4 text-sdm-base">{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : p.precio_clp ? `$${p.precio_clp.toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
-                <td className="py-3 pr-4"><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
-                <td className="py-3 pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
-                  <button className="text-sdm-sm"
+                <td className="order-2 text-sdm-sm lg:table-cell lg:py-3 lg:pr-4" style={{ color: 'var(--muted)' }}>{p.tipo}</td>
+                <td className="block w-full order-5 lg:table-cell lg:w-auto lg:py-3 lg:pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'#c0392b':p.estado==='reservada'?'#d97706':p.estado==='arrendada'?'#2563eb':'#999'} /></td>
+                <td className="block w-full order-4 mt-1 text-sdm-2xl font-medium lg:table-cell lg:w-auto lg:mt-0 lg:text-sdm-base lg:font-normal lg:py-3 lg:pr-4">{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : p.precio_clp ? `$${p.precio_clp.toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
+                <td className="order-3 lg:table-cell lg:py-3 lg:pr-4"><span className="lg:hidden" aria-hidden> · </span><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
+                {/* El toggle lleva flex-1 para que su borde superior se estire hasta
+                    encontrarse con el de las acciones: entre los dos dibujan una
+                    sola linea continua sin necesidad de un contenedor. */}
+                <td className="flex-1 order-7 mt-3 pt-3 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
+                  <button className="text-sdm-sm min-h-[44px] lg:min-h-0"
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
                     onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
                     onPointerDown={e => e.stopPropagation()}
@@ -702,15 +715,18 @@ export default function Propiedades() {
                     la tabla desborda debajo de ~1100px de viewport, y eso se
                     resuelve con el rediseno a tarjetas apiladas que esta
                     pendiente. */}
-                <td className="py-3 pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
-                  <div className="flex gap-3">
-                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500, whiteSpace: 'nowrap' }}>Editar</button>
-                    <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Eliminar</button>
+                {/* Editar y Eliminar separados 24px y con 44px de alto tactil: en el
+                    escritorio estaban a 12px, que en un telefono es un borrado por
+                    accidente. En lg vuelven a los dos botones de texto de siempre. */}
+                <td className="order-8 mt-3 pt-3 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
+                  <div className="flex items-center justify-end gap-6 lg:justify-start lg:gap-3">
+                    <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500, whiteSpace: 'nowrap' }}>Editar</button>
+                    <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Eliminar</button>
                   </div>
                 </td>
               </tr>
             ))}
-            {displayItems.length === 0 && <tr><td colSpan={9} className="py-12 text-center text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
+            {displayItems.length === 0 && <tr className="block lg:table-row"><td colSpan={9} className="block py-12 text-center text-sdm-base lg:table-cell" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
           </tbody>
         </table>
       </div>
