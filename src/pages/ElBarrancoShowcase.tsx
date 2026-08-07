@@ -530,10 +530,9 @@ export default function ElBarrancoShowcase() {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function ActivityCard({ img, title, sub, Icon: IconComp }: { img: string; title: string; sub: string; Icon: () => JSX.Element }) {
-  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden', cursor: 'default' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-      <img src={img} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform 0.6s ease' }} />
+    <div className="group" style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden', cursor: 'default' }}>
+      <img src={img} alt={title} className="transition-transform duration-500 group-hover:scale-[1.06]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s ease' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,11,0.88) 0%, transparent 60%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 28 }}>
         <div style={{ marginBottom: 10 }}><IconComp /></div>
         <div className="text-sdm-2xl" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, color: C.cream, lineHeight: 1.2 }}>{title}</div>
@@ -544,19 +543,17 @@ function ActivityCard({ img, title, sub, Icon: IconComp }: { img: string; title:
 }
 
 function PhotoBlock({ src }: { src: string }) {
-  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ overflow: 'hidden', aspectRatio: '16/9' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-      <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: hovered ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.5s ease' }} />
+    <div className="group" style={{ overflow: 'hidden', aspectRatio: '16/9' }}>
+      <img src={src} alt="" className="transition-transform duration-500 group-hover:scale-[1.04]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }} />
     </div>
   )
 }
 
 function GalleryItem({ img, col, row }: { img: string; col: string; row: string }) {
-  const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ gridColumn: col, gridRow: row, overflow: 'hidden' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-      <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: hovered ? 'scale(1.05)' : 'scale(1)', transition: 'transform 0.5s ease' }} />
+    <div className="group" style={{ gridColumn: col, gridRow: row, overflow: 'hidden' }}>
+      <img src={img} alt="" className="transition-transform duration-500 group-hover:scale-[1.05]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }} />
     </div>
   )
 }

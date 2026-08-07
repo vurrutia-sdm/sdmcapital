@@ -92,15 +92,11 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
           {/* Controles */}
           {items.length > 1 && (
             <div className="flex items-center gap-4 mt-10" style={{ justifyContent: 'center' }}>
-              <button className="text-sdm-xl" onClick={prev}
-                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--navy-dark)', transition: 'all 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              <button className="text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={prev}
+                style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
               >↑</button>
-              <button className="text-sdm-xl" onClick={next}
-                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--navy-dark)', transition: 'all 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--navy-dark)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--navy-dark)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              <button className="text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={next}
+                style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
               >↓</button>
               <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>
                 {String(current + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
@@ -269,10 +265,8 @@ export default function HomePage() {
             </Link>
             <Link
               to="/servicios/financiamiento-empresas"
-              className="btn-outline"
-              style={{ background: 'transparent', color: '#FFFFFF', border: '1.5px solid #FFFFFF' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              className="btn-outline bg-transparent hover:bg-[rgba(255,255,255,0.1)]"
+              style={{ color: '#FFFFFF', border: '1.5px solid #FFFFFF' }}
             >
               {t.sections.financiamiento.empresas}
             </Link>

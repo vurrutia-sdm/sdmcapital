@@ -92,14 +92,11 @@ function DropSelect({ label, options, value, onChange }: {
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, minWidth: 200, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden', maxHeight: 320, overflowY: 'auto' }}>
           {options.map(opt => (
-            <button className="text-sdm-base" key={opt.value} onClick={() => { onChange(opt.value); setOpen(false) }}
+            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false) }}
+              className={`text-sdm-base ${opt.value === value ? 'bg-[var(--sky-pale)] text-[var(--navy-dark)]' : 'bg-transparent text-[var(--muted)] hover:bg-[var(--off)]'}`}
               style={{ width: '100%', padding: '11px 16px', textAlign: 'left', fontWeight: 300,
-                color: opt.value === value ? 'var(--navy-dark)' : 'var(--muted)',
-                background: opt.value === value ? 'var(--sky-pale)' : 'transparent',
                 border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
-              onMouseEnter={e => { if (opt.value !== value) e.currentTarget.style.background = 'var(--off)' }}
-              onMouseLeave={e => { if (opt.value !== value) e.currentTarget.style.background = 'transparent' }}
             >
               {opt.label}
               {opt.value === value && <Check size={13} style={{ color: 'var(--green)' }} />}
@@ -198,28 +195,22 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
           {/* Lista */}
           <div style={{ maxHeight: 280, overflowY: 'auto' }}>
             {step === 'region' && REGIONES.map(r => (
-              <button className="text-sdm-base" key={r.value} onClick={() => handleRegion(r.value)}
+              <button key={r.value} onClick={() => handleRegion(r.value)}
+                className={`text-sdm-base ${r.value === region ? 'bg-[var(--sky-pale)] text-[var(--navy-dark)]' : 'bg-transparent text-[var(--muted)] hover:bg-[var(--off)]'}`}
                 style={{ width: '100%', padding: '11px 16px', textAlign: 'left', fontWeight: 300,
-                  color: r.value === region ? 'var(--navy-dark)' : 'var(--muted)',
-                  background: r.value === region ? 'var(--sky-pale)' : 'transparent',
                   border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
-                onMouseEnter={e => { if (r.value !== region) e.currentTarget.style.background = 'var(--off)' }}
-                onMouseLeave={e => { if (r.value !== region) e.currentTarget.style.background = 'transparent' }}
               >
                 {r.label}
                 {r.value === region && <Check size={13} style={{ color: 'var(--green)' }} />}
               </button>
             ))}
             {step === 'comuna' && comunas.map(c => (
-              <button className="text-sdm-base" key={c} onClick={() => handleComuna(c)}
+              <button key={c} onClick={() => handleComuna(c)}
+                className={`text-sdm-base ${c === comuna ? 'bg-[var(--sky-pale)] text-[var(--navy-dark)]' : 'bg-transparent text-[var(--muted)] hover:bg-[var(--off)]'}`}
                 style={{ width: '100%', padding: '11px 16px', textAlign: 'left', fontWeight: 300,
-                  color: c === comuna ? 'var(--navy-dark)' : 'var(--muted)',
-                  background: c === comuna ? 'var(--sky-pale)' : 'transparent',
                   border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
-                onMouseEnter={e => { if (c !== comuna) e.currentTarget.style.background = 'var(--off)' }}
-                onMouseLeave={e => { if (c !== comuna) e.currentTarget.style.background = 'transparent' }}
               >
                 {c}
                 {c === comuna && <Check size={13} style={{ color: 'var(--green)' }} />}
@@ -277,10 +268,8 @@ export default function SearchBar() {
             onChangeComuna={setComuna}
           />
 
-          <button className="text-sdm-sm tracking-sdm-wide" onClick={handleSearch}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--navy-dark)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'var(--green)'}
+          <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
           >
             <Search size={14} /> Buscar
           </button>
@@ -343,7 +332,7 @@ export default function SearchBar() {
           ))}
         </div>
 
-        <button className="text-sdm-sm tracking-sdm-wide" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
           <Search size={14} /> Buscar
         </button>
       </div>

@@ -326,11 +326,9 @@ export default function PropiedadesPage() {
         {activeFiltros.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
             {activeFiltros.map(([key, val]) => (
-              <span key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer text-sdm-sm"
-                style={{ fontWeight: 400, background: '#fff', border: '1px solid var(--border)', color: 'var(--ink)', transition: 'border-color 0.2s, background 0.2s' }}
-                onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--off)'; e.currentTarget.style.borderColor = 'var(--muted)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'var(--border)' }}>
+              <span key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer text-sdm-sm bg-white border border-[var(--border)] hover:bg-[var(--off)] hover:border-[var(--muted)]"
+                style={{ fontWeight: 400, color: 'var(--ink)', transition: 'border-color 0.2s, background 0.2s' }}
+                onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}>
                 {ETIQUETAS_FILTRO[String(val)] ?? String(val)}
                 <X size={11} style={{ color: 'var(--muted)' }} />
               </span>

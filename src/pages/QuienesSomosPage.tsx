@@ -167,9 +167,7 @@ export default function QuienesSomosPage() {
         <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>
           Trabajamos con una red de socios estratégicos en Chile y el extranjero para ofrecer las mejores oportunidades a nuestros clientes.
         </p>
-        <a className="text-sdm-xs tracking-sdm-wide" href="/asociados" style={{ display: 'inline-block', fontWeight: 400, textTransform: 'uppercase', padding: '12px 28px', border: '1px solid var(--navy-dark)', color: 'var(--navy-dark)', textDecoration: 'none', borderRadius: 2, transition: 'all 0.2s' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--navy-dark)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--navy-dark)'; }}
+        <a className="text-sdm-xs tracking-sdm-wide border border-[var(--navy-dark)] text-[var(--navy-dark)] bg-transparent hover:bg-[var(--navy-dark)] hover:text-white" href="/asociados" style={{ display: 'inline-block', fontWeight: 400, textTransform: 'uppercase', padding: '12px 28px', textDecoration: 'none', borderRadius: 2, transition: 'all 0.2s' }}
         >Ver todos los asociados</a>
       </section>
 

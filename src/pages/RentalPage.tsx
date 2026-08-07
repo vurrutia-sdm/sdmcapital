@@ -91,9 +91,7 @@ export default function RentalPage() {
                 <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.7 }}>{item}</p>
               </div>
             ))}
-            <a className="text-sdm-xs tracking-sdm-wide" href="#contacto" style={{ display: 'inline-block', marginTop: 24, padding: '13px 28px', border: '1px solid var(--navy-dark)', color: 'var(--navy-dark)', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--navy-dark)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--navy-dark)'; }}
+            <a className="text-sdm-xs tracking-sdm-wide border border-[var(--navy-dark)] text-[var(--navy-dark)] bg-transparent hover:bg-[var(--navy-dark)] hover:text-white" href="#contacto" style={{ display: 'inline-block', marginTop: 24, padding: '13px 28px', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
             >Quiero arrendar mi propiedad</a>
           </div>
           <div style={{ background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', borderRadius: 2, padding: '48px 40px' }}>
@@ -117,10 +115,8 @@ export default function RentalPage() {
         <div className="section-label" style={{ marginBottom: 20 }}>Para Arrendatarios</div>
         <h2 className="font-serif font-light mb-6 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>{arrTitulo}</h2>
         <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>{arrSubtitulo}</p>
-        <Link className="text-sdm-xs tracking-sdm-wide" to="/propiedades-usadas?estado=en_arriendo"
-          style={{ display: 'inline-block', padding: '13px 28px', background: 'var(--navy-dark)', color: '#fff', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
-          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--green)'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--navy-dark)'; }}
+        <Link className="text-sdm-xs tracking-sdm-wide bg-[var(--navy-dark)] hover:bg-[var(--green)]" to="/propiedades-usadas?estado=en_arriendo"
+          style={{ display: 'inline-block', padding: '13px 28px', color: '#fff', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
         >Ver propiedades en arriendo</Link>
       </section>
 

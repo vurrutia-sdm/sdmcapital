@@ -50,22 +50,18 @@ function ShareButtons({ titulo }: { titulo: string }) {
   return (
     <div ref={wrapperRef} style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
       {/* Trigger */}
-      <button className="text-sdm-sm tracking-sdm-normal"
+      <button className={`text-sdm-sm tracking-sdm-normal border ${copied ? 'border-[#3DAA6E] text-[#3DAA6E]' : 'border-[#e8edf2] text-[#0F2535] hover:border-[#3DAA6E] hover:text-[#3DAA6E]'}`}
         onClick={() => setOpen(o => !o)}
         style={{ display: 'inline-flex',
           alignItems: 'center',
           gap: 7,
           padding: '8px 16px',
           background: '#fff',
-          border: `1px solid ${copied ? '#3DAA6E' : '#e8edf2'}`,
           borderRadius: 2,
-          color: copied ? '#3DAA6E' : '#0F2535',
           fontFamily: 'Inter, sans-serif',
           fontWeight: 500,
           cursor: 'pointer',
           transition: 'border-color 0.15s, color 0.15s' }}
-        onMouseEnter={e => { if (!copied) { e.currentTarget.style.borderColor = '#3DAA6E'; e.currentTarget.style.color = '#3DAA6E' } }}
-        onMouseLeave={e => { if (!copied) { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.color = '#0F2535' } }}
       >
         <Share2 size={14} />
         {copied ? '¡Enlace copiado!' : 'Compartir'}
@@ -86,7 +82,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
           overflow: 'hidden',
         }}>
           {SHARE_NETWORKS.map(net => (
-            <a className="text-sdm-base"
+            <a className="text-sdm-base text-[#0F2535] bg-transparent hover:bg-[#f4f8fb]"
               key={net.key}
               href={net.getHref(pageUrl, pageText)}
               target="_blank"
@@ -96,13 +92,10 @@ function ShareButtons({ titulo }: { titulo: string }) {
                 alignItems: 'center',
                 gap: 11,
                 padding: '9px 14px',
-                color: '#0F2535',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 400,
                 textDecoration: 'none',
                 transition: 'background 0.1s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#f4f8fb' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
             >
               <span className="tracking-sdm-tight" style={{ display: 'inline-flex',
                 alignItems: 'center',
@@ -125,7 +118,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
           <div style={{ height: 1, background: '#e8edf2', margin: '2px 0' }} />
 
           {/* Copy link */}
-          <button className="text-sdm-base"
+          <button className="text-sdm-base bg-transparent hover:bg-[#f4f8fb]"
             onClick={copyLink}
             style={{ display: 'flex',
               alignItems: 'center',
@@ -134,13 +127,10 @@ function ShareButtons({ titulo }: { titulo: string }) {
               color: '#0F2535',
               fontFamily: 'Inter, sans-serif',
               fontWeight: 400,
-              background: 'transparent',
               border: 'none',
               width: '100%',
               cursor: 'pointer',
               transition: 'background 0.1s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#f4f8fb' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
           >
             <span className="text-sdm-sm" style={{ display: 'inline-flex',
               alignItems: 'center',
@@ -321,11 +311,11 @@ export default function PropiedadDetailPage() {
               {/* Flechas si hay más de 1 */}
               {allImgs.length > 1 && (
                 <>
-                  <button onClick={e => { e.stopPropagation(); prev() }}
+                  <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
                     style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ChevronLeft size={18} />
                   </button>
-                  <button onClick={e => { e.stopPropagation(); next() }}
+                  <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
                     style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ChevronRight size={18} />
                   </button>
@@ -603,10 +593,8 @@ export default function PropiedadDetailPage() {
                   <div className="flex flex-col gap-2">
                     {all.map((d, i) => (
                       <a key={i} href={d.url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-3 px-4 py-3 rounded-sm text-sdm-base"
-                        style={{ background: 'var(--sky-pale)', border: '1px solid var(--sky)', textDecoration: 'none', color: 'var(--navy)', transition: 'background 0.15s' }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#dbeaf5'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'var(--sky-pale)'}
+                        className="inline-flex items-center gap-3 px-4 py-3 rounded-sm text-sdm-base bg-[var(--sky-pale)] hover:bg-[#dbeaf5]"
+                        style={{ border: '1px solid var(--sky)', textDecoration: 'none', color: 'var(--navy)', transition: 'background 0.15s' }}
                       >
                         <span className="text-sdm-xl">📄</span>
                         <span style={{ flex: 1 }}>{dossierTitle(d)}</span>
@@ -646,7 +634,7 @@ export default function PropiedadDetailPage() {
             </div>
 
             {prop.mostrar_boton_flow !== false && !destacado && (
-              <a className="tracking-sdm-wide text-sdm-sm"
+              <a className="tracking-sdm-wide text-sdm-sm bg-transparent text-[var(--navy-dark)] hover:bg-[var(--navy-dark)] hover:text-white"
                 href="https://www.flow.cl/uri/gHSdT2jVv"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -658,21 +646,10 @@ export default function PropiedadDetailPage() {
                   padding: '13px 24px',
                   border: '1px solid var(--navy-dark)',
                   borderRadius: '6px',
-                  color: 'var(--navy-dark)',
                   fontWeight: 400,
                   textTransform: 'uppercase',
                   textDecoration: 'none',
                   transition: 'all 0.2s ease' }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.background = 'var(--navy-dark)';
-                  el.style.color = 'white';
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.background = 'transparent';
-                  el.style.color = 'var(--navy-dark)';
-                }}
               >
                 <img src="/FLOW-HORIZONTAL-LOGO.png" alt="Flow" style={{ height: '20px', objectFit: 'contain' }} />
                 <span>Reserva esta propiedad</span>
@@ -712,17 +689,13 @@ export default function PropiedadDetailPage() {
           {/* Flechas */}
           {allImgs.length > 1 && (
             <>
-              <button onClick={e => { e.stopPropagation(); prev() }}
-                style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+              <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
+                style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
               >
                 <ChevronLeft size={24} />
               </button>
-              <button onClick={e => { e.stopPropagation(); next() }}
-                style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+              <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
+                style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
               >
                 <ChevronRight size={24} />
               </button>

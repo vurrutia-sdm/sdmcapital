@@ -43,10 +43,8 @@ export default function BlogPostPage() {
       <div className="px-8 lg:px-12 py-5 border-b border-[#e8edf2] flex items-center gap-2">
         <Link
           to="/blog"
-          className="flex items-center gap-1.5 text-[13px] tracking-wide uppercase transition-colors"
-          style={{ color: 'var(--muted)', textDecoration: 'none' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+          className="flex items-center gap-1.5 text-[13px] tracking-wide uppercase transition-colors text-[var(--muted)] hover:text-[var(--navy-dark)]"
+          style={{ textDecoration: 'none' }}
         >
           <ChevronLeft size={12} /> Blog
         </Link>

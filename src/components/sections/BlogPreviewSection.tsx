@@ -48,10 +48,8 @@ export default function BlogPreviewSection() {
             Últimas <em>publicaciones</em>
           </h2>
         </div>
-        <Link className="text-sdm-xs tracking-sdm-wide" to="/blog"
-          style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--navy-dark)', textDecoration: 'none', borderBottom: '1px solid var(--navy-dark)', paddingBottom: 2, whiteSpace: 'nowrap' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--green)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--green)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--navy-dark)' }}
+        <Link className="text-sdm-xs tracking-sdm-wide text-[var(--navy-dark)] border-b border-[var(--navy-dark)] hover:text-[var(--green)] hover:border-[var(--green)]" to="/blog"
+          style={{ fontWeight: 400, textTransform: 'uppercase', textDecoration: 'none', paddingBottom: 2, whiteSpace: 'nowrap' }}
         >Ver todos los artículos →</Link>
       </div>
 
@@ -59,9 +57,7 @@ export default function BlogPreviewSection() {
       <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-px items-stretch" style={{ background: 'var(--border)' }}>
 
         {/* Post principal — grande */}
-        <Link to={`/blog/${main.slug}`} className="group" style={{ textDecoration: 'none', background: '#fff', display: 'flex', flexDirection: 'column' }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'var(--off)')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+        <Link to={`/blog/${main.slug}`} className="group bg-white hover:bg-[var(--off)]" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column' }}
         >
           <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: 'var(--off)' }}>
             {main.imagen_portada && (
@@ -85,9 +81,7 @@ export default function BlogPreviewSection() {
         {/* Posts secundarios — apilados */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--border)' }}>
           {rest.map(post => (
-            <Link key={post.id} to={`/blog/${post.slug}`} className="group" style={{ textDecoration: 'none', background: '#fff', display: 'flex', flexDirection: 'column', flex: 1 }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--off)')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+            <Link key={post.id} to={`/blog/${post.slug}`} className="group bg-white hover:bg-[var(--off)]" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', flex: 1 }}
             >
               <div style={{ height: 180, overflow: 'hidden', background: 'var(--off)' }}>
                 {post.imagen_portada && (

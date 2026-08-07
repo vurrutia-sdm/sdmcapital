@@ -134,15 +134,12 @@ export default function VendeConNosotrosPage() {
             { n: '05', texto: get('vende_paso_5', 'Redacción del borrador de escritura') },
             { n: '06', texto: get('vende_paso_6', 'Inscripción final en el Conservador de Bienes Raíces') },
           ].map((paso, i) => (
-            <div key={paso.n} style={{
-              background: 'var(--navy-dark)',
+            <div key={paso.n} className="bg-[var(--navy-dark)] hover:bg-[rgba(61,170,110,0.08)]" style={{
               padding: '40px 32px',
               position: 'relative',
               borderLeft: i % 3 === 0 ? '3px solid var(--green)' : '3px solid transparent',
               transition: 'background 0.2s',
             }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(61,170,110,0.08)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'var(--navy-dark)')}
             >
               <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: 'var(--green)', marginBottom: 20 }}>{paso.n}</div>
               <div style={{ width: 32, height: 3, background: 'var(--green)', marginBottom: 16 }} />
