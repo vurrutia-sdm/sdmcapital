@@ -94,6 +94,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
+| 2026-08-07 | Admin — Cotizaciones a tarjetas | Rediseño móvil de `CotizacionesAdmin` y eliminación de los 23 fondos `var(--off)` inline que disparaban el selector de `mobile.css` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — tablas a tarjetas | Rediseño móvil de las tablas de `Propiedades` y `Blog`, y corrección del `<thead>` desalineado de Propiedades | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
@@ -1496,6 +1497,109 @@ El arrastre para reordenar sigue oculto debajo de `lg` y **no se reimplementó**
 con Pointer Events. A 1024 la tabla sigue midiendo 826px en un contenedor de
 736 y scrolleando dentro de su `overflow-x-auto`: es el comportamiento de
 siempre en ese ancho, y el rediseño se acotó a debajo de `lg` a propósito.
+
+### La trampa del selector por subcadena de `mobile.css` — 2026-08-07
+
+**Guardar esto.** Es la segunda trampa de CSS compartido de esta serie, y del
+mismo tipo que la de `overflow-x: hidden`: el síntoma aparece lejos de la
+causa.
+
+#### El mecanismo
+
+`src/styles/mobile.css:75-79`, dentro de `@media (max-width: 768px)`:
+
+```css
+[style*="background: var(--off)"] .section-label,
+[style*="background: var(--off)"] h2,
+[style*="background: var(--off)"] p,
+[style*="background: var(--off)"] .flex.items-center {
+  text-align: center !important;
+}
+```
+
+Es un **selector por subcadena del atributo `style`**. No mira una clase ni un
+componente: mira el texto literal del atributo. Cualquier elemento del sitio
+que escriba `background: var(--off)` **inline** convierte a todos sus
+descendientes `h2`, `p`, `.section-label` y `.flex.items-center` en texto
+centrado, con `!important`, en teléfono.
+
+#### Por qué costó encontrarlo
+
+El síntoma era "las tarjetas del admin salen centradas en móvil". La búsqueda
+natural —`text-center` y `textAlign` en los paneles— daba cero resultados
+útiles: las 32 apariciones del admin son estados vacíos, spinners y badges.
+La causa no estaba en el admin ni en `globals.css`, sino en un archivo de
+overrides de la web pública.
+
+Y explica también el "centrado de textos" que en su momento se cerró como
+falsa alarma: lo de Páginas Legales era contenido de base de datos, sí, pero
+**además había esta causa en código** que entonces no se encontró.
+
+#### REGLA: en el admin no se usa fondo inline
+
+`background: var(--off)` va **siempre** como clase `bg-[var(--off)]`, nunca
+como `style` inline. Se convirtieron 24 elementos:
+
+| Archivo | Cajas |
+|---|---:|
+| `Propiedades` | 7 |
+| `Barranco` | 6 |
+| `Contenido` | 3 |
+| `Rental` | 2 |
+| `Asociados` · `Equipo` · `Vende` · `CotizacionesAdmin` · `RichTextEditor` | 1 c/u |
+| `AdminPage` (root, corregido antes) | 1 |
+
+Medido a 390px sobre el CSS compilado, con una caja de cada forma:
+
+| | `h2` | `p` | `.flex.items-center` |
+|---|---|---|---|
+| fondo **inline** | `center` | `center` | `center` |
+| fondo **por clase** | `start` | `start` | `start` |
+
+A 1440 ambos dan `start`, o sea que en escritorio nunca cambió nada.
+
+**Los tres fondos inline de `src/components/sections/` se conservan**: ahí la
+regla es intencional, es web pública.
+
+El arreglo de fondo sería una línea en `mobile.css` —acotar el selector o
+borrarlo—, pero es zona compartida y no estaba autorizado.
+
+### Admin móvil — Cotizaciones a tarjetas — 2026-08-07
+
+La lista de cotizaciones **no es una `<table>`**: es un `div` con CSS grid de
+7 columnas, `90px 1fr 1fr 110px 120px 120px 110px`. Los fijos suman 550px, así
+que a 390px la fila medía **674 dentro de 358** y, al no tener `overflow-x`,
+se recortaba contra el `clip` del body: total, estado y acciones eran
+inalcanzables **sin siquiera scroll**.
+
+Al ser grid y no tabla, la conversión es más simple que en `Propiedades`:
+debajo de `lg` la fila pasa a `flex-wrap` y sus hijos se reordenan con
+`order-*`; en `lg` vuelve al grid. El `gridTemplateColumns` inline se ignora
+solo mientras el `display` es `flex` — no hace falta tocarlo.
+
+| ancho | contenido | `display` | fila scroll/client | alto | botón | separación |
+|---:|---:|---|---|---:|---:|---:|
+| 360 | 328 | `flex` | 326 / 326 | 196 | 44px | 24px |
+| 390 | 358 | `flex` | 356 / 356 | 196 | 44px | 24px |
+| 430 | 398 | `flex` | 396 / 396 | 196 | 44px | 24px |
+| 1280 | 976 | `grid` | 974 / 974 | 61 | 31px | 4px |
+| 1440 | 1136 | `grid` | 1134 / 1134 | 61 | 31px | 4px |
+
+**Los contadores** pasan de `grid-cols-4` a `grid-cols-2 lg:grid-cols-4`. Se
+eligió envolver en dos filas de dos y no comprimir: a 390px cada tarjeta
+quedaba en 82px y la etiqueta más larga —`RECHAZADA`, versalitas de 11px con
+2px de tracking— mide unos 100px. Comprimir obligaba a achicar el número, que
+es el dato.
+
+#### PENDIENTE: a 1024 exactos sigue recortándose
+
+La fila mide **811 dentro de 734** y se recorta contra el `overflow: hidden`
+de la caja. El grid pide 550px fijos más dos columnas flexibles y a ese ancho
+no entra. Afecta a iPad horizontal y laptops chicos.
+
+**Es preexistente**, no lo introdujo el rediseño, que se acotó a debajo de
+`lg` a propósito. La salida sería subir el breakpoint de este panel a `xl`, o
+darle `overflow-x-auto` a la caja.
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
