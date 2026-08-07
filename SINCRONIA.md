@@ -1780,6 +1780,110 @@ Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
 
+### Ya no queda arrastre HTML5 en el proyecto — 2026-08-07
+
+**Regla: no reintroducir `draggable` + `onDragStart` / `onDragEnter` /
+`onDragEnd`.** Esa API no dispara desde eventos táctiles ni en iOS ni en
+Android, así que cualquier reordenamiento escrito así nace roto en teléfono.
+Para reordenar hay una sola herramienta: `usePointerSort` en
+`src/components/admin/useDragSort.ts`.
+
+Los únicos `draggable` que quedan en `src/` son de Leaflet (`MapPicker`,
+`PropertyMap`) y no tienen nada que ver.
+
+| Commit | Qué |
+|---|---|
+| `4352f9a` | el arrastre se termina desde `window`, no desde la fila |
+| `a14eeae` | los dos de `Contenido` |
+| `1347901` | `PropImageManager` + `[data-orden-quieto]` |
+| `94f9697` | las dos fichas de cliente |
+
+#### Cuatro de los cinco sitios son grilla, no lista
+
+| sitio | forma | manija |
+|---|---|---|
+| `PropImageManager` | grilla 3/4/5 col | ya existía de adorno |
+| `CarouselPhotoManager` | grilla 2/3/5 col | ya existía de adorno |
+| `HomeDestacadasSelector` | **lista** | `GripVertical` suelto |
+| `FichaClienteNueva` / `Editar` | grilla `auto-fill 110px` | **no tenían** |
+
+`usePointerSort` **no asume una sola dimensión**: busca el destino con
+`document.elementFromPoint` y reordena con `splice`, que es exactamente lo que
+hacían las cuatro implementaciones HTML5. Verificado con un arrastre en
+diagonal sobre una grilla de 3×3: `ABCDEFGHI` → `BCDEAFGHI`.
+
+#### El bug que apareció al probar las grillas
+
+Soltar **fuera** de la lista dejaba el reordenamiento hecho en pantalla pero
+**sin guardar**, y el commit salía después pegado a un toque cualquiera y sin
+relación con él. Medido: arrastrar y soltar afuera daba `commits []`, y el
+siguiente toque simple disparaba el commit.
+
+Estaba en el hook desde el principio, o sea también en el sidebar, Propiedades,
+Equipo y Asociados. No se había visto porque en una lista de una columna se
+suelta casi siempre sobre otra fila; en una grilla de tres columnas soltar
+fuera es facilísimo.
+
+`setPointerCapture` **no alcanza** para cubrirlo. Si React desmonta la fila que
+capturó, la captura se va con ella — y le pasa a cualquier lista que lleve el
+índice dentro de la `key`, como `PropImageManager` con `key={url + i}`. Y
+aunque la fila sobreviva, un `pointerup` fuera del contenedor no llega a ningún
+handler nuestro.
+
+Ahora `pointermove` / `pointerup` / `pointercancel` se escuchan en **`window`**
+mientras dura el arrastre, y se quitan al terminar y al desmontar. La función
+de guardado va por un ref: los consumidores la pasan como arrow inline y cambia
+de identidad en cada render, mientras que los oyentes se instalan una sola vez
+por arrastre.
+
+Nota de método: la primera versión de esta prueba comparaba el **orden** antes
+y después y lo daba por bueno. El orden no era el problema —cambiaba
+correctamente—; el que faltaba era el **commit**. Si se vuelve a probar un
+reordenamiento, mirar lo que se guarda, no lo que se ve.
+
+#### `[data-orden-quieto]`
+
+Las celdas del toggle y de Editar/Eliminar de `Propiedades` llevaban
+`draggable={false}` para no iniciar un arrastre desde ahí. Con Pointer Events
+ese atributo **no tiene ningún efecto**, así que desde el `ae82003` de esta
+misma tarde arrastrar el botón Eliminar reordenaba la fila. Ahora el descarte
+es explícito: cualquier elemento dentro de `[data-orden-quieto]` no arranca un
+arrastre. Verificado en los dos sentidos.
+
+Si mañana se agrega un botón dentro de una fila arrastrable, ese atributo es la
+forma de excluirlo.
+
+#### Estados que no son un `useState`
+
+Dos de los cinco no tenían un array en estado propio y hubo que darle al hook
+un setter que entienda las dos formas de `SetStateAction`:
+
+- **`CarouselPhotoManager`** — `urls` es una vista de `d` sobre las
+  `HERO_KEYS`; el setter reescribe las claves.
+- **`PropImageManager`** — `imagenes` es controlada por el formulario; el
+  setter reenvía a `onChange`. Acá además el ref de apoyo se actualiza **en el
+  acto** y no solo en el render: si dos movimientos del puntero caen en el
+  mismo frame React los agrupa, y sin eso el segundo partiría del orden viejo y
+  se comería el primero.
+
+Las ranuras vacías del carrusel siguen sin llevar `filaProps`: ni se arrastran
+ni son destino, igual que antes con `draggable={!!url}`.
+
+#### Costo: cero
+
+| | sin comprimir | gzip |
+|---|---|---|
+| `AdminPage.js` | −2,02 kB | −0,72 kB |
+| `subirImagen.js` | +2,01 kB | +0,84 kB |
+| **total** | **−0,03 kB** | **+0,06 kB** |
+
+`subirImagen.js` crece exactamente lo que baja `AdminPage.js`: al usar el hook
+también las fichas de cliente, Rollup lo movió al chunk compartido. Borrar
+cuatro implementaciones duplicadas paga el hook compartido casi al peso.
+
+Medido **worktree contra worktree**, como corresponde desde el sesgo detectado
+en la etapa anterior.
+
 ### Admin móvil — cajón que bloquea el fondo y arrastre en táctil — 2026-08-07
 
 Dos commits.
