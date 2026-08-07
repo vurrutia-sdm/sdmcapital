@@ -1046,7 +1046,7 @@ export function CotizacionesAdmin() {
       </div>
 
       {/* Resumen de estados */}
-      <div className="grid grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-4 lg:mb-8">
         {(['borrador', 'enviada', 'aceptada', 'rechazada'] as EstadoCotizacion[]).map(e => {
           const count = cotizaciones.filter(c => c.estado === e).length
           return (
@@ -1070,7 +1070,7 @@ export function CotizacionesAdmin() {
       ) : (
         <div className="bg-white" style={{ border: '1px solid var(--border)', borderRadius: 2, overflow: 'hidden' }}>
           {/* Encabezado tabla */}
-          <div className="grid bg-[var(--off)]" style={{ gridTemplateColumns: '90px 1fr 1fr 110px 120px 120px 110px', padding: '10px 16px', borderBottom: '2px solid var(--border)' }}>
+          <div className="hidden bg-[var(--off)] lg:grid" style={{ gridTemplateColumns: '90px 1fr 1fr 110px 120px 120px 110px', padding: '10px 16px', borderBottom: '2px solid var(--border)' }}>
             {['#', 'Cliente', 'Propiedad', 'Final UF', 'Pago', 'Estado', 'Acciones'].map(h => (
               <div className="text-sdm-xs tracking-sdm-wide" key={h} style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 600 }}>{h}</div>
             ))}
@@ -1079,20 +1079,19 @@ export function CotizacionesAdmin() {
           {cotizaciones.map(c => (
             <div
               key={c.id}
-              className="grid items-center"
+              className="flex flex-wrap items-center gap-y-1 p-3 lg:grid lg:items-center lg:gap-y-0 lg:px-4 lg:py-3"
               style={{
                 gridTemplateColumns: '90px 1fr 1fr 110px 120px 120px 110px',
-                padding: '12px 16px',
                 borderBottom: '1px solid var(--border)',
               }}
             >
               {/* # */}
-              <div className="text-sdm-sm" style={{ fontWeight: 600, color: 'var(--navy-dark)', fontFamily: 'monospace' }}>
+              <div className="order-1 mr-3 text-sdm-sm lg:order-none lg:mr-0" style={{ fontWeight: 600, color: 'var(--navy-dark)', fontFamily: 'monospace' }}>
                 {PAD(c.numero)}
               </div>
 
               {/* Cliente */}
-              <div>
+              <div className="order-2 grow lg:order-none lg:grow-0">
                 <div className="text-sdm-sm" style={{ fontWeight: 500, color: 'var(--ink)' }}>{c.cliente_nombre}</div>
                 {c.cliente_email && (
                   <div className="text-sdm-xs" style={{ color: 'var(--muted)', marginTop: 1 }}>{c.cliente_email}</div>
@@ -1100,7 +1099,7 @@ export function CotizacionesAdmin() {
               </div>
 
               {/* Propiedad */}
-              <div>
+              <div className="order-3 w-full lg:order-none lg:w-auto">
                 <div className="text-sdm-sm" style={{ color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{c.prop_titulo}</div>
                 {(c.prop_comuna || c.prop_ciudad) && (
                   <div className="text-sdm-xs" style={{ color: 'var(--muted)', marginTop: 1 }}>
@@ -1110,17 +1109,17 @@ export function CotizacionesAdmin() {
               </div>
 
               {/* Precio final */}
-              <div className="text-sdm-sm" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>
+              <div className="order-4 mr-3 text-sdm-lg lg:order-none lg:mr-0 lg:text-sdm-sm" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>
                 {c.precio_final_uf ? `${fmtN(c.precio_final_uf, 0)} UF` : '—'}
               </div>
 
               {/* Forma de pago */}
-              <div className="text-sdm-xs" style={{ color: 'var(--muted)' }}>
+              <div className="order-5 grow text-sdm-xs lg:order-none lg:grow-0" style={{ color: 'var(--muted)' }}>
                 {c.forma_pago ? FORMA_LABELS[c.forma_pago] : '—'}
               </div>
 
               {/* Estado */}
-              <div>
+              <div className="order-6 lg:order-none">
                 <select className="text-sdm-xs"
                   value={c.estado}
                   onChange={e => updateEstado(c.id, e.target.value as EstadoCotizacion)}
@@ -1136,10 +1135,12 @@ export function CotizacionesAdmin() {
                 </select>
               </div>
 
-              {/* Acciones */}
-              <div className="flex items-center gap-1">
+              {/* Acciones. Debajo de lg: fila propia con borde superior, 44px de
+                  alto tactil y 24px entre botones. Con el padding de 4px 6px que
+                  tenian, en un telefono era imposible acertarles. */}
+              <div className="order-7 flex w-full items-center justify-end gap-6 mt-2 pt-2 border-t border-[#e8edf2] lg:order-none lg:w-auto lg:justify-start lg:gap-1 lg:mt-0 lg:pt-0 lg:border-t-0">
                 {/* Editar */}
-                <button className="text-sdm-base"
+                <button className="text-sdm-base min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
                   onClick={() => openEdit(c)}
                   title="Editar"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--navy-dark)', borderRadius: 2 }}
@@ -1148,7 +1149,7 @@ export function CotizacionesAdmin() {
                 </button>
 
                 {/* Descargar PDF */}
-                <button className="text-sdm-base"
+                <button className="text-sdm-base min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
                   onClick={() => descargarPDF(c)}
                   title="Descargar PDF"
                   disabled={pdfLoading === c.id}
@@ -1158,7 +1159,7 @@ export function CotizacionesAdmin() {
                 </button>
 
                 {/* Gmail */}
-                <button className="text-sdm-base"
+                <button className="text-sdm-base min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
                   onClick={() => openGmail(c)}
                   title="Descargar PDF y abrir Gmail"
                   disabled={gmailLoading === c.id}
@@ -1168,7 +1169,7 @@ export function CotizacionesAdmin() {
                 </button>
 
                 {/* Eliminar */}
-                <button className="text-sdm-base"
+                <button className="text-sdm-base min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
                   onClick={() => deleteCot(c.id)}
                   title="Eliminar"
                   disabled={deleting === c.id}
