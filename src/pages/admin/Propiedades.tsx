@@ -465,7 +465,7 @@ export default function Propiedades() {
             <Field label="País"><Inp value={editing.pais || 'Chile'} onChange={v => setEditing(p => ({ ...p, pais: v }))} /></Field>
           </div>
 
-          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+          <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Precio</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Precio UF"><Inp type="number" value={editing.precio_uf || ''} onChange={v => setEditing(p => ({ ...p, precio_uf: Number(v) }))} placeholder="Ej: 3500" /></Field>
@@ -485,7 +485,7 @@ export default function Propiedades() {
             )}
           </div>
 
-          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+          <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Características</div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <Field label="Dormitorios"><Inp type="number" value={editing.dormitorios || ''} onChange={v => setEditing(p => ({ ...p, dormitorios: Number(v) }))} /></Field>
@@ -504,7 +504,7 @@ export default function Propiedades() {
           </div>
 
           {editing.categoria === 'proyecto_nuevo' && (
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Información del Proyecto</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Field label="Etapa de construcción">
@@ -552,7 +552,7 @@ export default function Propiedades() {
             </div>
           )}
 
-          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+          <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14} strokeWidth={2} />Ubicación en mapa</div>
             <MapPicker
               address={editing.map_address || ''}
@@ -562,7 +562,7 @@ export default function Propiedades() {
             />
           </div>
 
-          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+          <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><Briefcase size={14} strokeWidth={2} />Comisión y Beneficios</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Comisión corredora (%)">
@@ -602,7 +602,7 @@ export default function Propiedades() {
             </Field>
           </div>
 
-          <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
+          <div className="mb-6 bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px' }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><File size={14} strokeWidth={2} />Dossiers / Fichas técnicas</div>
             <DossierUploader
               items={editing.dossiers || []}
@@ -610,7 +610,7 @@ export default function Propiedades() {
             />
           </div>
 
-          <div className="mb-6" style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px' }}>
+          <div className="mb-6 bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px' }}>
             <Chk label="Mostrar botón de pago Flow (Reserva esta propiedad)"
               checked={editing.mostrar_boton_flow !== false}
               onChange={v => setEditing(p => ({ ...p, mostrar_boton_flow: v }))} />

@@ -122,7 +122,7 @@ export default function Rental() {
         <Full><Field label="Título de la sección"><Inp value={d.rental_comp_titulo} onChange={set('rental_comp_titulo')} /></Field></Full>
 
         <Full>
-          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+          <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 1</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field label="Tipo"><Inp value={d.rental_comp1_tipo} onChange={set('rental_comp1_tipo')} /></Field>
@@ -135,7 +135,7 @@ export default function Rental() {
         </Full>
 
         <Full>
-          <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+          <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Columna 2 (Recomendado)</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field label="Tipo"><Inp value={d.rental_comp2_tipo} onChange={set('rental_comp2_tipo')} /></Field>

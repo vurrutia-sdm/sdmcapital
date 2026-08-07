@@ -75,7 +75,7 @@ export default function Vende() {
 
         {[1, 2, 3].map(n => (
           <Full key={n}>
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Pilar {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Field label="Número"><Inp value={(d as Record<string,string>)[`vende_pilar${n}_num`]} onChange={set(`vende_pilar${n}_num`)} /></Field>

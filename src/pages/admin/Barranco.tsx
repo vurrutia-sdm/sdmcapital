@@ -229,7 +229,7 @@ export default function Barranco() {
         {bi('exp_titulo', 'exp_titulo_es', 'Título de sección')}
         {([1, 2, 3] as const).map(n => (
           <Full key={n}>
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Actividad {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bi(`actividad_${n}_titulo`, `actividad_${n}_titulo_es`, 'Título')}
@@ -260,7 +260,7 @@ export default function Barranco() {
       <Sec title={<><Bed size={18} strokeWidth={1.75} />Amenidades (8 cards)</>}>
         {([1, 2, 3, 4, 5, 6, 7, 8] as const).map(n => (
           <Full key={n}>
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '14px 18px', marginBottom: 4 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '14px 18px', marginBottom: 4 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Amenidad {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bi(`amenidad_${n}_titulo`, `amenidad_${n}_titulo_es`, 'Título')}
@@ -320,7 +320,7 @@ export default function Barranco() {
       <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Infrastructure (7 filas)</>}>
         {([1,2,3,4,5,6,7] as const).map(n => (
           <Full key={n}>
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_infra_${n}_key`, `ficha_infra_${n}_key_es`, 'Etiqueta')}
@@ -335,7 +335,7 @@ export default function Barranco() {
       <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Equipment Included (7 filas)</>}>
         {([1,2,3,4,5,6,7] as const).map(n => (
           <Full key={n}>
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_equip_${n}_key`, `ficha_equip_${n}_key_es`, 'Etiqueta')}
@@ -350,7 +350,7 @@ export default function Barranco() {
       <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Legal (6 filas)</>}>
         {([1,2,3,4,5,6] as const).map(n => (
           <Full key={n}>
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_legal_${n}_key`, `ficha_legal_${n}_key_es`, 'Etiqueta')}
@@ -365,7 +365,7 @@ export default function Barranco() {
       <Sec title={<><ClipboardList size={18} strokeWidth={1.75} />Ficha — Operations (6 filas)</>}>
         {([1,2,3,4,5,6] as const).map(n => (
           <Full key={n}>
-            <div style={{ background: 'var(--off)', borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
+            <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '12px 16px', marginBottom: 4 }}>
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: 8 }}>Fila {n}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {bi(`ficha_ops_${n}_key`, `ficha_ops_${n}_key_es`, 'Etiqueta')}

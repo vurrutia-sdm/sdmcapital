@@ -117,11 +117,10 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
   return (
     <div style={{ border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden', background: '#fff' }}>
-      <div style={{
+      <div className="bg-[var(--off)]" style={{
         display: 'flex', flexWrap: 'wrap', gap: 2, padding: '8px 10px',
-        borderBottom: '1px solid var(--border)', background: 'var(--off)',
-        alignItems: 'center',
-      }}>
+        borderBottom: '1px solid var(--border)',
+        alignItems: 'center'}}>
         {groups.map((group, gi) => (
           <div key={gi} style={{ display: 'flex', gap: 1, marginRight: gi < groups.length - 1 ? 6 : 0, borderRight: gi < groups.length - 1 ? '1px solid var(--border)' : 'none', paddingRight: gi < groups.length - 1 ? 6 : 0 }}>
             {group}

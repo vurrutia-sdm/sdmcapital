@@ -57,7 +57,7 @@ export default function Equipo() {
       {editing && (
         <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar miembro' : 'Nuevo miembro'}</h3>
-          <div className="mb-6 p-6 rounded-sm" style={{ background: 'var(--off)', border: '1px solid var(--border)' }}>
+          <div className="mb-6 p-6 rounded-sm bg-[var(--off)]" style={{ border: '1px solid var(--border)' }}>
             <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><Camera size={14} strokeWidth={2} />Foto del miembro</div>
             <div className="flex items-center gap-6">
               {editing.foto

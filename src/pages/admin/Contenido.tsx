@@ -209,7 +209,7 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
       <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 16 }}>Elige hasta <strong>6 propiedades</strong> para el Inicio. Arrastra para reordenar.</p>
       <div style={{ marginBottom: 24 }}>
         <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Seleccionadas ({selected.length}/6)</div>
-        {selected.length === 0 && <div className="text-sdm-sm" style={{ padding: '16px', background: 'var(--off)', borderRadius: 4, color: 'var(--muted)', textAlign: 'center' }}>Aún no hay propiedades seleccionadas.</div>}
+        {selected.length === 0 && <div className="text-sdm-sm bg-[var(--off)]" style={{ padding: '16px', borderRadius: 4, color: 'var(--muted)', textAlign: 'center' }}>Aún no hay propiedades seleccionadas.</div>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {selected.map((p, i) => (
             <div key={p.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
@@ -231,8 +231,8 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
           <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Disponibles — clic para agregar</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 400, overflowY: 'auto', padding: 4 }}>
             {available.map(p => (
-              <div key={p.id} onClick={() => add(p)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: 'var(--off)', border: '1px solid transparent', borderRadius: 4, cursor: 'pointer', transition: 'all 0.15s' }}
+              <div className="bg-[var(--off)]" key={p.id} onClick={() => add(p)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', border: '1px solid transparent', borderRadius: 4, cursor: 'pointer', transition: 'all 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--green)'; e.currentTarget.style.background = '#f0faf4' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'var(--off)' }}>
                 {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 40, height: 32, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
@@ -475,7 +475,7 @@ export default function Contenido() {
           <Full><Field label="Subtítulo"><Inp value={d.testimonios_subtitulo} onChange={set('testimonios_subtitulo')} /></Field></Full>
           {[1,2,3,4,5,6,7,8].map(n => (
             <Full key={n}>
-              <div style={{ background: 'var(--off)', borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
+              <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 4 }}>
                 <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>Testimonio {n}</div>
                 <Field label="Texto"><Txa value={(d as Record<string,string>)[`testimonial_${n}_texto`] || ''} onChange={set(`testimonial_${n}_texto`)} rows={3} /></Field>
                 <Field label="Autor"><Inp value={(d as Record<string,string>)[`testimonial_${n}_autor`] || ''} onChange={set(`testimonial_${n}_autor`)} /></Field>

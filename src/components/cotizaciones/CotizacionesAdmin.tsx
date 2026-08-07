@@ -1070,7 +1070,7 @@ export function CotizacionesAdmin() {
       ) : (
         <div className="bg-white" style={{ border: '1px solid var(--border)', borderRadius: 2, overflow: 'hidden' }}>
           {/* Encabezado tabla */}
-          <div className="grid" style={{ gridTemplateColumns: '90px 1fr 1fr 110px 120px 120px 110px', padding: '10px 16px', borderBottom: '2px solid var(--border)', background: 'var(--off)' }}>
+          <div className="grid bg-[var(--off)]" style={{ gridTemplateColumns: '90px 1fr 1fr 110px 120px 120px 110px', padding: '10px 16px', borderBottom: '2px solid var(--border)' }}>
             {['#', 'Cliente', 'Propiedad', 'Final UF', 'Pago', 'Estado', 'Acciones'].map(h => (
               <div className="text-sdm-xs tracking-sdm-wide" key={h} style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 600 }}>{h}</div>
             ))}
