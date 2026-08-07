@@ -132,6 +132,12 @@ export function usePointerSort<T>(
     'data-orden-idx': i,
 
     onPointerDown: (e: EventoPuntero<HTMLElement>) => {
+      // Zonas que no inician arrastre: botones de acción, toggles. Con la API
+      // HTML5 esto se conseguía con `draggable={false}` sobre la celda; con
+      // Pointer Events ese atributo no tiene ningún efecto y hace falta el
+      // descarte explícito.
+      if ((e.target as Element).closest('[data-orden-quieto]')) return
+
       // Con ratón se arrastra desde cualquier parte de la fila, igual que con la
       // API HTML5 que había antes: es la interacción que hoy se usa y no se
       // degrada. Con el dedo, solo desde la manija — si se pudiera arrastrar

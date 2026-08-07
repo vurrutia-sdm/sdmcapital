@@ -32,7 +32,8 @@ import MapPicker from '@/components/ui/MapPicker'
 import { Field, Inp, Chk, Sel } from '@/components/admin/campos'
 import { SaveBtn, Badge } from '@/components/admin/acciones'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
-import { useDragSort } from '@/components/admin/useDragSort'
+import type { Dispatch, SetStateAction } from 'react'
+import { useDragSort, usePointerSort } from '@/components/admin/useDragSort'
 
 // ─── PROYECTOS NUEVOS — opciones ───────────────────────────────────────────────
 const FECHA_ENTREGA_OPTIONS = [
@@ -143,8 +144,6 @@ function PropImageManager({
 }) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress]   = useState('')
-  const dragIdx  = useRef<number | null>(null)
-  const dragOver = useRef<number | null>(null)
 
   const compressImage = (file: File): Promise<Blob> =>
     new Promise((resolve) => {
@@ -190,16 +189,21 @@ const upload = async (files: FileList) => {
 
   const setPrincipal = (url: string) => onChange(imagenes, url)
 
-  const onDragStart = (i: number) => { dragIdx.current = i }
-  const onDragEnter = (i: number) => { dragOver.current = i }
-  const onDragEnd   = () => {
-    if (dragIdx.current === null || dragOver.current === null || dragIdx.current === dragOver.current) return
-    const next = [...imagenes]
-    const dragged = next.splice(dragIdx.current, 1)[0]
-    next.splice(dragOver.current, 0, dragged)
-    dragIdx.current = null; dragOver.current = null
+  // `imagenes` es controlada por el formulario, no hay estado local. El ref se
+  // actualiza en el acto ademas de en el render: si dos movimientos del puntero
+  // caen en el mismo frame, React los agrupa y sin esto el segundo partiria del
+  // orden viejo y se comeria el primero.
+  const actuales = useRef(imagenes)
+  actuales.current = imagenes
+  const aplicarOrden: Dispatch<SetStateAction<string[]>> = accion => {
+    const next = typeof accion === 'function' ? accion(actuales.current) : accion
+    actuales.current = next
     onChange(next, imagenPrincipal || next[0] || '')
   }
+
+  // Sin trabajo al soltar: cada paso del reordenamiento en vivo ya paso por
+  // onChange, que es como esta lista llega al formulario.
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(imagenes, aplicarOrden, () => {})
 
   return (
     <div>
@@ -214,12 +218,9 @@ const upload = async (files: FileList) => {
           {imagenes.map((url, i) => (
             <div key={url + i}>
               <div
-                draggable
-                onDragStart={() => onDragStart(i)}
-                onDragEnter={() => onDragEnter(i)}
-                onDragEnd={onDragEnd}
-                onDragOver={e => e.preventDefault()}
+                {...filaProps(i)}
                 style={{
+                  opacity: arrastrando === i ? 0.45 : 1,
                   position: 'relative', aspectRatio: '4/3', borderRadius: 3,
                   overflow: 'hidden', cursor: 'grab',
                   border: url === imagenPrincipal ? '3px solid var(--green)' : '2px solid var(--border)',
@@ -232,7 +233,7 @@ const upload = async (files: FileList) => {
                     <Star size={11} strokeWidth={2} />PORTADA
                   </div>
                 )}
-                <div style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.45)', borderRadius: 2, padding: '2px 3px' }}>
+                <div {...manijaProps} style={{ ...manijaProps.style, position: 'absolute', bottom: 0, left: 0, background: 'rgba(0,0,0,0.45)', borderRadius: '0 3px 0 2px', padding: '8px 10px', display: 'flex' }}>
                   <svg width="7" height="10" viewBox="0 0 7 10" fill="white" opacity="0.7">
                     <circle cx="1.5" cy="1.5" r="1.2"/><circle cx="5.5" cy="1.5" r="1.2"/>
                     <circle cx="1.5" cy="5" r="1.2"/><circle cx="5.5" cy="5" r="1.2"/>
@@ -700,7 +701,7 @@ export default function Propiedades() {
                 {/* El toggle lleva flex-1 para que su borde superior se estire hasta
                     encontrarse con el de las acciones: entre los dos dibujan una
                     sola linea continua sin necesidad de un contenedor. */}
-                <td className="flex-1 order-7 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
+                <td className="flex-1 order-7 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
                   <button className="text-sdm-sm min-h-[44px] lg:min-h-0"
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
                     onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
@@ -718,7 +719,7 @@ export default function Propiedades() {
                 {/* Editar y Eliminar separados 24px y con 44px de alto tactil: en el
                     escritorio estaban a 12px, que en un telefono es un borrado por
                     accidente. En lg vuelven a los dos botones de texto de siempre. */}
-                <td className="order-8 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" draggable={false} onDragStart={e => e.preventDefault()}>
+                <td className="order-8 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
                   <div className="flex items-center justify-end gap-6 lg:justify-start lg:gap-3">
                     <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500, whiteSpace: 'nowrap' }}>Editar</button>
                     <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Eliminar</button>
