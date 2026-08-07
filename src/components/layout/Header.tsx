@@ -32,10 +32,13 @@ export default function Header() {
   const navLinkStyle = (active: boolean) => ({
     fontSize: 'var(--sdm-text-xs)', fontWeight: 400, letterSpacing: 'var(--sdm-tracking-wide)' as const,
     textTransform: 'uppercase' as const, padding: '8px 12px',
-    color: active ? 'var(--navy-dark)' : 'var(--muted)',
     textDecoration: 'none', whiteSpace: 'nowrap' as const, transition: 'color 0.2s',
     display: 'inline-block',
   })
+  // El color va en clase y no en el style: el inline gana sobre las clases y no
+  // dejaria actuar al hover:. El enlace activo no lleva hover, igual que antes.
+  const navLinkClass = (active: boolean) =>
+    active ? 'text-[var(--navy-dark)]' : 'text-[var(--muted)] hover:text-[var(--navy-dark)]'
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e8edf2]">
@@ -61,9 +64,7 @@ export default function Header() {
             { to: '/quienes-somos',label: 'Quiénes Somos' },
             { to: '/rental',       label: 'SDM Rental' },
           ].map(l => (
-            <Link key={l.to} to={l.to} style={navLinkStyle(isActive(l.to))}
-              onMouseEnter={e => { if (!isActive(l.to)) e.currentTarget.style.color = 'var(--navy-dark)' }}
-              onMouseLeave={e => { if (!isActive(l.to)) e.currentTarget.style.color = 'var(--muted)' }}
+            <Link key={l.to} to={l.to} className={navLinkClass(isActive(l.to))} style={navLinkStyle(isActive(l.to))}
             >{l.label}</Link>
           ))}
 
@@ -75,30 +76,20 @@ export default function Header() {
             </Link>
             {propiedadesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
-                <Link className="text-sdm-sm" to="/propiedades-usadas?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >En Venta</Link>
-                <Link className="text-sdm-sm" to="/propiedades-usadas?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >En Arriendo</Link>
-                <Link className="text-sdm-sm" to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >Ver todas</Link>
-                <Link className="text-sdm-sm" to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
                 >Vende con nosotros</Link>
               </div>
             )}
           </div>
 
           {/* Proyectos Nuevos */}
-          <Link to="/proyectos-nuevos" style={navLinkStyle(isActive('/proyectos-nuevos'))}
-            onMouseEnter={e => { if (!isActive('/proyectos-nuevos')) e.currentTarget.style.color = 'var(--navy-dark)' }}
-            onMouseLeave={e => { if (!isActive('/proyectos-nuevos')) e.currentTarget.style.color = 'var(--muted)' }}
+          <Link to="/proyectos-nuevos" className={navLinkClass(isActive('/proyectos-nuevos'))} style={navLinkStyle(isActive('/proyectos-nuevos'))}
           >Proyectos Nuevos</Link>
 
           {/* Servicios dropdown — entre Propiedades y Asociados */}
@@ -110,19 +101,15 @@ export default function Header() {
             {servicesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 240, borderRadius: 2 }}>
                 {SERVICES.map(s => (
-                  <Link className="text-sdm-sm" key={s.slug} to={`/servicios/${s.slug}`} style={{ display: 'block', padding: '10px 20px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-dark)'; e.currentTarget.style.background = 'var(--off)' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' }}
+                  <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" key={s.slug} to={`/servicios/${s.slug}`} style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                   >{s.label}</Link>
                 ))}
               </div>
             )}
           </div>
 
-          <button className="text-sdm-xs tracking-sdm-wide" onClick={handleContacto}
-            style={{ fontWeight: 400, textTransform: 'uppercase', padding: '8px 12px', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+          <button className="text-sdm-xs tracking-sdm-wide text-[var(--muted)] hover:text-[var(--navy-dark)]" onClick={handleContacto}
+            style={{ fontWeight: 400, textTransform: 'uppercase', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
           >Contacto</button>
         </div>
 

@@ -88,15 +88,11 @@ export default function Footer() {
               { to: '/vende-con-nosotros', label: 'Vende con nosotros' },
               { to: 'https://www.flow.cl/uri/gHSdT2jVv', label: 'Reserva tu propiedad', external: true },
             ].map(l => l.external ? (
-              <a className="text-sdm-base tracking-sdm-wide" key={l.to} href={l.to} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'block', fontWeight: 300, marginBottom: 10, color: 'var(--navy-dark)', textDecoration: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
+              <a className="text-sdm-base tracking-sdm-wide text-[var(--navy-dark)] hover:text-[var(--green)]" key={l.to} href={l.to} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'block', fontWeight: 300, marginBottom: 10, textDecoration: 'none' }}
               >{l.label}</a>
             ) : (
-              <Link className="text-sdm-base" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+              <Link className="text-sdm-base text-[var(--muted)] hover:text-[var(--navy-dark)]" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, textDecoration: 'none' }}
               >{l.label}</Link>
             ))}
           </div>
@@ -111,9 +107,7 @@ export default function Footer() {
               { to: '/servicios/financiamiento-empresas', label: 'Financiamiento Empresas' },
               { to: '/servicios/inversion-internacional', label: 'Inversión Internacional' },
             ].map(l => (
-              <Link className="text-sdm-base" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, color: 'var(--muted)', textDecoration: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--navy-dark)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+              <Link className="text-sdm-base text-[var(--muted)] hover:text-[var(--navy-dark)]" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, textDecoration: 'none' }}
               >{l.label}</Link>
             ))}
           </div>
@@ -144,27 +138,19 @@ export default function Footer() {
           <p className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)', textAlign: 'center' }}>
             © 2026 SDM Capital · Todos los derechos reservados · Diseño{' '}
             <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer"
-              style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
             >HaikuFlow.com</a>
             {' '}·{' '}
             <Link to="/politica-de-privacidad"
-              style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
             >Política de Privacidad</Link>
             {' '}·{' '}
             <Link to="/condiciones-del-servicio"
-              style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
             >Condiciones del Servicio</Link>
             {' '}·{' '}
             <Link to="/eliminacion-de-datos"
-              style={{ color: 'var(--muted)', textDecoration: 'none', fontWeight: 400 }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--green)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
             >Eliminación de Datos</Link>
           </p>
           <p className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--border)', textTransform: 'uppercase', textAlign: 'center' }}>
