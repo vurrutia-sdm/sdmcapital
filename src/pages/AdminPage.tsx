@@ -133,7 +133,7 @@ export default function AdminPage() {
     // posiciona justo debajo. Antes eran dos números sueltos: el header medía
     // 79,5 px y el aside arrancaba en 57, así que el header le tapaba los
     // primeros 22 px. Medido con getBoundingClientRect: 79,50 px.
-    <div className="min-h-screen" style={{ background: 'var(--off)', '--admin-header-h': '80px' } as React.CSSProperties}>
+    <div className="min-h-screen bg-[var(--off)]" style={{ '--admin-header-h': '80px' } as React.CSSProperties}>
       <div className="bg-white border-b border-[#e8edf2] px-4 lg:px-8 py-4 flex items-center justify-between sticky top-0 z-40 lg:h-[var(--admin-header-h)]">
         <div className="flex items-center gap-3">
           <button onClick={() => setMenuAbierto(true)} aria-label="Abrir menú" aria-expanded={menuAbierto}
