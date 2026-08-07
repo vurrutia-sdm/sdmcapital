@@ -100,7 +100,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Admin — cierre del layout móvil | `Cotizaciones` a breakpoint `xl`, `TarjetasEquipo` apilado y grids responsive en `FichaCliente` Nueva/Editar | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — Cotizaciones a tarjetas | Rediseño móvil de `CotizacionesAdmin` y eliminación de los 23 fondos `var(--off)` inline que disparaban el selector de `mobile.css` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — tablas a tarjetas | Rediseño móvil de las tablas de `Propiedades` y `Blog`, y corrección del `<thead>` desalineado de Propiedades | Cerrada — commiteada, desplegada y verificada |
-| 2026-08-07 | Limpieza técnica | Alinear las versiones de TipTap para quitar `--legacy-peer-deps`, y precisar la condición de `SinArriendos`. **Toca `package.json` y `package-lock.json`, que son ZONA COMPARTIDA** — si otra sesión instaló algo entre medio, avisar antes de mergear | En curso |
+| 2026-08-07 | Limpieza técnica | Alinear las versiones de TipTap para quitar `--legacy-peer-deps`, y precisar la condición de `SinArriendos`. **Tocó `package.json` y `package-lock.json`, que son ZONA COMPARTIDA** | Cerrada — commits `be3fa8a` y `441065c`. **El lockfile se regeneró entero**: si otra sesión tenía cambios en él, hay que reinstalar |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1780,6 +1780,92 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### TipTap alineado — ya no hace falta `--legacy-peer-deps` — 2026-08-07
+
+```bash
+npm install        # a secas. Sin --legacy-peer-deps.
+```
+
+Verificado con una instalación desde cero, sin `node_modules` ni lockfile:
+exit 0 y los 32 paquetes en 3.23.6.
+
+#### El conflicto no era el que parecía
+
+Se veía como «`@tiptap/extension-image` está en 3.23.4 y el resto en 3.23.1».
+La causa de fondo es otra: **TipTap declara sus dependencias internas con
+caret pero sus peers con versión exacta** —`peer @tiptap/core@"3.23.6"`—, así
+que cualquier desfase de resolución rompe.
+
+Dos intentos fallidos antes de dar con la forma correcta, los dos vale la pena
+conocerlos:
+
+| intento | qué pasó |
+|---|---|
+| todo en `^3.23.6` | árbol partido: 10 paquetes en 3.23.6 y 24 en 3.29.2 |
+| versión exacta en las 9 declaradas | los 20 sub-paquetes de `starter-kit` son transitivos y siguen flotando |
+
+Con el árbol partido **el build falla**, con doce errores de tipos:
+`toggleBold`, `toggleHeading` y compañía desaparecen de `ChainedCommands`
+porque las augmentaciones de tipos vienen de versiones distintas. Si alguien ve
+esos errores, el diagnóstico es éste y no un problema del editor.
+
+Lo que funciona es **`overrides` cubriendo los 32**, transitivos incluidos.
+Están en `package.json`. **No quitarlos**: sin ellos el árbol se vuelve a
+partir en la siguiente instalación.
+
+#### Se queda en 3.23.x a propósito
+
+Alinear en 3.29.2 también resolvería el conflicto, y de hecho es adonde flotan
+los sub-paquetes solos. Pero son seis versiones menores de salto en el editor
+del blog, de las páginas legales y de las descripciones de propiedad, sobre
+contenido **ya publicado**. 3.23.1 → 3.23.6 es un parche. Si algún día hace
+falta subir, que sea una etapa propia con su prueba de contenido.
+
+#### El editor, probado
+
+Con el componente real empaquetado con esbuild, cargando el mismo HTML que ya
+hay publicado. Va y vuelve intacto: `h2`, negrita, cursiva, enlace con `target`
+y `rel`, lista, cita, alineación, color e imagen. Los **16 controles** de la
+barra responden, sin errores de consola.
+
+Son **tres** los consumidores, no dos: `Blog`, `PaginasLegales` y también las
+descripciones de `Propiedades`.
+
+Nota de método: la primera pasada dio cuatro fallos y los cuatro eran de la
+prueba, no del editor. Tres botones caían fuera de un viewport de 390 px que
+había quedado del override móvil de las pruebas de arrastre —Chrome lo conserva
+entre navegaciones—, y el de color fallaba porque asignar `.value` a un
+`input[type=color]` no dispara el `onChange` de React: hay que usar el setter
+nativo del prototipo. **Fijar el viewport al empezar cada prueba.**
+
+### El `.DS_Store` público no existe — 2026-08-07
+
+`sdmcapital.cl/.DS_Store` responde **200**, y por eso parece que expone el
+archivo. No lo expone: devuelve `index.html`.
+
+```
+/.DS_Store              200   4901 bytes   sha 9af21f0f3f8b
+/esto-no-existe-xyz123  200   4901 bytes   sha 9af21f0f3f8b
+/                       200   4901 bytes   sha 9af21f0f3f8b
+```
+
+Los tres son el mismo archivo. Lo hace `public/_redirects`, que tiene un
+catch-all de SPA:
+
+```
+/*  /index.html  200
+```
+
+**Consecuencia general, más allá del `.DS_Store`: en este sitio ninguna URL
+devuelve 404 nunca.** Cualquier comprobación del tipo «¿existe este archivo en
+producción?» hecha mirando el código de estado va a dar un falso positivo. Hay
+que comparar el contenido, o el hash, contra el de `/`.
+
+No había nada que borrar ni que ignorar: `.DS_Store` ya estaba en `.gitignore`
+desde antes, y `git ls-files` no devolvía ninguno. Los cuatro que había en el
+disco eran locales y sin versionar; se borraron, pero no generaron commit
+porque no había nada que commitear.
 
 ### Ya no queda arrastre HTML5 en el proyecto — 2026-08-07
 
