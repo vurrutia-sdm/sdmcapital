@@ -1142,6 +1142,11 @@ variable es la fragilidad que se acababa de quitar.
 
 #### El arrastre no funciona en táctil, y ahora no lo aparenta
 
+> **RESUELTO el 2026-08-07.** Se reimplementó con Pointer Events; la etiqueta y
+> la manija vuelven a mostrarse debajo de `lg`. Ver «Admin móvil — cajón que
+> bloquea el fondo y arrastre en táctil». Lo de abajo queda como registro del
+> estado anterior.
+
 El reordenamiento usa la **API HTML5 de drag and drop**: `draggable` con
 `onDragStart` / `onDragEnter` / `onDragEnd`, sin un solo `onTouchStart` ni
 `onPointerDown` en todo el admin. Esa API **no dispara desde eventos
@@ -1498,7 +1503,7 @@ breakpoints.
 #### Lo que NO se tocó
 
 El arrastre para reordenar sigue oculto debajo de `lg` y **no se reimplementó**
-con Pointer Events. A 1024 la tabla sigue midiendo 826px en un contenedor de
+con Pointer Events. ~~Pendiente~~ — hecho el 2026-08-07. A 1024 la tabla sigue midiendo 826px en un contenedor de
 736 y scrolleando dentro de su `overflow-x-auto`: es el comportamiento de
 siempre en ese ancho, y el rediseño se acotó a debajo de `lg` a propósito.
 
@@ -1774,6 +1779,117 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### Admin móvil — cajón que bloquea el fondo y arrastre en táctil — 2026-08-07
+
+Dos commits.
+
+| Commit | Qué |
+|---|---|
+| `306b2c0` | con el cajón abierto el fondo no scrollea |
+| `ae82003` | reordenar por arrastre con Pointer Events |
+
+#### Bloquear el scroll cuesta el header sticky. Con TODAS las técnicas.
+
+Esto no estaba previsto y es lo más útil de anotar. Cualquier forma de impedir
+que el documento scrollee desprende un `position: sticky`, porque **`sticky` es
+función del scroll**: si el documento deja de scrollear, el header vuelve a su
+posición natural, que con la página a 1200 px está 1200 px por encima del
+viewport.
+
+Medido a 390×844 con las tres variantes, con la página a scroll 1200:
+
+| técnica | ¿bloquea? | `header.top` |
+|---|---|---|
+| `body { position: fixed; top: -scrollY }` | **sí** | −1200 |
+| `body { overflow: hidden }` | **no** — siguió scrolleando a 1936 | −1200 |
+| `html` + `body { overflow: hidden }` | sí | −1200 |
+
+Se eligió `position: fixed` porque es la única que funciona en iOS: ahí
+`overflow: hidden` sobre body **no alcanza**, Safari sigue scrolleando igual.
+
+El precio de `position: fixed` es que el body deja de estar desplazado, así que
+hay que compensar con `top: -scrollY` y devolver el scroll a mano al cerrar. El
+`scrollTo` va con **`behavior: 'instant'`**: `globals.css` pone
+`scroll-behavior: smooth` en `html` y sin eso la vuelta se ve como un salto
+animado. Es la tercera vez en esta sesión que ese `smooth` muerde.
+
+Y para el header desprendido: mientras el cajón está abierto pasa a `fixed` y
+el contenedor lleva un relleno igual a su alto —medido con
+`getBoundingClientRect` justo antes de abrir, porque en móvil el header no usa
+`--admin-header-h`— para que el contenido no salte al sacarlo del flujo.
+Verificado: el contenido no se mueve **ni un píxel** al abrir ni al cerrar.
+
+Los valores de `document.body.style` se guardan y se restauran, no se fuerzan a
+un valor fijo: si el efecto se interrumpe, el sitio vuelve a como estaba y no a
+un `overflow: visible` inventado por nosotros. Comprobado que `body` queda sin
+atributo `style` residual.
+
+#### El sidebar NO usaba `useDragSort`
+
+Tenía su propia copia inline del mismo algoritmo, con sus propios
+`dragTab` / `dragOverTab`. Eran dos implementaciones del mismo reordenamiento
+en dos archivos. Ahora la mecánica vive una sola vez en **`usePointerSort`**, y
+`useDragSort` es esa mecánica más la sincronización desde props que necesitan
+los tres paneles. El sidebar usa `usePointerSort` directo porque su orden vive
+en `localStorage` y en estado local: la sincronización de `useDragSort` ahí
+sobraría y pelearía.
+
+#### Ratón desde toda la fila, dedo solo desde la manija
+
+No es una inconsistencia, es la única combinación que funciona. Con el dedo, si
+se pudiera arrastrar desde cualquier parte de la fila **no quedaría forma de
+scrollear la lista**. Con el ratón esa restricción no compra nada y achicaría
+el blanco de la interacción que hoy se usa.
+
+`touch-action: none` va **solo en la manija**, no en la fila: le dice al
+navegador que un gesto que empieza ahí no es un scroll, y deja el resto de la
+fila scrolleando como siempre.
+
+Umbral de **6 px** antes de que cuente como arrastre: cualquier toque con el
+dedo trae uno o dos px de temblor, y sin umbral un toque simple reordenaría.
+
+Medido contra el hook real —empaquetado con esbuild, no una reimplementación
+del test—:
+
+| | resultado |
+|---|---|
+| ratón, arrastre desde el CUERPO de la fila | `ABCDEF` → `BCDAEF`, un commit |
+| ratón, click posterior al arrastre | **no se dispara** |
+| ratón, click simple | selecciona, orden intacto |
+| dedo, arrastre desde la MANIJA | `ABCDEF` → `BCDAEF`, un commit |
+| dedo, toque simple en la manija | no reordena |
+| dedo, arrastre desde el CUERPO | orden intacto, la lista scrollea 0 → 370 px |
+
+#### Lo único que se pierde
+
+El fantasma semitransparente que dibujaba el navegador solo con la API HTML5.
+No hay forma de conservarlo fuera de esa API. Se reemplaza reordenando la lista
+**en vivo** durante el arrastre, que además muestra el resultado antes de
+soltar.
+
+#### Costo
+
+`AdminPage.js` **+1,82 kB** sin comprimir, **+0,79 kB** gzip. Pointer Events es
+más código que las ocho líneas de la API HTML5; se paga por tener la función en
+el teléfono.
+
+Nota de método: la primera medición dio `index.js` +0,41 kB y
+`ReservaConfirmacionPage` +0,04 kB, dos chunks que este cambio no toca. Era
+sesgo de comparar un build en worktree contra uno en el directorio principal.
+Repetido **worktree contra worktree** esos dos desaparecen. Si se vuelve a
+medir un delta de chunks: las dos puntas del mismo tipo de directorio.
+
+#### Alcance mayor al anunciado
+
+El brief acotaba el dominio a `AdminPage.tsx` y `useDragSort.ts`, dando por
+hecho que el sidebar usaba el hook. Como no lo usaba, cambiar la API del hook
+obligaba a tocar también sus tres consumidores: `Propiedades.tsx`,
+`Equipo.tsx` y `Asociados.tsx`. Los tres ya tenían su `GripVertical`; solo hubo
+que envolverla en `manijaProps`. En `Propiedades` además se destapó debajo de
+`lg`, donde estaba oculta por el mismo motivo que la del sidebar: como la fila
+es `flex-wrap` y la celda del título lleva `w-full`, la manija queda en su
+propia franja arriba de la tarjeta.
 
 ### Fase 3 — Tailwind: hover a CSS y la migración masiva DESCARTADA — 2026-08-07
 
