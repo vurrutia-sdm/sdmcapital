@@ -177,9 +177,6 @@
   .input-line::placeholder { color: #9AA8B4; }
   .input-line:focus { border-color: var(--green); }
 
-  .prop-card { @apply bg-white overflow-hidden cursor-pointer; }
-  .prop-card:hover .prop-card__img-inner { transform: scale(1.03); }
-
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--off); }
   ::-webkit-scrollbar-thumb { background: var(--sky); border-radius: 3px; }
@@ -246,21 +243,9 @@
 }
 
 @layer utilities {
-  .text-navy       { color: var(--navy); }
-  .text-navy-dark  { color: var(--navy-dark); }
-  .text-green-sdm  { color: var(--green); }
-  .text-sky-sdm    { color: var(--sky); }
-  .text-muted      { color: var(--muted); }
-  .bg-navy         { background: var(--navy); }
-  .bg-navy-dark    { background: var(--navy-dark); }
-  .bg-navy-deeper  { background: var(--navy-deeper); }
-  .bg-green-sdm    { background: var(--green); }
-  .bg-sky-pale     { background: var(--sky-pale); }
-  .bg-off          { background: var(--off); }
-  .border-sdm      { border-color: var(--border); }
-
-  .animate-delay-100 { animation-delay: 100ms; }
-  .animate-delay-200 { animation-delay: 200ms; }
-  .animate-delay-300 { animation-delay: 300ms; }
-  .animate-delay-400 { animation-delay: 400ms; }
+  /* Las 12 clases de color (.text-navy, .bg-off, .border-sdm y companeras), las
+     4 de .animate-delay y .prop-card se borraron el 2026-08-07: cero elementos
+     en 14 paginas, verificado con querySelectorAll sobre la pagina renderizada
+     y no con grep. Las de color ademas duplicaban lo que Tailwind ya genera
+     desde la paleta de tailwind.config.js. */
 }
