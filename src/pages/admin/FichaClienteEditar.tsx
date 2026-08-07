@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, X } from 'lucide-react'
+import { ArrowLeft, GripVertical, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { subirImagen } from '@/lib/subirImagen'
+import { usePointerSort } from '@/components/admin/useDragSort'
 
 type Agente = { id: string; nombre: string; telefono: string | null; correo: string | null }
 
@@ -86,8 +87,6 @@ export default function FichaClienteEditar() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const newPhotosRef = useRef<NewPhoto[]>([])
-  const dragIdx = useRef<number | null>(null)
-  const dragOverIdx = useRef<number | null>(null)
 
   // Track new photos for cleanup on unmount
   useEffect(() => {
@@ -166,19 +165,9 @@ export default function FichaClienteEditar() {
     })
   }
 
-  const onDragStart = (i: number) => { dragIdx.current = i }
-  const onDragEnter = (i: number) => { dragOverIdx.current = i }
-  const onDragEnd = () => {
-    const from = dragIdx.current; const to = dragOverIdx.current
-    if (from === null || to === null || from === to) return
-    setPhotos(prev => {
-      const next = [...prev]
-      const [moved] = next.splice(from, 1)
-      next.splice(to, 0, moved)
-      return next
-    })
-    dragIdx.current = null; dragOverIdx.current = null
-  }
+  // Sin trabajo al soltar: el orden vive en este estado hasta que se guarda la
+  // ficha, igual que antes.
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(photos, setPhotos, () => {})
 
   const uploadNewPhotos = async (items: NewPhoto[]): Promise<string[]> => {
     const timestamp = Date.now()
@@ -368,12 +357,8 @@ export default function FichaClienteEditar() {
                     const src = p.kind === 'existing' ? p.url : p.previewUrl
                     return (
                       <div key={p.id}
-                        draggable
-                        onDragStart={() => onDragStart(i)}
-                        onDragEnter={() => onDragEnter(i)}
-                        onDragEnd={onDragEnd}
-                        onDragOver={e => e.preventDefault()}
-                        style={{ position: 'relative', aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', cursor: 'grab', border: `2px solid ${p.kind === 'new' ? '#4db870' : '#dce4ec'}`, userSelect: 'none' }}>
+                        {...filaProps(i)}
+                        style={{ opacity: arrastrando === i ? 0.45 : 1, position: 'relative', aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', cursor: 'grab', border: `2px solid ${p.kind === 'new' ? '#4db870' : '#dce4ec'}`, userSelect: 'none' }}>
                         <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
                         <div className="text-sdm-xs" style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(13,34,64,0.75)', borderRadius: 2, padding: '1px 6px', fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
                           {i + 1}
@@ -383,6 +368,11 @@ export default function FichaClienteEditar() {
                             Nueva
                           </div>
                         )}
+                        {/* Abajo a la DERECHA y no a la izquierda como en la
+                            ficha nueva: ahi vive el badge "Nueva". */}
+                        <span {...manijaProps} style={{ ...manijaProps.style, position: 'absolute', bottom: 0, right: 0, background: 'rgba(13,34,64,0.75)', borderRadius: '3px 0 3px 0', padding: '8px 10px', display: 'flex' }}>
+                          <GripVertical size={14} strokeWidth={2} color="#fff" />
+                        </span>
                         <button onClick={() => removePhoto(p.id)}
                           style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontFamily: 'inherit' }}>
                           <X size={12} />
