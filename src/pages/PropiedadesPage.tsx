@@ -243,6 +243,18 @@ export default function PropiedadesPage() {
   }
   const activeFiltros = Object.entries(filtros).filter(([, v]) => v && v !== false && v !== '')
 
+  // `SinArriendos` dice "no tenemos unidades en arriendo publicadas", y eso solo
+  // es cierto cuando el arriendo es el ÚNICO recorte. Combinado con región,
+  // comuna, tipo o con una categoría de la ruta, lo que no hay es resultados
+  // para esa combinación, no arriendos — y el mensaje mentiría. Hoy da igual
+  // porque no hay ningún arriendo residencial publicado, pero deja de dar igual
+  // el día que se publique el primero.
+  //
+  // `categoria` entra en la cuenta aunque no viva en `filtros`: sale de la ruta
+  // (/propiedades-usadas, /proyectos-nuevos) y recorta la consulta igual que un
+  // filtro.
+  const soloArriendo = filtros.estado === 'en_arriendo' && activeFiltros.length === 1 && !categoria
+
   return (
     <div className="min-h-screen">
       <SEO title="Propiedades en Venta y Arriendo" description="Encuentra casas, departamentos, parcelas y propiedades comerciales en Chile." url="/propiedades" />
@@ -350,7 +362,7 @@ export default function PropiedadesPage() {
           <div style={{ width: 32, height: 32, border: '2px solid var(--border)', borderTopColor: 'var(--navy)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       ) : displayProps.length === 0 ? (
-        filtros.estado === 'en_arriendo' ? <SinArriendos /> : (
+        soloArriendo ? <SinArriendos /> : (
           <div className="text-center py-24">
             <p className="text-sdm-xl" style={{ color: 'var(--muted)', fontWeight: 300 }}>No se encontraron propiedades.</p>
           </div>
