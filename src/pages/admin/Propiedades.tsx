@@ -245,16 +245,12 @@ const upload = async (files: FileList) => {
                   style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
                 ><X size={14} strokeWidth={2} /></button>
               </div>
-              <button className="text-sdm-xs tracking-sdm-wide"
+              <button className={`text-sdm-xs tracking-sdm-wide ${url === imagenPrincipal ? 'bg-[var(--green)] text-white' : 'bg-[var(--border)] text-[var(--muted)] hover:bg-[var(--sky)] hover:text-[var(--navy-dark)]'}`}
                 onClick={() => setPrincipal(url)}
                 style={{ width: '100%', marginTop: 4, padding: '5px 0', fontWeight: 600,
                   border: 'none', borderRadius: 2, cursor: 'pointer',
                   fontFamily: 'inherit', transition: 'all 0.15s',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                  background: url === imagenPrincipal ? 'var(--green)' : 'var(--border)',
-                  color: url === imagenPrincipal ? '#fff' : 'var(--muted)' }}
-                onMouseEnter={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--sky)'; e.currentTarget.style.color = 'var(--navy-dark)' } }}
-                onMouseLeave={e => { if (url !== imagenPrincipal) { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)' } }}
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
               >
                 {url === imagenPrincipal ? <><Star size={11} strokeWidth={2} />Portada</> : 'Portada'}
               </button>

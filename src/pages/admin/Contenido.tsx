@@ -231,10 +231,8 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
           <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Disponibles — clic para agregar</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 400, overflowY: 'auto', padding: 4 }}>
             {available.map(p => (
-              <div className="bg-[var(--off)]" key={p.id} onClick={() => add(p)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', border: '1px solid transparent', borderRadius: 4, cursor: 'pointer', transition: 'all 0.15s' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--green)'; e.currentTarget.style.background = '#f0faf4' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'var(--off)' }}>
+              <div className="bg-[var(--off)] border border-transparent hover:border-[var(--green)] hover:bg-[#f0faf4]" key={p.id} onClick={() => add(p)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 4, cursor: 'pointer', transition: 'all 0.15s' }}>
                 {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 40, height: 32, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
                 <div style={{ minWidth: 0 }}>
                   <div className="text-sdm-sm" style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>

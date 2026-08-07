@@ -140,10 +140,9 @@ export default function FichaClientesLista() {
               const isDel = deleting === c.id
               return (
                 <div key={c.id}
+                  className="border border-[#dce4ec] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
                   onClick={() => navigate(`/admin/ficha-cliente/${c.id}`)}
-                  style={{ background: '#fff', border: '1px solid #dce4ec', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#4db870'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(77,184,112,0.1)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#dce4ec'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none' }}
+                  style={{ background: '#fff', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s' }}
                 >
                   {/* Avatar inicial */}
                   <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#0d2240', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

@@ -53,17 +53,10 @@ const BTN_MODO: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 7,
   padding: '9px 16px',
   background: '#fff',
-  border: '1px solid var(--border)',
   borderRadius: 2,
-  color: 'var(--navy-dark)',
   fontSize: 'var(--sdm-text-xs)', fontWeight: 600, letterSpacing: 'var(--sdm-tracking-wide)', textTransform: 'uppercase',
   cursor: 'pointer',
   transition: 'border-color 0.15s, color 0.15s',
-}
-
-const hoverModo = (e: React.MouseEvent<HTMLButtonElement>, dentro: boolean) => {
-  e.currentTarget.style.borderColor = dentro ? 'var(--green)' : 'var(--border)'
-  e.currentTarget.style.color = dentro ? 'var(--green)' : 'var(--navy-dark)'
 }
 
 // ─── Generación de PDF bajo demanda ──────────────────────────────────────────
@@ -516,9 +509,8 @@ function CotizacionWizard({
                 )}
                 <button
                   onClick={() => setManualProp(true)}
+                  className="border border-[var(--border)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
                   style={BTN_MODO}
-                  onMouseEnter={e => hoverModo(e, true)}
-                  onMouseLeave={e => hoverModo(e, false)}
                 >
                   <PencilLine size={13} />
                   Ingresar datos manualmente
@@ -532,9 +524,8 @@ function CotizacionWizard({
                 {!draft.propiedad_id && (
                   <button
                     onClick={() => { setManualProp(false); setPropSearch('') }}
+                    className="border border-[var(--border)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
                     style={BTN_MODO}
-                    onMouseEnter={e => hoverModo(e, true)}
-                    onMouseLeave={e => hoverModo(e, false)}
                   >
                     <Search size={13} />
                     Buscar en catálogo

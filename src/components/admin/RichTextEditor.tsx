@@ -21,17 +21,12 @@ function TBtn({ onClick, active, title, children }: {
   onClick: () => void; active?: boolean; title?: string; children: React.ReactNode
 }) {
   return (
-    <button className="text-sdm-sm"
+    <button className={`text-sdm-sm ${active ? 'bg-[var(--navy-dark)] text-white font-bold' : 'bg-transparent text-[var(--muted)] font-normal hover:bg-[var(--border)]'}`}
       onMouseDown={e => { e.preventDefault(); onClick() }}
       title={title}
       style={{ padding: '4px 8px', borderRadius: 3, border: 'none', cursor: 'pointer',
         fontFamily: 'inherit', lineHeight: 1,
-        background: active ? 'var(--navy-dark)' : 'transparent',
-        color: active ? '#fff' : 'var(--muted)',
-        fontWeight: active ? 700 : 400,
         transition: 'all 0.1s' }}
-      onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--border)' }}
-      onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
     >
       {children}
     </button>

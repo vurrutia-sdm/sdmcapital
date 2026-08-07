@@ -195,10 +195,9 @@ export default function FichaClienteDetalle() {
                   const isDel = deleting === f.id
                   return (
                     <div key={f.id}
+                      className="border border-[#dce4ec] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
                       onClick={() => navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}`)}
-                      style={{ background: '#fff', border: '1px solid #dce4ec', borderRadius: 4, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', opacity: isDel ? 0.5 : 1 }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#4db870'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(77,184,112,0.1)' }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#dce4ec'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none' }}
+                      style={{ background: '#fff', borderRadius: 4, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', opacity: isDel ? 0.5 : 1 }}
                     >
                       {/* Thumb */}
                       <div style={{ width: 56, height: 42, borderRadius: 3, overflow: 'hidden', flexShrink: 0, background: '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -190,24 +190,18 @@ export default function AdminPage() {
           {/* ── Herramientas ── */}
           <div style={{ borderTop: '1px solid var(--border)', marginTop: 12, paddingTop: 12 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 8px' }}>Herramientas</div>
-            <RouterLink className="text-sdm-sm" to="/admin/ficha-cliente" onClick={() => setMenuAbierto(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+            <RouterLink className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--sky-pale)]" to="/admin/ficha-cliente" onClick={() => setMenuAbierto(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}>
               <FileText size={15} style={{ flexShrink: 0 }} />
               Ficha para cliente
             </RouterLink>
-            <RouterLink className="text-sdm-sm" to="/admin/agentes" onClick={() => setMenuAbierto(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+            <RouterLink className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--sky-pale)]" to="/admin/agentes" onClick={() => setMenuAbierto(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}>
               <Users size={15} style={{ flexShrink: 0 }} />
               Agentes
             </RouterLink>
-            <RouterLink className="text-sdm-sm" to="/admin/captacion" onClick={() => setMenuAbierto(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, color: 'var(--muted)', textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--navy-dark)'; (e.currentTarget as HTMLElement).style.background = 'var(--sky-pale)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+            <RouterLink className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--sky-pale)]" to="/admin/captacion" onClick={() => setMenuAbierto(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', fontWeight: 300, textDecoration: 'none', borderLeft: '3px solid transparent', transition: 'all 0.15s' }}>
               <MessageCircle size={15} style={{ flexShrink: 0 }} />
               Captación
             </RouterLink>
