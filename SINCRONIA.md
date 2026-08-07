@@ -94,6 +94,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
+| 2026-08-07 | Admin — cierre del layout móvil | `Cotizaciones` a breakpoint `xl`, `TarjetasEquipo` apilado y grids responsive en `FichaCliente` Nueva/Editar | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — Cotizaciones a tarjetas | Rediseño móvil de `CotizacionesAdmin` y eliminación de los 23 fondos `var(--off)` inline que disparaban el selector de `mobile.css` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — tablas a tarjetas | Rediseño móvil de las tablas de `Propiedades` y `Blog`, y corrección del `<thead>` desalineado de Propiedades | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
@@ -1600,6 +1601,73 @@ no entra. Afecta a iPad horizontal y laptops chicos.
 **Es preexistente**, no lo introdujo el rediseño, que se acotó a debajo de
 `lg` a propósito. La salida sería subir el breakpoint de este panel a `xl`, o
 darle `overflow-x-auto` a la caja.
+
+### Admin móvil — los tres últimos paneles — 2026-08-07
+
+Cierra el layout móvil del admin. Tres commits: `d25ca30`, `8b3a0b3` y
+`317c44e`.
+
+#### `Cotizaciones` usa `xl`, el resto del admin usa `lg`
+
+**Es la única excepción del proyecto y tiene motivo.** Su grid pide **550px
+fijos** —`90px 1fr 1fr 110px 120px 120px 110px`— más dos columnas flexibles.
+A 1024 la fila medía 811 dentro de 734 y se recortaba contra el
+`overflow: hidden` de la caja. Ningún otro panel tiene tantas columnas fijas.
+
+Entre 1024 y 1279 se muestran las tarjetas, que ahí caben con holgura.
+
+**No se usó `overflow-x-auto`** a propósito: sería la misma barra escondida
+dentro del área de la tabla que ya dio problemas en `Propiedades`. Nadie la
+descubre y se lee como contenido cortado.
+
+| ancho | `display` | fila scroll/client | botón | separación |
+|---:|---|---|---:|---:|
+| 390 | `flex` | 356 / 356 | 44px | 24px |
+| 1024 | `flex` | 734 / 734 | 44px | 24px |
+| 1279 | `flex` | 989 / 989 | 44px | 24px |
+| **1280** | `grid` | 974 / 974 | 31px | 4px |
+| 1440 | `grid` | 1134 / 1134 | 31px | 4px |
+
+Solo la lista cambió de breakpoint. El encabezado del panel y los cuatro
+contadores siguen en `lg`: a 1024 los contadores dan 175px cada uno, de sobra
+para `RECHAZADA`.
+
+#### `TarjetasEquipo`
+
+La fila tenía miniatura de 140px fijos + nombre en `flex-1` + los botones de
+reordenar + `Imprimir / PDF` con `Editar` y `Eliminar`. A 358px al nombre le
+quedaban ~56px: se partía una palabra por línea y el botón de imprimir
+terminaba encima del texto.
+
+Debajo de `lg` pasa a `flex-wrap` con `order-*`: miniatura con los `▲▼` a su
+derecha, luego nombre y contacto a todo el ancho, y las acciones en fila
+propia con borde superior. Medido: el nombre pasa de ~56px a **326px** a
+390px de viewport.
+
+Los `▲▼` tenían `padding: 2px 8px`, unos 20px de alto. Los cinco botones
+pasan a 44px táctiles debajo de `lg`.
+
+#### `FichaCliente` Nueva y Editar
+
+Cuatro grids con `gridTemplateColumns` hard-coded, sin breakpoint. Pasan al
+patrón que ya usaba el resto del admin:
+
+```
+'1fr 1fr'      →  grid-cols-1 md:grid-cols-2
+'1fr 1fr 1fr'  →  grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+```
+
+`FichaClienteVer:258` también tiene un `1fr 1fr` y **no se tocó**: es la página
+de fotos del documento imprimible, no un formulario.
+
+#### Cuidado al medir en iframes: faltan ~6px
+
+Un iframe de `width=1024` tiene un viewport efectivo de ~1018 por la barra de
+scroll vertical, así que `lg` (min-width 1024) **no matchea**. Una medición a
+"1024" puede dar el layout de tablet y parecer un bug. Verificado con un test
+aislado: a 1023 y 1024 da 2 columnas, a 1030 da 3.
+
+Para comprobar un breakpoint exacto hay que medir unos píxeles por encima.
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
