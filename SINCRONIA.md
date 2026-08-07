@@ -94,6 +94,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 1) | Migrar los literales inline del **dominio admin** a los tokens: 25 archivos, 3 commits | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — layout móvil | Sidebar como cajón deslizante debajo de `lg`, header adaptado, `top-[57px]` corregido. Solo `AdminPage.tsx` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — móvil, ajustes internos | Encabezados de panel apilados debajo de `lg` (10 archivos) y separación de columnas en la tabla de Propiedades | Cerrada — commiteada, desplegada y verificada. **El centrado de textos no existía**; tablas sin layout móvil |
+| 2026-08-07 | Admin — tablas a tarjetas | Rediseño móvil de las tablas de `Propiedades` y `Blog`, y corrección del `<thead>` desalineado de Propiedades | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1427,6 +1428,74 @@ peleando con Tailwind.
 y anteriores cae a `visible`, así que un desborde horizontal produciría barra
 en vez de recorte. Como se verificó que no hay desbordes, el riesgo es
 teórico — pero conviene saberlo si alguna sesión agrega contenido ancho.
+
+### Admin móvil — las tablas pasan a tarjetas apiladas — 2026-08-07
+
+Cierra el último pendiente grande del layout móvil del admin. Dos commits:
+`8a2b27a` (bug del `<thead>`) y `4f57deb` (rediseño).
+
+#### El bug del `<thead>`, que era preexistente
+
+La tabla de `Propiedades` tiene **9 columnas pero el encabezado declaraba 8**:
+la de la bandera (🌐 / 🇨🇱) no tenía `<th>`. Como los `<th>` se alinean a las
+primeras columnas, desde ahí en adelante **todos los rótulos estaban corridos
+una posición**: "Activo" rotulaba la bandera, "Acciones" rotulaba el toggle
+Activa/Pausada, y la columna de acciones quedaba sin rótulo. El estado vacío
+usaba además `colSpan={8}`.
+
+Se agregó el `<th>` con la etiqueta **"País"**. No puede quedar vacía: el `key`
+del `map` es el propio `label` y ya existe uno vacío —el de la manija de
+arrastre—, así que dos vacíos colisionarían.
+
+#### La técnica: un solo árbol de markup
+
+Las dos son `<table>` semánticas reales, no divs con `display: table`. Debajo
+de `lg` la tabla pasa a bloques y **cada `<tr>` a `flex flex-wrap`**, así sus
+`<td>` se vuelven flex items que se reordenan con `order-*` y se dimensionan
+con `w-full`. De `lg` para arriba vuelve a `table-row` / `table-cell`.
+
+Eso resuelve el agrupamiento **sin envolver celdas en nada**, que era el
+obstáculo real: no se pueden meter `<div>` entre `<tr>` y `<td>` sin romper la
+tabla en escritorio. Se descartaron `display: contents` —soporte irregular
+sobre elementos de tabla y bugs conocidos de accesibilidad— y el doble render,
+que es la duplicación que este proyecto ya sufrió.
+
+#### El truco del borde continuo en la línea de acciones
+
+El toggle Activa/Pausada lleva `flex-1`. Así su `border-t` se estira hasta
+encontrarse con el de la celda de acciones, y **entre los dos dibujan una sola
+línea continua sin necesidad de un contenedor**. Sin eso quedaba un hueco sin
+borde en el medio.
+
+#### Medido, antes y después
+
+| ancho | contenido | `display` de la tabla | tabla | precio | sep. Editar–Eliminar | alto táctil |
+|---:|---:|---|---:|---:|---:|---:|
+| 360 | 328 | `block` | 328 | 24px | **24px** | **44px** |
+| 390 | 358 | `block` | 358 | 24px | 24px | 44px |
+| 430 | 398 | `block` | 398 | 24px | 24px | 44px |
+| 1024 | 736 | `table` | 826 | 15px | 12px | 20px |
+| 1280 | 976 | `table` | 976 | 15px | 12px | 20px |
+| 1440 | 1136 | `table` | 1136 | 15px | 12px | 20px |
+
+En móvil la tabla mide **exactamente el ancho del contenido**: se acabó el
+scroll horizontal. De `lg` para arriba, mismo `display`, mismo tamaño de precio
+y misma separación y alto de botones que antes.
+
+#### Dos estilos inline que habrían cambiado el escritorio
+
+El peso del precio y la opacidad del slug se habían escrito como `style={{}}`
+inline, que aplica en **todos** los anchos. Pasaron a clases responsive
+—`font-medium lg:font-normal` y `opacity-70 lg:opacity-100`— antes de
+commitear. Es el error fácil de este tipo de rediseño: el inline no entiende de
+breakpoints.
+
+#### Lo que NO se tocó
+
+El arrastre para reordenar sigue oculto debajo de `lg` y **no se reimplementó**
+con Pointer Events. A 1024 la tabla sigue midiendo 826px en un contenedor de
+736 y scrolleando dentro de su `overflow-x-auto`: es el comportamiento de
+siempre en ese ancho, y el rediseño se acotó a debajo de `lg` a propósito.
 
 ### Fase 3 — Limpieza: `FotosAdmin` eliminado y comentarios al día — 2026-08-06
 
