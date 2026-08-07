@@ -17,8 +17,10 @@
 // árbol entero (ver SINCRONIA.md).
 
 import { useState, useEffect, useRef } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
 import { BarChart3, Briefcase, Check, GripVertical, Pause, X, Building, Camera, Eye, EyeOff, FileText, FolderTree, Globe, HeartHandshake, Home, Image, MapPin, MessageCircle, Smartphone, Users, Wallet } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { usePointerSort } from '@/components/admin/useDragSort'
 import { avisarError } from '@/lib/errores'
 import { subirImagen } from '@/lib/subirImagen'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
@@ -47,8 +49,6 @@ const POSITION_OPTIONS = [
 ]
 
 function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (fn: (prev: Record<string, string>) => Record<string, string>) => void }) {
-  const dragIdx  = useRef<number | null>(null)
-  const dragOver = useRef<number | null>(null)
   const [uploading, setUploading] = useState<number | null>(null)
 
   const urls    = HERO_KEYS.map(k => d[k] || '')
@@ -58,16 +58,21 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
     setD(prev => ({ ...prev, ...update }))
   }
 
-  const onDragStart = (i: number) => { dragIdx.current = i }
-  const onDragEnter = (i: number) => { dragOver.current = i }
-  const onDragEnd   = () => {
-    if (dragIdx.current === null || dragOver.current === null || dragIdx.current === dragOver.current) return
-    const next = [...urls]
-    const dragged = next.splice(dragIdx.current, 1)[0]
-    next.splice(dragOver.current, 0, dragged)
-    dragIdx.current = null; dragOver.current = null
-    setUrls(next)
-  }
+  // `urls` no es un useState propio sino una vista de `d`, así que el hook
+  // necesita un setter que entienda las dos formas de SetStateAction y las
+  // vuelva a escribir sobre las HERO_KEYS.
+  const aplicarOrden: Dispatch<SetStateAction<string[]>> = accion =>
+    setD(prev => {
+      const actuales = HERO_KEYS.map(k => prev[k] || '')
+      const next = typeof accion === 'function' ? accion(actuales) : accion
+      const update: Record<string, string> = {}
+      HERO_KEYS.forEach((k, i) => { update[k] = next[i] || '' })
+      return { ...prev, ...update }
+    })
+
+  // Sin trabajo al soltar: el reordenamiento en vivo ya dejó el orden escrito
+  // en `d`, y a Supabase se sube cuando se guarda el panel.
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(urls, aplicarOrden, () => {})
 
   const compressImage = (file: File): Promise<Blob> =>
     new Promise((resolve) => {
@@ -106,19 +111,17 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
         {urls.map((url, i) => (
           <div key={i}>
+            {/* Las ranuras vacías no llevan filaProps: ni se arrastran ni son
+                destino, igual que antes con `draggable={!!url}`. */}
             <div
-              draggable={!!url}
-              onDragStart={() => url && onDragStart(i)}
-              onDragEnter={() => url && onDragEnter(i)}
-              onDragEnd={onDragEnd}
-              onDragOver={e => e.preventDefault()}
-              style={{ borderRadius: 4, border: url ? '2px solid var(--border)' : '2px dashed var(--border)', background: url ? 'transparent' : 'var(--off)', cursor: url ? 'grab' : 'default', overflow: 'hidden', position: 'relative', aspectRatio: '16/9', minHeight: 80 }}
+              {...(url ? filaProps(i) : {})}
+              style={{ opacity: arrastrando === i ? 0.45 : 1, borderRadius: 4, border: url ? '2px solid var(--border)' : '2px dashed var(--border)', background: url ? 'transparent' : 'var(--off)', cursor: url ? 'grab' : 'default', overflow: 'hidden', position: 'relative', aspectRatio: '16/9', minHeight: 80 }}
             >
               {url ? (
                 <>
                   <img src={url} alt={`Foto ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: d[HERO_POS_KEYS[i]] || 'center center', display: 'block' }} />
                   <div className="text-sdm-xs" style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontWeight: 700, width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
-                  <div style={{ position: 'absolute', top: 6, right: 28, background: 'rgba(0,0,0,0.5)', borderRadius: 3, padding: '2px 4px' }}>
+                  <div {...manijaProps} style={{ ...manijaProps.style, position: 'absolute', top: 6, right: 28, background: 'rgba(0,0,0,0.5)', borderRadius: 3, padding: '2px 4px' }}>
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="white" opacity="0.8"><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
                   </div>
                   <button className="text-sdm-sm" onClick={() => remove(i)} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.85)', border: 'none', borderRadius: 3, color: '#fff', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}><X size={14} strokeWidth={2} /></button>
@@ -156,9 +159,6 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
 function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [allProps, setAllProps] = useState<Propiedad[]>([])
   const [selected, setSelected] = useState<Propiedad[]>([])
-  const dragIdx  = useRef<number | null>(null)
-  const dragOver = useRef<number | null>(null)
-
   useEffect(() => {
     supabase.from('propiedades').select('id,titulo,imagen_principal,imagenes,precio_uf,a_consultar,activo,tipo,comuna')
       .neq('activo', false).order('created_at', { ascending: false })
@@ -188,17 +188,8 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
     onChange(JSON.stringify(next.map(x => x.id)))
   }
 
-  const onDragStart = (i: number) => { dragIdx.current = i }
-  const onDragEnter = (i: number) => { dragOver.current = i }
-  const onDragEnd   = () => {
-    if (dragIdx.current === null || dragOver.current === null) return
-    const next = [...selected]
-    const [moved] = next.splice(dragIdx.current, 1)
-    next.splice(dragOver.current, 0, moved)
-    dragIdx.current = null; dragOver.current = null
-    setSelected(next)
-    onChange(JSON.stringify(next.map(x => x.id)))
-  }
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(selected, setSelected,
+    next => onChange(JSON.stringify(next.map(x => x.id))))
 
   const thumb = (p: Propiedad) => thumbUrl(p.imagen_principal || p.imagenes?.[0] || '')
   const precio = (p: Propiedad) => p.a_consultar ? 'A consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : '—'
@@ -212,9 +203,11 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
         {selected.length === 0 && <div className="text-sdm-sm bg-[var(--off)]" style={{ padding: '16px', borderRadius: 4, color: 'var(--muted)', textAlign: 'center' }}>Aún no hay propiedades seleccionadas.</div>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {selected.map((p, i) => (
-            <div key={p.id} draggable onDragStart={() => onDragStart(i)} onDragEnter={() => onDragEnter(i)} onDragEnd={onDragEnd}
-              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#fff', border: '1px solid var(--border)', borderRadius: 4, cursor: 'grab' }}>
-              <GripVertical size={14} strokeWidth={2} style={{ color: 'var(--muted)', flexShrink: 0 }} />
+            <div key={p.id} {...filaProps(i)}
+              style={{ opacity: arrastrando === i ? 0.45 : 1, display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#fff', border: '1px solid var(--border)', borderRadius: 4, cursor: 'grab' }}>
+              <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: '-10px -4px -10px -10px', flexShrink: 0 }}>
+                <GripVertical size={14} strokeWidth={2} style={{ color: 'var(--muted)' }} />
+              </span>
               <span className="text-sdm-sm" style={{ fontWeight: 700, color: 'var(--green)', minWidth: 20 }}>{i + 1}</span>
               {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
               <div style={{ flex: 1, minWidth: 0 }}>
