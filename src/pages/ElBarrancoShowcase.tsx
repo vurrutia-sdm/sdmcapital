@@ -244,7 +244,7 @@ export default function ElBarrancoShowcase() {
   )
 
   return (
-    <div style={S.page}>
+    <div className="sitio-publico" style={S.page}>
 
       {/* ── Language toggle ── */}
       <div style={{ position: 'fixed', top: 20, right: 24, zIndex: 200, display: 'flex', overflow: 'hidden', border: '1px solid rgba(168,196,216,0.2)' }}>

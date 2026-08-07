@@ -1,6 +1,15 @@
 /* ============================================================
    SDM Capital — Ajustes exclusivos para móvil
    Solo afecta pantallas menores a 768px
+   ============================================================
+   ACOTADO A .sitio-publico
+   Los selectores genericos de este archivo -- de tipo, de clases de
+   utilidad y por subcadena de atributo -- van prefijados con
+   .sitio-publico, que llevan Layout, ElBarrancoShowcase y
+   EvaluacionGratuitaPage. Sin eso alcanzaban tambien al admin, que son 8
+   rutas y solo una cuelga del root de AdminPage.
+   Se acota en positivo y no con :not(): asi una ruta o panel nuevo queda
+   protegido por defecto.
    ============================================================ */
 
 @media (max-width: 768px) {
@@ -29,13 +38,13 @@
   }
 
   /* ── Títulos display grandes ── */
-  .font-serif {
+  .sitio-publico .font-serif {
     word-break: break-word;
   }
 
   /* ── Grid de propiedades en inicio ── */
-  .grid-cols-3,
-  .lg\:grid-cols-3 {
+  .sitio-publico .grid-cols-3,
+  .sitio-publico .lg\:grid-cols-3 {
     grid-template-columns: 1fr !important;
   }
 
@@ -46,8 +55,8 @@
   }
 
   /* ── Botones full width en mobile ── */
-  .btn-primary,
-  .btn-green {
+  .sitio-publico .btn-primary,
+  .sitio-publico .btn-green {
     justify-content: center;
   }
 
@@ -58,10 +67,10 @@
   }
 
   /* ── Testimonios: centrar en mobile ── */
-  [style*="background: var(--off)"] .section-label,
-  [style*="background: var(--off)"] h2,
-  [style*="background: var(--off)"] p,
-  [style*="background: var(--off)"] .flex.items-center {
+  .sitio-publico [style*="background: var(--off)"] .section-label,
+  .sitio-publico [style*="background: var(--off)"] h2,
+  .sitio-publico [style*="background: var(--off)"] p,
+  .sitio-publico [style*="background: var(--off)"] .flex.items-center {
     text-align: center !important;
     justify-content: center !important;
   }
@@ -80,13 +89,13 @@
   }
 
   /* Grid equipo: agregar padding para que no pegue al borde */
-  [style*="grid-template-columns: repeat(2"] {
+  .sitio-publico [style*="grid-template-columns: repeat(2"] {
     padding-left: 12px !important;
     padding-right: 12px !important;
   }
 
   /* Páginas con padding px-8: forzar margen en mobile */
-  [class*="px-8"] {
+  .sitio-publico [class*="px-8"] {
     padding-left: 16px !important;
     padding-right: 16px !important;
   }
@@ -96,7 +105,7 @@
   /* ────────────────────────────────────────────────────────── */
   /* El grid de propiedades ocupa el ancho completo pero
      las cards no tienen padding lateral — se pegan al borde */
-  [style*="grid-template-columns: repeat(3, 1fr)"] {
+  .sitio-publico [style*="grid-template-columns: repeat(3, 1fr)"] {
     grid-template-columns: repeat(2, 1fr) !important;
     margin: 0 12px !important;
   }
@@ -112,8 +121,8 @@
   }
 
   /* Blog: forzar 1 columna */
-  [style*="repeat(2, minmax(300px"],
-  [style*="repeat(3, 1fr)"] {
+  .sitio-publico [style*="repeat(2, minmax(300px"],
+  .sitio-publico [style*="repeat(3, 1fr)"] {
     grid-template-columns: 1fr !important;
     margin: 0 !important;
   }
@@ -146,7 +155,7 @@
      NO borrar: entre 768 y 1024 la utilidad lg no esta activa, pero la CLASE
      si esta en el atributo, asi que el selector matchea. Sin esta regla el
      grid del home pasa de 2 columnas a 1. Verificado a 800 y 1000px. */
-  .lg\:grid-cols-3 {
+  .sitio-publico .lg\:grid-cols-3 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }

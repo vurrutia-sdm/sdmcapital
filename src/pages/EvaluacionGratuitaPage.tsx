@@ -14,7 +14,7 @@ const BENEFICIOS = [
 
 export default function EvaluacionGratuitaPage() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FFFFFF' }}>
+    <div className="sitio-publico min-h-screen" style={{ backgroundColor: '#FFFFFF' }}>
       <SEO
         title="Evaluación Hipotecaria Gratuita"
         description="Solicita tu preevaluación hipotecaria sin costo. Resultado en 5 días hábiles. Sin pagos anticipados."
