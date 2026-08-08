@@ -83,7 +83,7 @@ export default function ServiciosPage() {
                   onClick={() => isCredito
                     ? setCreditoOpen(true)
                     : document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
-                  className={(isCredito ? 'btn-evaluacion' : 'btn-primary') + ' inline-flex'}
+                  className="btn-primary inline-flex"
                 >
                   {isCredito ? 'Solicita una evaluación gratuita →' : 'Más información →'}
                 </button>

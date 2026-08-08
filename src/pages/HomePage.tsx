@@ -272,7 +272,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="flex mt-3 justify-center lg:justify-start">
-            <button onClick={() => setCreditoOpen(true)} className="btn-evaluacion">
+            <button onClick={() => setCreditoOpen(true)} className="btn-inverse">
               Solicita una evaluación gratuita →
             </button>
           </div>
