@@ -104,23 +104,23 @@
        más cara que la verbosidad.                                        */
 
     /* Display — Cormorant Garamond 300 */
-    --sdm-display-sm: 28px;
-    --sdm-display-md: 40px;
-    --sdm-display-lg: 52px;
-    --sdm-display-xl: 72px;
+    --sdm-display-sm: 1.75rem;
+    --sdm-display-md: 2.5rem;
+    --sdm-display-lg: 3.25rem;
+    --sdm-display-xl: 4.5rem;
 
     /* UI / cuerpo — Inter */
-    --sdm-text-xs: 11px;
-    --sdm-text-sm: 13px;
-    --sdm-text-base: 15px;
-    --sdm-text-lg: 17px;
-    --sdm-text-xl: 20px;
-    --sdm-text-2xl: 24px;
+    --sdm-text-xs: 0.6875rem;
+    --sdm-text-sm: 0.8125rem;
+    --sdm-text-base: 0.9375rem;
+    --sdm-text-lg: 1.0625rem;
+    --sdm-text-xl: 1.25rem;
+    --sdm-text-2xl: 1.5rem;
 
     /* Tracking */
-    --sdm-tracking-tight: -0.5px;
+    --sdm-tracking-tight: -0.03125rem;
     --sdm-tracking-normal: 0;
-    --sdm-tracking-wide: 2px;
+    --sdm-tracking-wide: 0.125rem;
   }
 
   * { box-sizing: border-box; }

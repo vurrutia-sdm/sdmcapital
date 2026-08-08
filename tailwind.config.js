@@ -53,22 +53,22 @@ export default {
         // Display — Cormorant Garamond. lineHeight y letterSpacing van
         // empaquetados: sin ellos Tailwind aplicaría line-height 1.5, que en
         // un título de 72px es una regresión.
-        'sdm-display-xl': ['72px', { lineHeight: '1.02', letterSpacing: '-1px' }],
-        'sdm-display-lg': ['52px', { lineHeight: '1.05', letterSpacing: '-0.5px' }],
-        'sdm-display-md': ['40px', { lineHeight: '1.08', letterSpacing: '-0.5px' }],
-        'sdm-display-sm': ['28px', { lineHeight: '1.15', letterSpacing: '-0.5px' }],
+        'sdm-display-xl': ['4.5rem', { lineHeight: '1.02', letterSpacing: '-1px' }],
+        'sdm-display-lg': ['3.25rem', { lineHeight: '1.05', letterSpacing: '-0.03125rem' }],
+        'sdm-display-md': ['2.5rem', { lineHeight: '1.08', letterSpacing: '-0.03125rem' }],
+        'sdm-display-sm': ['1.75rem', { lineHeight: '1.15', letterSpacing: '-0.03125rem' }],
         // UI / cuerpo — Inter
-        'sdm-xs':   '11px',
-        'sdm-sm':   '13px',
-        'sdm-base': '15px',
-        'sdm-lg':   '17px',
-        'sdm-xl':   '20px',
-        'sdm-2xl':  '24px',
+        'sdm-xs':   '0.6875rem',
+        'sdm-sm':   '0.8125rem',
+        'sdm-base': '0.9375rem',
+        'sdm-lg':   '1.0625rem',
+        'sdm-xl':   '1.25rem',
+        'sdm-2xl':  '1.5rem',
       },
       letterSpacing: {
-        'sdm-tight':  '-0.5px',
+        'sdm-tight':  '-0.03125rem',
         'sdm-normal': '0',
-        'sdm-wide':   '2px',
+        'sdm-wide':   '0.125rem',
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease forwards',
