@@ -117,6 +117,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
+| 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 1) | Los tres formularios **públicos** pasan a `<label>` que envuelve al control: `ContactSection`, `SolicitudCreditoForm` y `VendeConNosotrosPage`. **`campos.tsx` NO se toca** — el paso 2 espera el visto bueno | Cerrada — commits `20d7fd4`, `e260e6e` y `5d3b007` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -3543,3 +3544,161 @@ Dos literales sobreviven a propósito, los dos comentados como espejo de
 `Captacion.tsx:112` conserva su `red: '#E24B4A'` — dominio de la sesión Sofía.
 Cuando esa sesión lo toque, el valor a poner es `#A8384B`, y conviene revisar si
 ese mapa también concatena alfa.
+
+---
+
+### Accesibilidad — tanda 2, paso 1: los formularios públicos — 2026-08-08
+
+WCAG 2.1 AA, criterios 1.3.1, 3.3.2 y 4.1.2. El diagnóstico de partida:
+**104 campos en `src/`, cero con `id`, cero usos de `htmlFor` en todo el
+repositorio.** De los 51 `<label>` existentes, 13 envolvían su campo —esos
+funcionaban— y 38 quedaban yuxtapuestos, que es markup de etiqueta sin
+asociación.
+
+Este paso cubre los tres formularios **públicos**: los que completa alguien de
+fuera de la corredora.
+
+| Archivo | Campos |
+|---|---:|
+| `src/components/credito/SolicitudCreditoForm.tsx` | 8 |
+| `src/pages/VendeConNosotrosPage.tsx` | 7 |
+| `src/components/sections/ContactSection.tsx` | 4 |
+
+#### UN PLACEHOLDER NO ES UNA ETIQUETA
+
+> Es la trampa exacta que produjo los 104 campos. Los tres formularios se ven
+> perfectamente etiquetados, y de hecho lo están **visualmente**: hay un rótulo
+> encima de cada campo. Lo que no había era ninguna relación entre los dos
+> elementos. El navegador no la infiere de la posición.
+>
+> Y donde no hay rótulo visible, el `placeholder` da la ilusión de que sí:
+>
+> - **Desaparece al escribir.** Justo cuando el usuario querría verificar qué
+>   pedía el campo, ya no está.
+> - **No sobrevive al autocompletado.** El campo queda relleno y mudo.
+> - **No es un nombre accesible fiable.** Algunos lectores lo leen, otros no, y
+>   ninguno lo hace en lugar de la etiqueta.
+> - **No sirve para el clic.** No hay nada que pulsar para enfocar el campo, que
+>   es lo que amplía el área de acierto para quien tiene poca motricidad fina.
+>
+> Como el formulario *parece* correcto en pantalla, nada delata el problema
+> hasta que alguien lo recorre con un lector. Por eso llegaron a 104.
+
+#### La solución: envolver, no generar ids
+
+El `<div class="flex flex-col gap-2">` que agrupaba rótulo y campo pasa a ser
+`<label>`, y el `<label>` yuxtapuesto de adentro pasa a `<span>`. Un `<label>`
+que contiene a su control lo asocia sin `htmlFor` y sin `id`.
+
+**El estilo se queda en el `<span>`, no sube al `<label>`.** No es cosmético:
+`text-transform` y `letter-spacing` son propiedades **heredadas** y sí se
+aplican al texto que el usuario escribe dentro de un `input`. `.input-line` no
+fija ninguna de las dos. Poner el `labelStyle` en el elemento que ahora envuelve
+habría dejado todo lo tecleado en mayúsculas y con 2px de separación entre
+letras.
+
+##### Por qué envolver y no `id` + `htmlFor`
+
+Porque **`ContactSection` y el modal de crédito conviven en la misma página**,
+en Home y en Servicios. Los dos tienen un campo «Email» y uno «Teléfono». Con
+ids escritos a mano se habrían duplicado, y un `id` duplicado no falla: el
+`htmlFor` se asocia al primero que encuentre y el segundo campo se queda mudo,
+en silencio. Envolviendo no hay ningún id que colisionar. Verificado: cero ids
+duplicados en las tres páginas.
+
+##### La excepción: «Valor de la propiedad (UF)»
+
+Su contenedor lleva, además del rótulo y el input, un `<p>` con el valor de la
+UF del día. Envolver el contenedor entero habría metido ese texto dentro del
+nombre accesible del campo —y encima es un texto que cambia solo—. Ahí el
+`<label>` envuelve **solo al input** y el `<p>` queda fuera, como hermano. Los
+`gap-2` anidados dan los mismos 8px de separación que había.
+
+**Regla general:** el `<label>` envuelve exactamente el rótulo y el control.
+Todo lo que sea texto de ayuda, error o estado se queda fuera, o pasa a formar
+parte del nombre del campo.
+
+#### `RadioGroup` tenía un `<label>` que no etiquetaba nada
+
+Sus opciones son `<button>`, y un `<button>` no es un control etiquetable: un
+`<label>` no puede asociársele ni envolviéndolo ni con `htmlFor`. El rótulo
+«¿Qué quieres hacer?» era markup decorativo.
+
+Pasa a `<span id>` más `role="group"` y `aria-labelledby` en el contenedor de
+los botones. **El texto visible no cambia** —esa es la razón de usar
+`aria-labelledby` sobre el rótulo que ya estaba, y no un `aria-label` invisible:
+un rótulo que se ve sirve a todo el mundo, no solo a quien usa lector—. El `id`
+sale de `useId()`, porque este formulario se monta también dentro del modal.
+
+Queda **pendiente** que esos botones expongan estado de selección: hoy un lector
+anuncia «botón», no «seleccionado». El arreglo completo es `role="radio"` +
+`aria-checked` + navegación con flechas, y cambia el comportamiento de teclado,
+así que no entra en una tanda de semántica pura.
+
+#### Cómo se verificó — `labels.length`, no «se ve bien»
+
+Con Chrome por CDP contra el build de producción, no leyendo el JSX:
+
+| Prueba | Antes | Después |
+|---|---|---|
+| `el.labels.length` en los 19 campos | **0** | **1** en todos |
+| clic en la etiqueta enfoca el campo | **0 de 19** | **19 de 19** |
+| ids duplicados en la página | 0 (no había ids) | **0** |
+
+Y el **nombre accesible real**, leído del árbol de accesibilidad
+(`Accessibility.getPartialAXTree`), no de `textContent`:
+
+- El `<select>` envuelto da «TIPO DE PROPIEDAD», **sin arrastrar el texto de sus
+  `<option>`**. Chrome excluye el control incrustado al calcular el nombre.
+- «VALOR DE LA PROPIEDAD (UF)» no incluye el valor del día.
+- Los dos `role="group"` quedan con nombre.
+- Los 19 con `origen: relatedElement`, que es lo que confirma que el nombre
+  viene del `<label>` y no de un `placeholder` o un `title`.
+
+`textContent` **no sirve** para esta verificación: en el `<select>` daba
+«Tipo de propiedadCasaDepartamentoOficina…», que no es lo que anuncia el lector.
+
+#### Que no cambió nada visualmente
+
+Se construyó `HEAD` en un worktree aparte, se levantaron los dos builds en
+paralelo y se capturó cada formulario. Los PNG salieron **idénticos byte a
+byte** en los tres:
+
+| Formulario | Antes | Después |
+|---|---:|---:|
+| `ContactSection` | 15.104 B | 15.104 B, mismo `sha256` |
+| `SolicitudCreditoForm` | 39.587 B | 39.587 B, mismo `sha256` |
+| `VendeConNosotrosPage` | 27.375 B | 27.375 B, mismo `sha256` |
+
+Un `<label class="flex flex-col gap-2">` renderiza igual que el `<div>` que
+reemplaza: la clase fija `display: flex`, que gana sobre el `inline` que trae
+`<label>` por defecto. El riesgo del cambio está en quitar esa clase, no en el
+cambio en sí.
+
+#### Observación, no defecto
+
+Los rótulos llevan `text-transform: uppercase`, y el nombre accesible sale con
+el texto ya transformado («NOMBRE COMPLETO»). Algunos lectores deletrean las
+palabras en mayúsculas. Es la tipografía del sitio y viene de antes; se anota
+por si en una tanda futura se decide poner el texto en minúsculas y dejar las
+mayúsculas al CSS.
+
+#### El paso 2 está detenido a propósito
+
+`src/components/admin/campos.tsx` **no se tocó**. Su `Field` concentra 171 usos
+en 8 paneles del admin y el reporte previo está entregado, esperando decisión.
+Los dos hallazgos que impiden aplicar ahí el mismo arreglo de forma mecánica:
+
+- **19 `Field` no envuelven un control**, sino `ImageUploader` (16),
+  `RichTextEditor` (2) y `PropImageManager` (1). Los tres traen **su propio
+  `<label>` interno** alrededor de un `<input type="file">` oculto. Convertir
+  `Field` en `<label>` anidaría etiquetas —inválido— y el rótulo del campo
+  quedaría apuntando al selector de archivos: pulsarlo abriría el diálogo de
+  subida.
+- **`ImageUploader` tiene además un segundo control**, el input de solo lectura
+  con la URL. Un `<label>` que envuelve dos controles asocia solo el primero.
+
+Lo que sí quedó despejado: **ningún `Field` contiene más de un control directo**,
+ninguno se usa para mostrar un valor de solo lectura, ninguno mezcla el control
+con texto de ayuda, y **ningún `Chk` vive dentro de un `Field`** —los 9 son
+hermanos—, así que por ese lado no hay riesgo de etiquetas anidadas.
