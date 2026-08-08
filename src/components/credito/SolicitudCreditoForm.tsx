@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Check, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -54,19 +54,46 @@ function RadioGroup({ label, options, value, onChange }: {
   value: string
   onChange: (v: string) => void
 }) {
-  // El rótulo no puede ser un <label>: no hay un control al que asociarlo, las
-  // opciones son <button>. Un <label> suelto no nombra nada. `role="group"` +
-  // `aria-labelledby` sí le pone nombre al conjunto, sin tocar el texto visible
-  // ni el comportamiento de teclado.
+  // Opciones mutuamente excluyentes con un solo valor: el patrón es
+  // `radiogroup` con `radio`, no un grupo de botones sueltos.
+  //
+  // TABULACIÓN ITINERANTE: dentro de un radiogroup solo UNA opción está en el
+  // orden de tabulación; entre ellas se navega con las flechas. Así el grupo
+  // entero cuenta como una parada, que es como se comporta un <input
+  // type="radio"> nativo.
+  //
+  // Con `value` en '' —el estado inicial, nada elegido— el tabulable es el
+  // PRIMERO. Si se dejara que solo lo fuera el seleccionado, sin selección el
+  // grupo se saldría entero del orden de tabulación y no habría forma de
+  // llegar a él.
   const labelId = useId()
+  const indiceActivo = Math.max(0, options.findIndex(o => o.value === value))
+  const refs = useRef<(HTMLButtonElement | null)[]>([])
+
+  const alTeclear = (e: React.KeyboardEvent, i: number) => {
+    const paso = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1
+      : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0
+    if (!paso) return
+    e.preventDefault()
+    // Circular: de la última se pasa a la primera, como en un radiogroup nativo.
+    const siguiente = (i + paso + options.length) % options.length
+    onChange(options[siguiente].value)
+    refs.current[siguiente]?.focus()
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <span id={labelId} style={labelStyle}>{label}</span>
-      <div className="flex flex-wrap gap-2" role="group" aria-labelledby={labelId}>
-        {options.map(opt => (
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby={labelId}>
+        {options.map((opt, i) => (
           <button
             key={opt.value}
+            ref={el => { refs.current[i] = el }}
             type="button"
+            role="radio"
+            aria-checked={value === opt.value}
+            tabIndex={i === indiceActivo ? 0 : -1}
+            onKeyDown={e => alTeclear(e, i)}
             onClick={() => onChange(opt.value)}
             className="px-4 py-2 text-[13px] border transition-colors"
             style={{
