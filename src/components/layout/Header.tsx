@@ -75,7 +75,7 @@ export default function Header() {
       <nav className="flex items-center justify-between px-8 lg:px-12 h-16">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3.5 flex-shrink-0">
+        <Link to="/" className="flex items-center gap-3.5 flex-shrink-0 area-44">
           <div className="logo-stripes">
             <div className="logo-stripe logo-stripe--sky" />
             <div className="logo-stripe logo-stripe--green" />
@@ -155,7 +155,7 @@ export default function Header() {
         </div>
 
         {/* Mobile toggle */}
-        <button type="button" className="lg:hidden p-2"
+        <button type="button" className="lg:hidden p-2 area-44"
           aria-label={mobileOpen ? 'Cerrar el menú' : 'Abrir el menú'}
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen(v => !v)}>

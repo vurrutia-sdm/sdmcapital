@@ -251,6 +251,36 @@
      contenedor para que el raton siga pulsando cualquier parte. Los botones
      necesitan `position: relative` y un z-index mayor para quedar encima.
      El contenedor tiene que ser `position: relative`. */
+  /* Area tactil de 44x44 SIN cambiar el tamano visual ni el layout.
+     El ::after no ocupa espacio —es absoluto— asi que nada se mueve: solo
+     extiende la zona que responde al toque, centrada sobre el control.
+     `max(100%, 44px)` deja intactos los que ya son mas grandes.
+
+     ANTES DE PONERLA HAY QUE MIRAR LA SEPARACION CON LOS VECINOS. Si dos
+     controles estan a menos de 44px, sus areas se solapan y se pulsa el
+     equivocado: eso es peor que el objetivo chico. Ver la tabla de SINCRONIA.md
+     con el paso medido de cada grupo. */
+  .area-44 { position: relative; }
+  .area-44::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
+  /* Variante para cuando debajo no hay sitio: el area crece SOLO hacia arriba.
+     La usa «Ver todas las propiedades», que tiene 0px de separacion con la
+     tarjeta de abajo —centrada, su area invisible se comia el borde superior de
+     esa tarjeta y el toque caia en el enlace equivocado— y 237px libres arriba. */
+  .area-44--arriba::after {
+    top: auto;
+    bottom: 0;
+    transform: translate(-50%, 0);
+  }
+
   .enlace-tarjeta::after {
     content: '';
     position: absolute;

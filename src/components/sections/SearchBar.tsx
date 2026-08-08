@@ -306,7 +306,7 @@ export default function SearchBar() {
             { key: 'comprar', label: 'Comprar' },
             { key: 'arrendar', label: 'Arrendar' },
           ] as { key: Tab; label: string }[]).map(item => (
-            <button className="text-sdm-xs tracking-sdm-wide" key={item.key} onClick={() => setTab(item.key)}
+            <button className="text-sdm-xs tracking-sdm-wide area-44" key={item.key} onClick={() => setTab(item.key)}
               style={{ flex: 1, padding: '7px 4px', fontWeight: 600, textTransform: 'uppercase', border: 'none', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: tab === item.key ? 'var(--green)' : 'rgba(255,255,255,0.1)', color: tab === item.key ? '#fff' : 'rgba(255,255,255,0.6)' }}
             >{item.label}</button>
           ))}
@@ -319,7 +319,7 @@ export default function SearchBar() {
             div llevaban padding, borde y marginBottom de bloque. */}
         <label className="mb-2" style={{ display: 'block', background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)' }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Región</span>
-          <select className="text-sdm-sm" value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
+          <select className="text-sdm-sm area-44" value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
             style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
             {REGIONES.map(r => <option key={r.value} value={r.value} style={{ color: 'var(--ink)', background: '#fff' }}>{r.label}</option>)}
           </select>
@@ -328,7 +328,7 @@ export default function SearchBar() {
         {/* Comuna mobile */}
         <label className="mb-3" style={{ display: 'block', background: region ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)', opacity: region ? 1 : 0.5 }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>Comuna</span>
-          <select className="text-sdm-sm" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
+          <select className="text-sdm-sm area-44" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
             style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed' }}>
             <option value="" style={{ color: 'var(--ink)', background: '#fff' }}>{region ? 'Todas las comunas' : 'Primero elige región'}</option>
             {region && getComunas(region).map(c => <option key={c} value={c} style={{ color: 'var(--ink)', background: '#fff' }}>{c}</option>)}
@@ -339,7 +339,7 @@ export default function SearchBar() {
           {[{ label: 'Tipo', options: TIPOS, value: tipo, onChange: setTipo }, { label: 'Precio', options: PRECIOS, value: precio, onChange: setPrecio }].map(f => (
             <label key={f.label} style={{ display: 'block', flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.12)' }}>
               <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green)', marginBottom: 2 }}>{f.label}</span>
-              <select className="text-sdm-sm" value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
+              <select className="text-sdm-sm area-44" value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
                 {f.options.map(o => <option key={o.value} value={o.value} style={{ color: 'var(--ink)', background: '#fff' }}>{o.label}</option>)}
               </select>
             </label>

@@ -92,10 +92,10 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
           {/* Controles */}
           {items.length > 1 && (
             <div className="flex items-center gap-4 mt-10" style={{ justifyContent: 'center' }}>
-              <button className="text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={prev}
+              <button className="area-44 text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={prev}
                 style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
               >↑</button>
-              <button className="text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={next}
+              <button className="area-44 text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={next}
                 style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
               >↓</button>
               <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>
@@ -126,7 +126,7 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
                 {item.autor}
               </div>
               {item.url && (
-                <a className="text-sdm-sm tracking-sdm-wide" href={item.url} target="_blank" rel="noopener noreferrer"
+                <a className="text-sdm-sm tracking-sdm-wide area-44" href={item.url} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12, fontWeight: 600, textTransform: 'uppercase', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green)', paddingBottom: 2 }}
                 >
                   Conoce la historia →
@@ -222,7 +222,7 @@ export default function HomePage() {
             </p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <Link to="/propiedades" className="btn-text mt-4 inline-flex">
+            <Link to="/propiedades" className="btn-text mt-4 inline-flex area-44 area-44--arriba">
               {get('props_ver_todas', t.sections.propiedades.verTodas)}
             </Link>
           </div>

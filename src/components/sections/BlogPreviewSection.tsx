@@ -48,7 +48,7 @@ export default function BlogPreviewSection() {
             Últimas <em>publicaciones</em>
           </h2>
         </div>
-        <Link className="text-sdm-xs tracking-sdm-wide text-[var(--navy-dark)] border-b border-[var(--navy-dark)] hover:text-[var(--green)] hover:border-[var(--green)]" to="/blog"
+        <Link className="area-44 text-sdm-xs tracking-sdm-wide text-[var(--navy-dark)] border-b border-[var(--navy-dark)] hover:text-[var(--green)] hover:border-[var(--green)]" to="/blog"
           style={{ fontWeight: 400, textTransform: 'uppercase', textDecoration: 'none', paddingBottom: 2, whiteSpace: 'nowrap' }}
         >Ver todos los artículos →</Link>
       </div>
