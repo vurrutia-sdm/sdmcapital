@@ -137,7 +137,11 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
               )}
             </div>
             {url && (
+              // aria-label y no rótulo visible: es un control por foto, dentro
+              // de una celda de 100px. Un rótulo repetido siete veces sería
+              // ruido, y el número de foto da el contexto que hace falta.
               <select className="text-sdm-xs"
+                aria-label={`Posición de la foto ${i + 1}`}
                 value={d[HERO_POS_KEYS[i]] || 'center center'}
                 onChange={e => setD(prev => ({ ...prev, [HERO_POS_KEYS[i]]: e.target.value }))}
                 style={{ width: '100%', marginTop: 4, padding: '4px 6px', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--navy-dark)', background: '#fff', fontFamily: 'inherit', cursor: 'pointer' }}

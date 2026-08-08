@@ -36,12 +36,22 @@ const inp: React.CSSProperties = {
   outline: 'none', width: '100%',
 }
 
+// El <label> ENVUELVE a su control: eso los asocia, sin htmlFor y sin ids que
+// puedan colisionar entre las cinco copias de este componente.
+//
+// EL ESTILO DEL ROTULO VA EN EL <span>. `text-transform` y `letter-spacing`
+// son heredadas y se aplican al texto que se escribe dentro del input; los
+// estilos de campo de este archivo no fijan ninguna de las dos. Con el
+// `uppercase` en el <label>, todo lo tecleado saldria en mayusculas sin que el
+// build avise.
+//
+// No hace falta `display: block`: el contenedor ya trae `display: flex`.
 function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</label>
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</span>
       {children}
-    </div>
+    </label>
   )
 }
 

@@ -160,6 +160,7 @@ function ImageUploader({
         <input
           value={currentUrl}
           readOnly
+          aria-label="URL de la imagen"
           className="input-line flex-1 text-sdm-sm"
           style={{ color: 'var(--muted)' }}
           onClick={e => (e.target as HTMLInputElement).select()}
@@ -1150,7 +1151,11 @@ export function CotizacionesAdmin() {
 
               {/* Estado */}
               <div className="order-6 xl:order-none">
+                {/* aria-label: es el selector de estado de CADA fila de la
+                    lista. Se nombra con el número de cotización para que un
+                    lector distinga de cuál está hablando. */}
                 <select className="text-sdm-xs"
+                  aria-label={`Estado de la cotización ${c.numero ?? c.id}`}
                   value={c.estado}
                   onChange={e => updateEstado(c.id, e.target.value as EstadoCotizacion)}
                   style={{ fontWeight: 600, padding: '3px 8px', borderRadius: 2,

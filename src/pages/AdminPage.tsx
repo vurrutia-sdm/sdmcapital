@@ -50,14 +50,14 @@ function LoginForm() {
         <h1 className="font-serif font-light mb-1 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Admin</h1>
         <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 28 }}>SDM Capital · Panel de gestión</p>
         <form onSubmit={login} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Email</label>
-            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="input-line" placeholder="admin@sdmcapital.cl" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Contraseña</label>
-            <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="input-line" placeholder="••••••••" />
-          </div>
+          <label className="flex flex-col gap-2">
+            <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Email</span>
+            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="input-line" placeholder="admin@sdmcapital.cl" autoComplete="username" />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Contraseña</span>
+            <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="input-line" placeholder="••••••••" autoComplete="current-password" />
+          </label>
           {error && <p className="text-sdm-sm" style={{ color: 'var(--error)' }}>{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary justify-center mt-2">{loading ? 'Ingresando…' : 'Ingresar →'}</button>
         </form>

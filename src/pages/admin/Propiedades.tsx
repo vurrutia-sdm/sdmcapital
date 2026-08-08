@@ -112,7 +112,11 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
                 style={{ color: 'var(--muted)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160, flexShrink: 0 }}>
                 {dossierFileName(d.url)}
               </a>
+              {/* aria-label y no rótulo visible: la fila es
+                  icono · archivo · título · Eliminar, y un rótulo la partiría.
+                  Se nombra con el archivo para distinguir una fila de otra. */}
               <input className="text-sdm-sm"
+                aria-label={`Título del dossier ${dossierFileName(d.url)}`}
                 type="text"
                 value={d.titulo || ''}
                 placeholder="Título a mostrar (opcional)"
