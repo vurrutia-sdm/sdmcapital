@@ -112,7 +112,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Sistema de color — tanda 1 | Insignias de estado y de oportunidad a variables semánticas, con contraste AA. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `12a46e2`. **`.btn-evaluacion` NO se eliminó: la condición de parada del encargo se disparó, ver el registro** |
 | 2026-08-07 | Sistema de color — botón invertido | `.btn-evaluacion` eliminado, `.btn-inverse` creada. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `8c9770b` |
 | 2026-08-07 | Color de estado — «Reservada» a tono frío | `--estado-reservada` de ámbar a petróleo, por daltonismo. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `f3d5860` |
-| 2026-08-07 | Sistema de color — unificar la paleta paralela | Tres de los cinco colores del módulo de fichas pasan a la paleta oficial. Los dos navy quedan pendientes de decisión | Cerrada — commits `2560d41`, `fcc24dc` y `788f51f` |
+| 2026-08-07 | Sistema de color — unificar la paleta paralela | **Los cinco colores del módulo de fichas pasan a la paleta oficial. La paleta paralela queda eliminada** | Cerrada — commits `2560d41`, `fcc24dc`, `788f51f` y `0768274` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1847,7 +1847,7 @@ autorización.
 `#0D2240` (59 usos) y `#1A2E44` (14) siguen como literales. Ver la entrada
 siguiente.
 
-### `#0D2240` y `#1A2E44`: qué son antes de decidir — 2026-08-07
+### `#0D2240` y `#1A2E44`: RESUELTO, los dos a `--navy-dark` — 2026-08-07
 
 **No son el mismo rol con dos valores por descuido: hacen trabajos distintos.**
 
@@ -1868,8 +1868,68 @@ sesión.» (7).
 Comprobado que ese párrafo **no** está sobre el panel oscuro —hay una tarjeta
 blanca en medio—, así que da 13.83:1 y no hay bug.
 
-Decisión pendiente: si los dos van a `--navy-dark` (ΔE 7.6 y 4.5), si uno va a
-`--navy`, o si conviene conservar la distinción fondo/texto.
+**Resuelto en el commit `0768274`: los dos a `--navy-dark`.** `#1A2E44` nunca
+era fondo, así que no eran dos roles con dos valores sino un rol con dos valores
+por descuido.
+
+**Dos correcciones a la premisa, las dos medidas:**
+
+1. **`--navy-dark` NO es más oscuro** que `#0D2240`. Tiene menos azul y algo más
+   de luminancia (0.0168 contra 0.0160), así que el blanco encima **baja** de
+   15.91 a 15.71. Es −0.20 sobre 15.7:1: imperceptible, y a 3,5× del umbral AA.
+   No se detuvo porque ningún caso se acerca a fallar.
+2. **En el PDF gasta MENOS tinta, no más:** la cobertura CMYK baja de **202 % a
+   181 %**. La preocupación estaba invertida.
+
+| los 21 fondos, texto encima | antes | después |
+|---|---|---|
+| portón «Verificando…», blanco 70 % (5) | 8.40 | 8.35 |
+| avatares, iniciales blancas (6) | 15.91 | 15.71 |
+| cabeceras de impresión (2) | 15.91 | 15.71 |
+| botón «Imprimir» y «Agregar fotos» (3) | 15.91 | 15.71 |
+| portón «Debes iniciar sesión» (5) | sin texto directo — hay una tarjeta blanca encima | |
+| marcador de foto (1) | sin texto | |
+
+| los 43 como texto sobre claro | antes | después |
+|---|---|---|
+| `#0D2240` sobre blanco | 15.91 | 15.71 |
+| **`#1A2E44` sobre blanco** | 13.83 | **15.71** |
+| `#0D2240` sobre `--off` | 15.22 | 15.04 |
+| **`#1A2E44` sobre `--off`** | 13.24 | **15.04** |
+
+### EL SEPARADOR «|» DE LAS CABECERAS ES DECORATIVO. NO «ARREGLARLO». — 2026-08-07
+
+En las seis pantallas del módulo de fichas, la cabecera lleva
+`← Volver al admin | Título`. Ese `|` es un `<span>` con `color: var(--border)`,
+que da **1.28:1** sobre blanco.
+
+**No es un incumplimiento.** WCAG exime el texto puramente decorativo, y esto es
+un separador —el mismo papel que una línea de 1 px—, no contenido. Usa
+`--border` a propósito, que es la variable de las separaciones decorativas (ver
+la entrada de `--border` contra `--border-input`).
+
+Si una auditoría automática lo marca, es un falso positivo.
+
+**Lo que sí le falta es `aria-hidden`:** hoy un lector de pantalla lo anuncia
+como «barra vertical» entre el enlace y el título. Pendiente, no hecho.
+
+### Lo que queda de literales en el módulo de fichas — 2026-08-07
+
+La paleta paralela **catalogada** —los cinco colores del diagnóstico— está
+eliminada: cero apariciones. Pero hay una cola que el diagnóstico no había
+contado, casi toda en `FichaClienteVer.tsx`, que es la vista de impresión:
+
+| color | dónde | veredicto |
+|---|---|---|
+| `#aabccc` `#7a9ab8` `#9aafc2` | texto sobre las barras oscuras del PDF | **cumplen**: 4.69 a 8.06 |
+| `#162e4a` | fondo de una barra de impresión | fondo, sin problema |
+| `#c0cdd8` | color de iconos `<Image>` y `<ChevronRight>` sobre blanco | **1.62** — decorativos, pero el chevron indica navegación y 1.4.11 pediría 3:1 |
+| `#e8edf2` | escrito como literal en vez de `var(--border)` | mismo valor, solo falta la variable |
+| `#a0b4c4` | botones deshabilitados | exento |
+| `#e24b4a` | errores | es el rojo de todo el proyecto, sin variable oficial |
+
+Ninguno justifica otra tanda por sí solo, pero está anotado para que «cero
+literales» no se lea como más de lo que es.
 
 ### LOS COLORES DE ESTADO SE VERIFICAN CON ΔE2000 BAJO DALTONISMO — 2026-08-07
 
