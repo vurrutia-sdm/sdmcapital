@@ -104,6 +104,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Cierre — tagline y línea de Captación | **Invasión de dominio autorizada por Víctor: una línea de `Captacion.tsx`** (`minmax(380px, 1fr)` → responsive). Sesión Sofía, no se tocó nada más de ese archivo. Además, tagline único en código y meta tags | Cerrada — commits `5916af3` y `1b2095c`. Quedan 3 claves de `contenido_sitio` por editar a mano desde el admin |
 | 2026-08-07 | UX copy — tanda 1 | Errores, confirmaciones de borrado y confirmación de guardado. **Tocó `src/lib/errores.ts`, que es ZONA COMPARTIDA** — solo el texto de la alerta; la firma y el log a consola quedan igual | Cerrada — commits `a1c53a9`, `8187a81`, `4cdcbd2` y `4ad82a8` |
 | 2026-08-07 | UX copy — tanda 2 | Estados vacíos, consistencia de botones, tuteo, últimos emojis. **Tocó `src/types/index.ts`, que es ZONA COMPARTIDA** — borró `agente_id`, un campo cuya columna nunca existió | Cerrada — commits `153765c`, `55ac084`, `edf05b6`, `e9ed05e` y `36a093e` |
+| 2026-08-07 | UX copy — tanda 3 | Las listas que se recortaban en silencio, más dos pendientes de la tanda 2 | Cerrada — commits `490fa33`, `59c5feb` y `b2df33d` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1783,6 +1784,83 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### UNA LISTA QUE SE RECORTA TIENE QUE DECIRLO — 2026-08-07
+
+**El criterio, para cualquier lista nueva:** si se muestra un subconjunto, hay
+que decir que hay más. Si no, el usuario no puede distinguir «no hay más» de
+«hay más y no te los muestro», y concluye lo primero. Cuando la lista es un
+catálogo, esa conclusión es «no lo tenemos».
+
+Y antes de anunciar el recorte, preguntarse si hace falta recortar. En los dos
+casos de esta tanda **no hacía falta**, y se quitó el tope en vez de explicarlo.
+
+| Commit | Qué |
+|---|---|
+| `490fa33` | el buscador del paso 2 deja de recortar a 12 |
+| `59c5feb` | el PDF muestra todas las amenidades |
+| `b2df33d` | el botón de El Barranco y la flecha de la confirmación de reserva |
+
+#### El buscador de cotizaciones: el tope no lo justificaba nada
+
+Era `.slice(0, 12)` sobre `propsFiltradas`. Si la propiedad buscada era la
+decimotercera, no aparecía y nada lo indicaba.
+
+- **Espacio:** el contenedor **ya scrollea** — `maxHeight: 220` con
+  `overflowY: 'auto'`. La lista nunca creció hacia abajo indefinidamente, así
+  que el tope no ganaba un píxel.
+- **Rendimiento:** son 53 propiedades, y la lista solo se pinta cuando hay
+  término de búsqueda, ya filtrada.
+
+Verificado con el componente real y 35 propiedades que coinciden: salen las 35
+y la caja scrollea.
+
+#### El PDF: medir con cadenas ÚNICAS
+
+Las amenidades iban recortadas a 6 en un documento que se le manda al cliente.
+
+Renderizando el PDF de verdad con `@react-pdf/renderer`: 6, 12, 30 y **60**
+amenidades caben en una página, y recién a las **200** pasa a dos —fluyendo, sin
+cortar—. El bloque es un `<Text>` en una fila con `flex: 1` y sin altura fija,
+así que ajusta línea y empuja. No había razón de espacio.
+
+**Trampa de método:** la primera medición usó amenidades repetidas y dio
+**bytes idénticos** para 12, 24 y 40, lo que parecía recorte del layout. Era la
+compresión Flate del PDF colapsando cadenas iguales. Con cadenas únicas el
+tamaño crece monótono y la respuesta se ve. **Para medir crecimiento de un PDF,
+contenido único.**
+
+#### El UUID de El Barranco era el correcto
+
+`eccfd92d-713e-4e0a-a074-ff76daffd81e` resuelve a «Hotel + Restaurante ·
+Futaleufú», slug `hotel-restaurante-futaleufu-futaleufu-10d`, activo. El destino
+estaba bien; sobraba la palabra «listado». Ahora dice «Volver a la propiedad» /
+«Back to the property» y navega **por slug**, que evita la redirección
+UUID→slug.
+
+#### Barrido: lo que se revisó y se dejó
+
+| sitio | qué es | veredicto |
+|---|---|---|
+| `Equipo.tsx:70,106` | `.slice(0,2)` sobre un nombre | **iniciales**, no una lista |
+| `Contenido.tsx:214,231` · `CotizacionesAdmin.tsx:1099` | ellipsis sobre `p.titulo` / `c.prop_titulo` | **títulos**, excepción aceptada |
+| `Propiedades.tsx:112` | ellipsis sobre el nombre del dossier | ídem |
+| `HomePage.tsx:232` | `.slice(0, 6)` de destacadas | intencional y documentado |
+
+#### Pendientes
+
+- **`Captacion.tsx`** (dominio Sofía): `.slice(0, 5)` en la conversación de un
+  lead —línea 994— y los cinco `textOverflow: ellipsis` de las tarjetas de lead
+  —141 y 779-783— sobre nombre, teléfono, comuna, presupuesto y plazo. Esos
+  **no** son títulos: son datos que se cortan sin aviso.
+- **`Propiedades.tsx:279`**, `Array.from(files).slice(0, 20 - imagenes.length)`.
+  No estaba en el encargo y no es un recorte de render sino de **subida**: si
+  seleccionas 25 fotos con 0 cargadas, cinco se descartan sin decir nada. Mismo
+  defecto, otra superficie.
+
+#### Costo
+
+**−0,01 kB gzip.** Se borró código, no se agregó.
 
 ### UX copy tanda 2 — vacíos, consistencia, tuteo e iconos — 2026-08-07
 
