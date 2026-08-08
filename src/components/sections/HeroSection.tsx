@@ -134,8 +134,10 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
       {/* Dots de navegación */}
       {images.length > 1 && (
         <div
-          className="absolute flex items-center gap-2"
-          style={{ bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}
+          className="absolute flex items-center"
+          /* 18px entre puntos por 2.5.8: con 8px el paso era 16 y los círculos de
+             24px se cortaban. Ahora 26. El punto sigue midiendo 8px. */
+          style={{ bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 10, gap: 18 }}
         >
           {/* El control de 2.2.2. Va junto a los puntos, que cambian de foto
               pero NO detienen la rotación: sin esto no había forma de pararla. */}

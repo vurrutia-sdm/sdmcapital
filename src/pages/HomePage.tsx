@@ -159,7 +159,13 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
 
             {/* Dots */}
             {items.length > 1 && (
-              <div className="flex gap-2 mt-8" style={{ justifyContent: 'center' }}>
+              /* 18px de separación y no 8: 2.5.8 (AA de WCAG 2.2) exime a un objetivo
+                  menor de 24x24 solo si un círculo de 24px centrado en él no toca el
+                  círculo ni la caja de un vecino. Con 8px el paso entre centros era
+                  16px y los círculos se cortaban; con 18px queda en 26px y se
+                  separan. Los puntos se siguen viendo de 8px: lo que cambia es el
+                  aire entre ellos, no su tamaño. */
+              <div className="flex mt-8" style={{ justifyContent: 'center', gap: 18 }}>
                 {items.map((_, i) => (
                   <button key={i} onClick={() => goTo(i)}
                     style={{ width: i === current ? 24 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'all 0.3s', background: i === current ? 'var(--green)' : 'var(--border)', padding: 0 }}
