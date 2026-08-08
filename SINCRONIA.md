@@ -121,6 +121,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 2) | `Field` envuelve a su control (152 campos del admin), nace `FieldGroup` para los 19 editores compuestos, y los `<select>` de `SearchBar` reciben rótulo asociado. **Toca `src/components/admin/campos.tsx` y `src/components/sections/SearchBar.tsx`** | Cerrada — commits `ed40ebe`, `7db6be7` y `03fed5c` |
 | 2026-08-08 | Accesibilidad — tanda 2: cierre de los tres archivos | `PropiedadesPage`, `MapPicker` y `ElBarrancoShowcase` (9 campos), más el `aria-label` del input de URL de `ImageUploader`. **El barrido completo destapó 83 campos sin asociar en 10 archivos más** | Cerrada — commits `b184fa8` y `44e890a` |
 | 2026-08-08 | Accesibilidad — tanda 2: cierre completo | Los tres envoltorios duplicados (`Fld`×2, `FLabel`×5) envuelven, más el login del admin y 4 controles de fila. **Fuera de `Captacion.tsx` no queda ningún campo sin nombre accesible en `src/`** | Cerrada — commits `ba3fe67`, `12da41f` y `9b7b66c` |
+| 2026-08-08 | Admin — un solo envoltorio de campo | Los dos `Fld` se borran y sus 40 usos pasan al `Field` de `campos.tsx`. `FLabel` sobrevive a propósito: diverge en estilo | Cerrada — commit `e3151a9` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -4263,3 +4264,96 @@ hacerlo:
 rótulo**. `FLabel` diverge además en la separación (6 vs 8px) y en el peso, así
 que cambiarlo por `Field` **sí movería píxeles** en las cinco pantallas de
 fichas. Ese es el trabajo real del refactor, y por eso va aparte.
+
+---
+
+### Admin — `Field` es el único envoltorio de campo — 2026-08-08
+
+Los dos `Fld` —uno en `CotizacionesAdmin`, otro en `TarjetasEquipo`— se
+borraron. Sus **40 usos** pasan al `Field` de `src/components/admin/campos.tsx`.
+
+#### Por qué esto importa más que la limpieza
+
+El defecto de asociación —`<div>` con un `<label>` yuxtapuesto que no etiqueta
+nada— estaba copiado en **ocho envoltorios**: `Field`, dos `Fld` y cinco
+`FLabel`. Hubo que arreglarlo ocho veces, en tres tandas distintas, y en cada
+tanda apareció una copia que la anterior no había visto.
+
+**Unificar es lo que evita que aparezca un noveno.** Mientras cada panel pueda
+escribir su propio envoltorio de doce líneas, el siguiente panel lo va a volver
+a escribir, y va a volver a nacer con el `<label>` al lado en vez de alrededor,
+porque visualmente se ve igual y nada falla.
+
+#### Las dos diferencias, medidas antes de aplicar
+
+| | `Fld` | `Field` |
+|---|---|---|
+| `label` | `string` | `React.ReactNode` |
+| rótulo | sin `display` propio | `display:flex`, `alignItems:center`, `gap:6` |
+
+**El tipo** es un ensanche: `string` entra en `React.ReactNode`. Los 40 usos
+pasan un literal de cadena —verificado con AST, cero expresiones—, así que
+ninguno se ve afectado.
+
+**El `display:flex`** era la única duda real, y por eso se midió antes de
+tocar nada: se renderizaron los **40 rótulos reales** con las dos variantes, a
+cuatro anchos de columna, incluidos los estrechos donde el texto se parte en
+dos líneas —que es justo donde `flex` y `block` podrían diferir—.
+
+```
+160 combinaciones (40 rótulos × 4 anchos)
+  cajas distintas: 0
+  altura de columna: idéntica
+  píxeles distintos: 0 sobre 5.263.000
+```
+
+El `gap: 6` no cambia nada porque el rótulo tiene **un solo hijo**; solo
+separaría un icono del texto, que es para lo que está.
+
+#### `FLabel` sobrevive a propósito
+
+No es un olvido. Diverge de `Field` en dos cosas que **sí se ven**:
+
+| | `Field` | `FLabel` |
+|---|---|---|
+| separación rótulo/campo | `gap-2` = 8px | `gap: 6` |
+| peso del rótulo | heredado | `fontWeight: 500` |
+
+Reemplazarlo movería píxeles en las **cinco pantallas de fichas**. Eso es
+rediseño, no limpieza, y esas pantallas ya cambiaron de paleta esta semana.
+Si alguna vez se unifica, el trabajo real es decidir cuál de las dos
+separaciones se queda, no el reemplazo.
+
+#### Verificación
+
+Con los dos paneles reales montados en un banco temporal, antes y después:
+
+| | resultado |
+|---|---|
+| `CotizacionesAdmin`, 1352×621 | **0 píxeles distintos** |
+| `TarjetasEquipo`, 1352×554 | **0 píxeles distintos** |
+| los 40 campos | `labels.length === 1`, nombre por `relatedElement` |
+| texto tecleado | «María Fernández» intacto, `text-transform: none` |
+| definiciones de `Fld` restantes | ninguna |
+
+Los 40 nombres se leyeron pasando los rótulos reales por el `Field` compartido:
+el asistente de cotización no se deja recorrer entero sin datos válidos, así que
+en vivo solo se alcanzan 13. Lo que cierra la cobertura es que el AST confirma
+que **los 40 usos son `<Field label="literal">`**, y que ese componente produce
+un nombre correcto en los 40.
+
+##### Otro falso positivo de captura, esta vez por carrera de carga
+
+La primera comparación del panel de cotizaciones dio 1941 píxeles distintos
+(0,15 %), todos dentro de un rectángulo de 286×16. No era el cambio: la captura
+abarcaba también `TarjetasEquipo`, montado debajo en el mismo banco, y el
+rectángulo era su **estado vacío** —«Todavía no hay tarjetas»— que en una de las
+dos corridas todavía no había reemplazado al mensaje de carga.
+
+Se identificó con `elementFromPoint` sobre las coordenadas de la caja, en vez de
+mirar la imagen. Recortando cada panel por separado, los dos dieron 0.
+
+> Suma a las trampas de captura ya anotadas —el foco, la caja de recorte
+> inestable— una tercera: **el estado asíncrono.** Si la caja abarca algo que
+> depende de una petición, la comparación mide la red, no el código. La firma
+> también es reconocible: un bloque compacto de texto en vez de una fila.
