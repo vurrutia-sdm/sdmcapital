@@ -41,9 +41,19 @@
        inline repetidos, y `--estado-vendida` se usaba TAMBIÉN para «Precio
        rebajado» — el mismo rojo para un cierre y para una oportunidad. */
     --estado-vendida:   #C0392B;  /* blanco encima: 5.44:1 */
-    --estado-reservada: #B45309;  /* 5.02:1 — antes #D97706 daba 3.19:1 */
+    --estado-reservada: #1F5F6B;  /* 7.22:1 */
     --estado-arrendada: #2563EB;  /* 5.17:1 */
     --oportunidad:      #2D8055;  /* = --green-dark, 4.85:1 */
+
+    /* Por qué «Reservada» es FRÍA y no ámbar:
+       En ámbar (#B45309, y antes #D97706) daba ΔE2000 de 2.1 contra «Vendida»
+       BAJO DEUTERANOPIA — la forma más común de daltonismo, ~6 % de los
+       hombres —, o sea prácticamente el mismo color. Rojo contra naranja es
+       justo el par que esas condiciones colapsan.
+       En #1F5F6B su peor ΔE contra los otros tres estados, en las tres
+       condiciones de visión, es 21.2. Por encima de 10 son colores distintos.
+       La agrupación además es semántica: «Reservada» y «Arrendada» son
+       ocupación temporal; «Vendida» es lo único definitivo. */
 
     /* ─── ESCALA TIPOGRÁFICA ─────────────────────────────────────────────
        Espejo exacto de `fontSize` y `letterSpacing` en tailwind.config.js.
