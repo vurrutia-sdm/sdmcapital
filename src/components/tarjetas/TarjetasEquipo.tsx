@@ -17,14 +17,20 @@ const imprimirTarjeta = async (tarjeta: Parameters<
 >[0]) => (await import('./imprimir')).imprimirTarjeta(tarjeta)
 
 // ─── Pequeñas piezas UI (mismo patrón que CotizacionesAdmin) ──────────────────
+// El <label> ENVUELVE a su control, y el estilo del rotulo baja al <span>:
+// `text-transform` y `letter-spacing` se heredan al texto que se escribe
+// dentro del input, y `.input-line` no fija ninguna de las dos. Ver la nota
+// completa en el `Fld` de `CotizacionesAdmin.tsx`, identico a este.
+//
+// `display: flex` viene de la clase, asi que no hace falta `display: block`.
 function Fld({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
+    <label className="flex flex-col gap-2">
+      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
         {label}
-      </label>
+      </span>
       {children}
-    </div>
+    </label>
   )
 }
 

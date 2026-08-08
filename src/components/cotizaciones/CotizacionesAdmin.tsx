@@ -3,6 +3,7 @@ import { Check, FileText, Loader2, Mail, Pencil, PencilLine, Plus, Search, Trash
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
+import { FieldGroup } from '@/components/admin/campos'
 import { subirImagen } from '@/lib/subirImagen'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import type { Cotizacion, CotizacionDraft, EstadoCotizacion, FormaPago, Propiedad } from '@/types'
@@ -169,14 +170,28 @@ function ImageUploader({
 }
 
 // ─── Pequeñas piezas UI ───────────────────────────────────────────────────────
+// El <label> ENVUELVE a su control: es lo que los asocia, sin htmlFor y sin
+// ids que puedan colisionar.
+//
+// EL ESTILO DEL ROTULO VA EN EL <span>, NUNCA EN EL <label>. `text-transform`
+// y `letter-spacing` son propiedades heredadas y se aplican al texto que se
+// escribe dentro de un input; `.input-line` no fija ninguna de las dos. Con el
+// `uppercase` en el elemento que envuelve, todo lo tecleado en estos campos
+// saldria en mayusculas, sin que el build ni la consola avisen.
+//
+// No hace falta `display: block`: la clase ya fija `display: flex`, que gana
+// sobre el `inline` que trae <label> por defecto.
+//
+// Solo sirve para un control etiquetable. Para `ImageUploader` y para el valor
+// de UF de solo lectura se usa `FieldGroup`.
 function Fld({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
+    <label className="flex flex-col gap-2">
+      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
         {label}
-      </label>
+      </span>
       {children}
-    </div>
+    </label>
   )
 }
 
@@ -629,13 +644,17 @@ function CotizacionWizard({
                 </div>
 
                 {/* Imagen */}
-                <Fld label="Imagen principal">
+                {/* FieldGroup y no Fld: ImageUploader trae su propio <label>
+                    alrededor de un <input type="file"> oculto, más un segundo
+                    input con la URL. Un <label> por fuera anidaría etiquetas y
+                    apuntaría al selector de archivos. */}
+                <FieldGroup label="Imagen principal">
                   <ImageUploader
                     currentUrl={draft.prop_imagen_url}
                     folder="cotizaciones"
                     onUploaded={url => upd({ prop_imagen_url: url })}
                   />
-                </Fld>
+                </FieldGroup>
 
                 <div className="grid grid-cols-5 gap-4">
                   <Fld label="Dormitorios">
@@ -675,13 +694,16 @@ function CotizacionWizard({
 
             {/* UF del día */}
             <div className="flex items-end gap-4 p-4" style={{ background: 'var(--sky-pale)', borderRadius: 2 }}>
-              <Fld label="Valor UF del día (auto)">
+              {/* FieldGroup y no Fld: acá no hay ningún control. Es un valor
+                  de solo lectura con su rótulo, y un <label> que no envuelve a
+                  nada no etiqueta nada. */}
+              <FieldGroup label="Valor UF del día (auto)">
                 <div className="text-sdm-2xl" style={{ fontWeight: 700, color: 'var(--navy-dark)', fontFamily: 'Inter', paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
                   {draft.valor_uf > 0
                     ? `$ ${draft.valor_uf.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                     : ufLoading ? 'Cargando…' : '—'}
                 </div>
-              </Fld>
+              </FieldGroup>
               <button
                 onClick={async () => { const v = await refreshUF(); if (v) upd({ valor_uf: v }) }}
                 disabled={ufLoading}
