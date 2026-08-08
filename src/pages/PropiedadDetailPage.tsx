@@ -185,9 +185,9 @@ const SUBSIDIO_LABELS: Record<string, string> = {
 
 // Estados de resultado — banner destacado cerca del precio/título
 const ESTADO_DESTACADO: Record<string, { label: string; sub: string; bg: string }> = {
-  vendida:   { label: 'Vendida',   sub: 'Esta propiedad ya no está disponible', bg: '#c0392b' },
-  arrendada: { label: 'Arrendada', sub: 'Esta propiedad ya no está disponible', bg: '#2563eb' },
-  reservada: { label: 'Reservada', sub: 'Esta propiedad tiene una reserva en curso', bg: '#d97706' },
+  vendida:   { label: 'Vendida',   sub: 'Esta propiedad ya no está disponible', bg: 'var(--estado-vendida)' },
+  arrendada: { label: 'Arrendada', sub: 'Esta propiedad ya no está disponible', bg: 'var(--estado-arrendada)' },
+  reservada: { label: 'Reservada', sub: 'Esta propiedad tiene una reserva en curso', bg: 'var(--estado-reservada)' },
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -344,7 +344,7 @@ export default function PropiedadDetailPage() {
                 </span>
               )}
               {prop.baja_precio && (
-                <span className="text-sdm-xs tracking-sdm-wide" style={{ padding: '5px 14px', borderRadius: 1, background: '#c0392b', color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ padding: '5px 14px', borderRadius: 1, background: 'var(--oportunidad)', color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>
                   Precio rebajado
                 </span>
               )}

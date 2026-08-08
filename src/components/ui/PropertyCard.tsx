@@ -15,9 +15,9 @@ const GRADIENTS = [
 ]
 
 const ESTADO_BADGES: Record<string, { label: string; style: { background: string; color: string } }> = {
-  vendida:   { label: 'Vendida',   style: { background: '#c0392b', color: '#fff' } },
-  reservada: { label: 'Reservada', style: { background: '#d97706', color: '#fff' } },
-  arrendada: { label: 'Arrendada', style: { background: '#2563eb', color: '#fff' } },
+  vendida:   { label: 'Vendida',   style: { background: 'var(--estado-vendida)',   color: '#fff' } },
+  reservada: { label: 'Reservada', style: { background: 'var(--estado-reservada)', color: '#fff' } },
+  arrendada: { label: 'Arrendada', style: { background: 'var(--estado-arrendada)', color: '#fff' } },
 }
 
 const ETAPA_LABELS: Record<string, string> = {
@@ -43,10 +43,12 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
 
   // Badge de estado (vendida/reservada/arrendada) y badge secundario (precio rebajado o bono pie) — pueden coexistir
   const estadoBadge = ESTADO_BADGES[propiedad.estado] || null
+  // Las dos van en --oportunidad, no en el rojo de «Vendida». Son ventajas
+  // comerciales, no un cierre, y nunca coexisten: la insignia es una o la otra.
   const secundarioBadge = propiedad.baja_precio
-    ? { label: 'Precio rebajado', style: { background: '#c0392b', color: '#fff' } }
+    ? { label: 'Precio rebajado', style: { background: 'var(--oportunidad)', color: '#fff' } }
     : propiedad.bono_pie
-    ? { label: `Bono Pie${propiedad.bono_pie_porcentaje ? ` ${propiedad.bono_pie_porcentaje}%` : ''}`, style: { background: 'var(--green)', color: '#fff' } }
+    ? { label: `Bono Pie${propiedad.bono_pie_porcentaje ? ` ${propiedad.bono_pie_porcentaje}%` : ''}`, style: { background: 'var(--oportunidad)', color: '#fff' } }
     : null
 
   const priceDisplay = propiedad.a_consultar

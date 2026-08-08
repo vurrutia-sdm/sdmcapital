@@ -29,6 +29,22 @@
     --border-input: #767F8A;
     --border-input-admin: #5A81A2;
 
+    /* ─── INSIGNIAS ────────────────────────────────────────────────────────
+       Dos familias que significan cosas distintas y no deben mezclarse:
+
+       ESTADO — en qué situación está la propiedad. Ocupan la insignia de
+       arriba y son excluyentes entre sí.
+       OPORTUNIDAD — qué ventaja comercial tiene. Ocupan la insignia de abajo,
+       también excluyentes entre sí, y pueden convivir con una de estado.
+
+       Todas llevan texto blanco encima y cumplen 4.5:1. Antes eran literales
+       inline repetidos, y `--estado-vendida` se usaba TAMBIÉN para «Precio
+       rebajado» — el mismo rojo para un cierre y para una oportunidad. */
+    --estado-vendida:   #C0392B;  /* blanco encima: 5.44:1 */
+    --estado-reservada: #B45309;  /* 5.02:1 — antes #D97706 daba 3.19:1 */
+    --estado-arrendada: #2563EB;  /* 5.17:1 */
+    --oportunidad:      #2D8055;  /* = --green-dark, 4.85:1 */
+
     /* ─── ESCALA TIPOGRÁFICA ─────────────────────────────────────────────
        Espejo exacto de `fontSize` y `letterSpacing` en tailwind.config.js.
        Existen para poder escribir `fontSize: 'var(--sdm-text-sm)'` desde

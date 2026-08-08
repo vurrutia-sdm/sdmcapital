@@ -854,7 +854,7 @@ export default function Propiedades() {
                   </div>
                 </td>
                 <td className="order-2 text-sdm-sm lg:table-cell lg:py-3 lg:pr-4" style={{ color: 'var(--muted)' }}>{p.tipo}</td>
-                <td className="order-6 lg:table-cell lg:py-3 lg:pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'#c0392b':p.estado==='reservada'?'#d97706':p.estado==='arrendada'?'#2563eb':'#999'} /></td>
+                <td className="order-6 lg:table-cell lg:py-3 lg:pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'var(--estado-vendida)':p.estado==='reservada'?'var(--estado-reservada)':p.estado==='arrendada'?'var(--estado-arrendada)':'#999'} /></td>
                 <td className="order-5 grow text-sdm-xl font-medium lg:table-cell lg:grow-0 lg:text-sdm-base lg:font-normal lg:py-3 lg:pr-4">{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : p.precio_clp ? `$${p.precio_clp.toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
                 <td className="order-3 grow lg:table-cell lg:grow-0 lg:py-3 lg:pr-4"><span className="lg:hidden" aria-hidden> · </span><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
                 {/* El toggle lleva flex-1 para que su borde superior se estire hasta
