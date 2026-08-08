@@ -87,7 +87,7 @@ export default function QuienesSomosPage() {
             </h2>
             {[
               'SDM Capital nació con una visión clara: democratizar el acceso a inversiones inmobiliarias de calidad para personas y empresas en Chile.',
-              'A lo largo de más de 15 años, hemos construido una red de socios y alianzas estratégicas que nos permite ofrecer oportunidades únicas en Chile y en más de 10 países del mundo.',
+              'A lo largo de más de 15 años, hemos construido una red de socios y alianzas estratégicas que nos permite ofrecer oportunidades únicas en Chile y Paraguay.',
               'Hoy somos referentes en gestión de financiamiento y asesoría inmobiliaria, con un equipo de expertos comprometidos con los resultados de cada cliente.',
             ].map((p, i) => (
               <p key={i} className="font-light mb-5 text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9 }}>{p}</p>

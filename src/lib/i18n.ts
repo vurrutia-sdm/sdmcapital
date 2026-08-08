@@ -13,7 +13,7 @@ const translationsRaw = {
       consultar: 'Consultar',
     },
     hero: {
-      kicker: 'Inversión inmobiliaria · Chile & el mundo',
+      kicker: 'Inversión inmobiliaria · Chile & Paraguay',
       line1: 'Tu socio',
       line2: 'en bienes',
       line3: 'raíces',
@@ -119,7 +119,7 @@ const translationsRaw = {
       consultar: 'Inquire',
     },
     hero: {
-      kicker: 'Real estate investment · Chile & worldwide',
+      kicker: 'Real estate investment · Chile & Paraguay',
       line1: 'Your partner',
       line2: 'in real',
       line3: 'estate',

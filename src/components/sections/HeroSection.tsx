@@ -177,7 +177,7 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
 export default function HeroSection() {
   const { get } = useContenido()
 
-  const kicker    = get('hero_kicker',     'Inversión inmobiliaria · Chile & el mundo')
+  const kicker    = get('hero_kicker',     'Inversión inmobiliaria · Chile & Paraguay')
   const titulo1   = get('hero_titulo_1',   'Tu socio')
   const titulo2   = get('hero_titulo_2',   'en bienes')
   const titulo3   = get('hero_titulo_3',   'raíces')
@@ -236,7 +236,7 @@ export default function HeroSection() {
           <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
           <span>
             Inversión inmobiliaria<br />
-            Chile &amp; el mundo
+            Chile &amp; Paraguay
           </span>
         </div>
 

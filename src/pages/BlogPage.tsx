@@ -28,7 +28,7 @@ export default function BlogPage() {
           Blog <em>SDM Capital</em>
         </h1>
         <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 10, lineHeight: 1.8 }}>
-          Noticias, análisis y tendencias del mercado inmobiliario en Chile y el mundo.
+          Noticias, análisis y tendencias del mercado inmobiliario en Chile y Paraguay.
         </p>
       </div>
 

@@ -258,7 +258,7 @@ export default function Contenido() {
 
   const [d, setD] = useState({
     hero_imagen_url: '', hero_imagen_url_2: '', hero_imagen_url_3: '', hero_imagen_url_4: '', hero_imagen_url_5: '',
-    hero_kicker: 'Inversión inmobiliaria · Chile & el mundo',
+    hero_kicker: 'Inversión inmobiliaria · Chile & Paraguay',
     hero_titulo_1: 'Tu socio', hero_titulo_2: 'en bienes', hero_titulo_3: 'raíces',
     hero_subtitulo: 'Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el extranjero. Financiamiento sin pagos adelantados.',
     hero_location: 'Las Condes · Santiago · Chile',
@@ -292,7 +292,7 @@ export default function Contenido() {
     qs_titulo: 'Tu socio confiable en bienes raíces',
     qs_subtitulo: 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con oportunidades únicas.',
     qs_historia_1: 'SDM Capital nació con una visión clara: democratizar el acceso a inversiones inmobiliarias de calidad para personas y empresas en Chile.',
-    qs_historia_2: 'A lo largo de más de 15 años, hemos construido una red de socios y alianzas estratégicas que nos permite ofrecer oportunidades únicas en Chile y en más de 10 países del mundo.',
+    qs_historia_2: 'A lo largo de más de 15 años, hemos construido una red de socios y alianzas estratégicas que nos permite ofrecer oportunidades únicas en Chile y Paraguay.',
     qs_historia_3: 'Hoy somos referentes en gestión de financiamiento y asesoría inmobiliaria, con un equipo de expertos comprometidos con los resultados de cada cliente.',
     servicios_intro: 'Soluciones integrales en inversión inmobiliaria y financiamiento, tanto en Chile como en el extranjero.',
     servicio_inv_int_titulo: 'Inversión Internacional', servicio_inv_int_visible: 'true',
@@ -318,7 +318,7 @@ export default function Contenido() {
     asociados_intro: 'Trabajamos con una red selecta de socios estratégicos que nos permiten ofrecer a nuestros clientes el mejor servicio integral en cada etapa del proceso inmobiliario y financiero.',
     asociados_cta: 'Si tu empresa comparte nuestros valores de excelencia y transparencia, nos encantaría explorar una colaboración estratégica.',
     blog_titulo: 'Blog SDM Capital',
-    blog_subtitulo: 'Noticias, análisis y tendencias del mercado inmobiliario en Chile y el mundo.',
+    blog_subtitulo: 'Noticias, análisis y tendencias del mercado inmobiliario en Chile y Paraguay.',
     empresa_nombre: 'SDM Capital', tagline: 'Tu socio confiable en bienes raíces.',
     footer_tagline: 'Tu socio confiable en bienes raíces.',
     direccion: 'Av. Apoquindo 5583, Las Condes, Santiago',

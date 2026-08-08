@@ -224,7 +224,7 @@ export default function HomePage() {
     <div>
       <SEO
         title="Inversión Inmobiliaria Chile & Internacional"
-        description="Tu socio confiable en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el mundo. Financiamiento sin pagos adelantados."
+        description="Tu socio confiable en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y Paraguay. Financiamiento sin pagos adelantados."
         url="/"
       />
       {/* 1. Hero */}

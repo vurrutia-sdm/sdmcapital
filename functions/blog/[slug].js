@@ -16,7 +16,7 @@ const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`
 
 // Espejo de la descripción por defecto de src/components/SEO.tsx.
 const DEFAULT_DESCRIPTION =
-  'Tu socio confiable en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el mundo.'
+  'Tu socio confiable en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y Paraguay.'
 
 // Anon key pública (la misma que va embebida en el bundle del cliente) usada
 // como fallback si no se configuran variables de entorno en Cloudflare Pages.
