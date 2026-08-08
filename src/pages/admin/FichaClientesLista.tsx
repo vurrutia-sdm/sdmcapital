@@ -30,7 +30,7 @@ type Cliente = {
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
   fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
-  border: 'none', borderBottom: '1px solid #dce4ec', padding: '7px 0',
+  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
   outline: 'none', width: '100%',
 }
 
@@ -109,14 +109,14 @@ export default function FichaClientesLista() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', fontFamily: 'inherit' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
       {/* Header */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #dce4ec', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Link className="text-sdm-sm" to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al admin
           </Link>
-          <span style={{ color: '#dce4ec' }}>|</span>
+          <span style={{ color: 'var(--border)' }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Fichas para clientes</span>
           <Guardado visible={guardado} />
         </div>
@@ -145,7 +145,7 @@ export default function FichaClientesLista() {
               const isDel = deleting === c.id
               return (
                 <div key={c.id}
-                  className="border border-[#dce4ec] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
+                  className="border border-[var(--border)] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
                   onClick={() => navigate(`/admin/ficha-cliente/${c.id}`)}
                   style={{ background: '#fff', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s' }}
                 >
@@ -164,7 +164,7 @@ export default function FichaClientesLista() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <span className="text-sdm-sm" style={{ background: fichaCount > 0 ? '#f0faf4' : '#f5f7fa', color: fichaCount > 0 ? '#1a6e3c' : '#7a8fa6', border: `1px solid ${fichaCount > 0 ? '#b6e4ca' : '#dce4ec'}`, borderRadius: 20, padding: '3px 12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    <span className="text-sdm-sm" style={{ background: fichaCount > 0 ? '#f0faf4' : 'var(--off)', color: fichaCount > 0 ? '#1a6e3c' : '#7a8fa6', border: `1px solid ${fichaCount > 0 ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '3px 12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {fichaCount} {fichaCount === 1 ? 'ficha' : 'fichas'}
                     </span>
                     <button onClick={e => deleteCliente(e, c.id)} disabled={isDel}
@@ -204,7 +204,7 @@ export default function FichaClientesLista() {
                 {saving ? 'Guardando…' : 'Crear cliente'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowModal(false)}
-                style={{ padding: '11px 20px', background: '#f5f7fa', border: '1px solid #dce4ec', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
                 Cancelar
               </button>
             </div>

@@ -32,7 +32,7 @@ type ModalForm = { nombre: string; telefono: string; correo: string; activo: boo
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
   fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
-  border: 'none', borderBottom: '1px solid #dce4ec', padding: '7px 0',
+  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
   outline: 'none', width: '100%',
 }
 
@@ -136,14 +136,14 @@ export default function Agentes() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', fontFamily: 'inherit' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
       {/* Header */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #dce4ec', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Link className="text-sdm-sm" to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al admin
           </Link>
-          <span style={{ color: '#dce4ec' }}>|</span>
+          <span style={{ color: 'var(--border)' }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Agentes SDM Capital</span>
           <Guardado visible={guardado} />
         </div>
@@ -167,7 +167,7 @@ export default function Agentes() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {agentes.map(a => (
-              <div key={a.id} style={{ background: '#fff', border: '1px solid #dce4ec', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div key={a.id} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
                 {/* Avatar */}
                 <div style={{ width: 40, height: 40, borderRadius: '50%', background: a.activo ? '#0d2240' : '#c0cdd8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <span className="text-sdm-lg" style={{ color: '#fff', fontWeight: 700 }}>{a.nombre.charAt(0).toUpperCase()}</span>
@@ -176,7 +176,7 @@ export default function Agentes() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 3 }}>
                     <span className="text-sdm-base" style={{ fontWeight: 600, color: '#0d2240' }}>{a.nombre}</span>
-                    <span className="text-sdm-xs" style={{ background: a.activo ? '#f0faf4' : '#f5f7fa', color: a.activo ? '#1a6e3c' : '#7a8fa6', border: `1px solid ${a.activo ? '#b6e4ca' : '#dce4ec'}`, borderRadius: 20, padding: '2px 8px', fontWeight: 600 }}>
+                    <span className="text-sdm-xs" style={{ background: a.activo ? '#f0faf4' : 'var(--off)', color: a.activo ? '#1a6e3c' : '#7a8fa6', border: `1px solid ${a.activo ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '2px 8px', fontWeight: 600 }}>
                       {a.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </div>
@@ -188,11 +188,11 @@ export default function Agentes() {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                   <button className="text-sdm-sm" onClick={() => toggleActivo(a)}
-                    style={{ padding: '5px 12px', background: '#f5f7fa', border: '1px solid #dce4ec', borderRadius: 2, cursor: 'pointer', color: '#0d2240', fontFamily: 'inherit' }}>
+                    style={{ padding: '5px 12px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: '#0d2240', fontFamily: 'inherit' }}>
                     {a.activo ? 'Pausar' : 'Activar'}
                   </button>
                   <button onClick={() => openEdit(a)} title="Editar"
-                    style={{ background: 'none', border: '1px solid #dce4ec', borderRadius: 2, cursor: 'pointer', color: '#0d2240', padding: '5px 8px', display: 'flex', alignItems: 'center', fontFamily: 'inherit' }}>
+                    style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: '#0d2240', padding: '5px 8px', display: 'flex', alignItems: 'center', fontFamily: 'inherit' }}>
                     <Edit2 size={13} />
                   </button>
                   <button onClick={() => del(a.id)} disabled={deleting === a.id} title="Eliminar"
@@ -236,7 +236,7 @@ export default function Agentes() {
                 {saving ? 'Guardando…' : modal.editing ? 'Guardar cambios' : 'Crear agente'}
               </button>
               <button className="text-sdm-base" onClick={closeModal}
-                style={{ padding: '11px 20px', background: '#f5f7fa', border: '1px solid #dce4ec', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
                 Cancelar
               </button>
             </div>

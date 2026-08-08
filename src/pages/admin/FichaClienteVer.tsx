@@ -114,12 +114,12 @@ export default function FichaClienteVer() {
       `}</style>
 
       {/* ── Admin UI (no-print) ── */}
-      <div className="no-print" style={{ background: '#fff', borderBottom: '1px solid #dce4ec', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
+      <div className="no-print" style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Link className="text-sdm-sm" to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al cliente
           </Link>
-          <span style={{ color: '#dce4ec' }}>|</span>
+          <span style={{ color: 'var(--border)' }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>
             {ficha?.direccion || 'Ficha de propiedad'}
           </span>
@@ -132,7 +132,7 @@ export default function FichaClienteVer() {
 
       {/* ── Loading ── */}
       {loading && (
-        <div className="no-print" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f7fa' }}>
+        <div className="no-print" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--off)' }}>
           <span className="text-sdm-base" style={{ color: '#7a8fa6', fontStyle: 'italic' }}>Cargando ficha…</span>
         </div>
       )}
@@ -230,7 +230,7 @@ export default function FichaClienteVer() {
             </div>
 
             {/* FOOTER */}
-            <div className="pe" style={{ background: '#f5f7fa', borderTop: '1px solid #e0e4ea', padding: '11px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="pe" style={{ background: 'var(--off)', borderTop: '1px solid #e0e4ea', padding: '11px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="text-sdm-sm" style={{ color: '#0d2240', fontWeight: 500 }}>
                 {ficha.asesor_nombre ? `${ficha.asesor_nombre} · ` : ''}SDM Capital
               </span>

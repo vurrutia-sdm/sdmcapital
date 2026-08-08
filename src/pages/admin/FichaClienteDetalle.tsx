@@ -42,7 +42,7 @@ type Ficha = {
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
   fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
-  border: 'none', borderBottom: '1px solid #dce4ec', padding: '7px 0',
+  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
   outline: 'none', width: '100%',
 }
 
@@ -137,14 +137,14 @@ export default function FichaClienteDetalle() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', fontFamily: 'inherit' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
       {/* Header */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #dce4ec', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Link className="text-sdm-sm" to="/admin/ficha-cliente" style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Clientes
           </Link>
-          <span style={{ color: '#dce4ec' }}>|</span>
+          <span style={{ color: 'var(--border)' }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>{cliente?.nombre || '…'}</span>
         </div>
         {clienteId && (
@@ -163,7 +163,7 @@ export default function FichaClienteDetalle() {
         ) : (
           <>
             {/* Cliente card */}
-            <div style={{ background: '#fff', border: '1px solid #dce4ec', borderRadius: 4, padding: '20px 24px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 4, padding: '20px 24px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#0d2240', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span className="text-sdm-xl" style={{ color: '#fff', fontWeight: 700 }}>{cliente.nombre.charAt(0).toUpperCase()}</span>
               </div>
@@ -176,7 +176,7 @@ export default function FichaClienteDetalle() {
               </div>
               <Guardado visible={guardado} />
               <button className="text-sdm-sm" onClick={() => setShowEdit(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f5f7fa', border: '1px solid #dce4ec', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: '#0d2240', fontFamily: 'inherit' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: '#0d2240', fontFamily: 'inherit' }}>
                 <Edit2 size={13} /> Editar
               </button>
             </div>
@@ -187,7 +187,7 @@ export default function FichaClienteDetalle() {
             </div>
 
             {fichas.length === 0 ? (
-              <div style={{ background: '#fff', border: '1px dashed #dce4ec', borderRadius: 4, padding: '48px 24px', textAlign: 'center' }}>
+              <div style={{ background: '#fff', border: '1px dashed var(--border)', borderRadius: 4, padding: '48px 24px', textAlign: 'center' }}>
                 <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 16 }}>Todavía no hay fichas para este cliente.</div>
                 <Link className="text-sdm-base" to={`/admin/ficha-cliente/${clienteId}/nueva`}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', textDecoration: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600 }}>
@@ -200,7 +200,7 @@ export default function FichaClienteDetalle() {
                   const isDel = deleting === f.id
                   return (
                     <div key={f.id}
-                      className="border border-[#dce4ec] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
+                      className="border border-[var(--border)] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
                       onClick={() => navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}`)}
                       style={{ background: '#fff', borderRadius: 4, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', opacity: isDel ? 0.5 : 1 }}
                     >
@@ -230,7 +230,7 @@ export default function FichaClienteDetalle() {
                         )}
                         <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}/editar`) }}
                           title="Editar ficha"
-                          style={{ background: 'none', border: '1px solid #dce4ec', borderRadius: 2, cursor: 'pointer', color: '#0d2240', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
+                          style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: '#0d2240', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
                           <Edit2 size={12} /> Editar
                         </button>
                         <button onClick={e => deleteFicha(e, f)} disabled={isDel} title="Eliminar ficha"
@@ -271,7 +271,7 @@ export default function FichaClienteDetalle() {
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowEdit(false)}
-                style={{ padding: '11px 20px', background: '#f5f7fa', border: '1px solid #dce4ec', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
                 Cancelar
               </button>
             </div>

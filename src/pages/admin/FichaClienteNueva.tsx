@@ -41,7 +41,7 @@ const INIT: FormState = {
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
   fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
-  border: 'none', borderBottom: '1px solid #dce4ec', padding: '7px 0',
+  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
   outline: 'none', width: '100%',
 }
 
@@ -58,7 +58,7 @@ function FLabel({ label, children }: { label: string; children: React.ReactNode 
 
 function SCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: '#fff', border: '1px solid #dce4ec', borderRadius: 4, padding: '24px 28px', marginBottom: 20 }}>
+    <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 4, padding: '24px 28px', marginBottom: 20 }}>
       <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: '#0d2240', marginBottom: 20, paddingBottom: 12, borderBottom: '1px solid #f0f4f8' }}>
         {title}
       </div>
@@ -175,14 +175,14 @@ export default function FichaClienteNueva() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', fontFamily: 'inherit' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
       {/* Header */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #dce4ec', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Link className="text-sdm-sm" to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al cliente
           </Link>
-          <span style={{ color: '#dce4ec' }}>|</span>
+          <span style={{ color: 'var(--border)' }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Nueva ficha</span>
         </div>
       </div>
@@ -279,7 +279,7 @@ export default function FichaClienteNueva() {
                 {photos.map((p, i) => (
                   <div key={p.id}
                     {...filaProps(i)}
-                    style={{ opacity: arrastrando === i ? 0.45 : 1, position: 'relative', aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', cursor: 'grab', border: '2px solid #dce4ec', userSelect: 'none' }}>
+                    style={{ opacity: arrastrando === i ? 0.45 : 1, position: 'relative', aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', cursor: 'grab', border: '2px solid var(--border)', userSelect: 'none' }}>
                     <img src={p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
                     <div className="text-sdm-xs" style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(13,34,64,0.75)', borderRadius: 2, padding: '1px 6px', fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
                       {i + 1}
