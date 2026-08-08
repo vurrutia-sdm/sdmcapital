@@ -119,6 +119,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
 | 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 1) | Los tres formularios **públicos** pasan a `<label>` que envuelve al control: `ContactSection`, `SolicitudCreditoForm` y `VendeConNosotrosPage`. **`campos.tsx` NO se toca** — el paso 2 espera el visto bueno | Cerrada — commits `20d7fd4`, `e260e6e` y `5d3b007` |
 | 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 2) | `Field` envuelve a su control (152 campos del admin), nace `FieldGroup` para los 19 editores compuestos, y los `<select>` de `SearchBar` reciben rótulo asociado. **Toca `src/components/admin/campos.tsx` y `src/components/sections/SearchBar.tsx`** | Cerrada — commits `ed40ebe`, `7db6be7` y `03fed5c` |
+| 2026-08-08 | Accesibilidad — tanda 2: cierre de los tres archivos | `PropiedadesPage`, `MapPicker` y `ElBarrancoShowcase` (9 campos), más el `aria-label` del input de URL de `ImageUploader`. **El barrido completo destapó 83 campos sin asociar en 10 archivos más** | Cerrada — commits `b184fa8` y `44e890a` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -3931,3 +3932,147 @@ decisión de diseño, no de semántica, y quedó **pendiente de Víctor**.
 - `PropiedadesPage.tsx` (2 `<select>` con `<label>` sueltos), `MapPicker.tsx`
   (solo `placeholder`) y `ElBarrancoShowcase.tsx` (2 `<label>` sueltos) siguen
   sin asociar.
+
+---
+
+### Accesibilidad — tanda 2: cierre de los tres archivos — 2026-08-08
+
+`PropiedadesPage` (5 filtros), `ElBarrancoShowcase` (3 campos) y `MapPicker`
+(1). Los tres tenían **rótulo visible sin asociar**, así que se envolvió: ni un
+solo `aria-label`, ni un cambio de texto, ni uno de diseño.
+
+Más el `aria-label="URL de la imagen"` del input de solo lectura de
+`ImageUploader`. **Ahí sí corresponde `aria-label`** y no un rótulo visible: es
+un campo de apoyo para copiar, no un dato que se edite, y el `FieldGroup` que
+lo contiene ya nombra al conjunto. Un segundo rótulo visible sería ruido.
+
+| Archivo | Campos | `labels` antes → después |
+|---|---:|---|
+| `PropiedadesPage.tsx` | 5 | `[0,0,0,0,0]` → `[1,1,1,1,1]` |
+| `ElBarrancoShowcase.tsx` | 3 | `[0,0,0]` → `[1,1,1]` |
+| `MapPicker.tsx` | 1 | `[0]` → `[1]` |
+
+Los 9 con origen `relatedElement`. Los filtros del catálogo no tenían **ningún**
+nombre —ni `placeholder`—: el lector anunciaba «cuadro combinado» y nada más.
+
+`S.formLabel` de `ElBarrancoShowcase` es el caso más claro de la trampa de
+herencia: lleva `letterSpacing: '0.3em'` y `textTransform: uppercase`, y
+`S.formInput` no fija ninguna de las dos. Se quedó en el `<span>`.
+
+Comparación píxel a píxel con foco neutro: **0 diferencias en los tres**, y
+`MapPicker` con las mismas dimensiones exactas, así que tampoco cambió el
+layout.
+
+---
+
+## Dos criterios que se fijan acá
+
+### 1. Los rótulos en mayúsculas se quedan. Es una excepción consciente
+
+**No es un pendiente.** El texto ya está en minúsculas en el código —de 243
+rótulos, solo 4 en mayúsculas, y los 4 son siglas: `RUT` y `SDM`×3—. Las
+mayúsculas vienen de `text-transform: uppercase` en CSS.
+
+El problema es que **Chrome aplica `text-transform` al calcular el nombre
+accesible**: el código dice `Nombre completo` y el árbol de accesibilidad
+expone `NOMBRE COMPLETO`. Algunos lectores deletrean las palabras en
+mayúsculas.
+
+Quitar `text-transform` arreglaría el nombre, pero **cambiaría el aspecto de
+todos los formularios del sitio**, y el problema afecta solo a algunos
+lectores. La relación entre lo que cuesta y lo que resuelve no da.
+
+Queda así a propósito. Si alguien lo detecta en una auditoría futura, esto es
+la respuesta: ya se evaluó y se decidió.
+
+### 2. Al comparar capturas, el foco deja rastro
+
+Una diferencia de píxeles **concentrada en una sola fila horizontal es la firma
+de un borde**, no de un cambio de layout. Si algo se hubiera movido, las
+diferencias se repartirían por muchas filas.
+
+Pasó midiendo `Field`: 776 píxeles distintos, **656 de ellos en la fila 101**, a
+lo ancho justo del primer campo. Era `.input-line:focus` —el borde verde—,
+porque la sonda de accesibilidad había tecleado ahí y en una de las dos corridas
+después pulsaba otros elementos y quitaba el foco.
+
+**Una captura solo sirve para comparar si el estado es neutro en las dos
+corridas:** sin teclear, sin pulsar y con `blur()` explícito antes de disparar.
+Repetida así, la misma comparación dio 0.
+
+Corolario del mismo caso: **la caja de recorte tiene que apuntar al mismo
+elemento en las dos corridas.** Con `MapPicker` se usó
+`input.closest('div')` y, como el envoltorio pasó a ser un `<label>`, en la
+segunda corrida atrapó un `<div>` distinto: la captura salió de 656×62 a 656×98
+sin que nada hubiera cambiado de tamaño. Con una caja estable —la raíz— dio
+0 diferencias y las mismas dimensiones.
+
+---
+
+### El barrido completo de `src/`: quedan 83 campos sin asociar
+
+Las tandas anteriores midieron lo que tenían delante —los `<Field>`, los
+formularios públicos, `SearchBar`— y de ahí salió «quedan tres archivos». Era
+incompleto. Un barrido de **todo `src/` con el parser de TypeScript** da otro
+número.
+
+| Archivo | Campos sin nombre |
+|---|---:|
+| `components/cotizaciones/CotizacionesAdmin.tsx` | 35 |
+| `pages/admin/FichaClienteEditar.tsx` | 14 |
+| `pages/admin/FichaClienteNueva.tsx` | 14 |
+| `components/tarjetas/TarjetasEquipo.tsx` | 7 |
+| `pages/admin/Agentes.tsx` | 3 |
+| `pages/admin/FichaClienteDetalle.tsx` | 3 |
+| `pages/admin/FichaClientesLista.tsx` | 3 |
+| `pages/AdminPage.tsx` (el login) | 2 |
+| `pages/admin/Contenido.tsx` | 1 |
+| `pages/admin/Propiedades.tsx` | 1 |
+| **total fuera de `Captacion.tsx`** | **83** |
+
+`Captacion.tsx` suma 5 más y es dominio de la sesión Sofía.
+
+#### `Fld` es el mismo defecto que tenía `Field`, dos veces
+
+**42 de los 83** salen de un solo patrón: `CotizacionesAdmin` y
+`TarjetasEquipo` definen **cada uno su propio `Fld`**, copia exacta del `Field`
+viejo:
+
+```jsx
+function Fld({ label, children }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label …>{label}</label>   {/* yuxtapuesto, no envuelve */}
+      {children}
+    </div>
+  )
+}
+```
+
+Arreglarlos es el mismo cambio de dos líneas ya validado en `Field`: el `<div>`
+pasa a `<label>` y el `<label>` interior a `<span>` —con el estilo en el
+`<span>`, o el texto tecleado sale en mayúsculas—. Cerraría 42 de golpe.
+
+Los `FichaCliente*` (34) no tienen envoltorio: son campos sueltos y hay que
+mirarlos uno a uno.
+
+#### Los dos errores de medición que hubo que corregir
+
+Anotados porque cualquiera que repita el barrido va a tropezar con ellos:
+
+1. **Contar sobre el texto crudo cuenta los comentarios.** `Propiedades.tsx`
+   tiene un comentario que menciona `<input type="file">` y aparecía como campo
+   real.
+2. **Blanquear los comentarios con expresiones regulares rompe el conteo de
+   etiquetas.** Al hacerlo desapareció un `</label>`, la pila quedó abierta y
+   **los 35 campos de `CotizacionesAdmin` pasaron a figurar como asociados**.
+   Un falso negativo que da justo el resultado que uno quiere ver.
+
+La versión fiable **parsea con el compilador de TypeScript** y recorre el AST de
+JSX con la pila real de ancestros. Los comentarios, las cadenas y el anidamiento
+dejan de importar.
+
+> **Y hay que verificar qué asocia de verdad.** La primera pasada del barrido
+> con AST dio 45 en vez de 83, porque se había supuesto que `Fld` asociaba, por
+> parecerse a `Field`. Un envoltorio no asocia porque se llame parecido: hay que
+> abrir su implementación.
