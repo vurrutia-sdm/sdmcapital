@@ -106,7 +106,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | UX copy — tanda 2 | Estados vacíos, consistencia de botones, tuteo, últimos emojis. **Tocó `src/types/index.ts`, que es ZONA COMPARTIDA** — borró `agente_id`, un campo cuya columna nunca existió | Cerrada — commits `153765c`, `55ac084`, `edf05b6`, `e9ed05e` y `36a093e` |
 | 2026-08-07 | UX copy — tanda 3 | Las listas que se recortaban en silencio, más dos pendientes de la tanda 2 | Cerrada — commits `490fa33`, `59c5feb` y `b2df33d` |
 | 2026-08-07 | UX copy — subida de fotos | La subida descartaba archivos en silencio. Solo `src/pages/admin/Propiedades.tsx` | Cerrada — commit `0d95c6d` |
-| 2026-08-07 | UX copy — `<SEO>` en las rutas que faltaban | Blog, post, asociados, reserva, 404 y showcase. **Toca `src/pages/`, dominio de la sesión web pública**, y `src/App.tsx` para la 404 | En curso |
+| 2026-08-07 | UX copy — `<SEO>` en las rutas que faltaban | Blog, post, asociados, reserva, 404 y showcase. **Tocó `src/pages/`, dominio de la sesión web pública**, y `src/App.tsx` para la 404 | Cerrada — commit `209ec68`. **Deja dos pendientes: la Function del blog y el og-image roto** |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1786,6 +1786,66 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### `<SEO>` en las seis rutas que faltaban — y dos cosas que quedan rotas — 2026-08-07
+
+Commit `209ec68`. Las seis rutas que heredaban el título genérico ya ponen el
+suyo: `/blog`, `/blog/:slug`, `/asociados`, `/reserva/confirmacion`, la 404 y el
+showcase. Verificado navegándolas: ninguna cae ya en «SDM Capital | Inversión
+Inmobiliaria Chile & Internacional».
+
+`blog_posts` **sí** tenía los campos: `resumen` para la descripción e
+`imagen_portada` para el `og:image`, más `resumen_en` para seguir el mismo
+patrón bilingüe que el título.
+
+El showcase va **en inglés** porque la página arranca en inglés — `lang` parte
+en `'en'` y solo cambia si el visitante pulsa ES. Lleva las dos versiones y
+sigue al toggle.
+
+---
+
+#### PENDIENTE 1 · El blog NO tiene Pages Function. WhatsApp sigue sin ver nada.
+
+`functions/` tiene `api/imagen.js`, `api/subir.js` y `propiedades/[id].js`.
+**No hay equivalente para `/blog/`.**
+
+`propiedades/[id].js` existe justamente porque un crawler que no ejecuta
+JavaScript no ve lo que `<SEO>` escribe en el cliente: detecta el user-agent del
+bot (`facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|…`) y le devuelve HTML
+con los meta ya puestos.
+
+**Consecuencia:** lo de este commit arregla la pestaña del navegador, Google —que
+sí ejecuta JS— y cualquier crawler moderno. **No arregla la vista previa de
+WhatsApp ni la de LinkedIn para los artículos del blog**, que es el caso que
+motivó la tarea. Para eso hace falta `functions/blog/[slug].js`, calcado de
+`propiedades/[id].js`. **Es otra tarea y no está hecha.**
+
+#### PENDIENTE 2 · El `og:image` por defecto apunta a un archivo que no existe
+
+`SEO.tsx:12` dice:
+
+```js
+const DEFAULT_IMG = `${BASE}/og-image.jpg`
+```
+
+En `public/` hay **`og-image.png`** y **`og-image.svg`**. No hay `.jpg`. Y como
+el sitio responde 200 a todo (ver la entrada del `.DS_Store`),
+`https://sdmcapital.cl/og-image.jpg` devuelve **`index.html` con
+`content-type: text/html`** — o sea el crawler pide una imagen y recibe HTML.
+
+**Toda ruta que no pase su propia imagen comparte sin imagen.** Son todas menos
+la ficha de propiedad y, desde este commit, el post del blog.
+
+La Pages Function `propiedades/[id].js` **lo tiene bien**: usa
+`og-image.png`. O sea el bug está solo en el componente del cliente, y el valor
+correcto ya está escrito en el repo, a un carácter de distancia.
+
+No se corrigió acá: `src/components/SEO.tsx` queda fuera del dominio anunciado
+para esta tanda, que era `src/pages/`.
+
+#### Costo
+
+**+0,26 kB gzip.**
 
 ### SI EL CÓDIGO DESCARTA ALGO QUE EL USUARIO PIDIÓ, TIENE QUE DECIRLO — 2026-08-07
 
