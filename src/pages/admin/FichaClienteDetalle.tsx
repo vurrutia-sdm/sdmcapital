@@ -41,7 +41,7 @@ type Ficha = {
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
-  fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
+  fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: 'var(--navy-dark)', background: '#fff',
   border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
   outline: 'none', width: '100%',
 }
@@ -123,15 +123,15 @@ export default function FichaClienteDetalle() {
   }
 
   if (checking) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <div style={{ background: '#fff', padding: 40, borderRadius: 4, textAlign: 'center' }}>
-        <p style={{ marginBottom: 16, color: '#1a2e44' }}>Debes iniciar sesión.</p>
-        <Link to="/admin" style={{ color: '#0d2240', fontWeight: 600 }}>← Volver al admin</Link>
+        <p style={{ marginBottom: 16, color: 'var(--navy-dark)' }}>Debes iniciar sesión.</p>
+        <Link to="/admin" style={{ color: 'var(--navy-dark)', fontWeight: 600 }}>← Volver al admin</Link>
       </div>
     </div>
   )
@@ -145,7 +145,7 @@ export default function FichaClienteDetalle() {
             <ArrowLeft size={16} /> Clientes
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
-          <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>{cliente?.nombre || '…'}</span>
+          <span className="text-sdm-lg" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{cliente?.nombre || '…'}</span>
         </div>
         {clienteId && (
           <Link className="text-sdm-sm tracking-sdm-wide" to={`/admin/ficha-cliente/${clienteId}/nueva`}
@@ -164,11 +164,11 @@ export default function FichaClienteDetalle() {
           <>
             {/* Cliente card */}
             <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 4, padding: '20px 24px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#0d2240', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--navy-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span className="text-sdm-xl" style={{ color: '#fff', fontWeight: 700 }}>{cliente.nombre.charAt(0).toUpperCase()}</span>
               </div>
               <div style={{ flex: 1 }}>
-                <div className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 4 }}>{cliente.nombre}</div>
+                <div className="text-sdm-lg" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>{cliente.nombre}</div>
                 <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                   {cliente.telefono && <span>{cliente.telefono}</span>}
                   {cliente.correo && <span>{cliente.correo}</span>}
@@ -176,13 +176,13 @@ export default function FichaClienteDetalle() {
               </div>
               <Guardado visible={guardado} />
               <button className="text-sdm-sm" onClick={() => setShowEdit(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: '#0d2240', fontFamily: 'inherit' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: 'var(--navy-dark)', fontFamily: 'inherit' }}>
                 <Edit2 size={13} /> Editar
               </button>
             </div>
 
             {/* Fichas */}
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: '#0d2240', marginBottom: 12 }}>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 12 }}>
               Fichas ({fichas.length})
             </div>
 
@@ -213,13 +213,13 @@ export default function FichaClienteDetalle() {
                       </div>
 
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="text-sdm-base" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {f.direccion || 'Sin dirección'}
                         </div>
                         <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                           {f.tipo && <span>{f.tipo}</span>}
                           {f.operacion && <span>{f.operacion}</span>}
-                          {f.precio_uf && <span style={{ color: '#0d2240', fontWeight: 600 }}>UF {f.precio_uf.toLocaleString('es-CL')}</span>}
+                          {f.precio_uf && <span style={{ color: 'var(--navy-dark)', fontWeight: 600 }}>UF {f.precio_uf.toLocaleString('es-CL')}</span>}
                           <span>{new Date(f.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         </div>
                       </div>
@@ -230,7 +230,7 @@ export default function FichaClienteDetalle() {
                         )}
                         <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}/editar`) }}
                           title="Editar ficha"
-                          style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: '#0d2240', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
+                          style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
                           <Edit2 size={12} /> Editar
                         </button>
                         <button onClick={e => deleteFicha(e, f)} disabled={isDel} title="Eliminar ficha"
@@ -253,7 +253,7 @@ export default function FichaClienteDetalle() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,34,64,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
           onClick={e => { if (e.target === e.currentTarget) setShowEdit(false) }}>
           <div style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
-            <h2 className="text-sdm-xl" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 28, fontFamily: 'inherit' }}>Editar cliente</h2>
+            <h2 className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>Editar cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <FLabel label="Nombre *">
                 <input autoFocus value={editForm.nombre} onChange={e => setEditForm(f => ({ ...f, nombre: e.target.value }))} style={inp} />

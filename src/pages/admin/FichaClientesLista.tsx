@@ -29,7 +29,7 @@ type Cliente = {
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
-  fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
+  fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: 'var(--navy-dark)', background: '#fff',
   border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
   outline: 'none', width: '100%',
 }
@@ -95,15 +95,15 @@ export default function FichaClientesLista() {
   }
 
   if (checking) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <div style={{ background: '#fff', padding: 40, borderRadius: 4, textAlign: 'center' }}>
-        <p style={{ marginBottom: 16, color: '#1a2e44' }}>Debes iniciar sesión.</p>
-        <Link to="/admin" style={{ color: '#0d2240', fontWeight: 600 }}>← Volver al admin</Link>
+        <p style={{ marginBottom: 16, color: 'var(--navy-dark)' }}>Debes iniciar sesión.</p>
+        <Link to="/admin" style={{ color: 'var(--navy-dark)', fontWeight: 600 }}>← Volver al admin</Link>
       </div>
     </div>
   )
@@ -117,7 +117,7 @@ export default function FichaClientesLista() {
             <ArrowLeft size={16} /> Volver al admin
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
-          <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Fichas para clientes</span>
+          <span className="text-sdm-lg" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>Fichas para clientes</span>
           <Guardado visible={guardado} />
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={openModal}
@@ -150,12 +150,12 @@ export default function FichaClientesLista() {
                   style={{ background: '#fff', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s' }}
                 >
                   {/* Avatar inicial */}
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#0d2240', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--navy-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <span className="text-sdm-lg" style={{ color: '#fff', fontWeight: 700 }}>{c.nombre.charAt(0).toUpperCase()}</span>
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="text-sdm-base" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 3 }}>{c.nombre}</div>
+                    <div className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 3 }}>{c.nombre}</div>
                     <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                       {c.telefono && <span>{c.telefono}</span>}
                       {c.correo && <span>{c.correo}</span>}
@@ -186,7 +186,7 @@ export default function FichaClientesLista() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,34,64,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
           onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
           <div style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
-            <h2 className="text-sdm-xl" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 28, fontFamily: 'inherit' }}>Nuevo cliente</h2>
+            <h2 className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <FLabel label="Nombre *">
                 <input autoFocus value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} style={inp} placeholder="Nombre completo" onKeyDown={e => e.key === 'Enter' && saveCliente()} />

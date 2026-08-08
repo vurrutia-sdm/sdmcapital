@@ -42,7 +42,7 @@ function SpecCell({ icon, value, label }: { icon: React.ReactNode; value: string
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '10px 14px', border: '1px solid #e0e4ea', borderRadius: 4, minWidth: 72, background: '#fff' }}>
       <div style={{ color: 'var(--green-dark)' }}>{icon}</div>
-      <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240', lineHeight: 1 }}>{value}</span>
+      <span className="text-sdm-lg" style={{ fontWeight: 600, color: 'var(--navy-dark)', lineHeight: 1 }}>{value}</span>
       <span className="text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase' }}>{label}</span>
     </div>
   )
@@ -84,15 +84,15 @@ export default function FichaClienteVer() {
   }, [authed, fichaId, clienteId])
 
   if (checking) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <div style={{ background: '#fff', padding: 40, borderRadius: 4, textAlign: 'center' }}>
-        <p style={{ marginBottom: 16, color: '#1a2e44' }}>Debes iniciar sesión.</p>
-        <Link to="/admin" style={{ color: '#0d2240', fontWeight: 600 }}>← Volver al admin</Link>
+        <p style={{ marginBottom: 16, color: 'var(--navy-dark)' }}>Debes iniciar sesión.</p>
+        <Link to="/admin" style={{ color: 'var(--navy-dark)', fontWeight: 600 }}>← Volver al admin</Link>
       </div>
     </div>
   )
@@ -120,12 +120,12 @@ export default function FichaClienteVer() {
             <ArrowLeft size={16} /> Volver al cliente
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
-          <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>
+          <span className="text-sdm-lg" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>
             {ficha?.direccion || 'Ficha de propiedad'}
           </span>
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={() => window.print()}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#0d2240', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--navy-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           <Printer size={15} /> Imprimir / Guardar PDF
         </button>
       </div>
@@ -146,7 +146,7 @@ export default function FichaClienteVer() {
           <div className="page-1 pe" style={{ background: '#fff', maxWidth: 794, margin: '0 auto' }}>
 
             {/* HEADER */}
-            <div className="pe" style={{ background: '#0d2240', padding: '1rem 1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="pe" style={{ background: 'var(--navy-dark)', padding: '1rem 1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               {/* Logo */}
               <div style={{ padding: 0 }}>
                 <img src="/logo-sdm.png" style={{ height: '60px', width: 'auto', objectFit: 'contain', display: 'block' }} alt="SDM Capital" />
@@ -174,13 +174,13 @@ export default function FichaClienteVer() {
               )}
 
               {/* Dirección */}
-              <div className="text-sdm-2xl" style={{ fontWeight: 500, color: '#0d2240', marginBottom: 8, lineHeight: 1.3, fontFamily: 'Georgia, serif' }}>
+              <div className="text-sdm-2xl" style={{ fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 8, lineHeight: 1.3, fontFamily: 'Georgia, serif' }}>
                 {ficha.direccion || 'Propiedad SDM Capital'}
               </div>
 
               {/* Precio */}
               {ficha.precio_uf && (
-                <div className="text-sdm-display-sm" style={{ fontWeight: 500, color: '#0d2240', marginBottom: 20, fontFamily: 'Georgia, serif' }}>
+                <div className="text-sdm-display-sm" style={{ fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 20, fontFamily: 'Georgia, serif' }}>
                   UF {ficha.precio_uf.toLocaleString('es-CL')}
                 </div>
               )}
@@ -208,7 +208,7 @@ export default function FichaClienteVer() {
             </div>
 
             {/* CTA STRIP */}
-            <div className="pe" style={{ background: '#0d2240', padding: '18px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
+            <div className="pe" style={{ background: 'var(--navy-dark)', padding: '18px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
               <div>
                 <div className="text-sdm-base" style={{ fontWeight: 700, color: '#fff', marginBottom: 4, fontFamily: 'Georgia, serif' }}>
                   Tu búsqueda, en buenas manos.
@@ -231,7 +231,7 @@ export default function FichaClienteVer() {
 
             {/* FOOTER */}
             <div className="pe" style={{ background: 'var(--off)', borderTop: '1px solid #e0e4ea', padding: '11px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="text-sdm-sm" style={{ color: '#0d2240', fontWeight: 500 }}>
+              <span className="text-sdm-sm" style={{ color: 'var(--navy-dark)', fontWeight: 500 }}>
                 {ficha.asesor_nombre ? `${ficha.asesor_nombre} · ` : ''}SDM Capital
               </span>
               <span className="text-sdm-xs" style={{ color: '#9aafc2' }}>
@@ -257,7 +257,7 @@ export default function FichaClienteVer() {
               {/* Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, padding: 4, background: '#162e4a' }}>
                 {ficha.fotos.map((url, i) => (
-                  <div key={i} style={{ aspectRatio: '4/3', overflow: 'hidden', background: '#0d2240' }}>
+                  <div key={i} style={{ aspectRatio: '4/3', overflow: 'hidden', background: 'var(--navy-dark)' }}>
                     <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   </div>
                 ))}

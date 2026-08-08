@@ -40,7 +40,7 @@ const INIT: FormState = {
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
-  fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: '#1a2e44', background: '#fff',
+  fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: 'var(--navy-dark)', background: '#fff',
   border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
   outline: 'none', width: '100%',
 }
@@ -59,7 +59,7 @@ function FLabel({ label, children }: { label: string; children: React.ReactNode 
 function SCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 4, padding: '24px 28px', marginBottom: 20 }}>
-      <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: '#0d2240', marginBottom: 20, paddingBottom: 12, borderBottom: '1px solid #f0f4f8' }}>
+      <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20, paddingBottom: 12, borderBottom: '1px solid #f0f4f8' }}>
         {title}
       </div>
       {children}
@@ -161,15 +161,15 @@ export default function FichaClienteNueva() {
   }
 
   if (checking) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <div style={{ background: '#fff', padding: 40, borderRadius: 4, textAlign: 'center' }}>
-        <p style={{ marginBottom: 16, color: '#1a2e44' }}>Debes iniciar sesión.</p>
-        <Link to="/admin" style={{ color: '#0d2240', fontWeight: 600 }}>← Volver al admin</Link>
+        <p style={{ marginBottom: 16, color: 'var(--navy-dark)' }}>Debes iniciar sesión.</p>
+        <Link to="/admin" style={{ color: 'var(--navy-dark)', fontWeight: 600 }}>← Volver al admin</Link>
       </div>
     </div>
   )
@@ -183,7 +183,7 @@ export default function FichaClienteNueva() {
             <ArrowLeft size={16} /> Volver al cliente
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
-          <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Nueva ficha</span>
+          <span className="text-sdm-lg" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>Nueva ficha</span>
         </div>
       </div>
 
@@ -297,7 +297,7 @@ export default function FichaClienteNueva() {
             </>
           )}
           {photos.length < 15 && (
-            <label className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#0d2240', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: 'pointer', fontWeight: 600, textTransform: 'uppercase', fontFamily: 'inherit' }}>
+            <label className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--navy-dark)', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: 'pointer', fontWeight: 600, textTransform: 'uppercase', fontFamily: 'inherit' }}>
               + Agregar fotos
               <input type="file" accept="image/*" multiple style={{ display: 'none' }}
                 onChange={e => { if (e.target.files?.length) { addPhotos(e.target.files); e.target.value = '' } }} />
