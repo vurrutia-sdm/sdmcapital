@@ -41,7 +41,7 @@ function SpecCell({ icon, value, label }: { icon: React.ReactNode; value: string
   if (!value && value !== 0) return null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '10px 14px', border: '1px solid #e0e4ea', borderRadius: 4, minWidth: 72, background: '#fff' }}>
-      <div style={{ color: '#4db870' }}>{icon}</div>
+      <div style={{ color: 'var(--green-dark)' }}>{icon}</div>
       <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240', lineHeight: 1 }}>{value}</span>
       <span className="text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase' }}>{label}</span>
     </div>

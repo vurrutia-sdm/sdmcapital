@@ -148,7 +148,7 @@ export default function Agentes() {
           <Guardado visible={guardado} />
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={openCreate}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           <Plus size={15} /> Nuevo agente
         </button>
       </div>
@@ -160,7 +160,7 @@ export default function Agentes() {
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
             <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 20 }}>Todavía no hay agentes. Crea el primero para asignarle fichas de cliente.</div>
             <button className="text-sdm-base" onClick={openCreate}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               <Plus size={15} /> Crear primer agente
             </button>
           </div>
@@ -226,13 +226,13 @@ export default function Agentes() {
               </FLabel>
               <label className="text-sdm-base" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#1a2e44' }}>
                 <input type="checkbox" checked={form.activo} onChange={e => setForm(f => ({ ...f, activo: e.target.checked }))}
-                  style={{ accentColor: '#4db870', width: 15, height: 15 }} />
+                  style={{ accentColor: 'var(--green-dark)', width: 15, height: 15 }} />
                 Agente activo (aparece en el selector de fichas)
               </label>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
               <button className="text-sdm-base" onClick={save} disabled={saving || !form.nombre.trim()}
-                style={{ flex: 1, background: saving || !form.nombre.trim() ? '#a0b4c4' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, background: saving || !form.nombre.trim() ? '#a0b4c4' : 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Guardando…' : modal.editing ? 'Guardar cambios' : 'Crear agente'}
               </button>
               <button className="text-sdm-base" onClick={closeModal}

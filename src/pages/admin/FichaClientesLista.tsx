@@ -121,7 +121,7 @@ export default function FichaClientesLista() {
           <Guardado visible={guardado} />
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={openModal}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
           <Plus size={15} /> Nuevo cliente
         </button>
       </div>
@@ -134,7 +134,7 @@ export default function FichaClientesLista() {
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
             <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 20 }}>Todavía no hay clientes. Crea el primero para armarle una ficha.</div>
             <button className="text-sdm-base" onClick={openModal}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               <Plus size={15} /> Crear primer cliente
             </button>
           </div>
@@ -145,7 +145,7 @@ export default function FichaClientesLista() {
               const isDel = deleting === c.id
               return (
                 <div key={c.id}
-                  className="border border-[var(--border)] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
+                  className="border border-[var(--border)] hover:border-[var(--green-dark)] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
                   onClick={() => navigate(`/admin/ficha-cliente/${c.id}`)}
                   style={{ background: '#fff', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s' }}
                 >
@@ -200,7 +200,7 @@ export default function FichaClientesLista() {
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
               <button className="text-sdm-base" onClick={saveCliente} disabled={saving || !form.nombre.trim()}
-                style={{ flex: 1, background: saving || !form.nombre.trim() ? '#a0b4c4' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, background: saving || !form.nombre.trim() ? '#a0b4c4' : 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Guardando…' : 'Crear cliente'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowModal(false)}

@@ -325,7 +325,7 @@ export default function FichaClienteEditar() {
                 </select>
               </FLabel>
               <a className="text-sdm-sm" href="/admin/agentes" target="_blank" rel="noopener noreferrer"
-                style={{ color: '#4db870', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
+                style={{ color: 'var(--green-dark)', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
                 Gestionar agentes →
               </a>
             </div>
@@ -358,7 +358,7 @@ export default function FichaClienteEditar() {
                     return (
                       <div key={p.id}
                         {...filaProps(i)}
-                        style={{ opacity: arrastrando === i ? 0.45 : 1, position: 'relative', aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', cursor: 'grab', border: `2px solid ${p.kind === 'new' ? '#4db870' : 'var(--border)'}`, userSelect: 'none' }}>
+                        style={{ opacity: arrastrando === i ? 0.45 : 1, position: 'relative', aspectRatio: '4/3', borderRadius: 4, overflow: 'hidden', cursor: 'grab', border: `2px solid ${p.kind === 'new' ? 'var(--green-dark)' : 'var(--border)'}`, userSelect: 'none' }}>
                         <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
                         <div className="text-sdm-xs" style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(13,34,64,0.75)', borderRadius: 2, padding: '1px 6px', fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
                           {i + 1}
@@ -400,7 +400,7 @@ export default function FichaClienteEditar() {
 
           <div style={{ display: 'flex', gap: 12 }}>
             <button className="text-sdm-base tracking-sdm-wide" onClick={save} disabled={saving}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? 'var(--muted)' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? 'var(--muted)' : 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>
             <Link className="text-sdm-base" to={`/admin/ficha-cliente/${clienteId}/ficha/${fichaId}`}

@@ -149,7 +149,7 @@ export default function FichaClienteDetalle() {
         </div>
         {clienteId && (
           <Link className="text-sdm-sm tracking-sdm-wide" to={`/admin/ficha-cliente/${clienteId}/nueva`}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', textDecoration: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600 }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', textDecoration: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600 }}>
             <Plus size={15} /> Nueva ficha
           </Link>
         )}
@@ -190,7 +190,7 @@ export default function FichaClienteDetalle() {
               <div style={{ background: '#fff', border: '1px dashed var(--border)', borderRadius: 4, padding: '48px 24px', textAlign: 'center' }}>
                 <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 16 }}>Todavía no hay fichas para este cliente.</div>
                 <Link className="text-sdm-base" to={`/admin/ficha-cliente/${clienteId}/nueva`}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', textDecoration: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600 }}>
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', textDecoration: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600 }}>
                   <Plus size={15} /> Crear primera ficha
                 </Link>
               </div>
@@ -200,7 +200,7 @@ export default function FichaClienteDetalle() {
                   const isDel = deleting === f.id
                   return (
                     <div key={f.id}
-                      className="border border-[var(--border)] hover:border-[#4db870] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
+                      className="border border-[var(--border)] hover:border-[var(--green-dark)] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
                       onClick={() => navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}`)}
                       style={{ background: '#fff', borderRadius: 4, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', opacity: isDel ? 0.5 : 1 }}
                     >
@@ -267,7 +267,7 @@ export default function FichaClienteDetalle() {
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
               <button className="text-sdm-base" onClick={saveEdit} disabled={saving || !editForm.nombre.trim()}
-                style={{ flex: 1, background: saving || !editForm.nombre.trim() ? '#a0b4c4' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !editForm.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, background: saving || !editForm.nombre.trim() ? '#a0b4c4' : 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !editForm.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowEdit(false)}

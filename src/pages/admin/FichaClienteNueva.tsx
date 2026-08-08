@@ -248,7 +248,7 @@ export default function FichaClienteNueva() {
               </select>
             </FLabel>
             <a className="text-sdm-sm" href="/admin/agentes" target="_blank" rel="noopener noreferrer"
-              style={{ color: '#4db870', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
+              style={{ color: 'var(--green-dark)', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
               Gestionar agentes →
             </a>
           </div>
@@ -312,7 +312,7 @@ export default function FichaClienteNueva() {
         )}
 
         <button className="text-sdm-base tracking-sdm-wide" onClick={save} disabled={saving}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? 'var(--muted)' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? 'var(--muted)' : 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
           {saving ? (photos.length > 0 ? `Subiendo fotos y guardando…` : 'Guardando…') : 'Guardar ficha'}
         </button>
       </div>
