@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import SEO from '@/components/SEO'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 
@@ -245,6 +246,17 @@ export default function ElBarrancoShowcase() {
 
   return (
     <div className="sitio-publico" style={S.page}>
+      {/* En ingles porque la pagina arranca en ingles: el estado `lang` parte en
+          'en' y solo cambia si el visitante pulsa ES. Un titulo en espanol para
+          una pagina que se ve en ingles descoloca en la pestana y al compartir. */}
+      <SEO
+        title={lang === 'es' ? 'Hotel El Barranco · Futaleufú' : 'Hotel El Barranco · Futaleufú, Patagonia'}
+        description={lang === 'es'
+          ? 'Hotel boutique y restaurante en operación en Futaleufú, Patagonia. 25 años de historia, en venta con SDM Capital.'
+          : 'A fully operational boutique hotel and restaurant in Futaleufú, Patagonia. 25 years of history, for sale with SDM Capital.'}
+        url="/propiedades/hotel-restaurante-futaleufu-futaleufu-10d/showcase"
+        type="article"
+      />
 
       {/* ── Language toggle ── */}
       <div style={{ position: 'fixed', top: 20, right: 24, zIndex: 200, display: 'flex', overflow: 'hidden', border: '1px solid rgba(168,196,216,0.2)' }}>

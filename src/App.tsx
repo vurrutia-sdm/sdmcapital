@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import SEO from '@/components/SEO'
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { LangProvider } from '@/hooks/useLang'
 import Layout from '@/components/layout/Layout'
@@ -62,6 +63,8 @@ function CargandoAdmin() {
 function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6 px-8 text-center">
+      {/* Sin descripcion propia: hereda la generica del sitio. */}
+      <SEO title="Página no encontrada" />
       <div className="font-serif text-sdm-display-xl" style={{ fontWeight: 300, color: 'var(--border)' }}>404</div>
       <h1 className="font-serif font-light text-sdm-display-md" style={{ color: 'var(--navy-dark)' }}>
         Página no <em>encontrada</em>

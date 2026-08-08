@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SEO from '@/components/SEO'
 import { useParams, Link } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import DOMPurify from 'dompurify'
@@ -35,10 +36,21 @@ export default function BlogPostPage() {
 
   const titulo    = lang === 'en' && post.titulo_en    ? post.titulo_en    : post.titulo
   const contenido = lang === 'en' && post.contenido_en ? post.contenido_en : post.contenido
+  const resumen   = lang === 'en' && post.resumen_en   ? post.resumen_en   : post.resumen
   const fecha = new Date(post.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div>
+      {/* El resumen y la portada del propio post. Sin esto los trece articulos
+          compartian titulo y descripcion con la portada del sitio, que es justo
+          lo que se ve al compartir uno. */}
+      <SEO
+        title={titulo}
+        description={resumen || undefined}
+        image={post.imagen_portada || undefined}
+        url={`/blog/${post.slug}`}
+        type="article"
+      />
       {/* Breadcrumb */}
       <div className="px-8 lg:px-12 py-5 border-b border-[#e8edf2] flex items-center gap-2">
         <Link

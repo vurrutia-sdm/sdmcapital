@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SEO from '@/components/SEO'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import ContactSection from '@/components/sections/ContactSection'
@@ -24,6 +25,10 @@ export default function AsociadosPage() {
 
   return (
     <div>
+      <SEO
+        title="Nuestros asociados"
+        description="Red de socios y alianzas estratégicas de SDM Capital en Chile y el extranjero."
+      />
       {/* Header */}
       <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]">
         <div className="section-label" style={{ marginBottom: 18 }}>

@@ -18,6 +18,10 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Blog"
+        description="Artículos sobre mercado inmobiliario, financiamiento hipotecario e inversión en Chile."
+      />
       <div className="px-8 lg:px-12 pt-14 pb-10 border-b border-[#e8edf2]">
         <div className="section-label" style={{ marginBottom: 14 }}>Publicaciones</div>
         <h1 className="font-serif font-light text-sdm-display-lg" style={{ color: 'var(--navy-dark)' }}>

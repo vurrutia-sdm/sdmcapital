@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SEO from "@/components/SEO";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
 export default function ReservaConfirmacionPage() {
@@ -26,6 +27,8 @@ export default function ReservaConfirmacionPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--off)]">
+      {/* Sin descripcion propia a proposito: no es una pagina que se comparta. */}
+      <SEO title="Confirmación de reserva" />
       <div className="bg-white rounded-2xl shadow-lg p-10 max-w-md w-full text-center">
         {estado === "cargando" && (
           <>
