@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Check, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -54,10 +54,15 @@ function RadioGroup({ label, options, value, onChange }: {
   value: string
   onChange: (v: string) => void
 }) {
+  // El rótulo no puede ser un <label>: no hay un control al que asociarlo, las
+  // opciones son <button>. Un <label> suelto no nombra nada. `role="group"` +
+  // `aria-labelledby` sí le pone nombre al conjunto, sin tocar el texto visible
+  // ni el comportamiento de teclado.
+  const labelId = useId()
   return (
     <div className="flex flex-col gap-2">
-      <label style={labelStyle}>{label}</label>
-      <div className="flex flex-wrap gap-2">
+      <span id={labelId} style={labelStyle}>{label}</span>
+      <div className="flex flex-wrap gap-2" role="group" aria-labelledby={labelId}>
         {options.map(opt => (
           <button
             key={opt.value}
@@ -199,31 +204,31 @@ export default function SolicitudCreditoForm({
 
       <form onSubmit={submit} className="flex flex-col gap-7">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex flex-col gap-2">
-            <label style={labelStyle}>Nombres</label>
+          <label className="flex flex-col gap-2">
+            <span style={labelStyle}>Nombres</span>
             <input required className="input-line" value={form.nombres} onChange={set('nombres')} placeholder="Tus nombres" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label style={labelStyle}>Apellidos</label>
+          </label>
+          <label className="flex flex-col gap-2">
+            <span style={labelStyle}>Apellidos</span>
             <input required className="input-line" value={form.apellidos} onChange={set('apellidos')} placeholder="Tus apellidos" />
-          </div>
+          </label>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex flex-col gap-2">
-            <label style={labelStyle}>Email</label>
+          <label className="flex flex-col gap-2">
+            <span style={labelStyle}>Email</span>
             <input required type="email" className="input-line" value={form.email} onChange={set('email')} placeholder="tu@email.com" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label style={labelStyle}>Teléfono</label>
+          </label>
+          <label className="flex flex-col gap-2">
+            <span style={labelStyle}>Teléfono</span>
             <input required type="tel" className="input-line" value={form.telefono} onChange={set('telefono')} placeholder="+56 9 ···" />
-          </div>
+          </label>
         </div>
 
-        <div className="flex flex-col gap-2" style={{ maxWidth: 220 }}>
-          <label style={labelStyle}>RUT</label>
+        <label className="flex flex-col gap-2" style={{ maxWidth: 220 }}>
+          <span style={labelStyle}>RUT</span>
           <input required className="input-line" value={form.rut} onChange={e => setForm(f => ({ ...f, rut: formatRut(e.target.value) }))} placeholder="12.345.678-9" />
-        </div>
+        </label>
 
         <RadioGroup
           label="¿Qué quieres hacer?"
@@ -247,19 +252,25 @@ export default function SolicitudCreditoForm({
               ]}
             />
 
-            <div className="flex flex-col gap-2">
-              <label style={labelStyle}>Tipo de propiedad</label>
+            <label className="flex flex-col gap-2">
+              <span style={labelStyle}>Tipo de propiedad</span>
               <select className="input-line" value={form.tipo_propiedad} onChange={set('tipo_propiedad')}>
                 <option value="" disabled>Selecciona…</option>
                 {TIPOS_PROPIEDAD.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
-            </div>
+            </label>
           </>
         )}
 
         <div className="flex flex-col gap-2">
-          <label style={labelStyle}>Valor de la propiedad (UF)</label>
-          <input required type="number" min="0" className="input-line" value={form.valor_uf} onChange={set('valor_uf')} placeholder="Ej: 5000" />
+          {/* Acá el <label> envuelve solo al input, no al div entero: el texto
+              de ayuda de la UF cambia solo y no debe entrar en el nombre
+              accesible del campo. Los gap-2 anidados dan la misma separación
+              de 8px entre los tres elementos que había antes. */}
+          <label className="flex flex-col gap-2">
+            <span style={labelStyle}>Valor de la propiedad (UF)</span>
+            <input required type="number" min="0" className="input-line" value={form.valor_uf} onChange={set('valor_uf')} placeholder="Ej: 5000" />
+          </label>
           {uf.loading ? (
             <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Consultando valor UF…</p>
           ) : uf.error ? (
@@ -281,8 +292,8 @@ export default function SolicitudCreditoForm({
           ]}
         />
 
-        <div className="flex flex-col gap-2">
-          <label style={labelStyle}>Promedio estimado de sueldo líquido mensual (últimos 3 meses)</label>
+        <label className="flex flex-col gap-2">
+          <span style={labelStyle}>Promedio estimado de sueldo líquido mensual (últimos 3 meses)</span>
           <input
             required
             inputMode="numeric"
@@ -291,7 +302,7 @@ export default function SolicitudCreditoForm({
             onChange={e => setForm(f => ({ ...f, sueldo_promedio: formatThousands(e.target.value) }))}
             placeholder="Ej: 1.500.000"
           />
-        </div>
+        </label>
 
         {status === 'error' && (
           <p className="text-sdm-base" style={{ color: 'var(--error)' }}>{errorMsg || 'Error al enviar. Intenta de nuevo.'}</p>
