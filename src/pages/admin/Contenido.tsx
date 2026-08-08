@@ -27,7 +27,7 @@ import { invalidateContenidoCache } from '@/hooks/useContenido'
 import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad } from '@/types'
 import { Sec, Full } from '@/components/admin/layout'
-import { Field, Inp, Txa, Sel } from '@/components/admin/campos'
+import { Field, FieldGroup, Inp, Txa, Sel } from '@/components/admin/campos'
 import { SaveBtn, Guardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 
@@ -421,9 +421,9 @@ export default function Contenido() {
               <Field label="Texto del botón"><Inp value={d.banner_cta_texto} onChange={set('banner_cta_texto')} /></Field>
               <Field label="Enlace del botón"><Inp value={d.banner_cta_url} onChange={set('banner_cta_url')} /></Field>
               <Full>
-                <Field label="Imagen (columna derecha)">
+                <FieldGroup label="Imagen (columna derecha)">
                   <ImageUploader currentUrl={d.banner_imagen} folder="banner" onUploaded={url => setD(p => ({ ...p, banner_imagen: url }))} />
-                </Field>
+                </FieldGroup>
               </Full>
             </Sec>
           )
@@ -447,7 +447,7 @@ export default function Contenido() {
         <Sec title={<><Wallet size={18} strokeWidth={1.75} />Sección Financiamiento</>}>
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>
           <Full><Field label="Descripción"><Txa value={d.financiamiento_body} onChange={set('financiamiento_body')} rows={3} /></Field></Full>
-          <Full><Field label="Foto de apoyo"><ImageUploader currentUrl={d.financiamiento_imagen} folder="paginas" onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} /></Field></Full>
+          <Full><FieldGroup label="Foto de apoyo"><ImageUploader currentUrl={d.financiamiento_imagen} folder="paginas" onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} /></FieldGroup></Full>
         </Sec>
         <Sec title={<><Globe size={18} strokeWidth={1.75} />Fotos de destinos internacionales</>}>
           {[
@@ -455,7 +455,7 @@ export default function Contenido() {
             { key: 'dest_orlando_img', label: 'Orlando' }, { key: 'dest_espana_img', label: '🇪🇸 España' },
             { key: 'dest_uruguay_img', label: '🇺🇾 Uruguay' }, { key: 'dest_nueva_york_img', label: 'Nueva York' },
           ].map(({ key, label }) => (
-            <Full key={key}><Field label={label}><ImageUploader currentUrl={(d as Record<string,string>)[key] || ''} folder="destinos" onUploaded={url => setD(p => ({ ...p, [key]: url }))} /></Field></Full>
+            <Full key={key}><FieldGroup label={label}><ImageUploader currentUrl={(d as Record<string,string>)[key] || ''} folder="destinos" onUploaded={url => setD(p => ({ ...p, [key]: url }))} /></FieldGroup></Full>
           ))}
         </Sec>
       </>}
@@ -484,7 +484,7 @@ export default function Contenido() {
           <Full><Field label="Párrafo 1"><Txa value={d.qs_historia_1} onChange={set('qs_historia_1')} rows={3} /></Field></Full>
           <Full><Field label="Párrafo 2"><Txa value={d.qs_historia_2} onChange={set('qs_historia_2')} rows={3} /></Field></Full>
           <Full><Field label="Párrafo 3"><Txa value={d.qs_historia_3} onChange={set('qs_historia_3')} rows={3} /></Field></Full>
-          <Full><Field label={<><Camera size={14} strokeWidth={2} />Foto oficina / equipo</>}><ImageUploader currentUrl={d.quienes_imagen_historia} folder="paginas" onUploaded={url => setD(p => ({ ...p, quienes_imagen_historia: url }))} /></Field></Full>
+          <Full><FieldGroup label={<><Camera size={14} strokeWidth={2} />Foto oficina / equipo</>}><ImageUploader currentUrl={d.quienes_imagen_historia} folder="paginas" onUploaded={url => setD(p => ({ ...p, quienes_imagen_historia: url }))} /></FieldGroup></Full>
         </Sec>
       </>}
 
@@ -514,7 +514,7 @@ export default function Contenido() {
               <Field label="Título"><Inp value={(d as Record<string,string>)[`servicio_${key}_titulo`] || ''} onChange={set(`servicio_${key}_titulo`)} /></Field>
               <Full><Field label="Descripción"><Txa value={(d as Record<string,string>)[`servicio_${key}_desc`] || ''} onChange={set(`servicio_${key}_desc`)} rows={3} /></Field></Full>
               <Full><Field label='Tags (separados por coma)'><Txa value={(d as Record<string,string>)[`servicio_${key}_tags`] || ''} onChange={set(`servicio_${key}_tags`)} rows={2} /></Field></Full>
-              <Full><Field label="Foto"><ImageUploader currentUrl={(d as Record<string,string>)[imgKey] || ''} folder="servicios" onUploaded={url => setD(p => ({ ...p, [imgKey]: url }))} /></Field></Full>
+              <Full><FieldGroup label="Foto"><ImageUploader currentUrl={(d as Record<string,string>)[imgKey] || ''} folder="servicios" onUploaded={url => setD(p => ({ ...p, [imgKey]: url }))} /></FieldGroup></Full>
             </Sec>
           )
         })}

@@ -7,7 +7,7 @@
 //
 // Todos van a nivel de módulo. Ver la nota en `layout.tsx`.
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 
 // `Field` ENVUELVE a su control. Un <label> que contiene a su campo lo asocia
 // sin `htmlFor` y sin `id`, y sin ids no hay ninguno que pueda colisionar.
@@ -29,6 +29,34 @@ export function Field({ label, children }: { label: React.ReactNode; children: R
       <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>{label}</span>
       {children}
     </label>
+  )
+}
+
+// La variante de `Field` para lo que NO es un control etiquetable: los
+// editores compuestos —`ImageUploader`, `RichTextEditor`,
+// `PropImageManager`—. Se ve exactamente igual que un `Field`.
+//
+// POR QUE NO PUEDE SER UN <label>
+//
+// `ImageUploader` y `PropImageManager` traen DENTRO su propio <label>
+// envolviendo un <input type="file"> oculto. Un <label> por fuera anida
+// etiquetas —invalido— y, peor, apunta al primer descendiente etiquetable, que
+// es justamente ese selector de archivos: pulsar el rotulo "Foto del destino"
+// abriria el dialogo de subida. `ImageUploader` ademas tiene un segundo
+// control, el input de solo lectura con la URL, y un <label> solo asocia al
+// primero.
+//
+// El id sale de `useId()` y no se escribe a mano: varios de estos se montan
+// mas de una vez en la misma pagina —los 8 de `Barranco`, los 5 de
+// `Contenido`— y dos ids iguales no fallan, se asocian al primero y dejan al
+// resto sin nombre, en silencio.
+export function FieldGroup({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+  const labelId = useId()
+  return (
+    <div className="flex flex-col gap-2" role="group" aria-labelledby={labelId}>
+      <span id={labelId} className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>{label}</span>
+      {children}
+    </div>
   )
 }
 

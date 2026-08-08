@@ -29,7 +29,7 @@ import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad, DossierItem, UnidadPropiedad } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
-import { Field, Inp, Chk, Sel } from '@/components/admin/campos'
+import { Field, FieldGroup, Inp, Chk, Sel } from '@/components/admin/campos'
 import { SaveBtn, Badge, Guardado, useGuardado } from '@/components/admin/acciones'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
 import type { Dispatch, SetStateAction } from 'react'
@@ -739,13 +739,13 @@ export default function Propiedades() {
           </div>
 
           <div className="mb-6">
-            <Field label={`Galería de imágenes (hasta ${MAX_FOTOS} fotos)`}>
+            <FieldGroup label={`Galería de imágenes (hasta ${MAX_FOTOS} fotos)`}>
               <PropImageManager
                 imagenes={editing.imagenes || []}
                 imagenPrincipal={editing.imagen_principal || ''}
                 onChange={(imagenes, principal) => setEditing(p => ({ ...p, imagenes, imagen_principal: principal }))}
               />
-            </Field>
+            </FieldGroup>
           </div>
 
           <div className="mb-6">
@@ -773,12 +773,12 @@ export default function Propiedades() {
           </div>
 
           <div className="mb-6">
-            <Field label="Descripción">
+            <FieldGroup label="Descripción">
               <RichTextEditor
                 value={editing.descripcion || ''}
                 onChange={v => setEditing(p => ({ ...p, descripcion: v }))}
               />
-            </Field>
+            </FieldGroup>
           </div>
 
           <div className="flex gap-3">

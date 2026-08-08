@@ -10,7 +10,7 @@ import { BarChart3, Bed, BookOpen, Building2, Clapperboard, ClipboardList, Image
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Sec, Full } from '@/components/admin/layout'
-import { Field, Inp, Txa } from '@/components/admin/campos'
+import { Field, FieldGroup, Inp, Txa } from '@/components/admin/campos'
 import { SaveBtn, Guardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 
@@ -186,23 +186,23 @@ export default function Barranco() {
         <div />
         {bi('hero_subtitulo', 'hero_subtitulo_es', 'Subtítulo')}
         {biTxa('hero_tagline', 'hero_tagline_es', 'Tagline / descripción')}
-        <Full><Field label="Foto sección Destino">
+        <Full><FieldGroup label="Foto sección Destino">
           <ImageUploader currentUrl={d.destination_foto} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, destination_foto: url }))} />
-        </Field></Full>
-        <Full><Field label="Foto banner principal (showcase)">
+        </FieldGroup></Full>
+        <Full><FieldGroup label="Foto banner principal (showcase)">
           <ImageUploader currentUrl={d.banner_foto} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, banner_foto: url }))} />
-        </Field></Full>
-        <Full><Field label="Foto banner en página de propiedad">
+        </FieldGroup></Full>
+        <Full><FieldGroup label="Foto banner en página de propiedad">
           <ImageUploader currentUrl={d.banner_detalle_foto} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, banner_detalle_foto: url }))} />
-        </Field></Full>
+        </FieldGroup></Full>
       </Sec>
 
       {/* ── Carousel ── */}
       <Sec title={<><Image size={18} strokeWidth={1.75} />Carousel Hero (4 fotos)</>}>
         {(['hero_img_1', 'hero_img_2', 'hero_img_3', 'hero_img_4'] as const).map((k, i) => (
-          <Full key={k}><Field label={`Foto carousel ${i + 1}`}>
+          <Full key={k}><FieldGroup label={`Foto carousel ${i + 1}`}>
             <ImageUploader currentUrl={d[k]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [k]: url }))} />
-          </Field></Full>
+          </FieldGroup></Full>
         ))}
       </Sec>
 
@@ -234,9 +234,9 @@ export default function Barranco() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bi(`actividad_${n}_titulo`, `actividad_${n}_titulo_es`, 'Título')}
                 {bi(`actividad_${n}_sub`, `actividad_${n}_sub_es`, 'Subtítulo')}
-                <Full><Field label="Foto">
+                <Full><FieldGroup label="Foto">
                   <ImageUploader currentUrl={d[`act_${n}_img`]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [`act_${n}_img`]: url }))} />
-                </Field></Full>
+                </FieldGroup></Full>
               </div>
             </div>
           </Full>
@@ -250,9 +250,9 @@ export default function Barranco() {
         {bi('prop_titulo', 'prop_titulo_es', 'Título de sección')}
         {biTxa('propiedad_desc', 'propiedad_desc_es', 'Descripción introductoria', 4)}
         {(['prop_foto1', 'prop_foto2', 'prop_foto3', 'prop_foto4'] as const).map((k, i) => (
-          <Full key={k}><Field label={`Foto propiedad ${i + 1} (grid 2×2)`}>
+          <Full key={k}><FieldGroup label={`Foto propiedad ${i + 1} (grid 2×2)`}>
             <ImageUploader currentUrl={d[k]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [k]: url }))} />
-          </Field></Full>
+          </FieldGroup></Full>
         ))}
       </Sec>
 
@@ -380,13 +380,13 @@ export default function Barranco() {
       <Sec title={<><Image size={18} strokeWidth={1.75} />Galería (7 fotos)</>}>
         {bi('gallery_eyebrow', 'gallery_eyebrow_es', 'Eyebrow / kicker')}
         {bi('gallery_titulo', 'gallery_titulo_es', 'Título de sección')}
-        <Full><Field label="Foto 1 — grande 2×2 (izquierda)">
+        <Full><FieldGroup label="Foto 1 — grande 2×2 (izquierda)">
           <ImageUploader currentUrl={d.gallery_1} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, gallery_1: url }))} />
-        </Field></Full>
+        </FieldGroup></Full>
         {(['gallery_2', 'gallery_3', 'gallery_4', 'gallery_5', 'gallery_6', 'gallery_7'] as const).map((k, i) => (
-          <Full key={k}><Field label={`Foto ${i + 2}`}>
+          <Full key={k}><FieldGroup label={`Foto ${i + 2}`}>
             <ImageUploader currentUrl={d[k]} folder="propiedades" onUploaded={url => setD(prev => ({ ...prev, [k]: url }))} />
-          </Field></Full>
+          </FieldGroup></Full>
         ))}
       </Sec>
 

@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import { Sec, Full } from '@/components/admin/layout'
-import { Field, Inp, Txa } from '@/components/admin/campos'
+import { Field, FieldGroup, Inp, Txa } from '@/components/admin/campos'
 import { SaveBtn, Guardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 
@@ -86,7 +86,7 @@ export default function Rental() {
       </div>
 
       <Sec title={<><Image size={18} strokeWidth={1.75} />Hero</>}>
-        <Full><Field label="Imagen de fondo"><ImageUploader currentUrl={d.rental_hero_img} folder="rental" onUploaded={url => setD(p => ({ ...p, rental_hero_img: url }))} /></Field></Full>
+        <Full><FieldGroup label="Imagen de fondo"><ImageUploader currentUrl={d.rental_hero_img} folder="rental" onUploaded={url => setD(p => ({ ...p, rental_hero_img: url }))} /></FieldGroup></Full>
         <Full><Field label="Título"><Inp value={d.rental_hero_titulo} onChange={set('rental_hero_titulo')} /></Field></Full>
         <Full><Field label="Subtítulo"><Txa value={d.rental_hero_subtitulo} onChange={set('rental_hero_subtitulo')} rows={3} /></Field></Full>
       </Sec>

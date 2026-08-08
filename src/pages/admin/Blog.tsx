@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import type { BlogPost } from '@/types'
-import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
+import { Field, FieldGroup, Inp, Txa, Chk } from '@/components/admin/campos'
 import { SaveBtn, Badge, Guardado, useGuardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
@@ -62,10 +62,10 @@ export default function Blog() {
             <Field label="Autor"><Inp value={editing.autor_nombre || ''} onChange={v => setEditing(p => ({ ...p, autor_nombre: v }))} /></Field>
           </div>
           <div className="mb-6">
-            <Field label="Imagen de portada">
+            <FieldGroup label="Imagen de portada">
               <ImageUploader currentUrl={editing.imagen_portada} folder="blog"
                 onUploaded={url => setEditing(p => ({ ...p, imagen_portada: url }))} />
-            </Field>
+            </FieldGroup>
           </div>
           <div className="mb-4">
             <Field label="Resumen"><Txa rows={2} value={editing.resumen || ''} onChange={v => setEditing(p => ({ ...p, resumen: v }))} /></Field>
@@ -73,12 +73,12 @@ export default function Blog() {
 
           {/* ─── RICH TEXT EDITOR ─── */}
           <div className="mb-6">
-            <Field label="Contenido completo">
+            <FieldGroup label="Contenido completo">
               <RichTextEditor
                 value={editing.contenido || ''}
                 onChange={v => setEditing(p => ({ ...p, contenido: v }))}
               />
-            </Field>
+            </FieldGroup>
           </div>
 
           <div className="flex gap-6 mt-4 mb-6">
