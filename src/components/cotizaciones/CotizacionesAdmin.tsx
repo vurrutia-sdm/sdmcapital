@@ -488,11 +488,17 @@ function CotizacionWizard({
                     onChange={e => setPropSearch(e.target.value)}
                   />
                 </Fld>
+                {/* Sin tope de resultados. Lo habia -- .slice(0, 12) -- y no lo
+                    justificaba ni el espacio ni el rendimiento: el contenedor ya
+                    scrollea (maxHeight 220) y el catalogo son 53 filas que ademas
+                    vienen filtradas por el termino de busqueda. Lo unico que
+                    lograba era que la propiedad numero 13 no apareciera, sin
+                    decirlo: quien la buscaba concluia que no estaba en el catalogo. */}
                 {propSearch.length > 0 && (
                   <div style={{ border: '1px solid var(--border)', borderRadius: 2, maxHeight: 220, overflowY: 'auto' }}>
                     {propsFiltradas.length === 0 ? (
                       <div className="text-sdm-sm" style={{ padding: '12px 16px', color: 'var(--muted)' }}>Ninguna propiedad coincide. Prueba con otro término.</div>
-                    ) : propsFiltradas.slice(0, 12).map(p => (
+                    ) : propsFiltradas.map(p => (
                       <button
                         key={p.id}
                         onClick={() => selectProp(p)}
