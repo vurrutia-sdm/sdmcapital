@@ -112,6 +112,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Sistema de color — tanda 1 | Insignias de estado y de oportunidad a variables semánticas, con contraste AA. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `12a46e2`. **`.btn-evaluacion` NO se eliminó: la condición de parada del encargo se disparó, ver el registro** |
 | 2026-08-07 | Sistema de color — botón invertido | `.btn-evaluacion` eliminado, `.btn-inverse` creada. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `8c9770b` |
 | 2026-08-07 | Color de estado — «Reservada» a tono frío | `--estado-reservada` de ámbar a petróleo, por daltonismo. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `f3d5860` |
+| 2026-08-07 | Sistema de color — unificar la paleta paralela | Tres de los cinco colores del módulo de fichas pasan a la paleta oficial. Los dos navy quedan pendientes de decisión | Cerrada — commits `2560d41`, `fcc24dc` y `788f51f` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1791,6 +1792,84 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### LA PALETA OFICIAL ES LA ÚNICA — 2026-08-07
+
+Commits `2560d41`, `fcc24dc`, `788f51f`. **Los colores viven en
+`src/styles/globals.css`. No se escriben literales hexadecimales en los
+componentes.**
+
+El módulo de fichas de cliente y agentes tenía una paleta completa propia — 164
+usos, cero `var(--)` de la oficial. No fue deriva: entró de una en el commit
+`8c9e412` (2026-06-24, 152 archivos), **dos meses después** de que la paleta
+existiera en el primer deploy. Ya usaba la escala tipográfica oficial; lo único
+desalineado era el color.
+
+| paralelo | → oficial | ΔE | qué arregla |
+|---|---|---|---|
+| `#F5F7FA` | `--off` | 1.2 | nada, era invisible |
+| `#DCE4EC` | `--border` | 2.6 | nada, umbral |
+| **`#7A8FA6`** | **`--muted`** | 11.6 | **3.33 → 5.03:1** |
+| **`#4DB870`** | **`--green-dark`** | 18.6 | **2.50 → 4.85:1** |
+
+`#7A8FA6` era **peor que el `#7a8a96` que la Fase 1 ya había descartado** por no
+cumplir: 3.33 contra 3.56. La corrección se aplicó a la variable y este módulo,
+al no usarla, se la saltó. **Ése es el argumento contra los literales**: una
+corrección centralizada no alcanza a quien no está centralizado.
+
+#### Las dos excepciones
+
+**`tarjeta.css` se queda con su tercera paleta.** Está justificada: se importa
+`?raw` y se inyecta en un contenedor que `html-to-image` rasteriza a PDF, sin el
+reset global. Define sus variables con ámbito propio en `.sdm-pcard, .sdm-sheet`.
+Es autocontención deliberada, no desconocimiento.
+
+**`Captacion.tsx` queda con 5 usos pendientes** —`#0D2240`, `#7A8FA6`, `#F5F7FA`
+y `#4DB870` en su objeto `COLORS`— por ser dominio de la sesión Sofía. Necesita
+autorización.
+
+#### Lo que se revisó antes de tocar
+
+- **Los 6 usos de `#DCE4EC` como texto** son los seis el mismo elemento: el `|`
+  que separa «← Volver al admin» del título. Separador tipográfico, mismo rol
+  que un borde, y **WCAG exime el texto puramente decorativo**, así que su
+  1.28:1 no es incumplimiento. Merecería `aria-hidden`: hoy se lee como «barra
+  vertical».
+- **El aviso de `--muted` sobre `#0D2240` no se materializó.** Revisados los 36
+  usos uno por uno, ninguno está sobre fondo oscuro. Los tres que un primer
+  barrido marcó eran falsos positivos: lo que detectaba era el color de **texto
+  de un hermano**, no un fondo.
+- `#a0b4c4` de botones deshabilitados **no se toca**: WCAG exime los controles
+  deshabilitados.
+
+#### Los dos navy quedan pendientes
+
+`#0D2240` (59 usos) y `#1A2E44` (14) siguen como literales. Ver la entrada
+siguiente.
+
+### `#0D2240` y `#1A2E44`: qué son antes de decidir — 2026-08-07
+
+**No son el mismo rol con dos valores por descuido: hacen trabajos distintos.**
+
+| | `#0D2240` | `#1A2E44` |
+|---|---|---|
+| como fondo | **20 usos** | **0** |
+| como texto | 31 | 12 |
+
+`#0D2240` **como fondo** son: el portón de sesión a pantalla completa
+(`minHeight: 100vh`, dos por archivo × 5), los círculos de avatar con iniciales,
+las barras de cabecera de la vista de impresión, el marcador de foto, y dos
+botones. **Como texto** son títulos, nombres y valores, siempre sobre claro.
+
+`#1A2E44` **nunca es fondo**. Sus 12 usos se reparten en dos grupos: el `color`
+del `inputStyle` compartido de cada archivo (5), y el párrafo «Debes iniciar
+sesión.» (7).
+
+Comprobado que ese párrafo **no** está sobre el panel oscuro —hay una tarjeta
+blanca en medio—, así que da 13.83:1 y no hay bug.
+
+Decisión pendiente: si los dos van a `--navy-dark` (ΔE 7.6 y 4.5), si uno va a
+`--navy`, o si conviene conservar la distinción fondo/texto.
 
 ### LOS COLORES DE ESTADO SE VERIFICAN CON ΔE2000 BAJO DALTONISMO — 2026-08-07
 
