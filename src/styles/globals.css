@@ -126,9 +126,14 @@
     @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-opacity duration-200 hover:opacity-90;
     background: var(--navy-dark);
   }
+  /* Fondo `--green-dark` y no `--green`. Blanco sobre #3DAA6E da 2.93:1, que no
+     llega ni al umbral de texto grande (3:1); sobre #2D8055 da 4.85:1 y cumple
+     AA. `--green` NO se toca: sigue siendo el color de marca, y sobre fondos
+     oscuros rinde bien (5.37:1 sobre --navy-dark). El problema es solo blanco
+     ENCIMA de verde. */
   .btn-green {
     @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-opacity duration-200 hover:opacity-90;
-    background: var(--green);
+    background: var(--green-dark);
   }
   .btn-outline {
     @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-normal tracking-[1.5px] uppercase cursor-pointer rounded-[2px] transition-all duration-200 border;
