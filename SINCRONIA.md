@@ -103,7 +103,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Limpieza técnica | Alinear las versiones de TipTap para quitar `--legacy-peer-deps`, y precisar la condición de `SinArriendos`. **Tocó `package.json` y `package-lock.json`, que son ZONA COMPARTIDA** | Cerrada — commits `be3fa8a` y `441065c`. **El lockfile se regeneró entero**: si otra sesión tenía cambios en él, hay que reinstalar |
 | 2026-08-07 | Cierre — tagline y línea de Captación | **Invasión de dominio autorizada por Víctor: una línea de `Captacion.tsx`** (`minmax(380px, 1fr)` → responsive). Sesión Sofía, no se tocó nada más de ese archivo. Además, tagline único en código y meta tags | Cerrada — commits `5916af3` y `1b2095c`. Quedan 3 claves de `contenido_sitio` por editar a mano desde el admin |
 | 2026-08-07 | UX copy — tanda 1 | Errores, confirmaciones de borrado y confirmación de guardado. **Tocó `src/lib/errores.ts`, que es ZONA COMPARTIDA** — solo el texto de la alerta; la firma y el log a consola quedan igual | Cerrada — commits `a1c53a9`, `8187a81`, `4cdcbd2` y `4ad82a8` |
-| 2026-08-07 | UX copy — tanda 2 | Estados vacíos, consistencia de botones, tuteo, últimos emojis. **Toca `src/types/index.ts`, que es ZONA COMPARTIDA** — solo para borrar `agente_id`, un campo cuya columna nunca existió | En curso |
+| 2026-08-07 | UX copy — tanda 2 | Estados vacíos, consistencia de botones, tuteo, últimos emojis. **Tocó `src/types/index.ts`, que es ZONA COMPARTIDA** — borró `agente_id`, un campo cuya columna nunca existió | Cerrada — commits `153765c`, `55ac084`, `edf05b6`, `e9ed05e` y `36a093e` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1783,6 +1783,94 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### UX copy tanda 2 — vacíos, consistencia, tuteo e iconos — 2026-08-07
+
+| Commit | Qué |
+|---|---|
+| `153765c` | una sola forma de estado vacío, con salida |
+| `55ac084` | botones de alta, «volver» y menú móvil |
+| `edf05b6` | tuteo en los tres textos que trataban de usted |
+| `e9ed05e` | los emojis que quedaban pasan a lucide |
+| `36a093e` | `agente_id` fuera del tipo |
+
+#### `agente_id` NO EXISTE. No reintroducirlo.
+
+Estaba declarado en `Propiedad` (`src/types/index.ts`) pero **la columna nunca
+existió**: PostgREST responde `42703 column propiedades.agente_id does not
+exist`. Grep sobre `src/`, `functions/` y `supabase/` daba **una** aparición: la
+propia declaración.
+
+Un campo fantasma en el tipo es peor que no tenerlo, porque cualquiera que lea
+`Propiedad` asume que puede pedirlo y se entera de que no existe recién cuando
+el SELECT devuelve 400 en producción. Pasó de verdad: el texto que se encargó
+para la confirmación de borrado de agentes en la tanda 1 daba por hecho una
+relación agente↔ficha que **no existe** — las fichas copian `asesor_nombre` /
+`asesor_telefono` / `asesor_correo`, no referencian nada.
+
+**Si hace falta asociar propiedades a agentes, primero la migración, después el
+tipo.**
+
+#### Dos cosas del encargo que no eran lo que parecían
+
+**Los tres botones «sin +» ya tenían uno.** Era un `<Plus>` de lucide, no un
+carácter. Agregar un `+` literal habría dado dos plus en el mismo botón. La
+inconsistencia real era de mecanismo —seis con el carácter, tres con el
+icono— y se unificó en el icono, que es adonde fue el resto del proyecto.
+
+**Lo mismo con «Volver al admin» y «Volver al cliente»:** llevan un `<ArrowLeft>`
+justo antes, así que ya se leen con flecha. Solo los seis «← Ir al admin»
+necesitaban cambio. Regla para el futuro: **antes de anteponer un signo,
+comprobar si ya está puesto como icono.**
+
+#### Los emojis eran catorce, no cuatro
+
+El encargo listaba los cuatro que había detectado la auditoría, pero el criterio
+de verificación pedía cero emojis en el admin y en la ficha, así que se barrió
+entero: `✓ ✏️ 📄 📧 ⏳ 🗑 🔗 🅿 📦 🏗 🖨️ 📌`. Los `🅿 📦 🏗` convivían en la **misma
+fila** con iconos lucide, o sea eran leftovers evidentes.
+
+Los `⏳` ganaron giro de paso: `Loader2` con `animate-spin`, que es utilidad de
+Tailwind y no necesita CSS nuevo. Antes el reloj de arena estaba quieto.
+
+**Dos se quedan a propósito, no se olvidaron:**
+
+| dónde | qué | por qué |
+|---|---|---|
+| `Propiedades.tsx:824` | `{p.internacional ? '🌐' : '🇨🇱'}` | el globo hace pareja con la bandera chilena, que es excepción documentada |
+| `PropiedadDetailPage.tsx:24` | `symbol: '✉'` | los otros de `SHARE_NETWORKS` son glifos de texto (`𝕏`, `in`) y se pintan igual |
+
+La flecha `↗` de «Descargar ↗» se mantiene: la fila ya lleva un `FileText` a la
+izquierda y un segundo icono lucide al otro extremo competiría por la misma
+línea. Además `↗` es flecha tipográfica, la misma excepción que `←` y `→`.
+
+#### Estados vacíos: la regla
+
+**«Todavía no hay X.» más una frase de acción cuando la haya.** El que más gana
+es el público: «No se encontraron propiedades» no decía que el problema eran los
+filtros ni que se pudieran aflojar.
+
+Se alinearon también los vacíos de Cotizaciones y Tarjetas, que no estaban en el
+encargo pero decían «No hay X todavía» — dejarlos habría arreglado siete de
+nueve.
+
+Verificado en iframes de ancho real: a 390 el texto público ocupa 3 líneas y a
+1440 una, sin desbordar.
+
+#### Costo
+
+**+0,65 kB gzip.** Casi todo es `iconos.js` (+0,42), que crece porque entran
+nueve iconos nuevos de lucide. Medido worktree contra worktree.
+
+#### Encontrado de paso, sin tocar
+
+- **`ElBarrancoShowcase.tsx:522`** dice «Volver al listado» / «Back to listing»
+  pero navega a `/propiedades/eccfd92d-…`, que es **la ficha de una propiedad**,
+  no un listado. La etiqueta miente. No se tocó: hay que decidir si cambia el
+  destino o el texto.
+- **`ReservaConfirmacionPage.tsx:50`** dice «Volver al inicio» sin flecha,
+  mientras que el de `App.tsx:72` la lleva. Es un botón de acción primaria tras
+  el pago, no un enlace de vuelta, así que se dejó.
 
 ### UX copy tanda 1 — errores, borrados y confirmación de guardado — 2026-08-07
 
