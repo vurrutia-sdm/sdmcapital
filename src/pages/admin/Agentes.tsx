@@ -104,7 +104,13 @@ export default function Agentes() {
   }
 
   const del = async (id: string) => {
-    if (!confirm('¿Eliminar este agente?')) return
+    // Las fichas NO referencian al agente: copian asesor_nombre / _telefono /
+    // _correo al crearse. Borrar un agente no las toca ni las deja huérfanas;
+    // solo desaparece de la lista para elegir asesor.
+    const nombre = agentes.find(a => a.id === id)?.nombre?.trim()
+    if (!confirm(nombre
+      ? `¿Eliminar a ${nombre}? Las fichas ya creadas conservan sus datos: solo deja de aparecer al elegir asesor.`
+      : '¿Eliminar este agente? Las fichas ya creadas conservan sus datos.')) return
     setDeleting(id)
     const { error } = await supabase.from('sdm_agentes').delete().eq('id', id)
     setDeleting(null)

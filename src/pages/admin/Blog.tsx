@@ -22,7 +22,8 @@ export default function Blog() {
   useEffect(() => { load() }, [])
 
   const del = async (id: string) => {
-    if (!confirm('¿Eliminar este artículo?')) return
+    const nombre = posts.find(p => p.id === id)?.titulo?.trim() || 'este artículo'
+    if (!confirm(`¿Eliminar «${nombre}»? La URL deja de funcionar. No se puede deshacer.`)) return
     const { error } = await supabase.from('blog_posts').delete().eq('id', id)
     if (avisarError('No se pudo eliminar el artículo', error)) return
     load()

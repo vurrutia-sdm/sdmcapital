@@ -949,7 +949,8 @@ export function CotizacionesAdmin() {
   }
 
   const deleteCot = async (id: string) => {
-    if (!confirm('¿Eliminar esta cotización?')) return
+    const c = cotizaciones.find(x => x.id === id)
+    if (!confirm(`¿Eliminar ${c ? PAD(c.numero) : 'esta cotización'}? No se puede deshacer.`)) return
     setDeleting(id)
     const { error } = await supabase.from('cotizaciones').delete().eq('id', id)
     setDeleting(null)

@@ -40,7 +40,10 @@ export default function Equipo() {
   }
 
   const del = async (id: string) => {
-    if (!confirm('¿Eliminar este miembro?')) return
+    const nombre = items.find(m => m.id === id)?.nombre?.trim()
+    if (!confirm(nombre
+      ? `¿Eliminar a ${nombre} del equipo? Deja de aparecer en Quiénes Somos.`
+      : '¿Eliminar este miembro del equipo? Deja de aparecer en Quiénes Somos.')) return
     const { error } = await supabase.from('equipo').delete().eq('id', id)
     if (avisarError('No se pudo eliminar el miembro del equipo', error)) return
     load()

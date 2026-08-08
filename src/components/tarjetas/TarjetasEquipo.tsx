@@ -213,7 +213,8 @@ export function TarjetasEquipo() {
   }
 
   const del = async (id: string) => {
-    if (!confirm('¿Eliminar esta tarjeta?')) return
+    const nombre = tarjetas.find(t => t.id === id)?.nombre?.trim()
+    if (!confirm(nombre ? `¿Eliminar la tarjeta de ${nombre}?` : '¿Eliminar esta tarjeta?')) return
     setDeleting(id)
     const { error } = await supabase.from('tarjetas_equipo').delete().eq('id', id)
     setDeleting(null)

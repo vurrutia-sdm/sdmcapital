@@ -91,7 +91,9 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
   }
 
   const remove = (url: string) => {
-    if (!confirm('¿Eliminar este archivo?')) return
+    const d = items.find(x => x.url === url)
+    const nombre = d?.titulo?.trim() || dossierFileName(url) || 'este archivo'
+    if (!confirm(`¿Eliminar «${nombre}»? El enlace deja de funcionar para quien lo tenga.`)) return
     onChanged(items.filter(d => d.url !== url))
   }
 
@@ -436,7 +438,8 @@ export default function Propiedades() {
     })
 
   const del = async (id: string) => {
-    if (!confirm('¿Eliminar esta propiedad?')) return
+    const nombre = items.find(p => p.id === id)?.titulo?.trim() || 'esta propiedad'
+    if (!confirm(`¿Eliminar «${nombre}»? Se borra la ficha, sus fotos y sus dossiers. No se puede deshacer.`)) return
     const { error } = await supabase.from('propiedades').delete().eq('id', id)
     if (avisarError('No se pudo eliminar la propiedad', error)) return
     load()
