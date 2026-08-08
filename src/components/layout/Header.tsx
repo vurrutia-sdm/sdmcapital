@@ -17,6 +17,36 @@ export default function Header() {
 
   useEffect(() => { setMobileOpen(false) }, [location])
 
+  // Escape cierra el desplegable que esté abierto. Sin esto, quien abre un menú
+  // con teclado no tiene forma de cerrarlo sin activar una de sus opciones.
+  useEffect(() => {
+    if (!servicesOpen && !propiedadesOpen && !mobileOpen) return
+    const alTeclear = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setServicesOpen(false); setPropiedadesOpen(false); setMobileOpen(false)
+    }
+    window.addEventListener('keydown', alTeclear)
+    return () => window.removeEventListener('keydown', alTeclear)
+  }, [servicesOpen, propiedadesOpen, mobileOpen])
+
+  // Los disparadores de los desplegables son <button aria-expanded>, no <Link>.
+  // Con onMouseEnter solamente, sus opciones ni siquiera llegaban a renderizarse
+  // para un usuario de teclado. El hover se conserva para el ratón: entrar y
+  // salir sigue abriendo y cerrando, y ahora además abre el clic, Enter y
+  // Espacio, que un <button> trae sin código.
+  //
+  // `color: 'inherit'` reproduce exactamente lo que se veía: los <Link> de estos
+  // dos NO llevaban `navLinkClass`, a diferencia del resto de la navegación, así
+  // que heredaban `--ink` y salían más oscuros que sus vecinos. Un <button> no
+  // hereda el color —el navegador le pone `buttontext`—, así que hay que
+  // pedírselo. La inconsistencia se conserva a propósito: normalizarla sería un
+  // cambio de diseño, y esta tanda es de teclado.
+  const estiloDisparador = (active: boolean) => ({
+    ...navLinkStyle(active), display: 'flex', alignItems: 'center', gap: 4,
+    background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+    color: 'inherit',
+  })
+
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
 
@@ -70,10 +100,13 @@ export default function Header() {
 
           {/* Propiedades Usadas dropdown */}
           <div className="relative" onMouseEnter={() => setPropiedadesOpen(true)} onMouseLeave={() => setPropiedadesOpen(false)}>
-            <Link to="/propiedades-usadas" style={{ ...navLinkStyle(isActive('/propiedades-usadas')), display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button type="button"
+              aria-expanded={propiedadesOpen}
+              onClick={() => setPropiedadesOpen(v => !v)}
+              style={estiloDisparador(isActive('/propiedades-usadas'))}>
               Propiedades Usadas
               <ChevronDown size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-            </Link>
+            </button>
             {propiedadesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
                 <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
@@ -94,16 +127,24 @@ export default function Header() {
 
           {/* Servicios dropdown — entre Propiedades y Asociados */}
           <div className="relative" onMouseEnter={() => setServicesOpen(true)} onMouseLeave={() => setServicesOpen(false)}>
-            <Link to="/servicios" style={{ ...navLinkStyle(isActive('/servicios')), display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button type="button"
+              aria-expanded={servicesOpen}
+              onClick={() => setServicesOpen(v => !v)}
+              style={estiloDisparador(isActive('/servicios'))}>
               Servicios
               <ChevronDown size={11} style={{ transition: 'transform 0.2s', transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-            </Link>
+            </button>
             {servicesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 240, borderRadius: 2 }}>
                 {SERVICES.map(s => (
                   <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" key={s.slug} to={`/servicios/${s.slug}`} style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                   >{s.label}</Link>
                 ))}
+                {/* El disparador dejó de ser un enlace, así que /servicios se
+                    quedaba sin destino desde el header. Va acá, igual que «Ver
+                    todas» en el desplegable de Propiedades. */}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/servicios" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
+                >Ver todos los servicios</Link>
               </div>
             )}
           </div>
@@ -114,7 +155,10 @@ export default function Header() {
         </div>
 
         {/* Mobile toggle */}
-        <button className="lg:hidden p-2" onClick={() => setMobileOpen(v => !v)}>
+        <button type="button" className="lg:hidden p-2"
+          aria-label={mobileOpen ? 'Cerrar el menú' : 'Abrir el menú'}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen(v => !v)}>
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
@@ -141,20 +185,29 @@ export default function Header() {
           <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas?estado=en_arriendo" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
             En Arriendo
           </Link>
+          {/* Faltaba: en móvil no había forma de llegar a «Vende con nosotros»
+              ni a las tres páginas de servicios desde el header. */}
+          <Link className="text-sdm-sm tracking-sdm-wide" to="/vende-con-nosotros" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+            Vende con nosotros
+          </Link>
 
           {/* Proyectos Nuevos */}
           <Link className="text-sdm-base tracking-sdm-wide" to="/proyectos-nuevos" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
             Proyectos Nuevos
           </Link>
 
-          {[
-            { to: '/servicios', label: 'Servicios' },
-            { to: '/rental',    label: 'SDM Rental' },
-          ].map(l => (
-            <Link className="text-sdm-base tracking-sdm-wide" key={l.to} to={l.to} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
-              {l.label}
+          <Link className="text-sdm-base tracking-sdm-wide" to="/servicios" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            Servicios
+          </Link>
+          {SERVICES.map(s => (
+            <Link className="text-sdm-sm tracking-sdm-wide" key={s.slug} to={`/servicios/${s.slug}`} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+              {s.label}
             </Link>
           ))}
+
+          <Link className="text-sdm-base tracking-sdm-wide" to="/rental" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            SDM Rental
+          </Link>
           <button className="text-sdm-base tracking-sdm-wide" onClick={handleContacto} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
             Contacto
           </button>
