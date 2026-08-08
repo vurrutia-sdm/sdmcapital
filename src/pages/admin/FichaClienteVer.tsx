@@ -126,7 +126,7 @@ export default function FichaClienteVer() {
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={() => window.print()}
           style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--navy-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-          <Printer size={15} /> Imprimir / Guardar PDF
+          <Printer aria-hidden="true" size={15} /> Imprimir / Guardar PDF
         </button>
       </div>
 

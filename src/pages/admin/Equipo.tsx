@@ -55,7 +55,7 @@ export default function Equipo() {
     <div>
       <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Equipo</h2><Guardado visible={guardado} /></div>
-        <button className="btn-green" onClick={() => setEditing({ nombre: '', cargo: '', bio: '', orden: items.length + 1, activo: true })}><Plus size={15} strokeWidth={2} /> Nuevo miembro</button>
+        <button className="btn-green" onClick={() => setEditing({ nombre: '', cargo: '', bio: '', orden: items.length + 1, activo: true })}><Plus aria-hidden="true" size={15} strokeWidth={2} /> Nuevo miembro</button>
       </div>
       <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las filas para cambiar el orden de aparición.</p>
 

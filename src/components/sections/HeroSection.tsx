@@ -149,7 +149,7 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
             style={{ width: 22, height: 22, marginRight: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: 'rgba(15,37,53,0.55)', border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer', padding: 0 }}
           >
-            {pausado ? <Play size={10} fill="currentColor" /> : <Pause size={10} fill="currentColor" />}
+            {pausado ? <Play aria-hidden="true" size={10} fill="currentColor" /> : <Pause aria-hidden="true" size={10} fill="currentColor" />}
           </button>
           {images.map((_, i) => (
             <button

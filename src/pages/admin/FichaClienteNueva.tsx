@@ -298,7 +298,7 @@ export default function FichaClienteNueva() {
                     </span>
                     <button onClick={() => removePhoto(p.id)}
                       style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontFamily: 'inherit' }}>
-                      <X size={12} />
+                      <X aria-hidden="true" size={12} />
                     </button>
                   </div>
                 ))}

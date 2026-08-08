@@ -166,7 +166,7 @@ export default function Agentes() {
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={openCreate}
           style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-          <Plus size={15} /> Nuevo agente
+          <Plus aria-hidden="true" size={15} /> Nuevo agente
         </button>
       </div>
 
@@ -178,7 +178,7 @@ export default function Agentes() {
             <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 20 }}>Todavía no hay agentes. Crea el primero para asignarle fichas de cliente.</div>
             <button className="text-sdm-base" onClick={openCreate}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              <Plus size={15} /> Crear primer agente
+              <Plus aria-hidden="true" size={15} /> Crear primer agente
             </button>
           </div>
         ) : (
@@ -210,11 +210,11 @@ export default function Agentes() {
                   </button>
                   <button onClick={() => openEdit(a)} title="Editar"
                     style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '5px 8px', display: 'flex', alignItems: 'center', fontFamily: 'inherit' }}>
-                    <Edit2 size={13} />
+                    <Edit2 aria-hidden="true" size={13} />
                   </button>
                   <button onClick={() => del(a.id)} disabled={deleting === a.id} title="Eliminar"
                     style={{ background: 'none', border: 'none', cursor: deleting === a.id ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 6, display: 'flex', alignItems: 'center', opacity: deleting === a.id ? 0.5 : 1 }}>
-                    <Trash2 size={14} />
+                    <Trash2 aria-hidden="true" size={14} />
                   </button>
                 </div>
               </div>

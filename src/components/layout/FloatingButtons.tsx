@@ -31,7 +31,7 @@ export default function FloatingButtons() {
           show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >
-        <ChevronUp size={16} className="text-[#0F2535] group-hover:text-white transition-colors" />
+        <ChevronUp aria-hidden="true" size={16} className="text-[#0F2535] group-hover:text-white transition-colors" />
       </button>
     </div>
   )

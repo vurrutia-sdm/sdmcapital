@@ -87,7 +87,7 @@ function DropSelect({ label, options, value, onChange }: {
       >
         <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', opacity: 0.6, marginRight: 2 }}>{label}</span>
         {selected.label}
-        <ChevronDown size={12} style={{ opacity: 0.6, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }} />
+        <ChevronDown aria-hidden="true" size={12} style={{ opacity: 0.6, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, minWidth: 200, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden', maxHeight: 320, overflowY: 'auto' }}>
@@ -99,7 +99,7 @@ function DropSelect({ label, options, value, onChange }: {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
             >
               {opt.label}
-              {opt.value === value && <Check size={13} style={{ color: 'var(--green)' }} />}
+              {opt.value === value && <Check aria-hidden="true" size={13} style={{ color: 'var(--green)' }} />}
             </button>
           ))}
         </div>
@@ -177,7 +177,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
         </span>
         {hasValue && (
           <button type="button" aria-label="Quitar la región y la comuna elegidas" onClick={handleClear} style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', padding: 0 }}>
-            <X size={14} />
+            <X aria-hidden="true" size={14} />
           </button>
         )}
       </div>
@@ -212,7 +212,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
               >
                 {r.label}
-                {r.value === region && <Check size={13} style={{ color: 'var(--green)' }} />}
+                {r.value === region && <Check aria-hidden="true" size={13} style={{ color: 'var(--green)' }} />}
               </button>
             ))}
             {step === 'comuna' && comunas.map(c => (
@@ -223,7 +223,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.15s' }}
               >
                 {c}
-                {c === comuna && <Check size={13} style={{ color: 'var(--green)' }} />}
+                {c === comuna && <Check aria-hidden="true" size={13} style={{ color: 'var(--green)' }} />}
               </button>
             ))}
           </div>
@@ -281,7 +281,7 @@ export default function SearchBar() {
           <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch}
             style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
           >
-            <Search size={14} /> Buscar
+            <Search aria-hidden="true" size={14} /> Buscar
           </button>
         </div>
 
@@ -347,7 +347,7 @@ export default function SearchBar() {
         </div>
 
         <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
-          <Search size={14} /> Buscar
+          <Search aria-hidden="true" size={14} /> Buscar
         </button>
       </div>
     </div>

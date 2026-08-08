@@ -187,7 +187,7 @@ export default function AdminPage() {
           <button onClick={abrirMenu} aria-label="Abrir menú" aria-expanded={menuAbierto}
             className="lg:hidden flex items-center justify-center -ml-1 p-1"
             style={{ color: 'var(--navy-dark)', background: 'none', border: 'none', cursor: 'pointer' }}>
-            <Menu size={22} strokeWidth={1.75} />
+            <Menu aria-hidden="true" size={22} strokeWidth={1.75} />
           </button>
           <div className="logo-stripes"><div className="logo-stripe logo-stripe--sky"/><div className="logo-stripe logo-stripe--green"/><div className="logo-stripe logo-stripe--navy"/></div>
           <div>
@@ -197,7 +197,7 @@ export default function AdminPage() {
         </div>
         <div className="flex items-center gap-4 lg:gap-5">
           <a className="text-sdm-sm tracking-sdm-wide" href="/" target="_blank" title="Ver sitio" style={{ color: 'var(--muted)', textTransform: 'uppercase', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}><span className="hidden lg:inline">Ver sitio </span><ExternalLink size={14} strokeWidth={2} /></a>
-          <button className="text-sdm-sm tracking-sdm-wide" onClick={() => supabase.auth.signOut()} title="Cerrar sesión" style={{ color: 'var(--muted)', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 4 }}><span className="hidden lg:inline">Cerrar sesión</span><LogOut size={14} strokeWidth={2} className="lg:hidden" /></button>
+          <button className="text-sdm-sm tracking-sdm-wide" onClick={() => supabase.auth.signOut()} title="Cerrar sesión" style={{ color: 'var(--muted)', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 4 }}><span className="hidden lg:inline">Cerrar sesión</span><LogOut aria-hidden="true" size={14} strokeWidth={2} className="lg:hidden" /></button>
         </div>
       </div>
 
@@ -215,7 +215,7 @@ export default function AdminPage() {
             <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Secciones</span>
             <button onClick={() => setMenuAbierto(false)} aria-label="Cerrar menú"
               style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 4 }}>
-              <X size={18} strokeWidth={2} />
+              <X aria-hidden="true" size={18} strokeWidth={2} />
             </button>
           </div>
           <div className="flex text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8, alignItems: 'center', gap: 6 }}>

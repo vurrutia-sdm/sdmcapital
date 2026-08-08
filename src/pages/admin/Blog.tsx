@@ -49,7 +49,7 @@ export default function Blog() {
     <div>
       <div className="flex flex-col items-start gap-3 mb-8 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Blog</h2><Guardado visible={guardado} /></div>
-        <button className="btn-green" onClick={() => setEditing({ titulo: '', slug: '', resumen: '', contenido: '', autor_nombre: 'Equipo SDM Capital', categoria: 'Mercado', publicado: false, destacado: false })}><Plus size={15} strokeWidth={2} /> Nuevo artículo</button>
+        <button className="btn-green" onClick={() => setEditing({ titulo: '', slug: '', resumen: '', contenido: '', autor_nombre: 'Equipo SDM Capital', categoria: 'Mercado', publicado: false, destacado: false })}><Plus aria-hidden="true" size={15} strokeWidth={2} /> Nuevo artículo</button>
       </div>
 
       {editing && (

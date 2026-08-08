@@ -105,7 +105,7 @@ export default function Header() {
               onClick={() => setPropiedadesOpen(v => !v)}
               style={estiloDisparador(isActive('/propiedades-usadas'))}>
               Propiedades Usadas
-              <ChevronDown size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {propiedadesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
@@ -132,7 +132,7 @@ export default function Header() {
               onClick={() => setServicesOpen(v => !v)}
               style={estiloDisparador(isActive('/servicios'))}>
               Servicios
-              <ChevronDown size={11} style={{ transition: 'transform 0.2s', transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {servicesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 240, borderRadius: 2 }}>
@@ -159,7 +159,7 @@ export default function Header() {
           aria-label={mobileOpen ? 'Cerrar el menú' : 'Abrir el menú'}
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen(v => !v)}>
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {mobileOpen ? <X aria-hidden="true" size={20} /> : <Menu aria-hidden="true" size={20} />}
         </button>
       </nav>
 

@@ -516,7 +516,7 @@ function CotizacionWizard({
                   className="border border-[var(--border)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
                   style={BTN_MODO}
                 >
-                  <PencilLine size={13} />
+                  <PencilLine aria-hidden="true" size={13} />
                   Ingresar datos manualmente
                 </button>
               </div>
@@ -531,7 +531,7 @@ function CotizacionWizard({
                     className="border border-[var(--border)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
                     style={BTN_MODO}
                   >
-                    <Search size={13} />
+                    <Search aria-hidden="true" size={13} />
                     Buscar en catálogo
                   </button>
                 )}
@@ -1047,7 +1047,7 @@ export function CotizacionesAdmin() {
           <div style={{ marginTop: 6 }}><Guardado visible={guardado} /></div>
         </div>
         <button onClick={openCreate} className="btn-green">
-          <Plus size={15} strokeWidth={2} /> Nueva cotización
+          <Plus aria-hidden="true" size={15} strokeWidth={2} /> Nueva cotización
         </button>
       </div>
 
@@ -1155,7 +1155,7 @@ export function CotizacionesAdmin() {
                   title="Editar"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--navy-dark)', borderRadius: 2 }}
                 >
-                  <Pencil size={14} strokeWidth={2} />
+                  <Pencil aria-hidden="true" size={14} strokeWidth={2} />
                 </button>
 
                 {/* Descargar PDF */}
@@ -1165,7 +1165,7 @@ export function CotizacionesAdmin() {
                   disabled={pdfLoading === c.id}
                   style={{ background: 'none', border: 'none', cursor: pdfLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', color: pdfLoading === c.id ? 'var(--muted)' : 'var(--green)', borderRadius: 2 }}
                 >
-                  {pdfLoading === c.id ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <FileText size={14} strokeWidth={2} />}
+                  {pdfLoading === c.id ? <Loader2 aria-hidden="true" size={14} strokeWidth={2} className="animate-spin" /> : <FileText aria-hidden="true" size={14} strokeWidth={2} />}
                 </button>
 
                 {/* Gmail */}
@@ -1175,7 +1175,7 @@ export function CotizacionesAdmin() {
                   disabled={gmailLoading === c.id}
                   style={{ background: 'none', border: 'none', cursor: gmailLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', borderRadius: 2 }}
                 >
-                  {gmailLoading === c.id ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Mail size={14} strokeWidth={2} />}
+                  {gmailLoading === c.id ? <Loader2 aria-hidden="true" size={14} strokeWidth={2} className="animate-spin" /> : <Mail aria-hidden="true" size={14} strokeWidth={2} />}
                 </button>
 
                 {/* Eliminar */}
@@ -1185,7 +1185,7 @@ export function CotizacionesAdmin() {
                   disabled={deleting === c.id}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--error)', borderRadius: 2, opacity: deleting === c.id ? 0.5 : 1 }}
                 >
-                  <Trash2 size={14} strokeWidth={2} />
+                  <Trash2 aria-hidden="true" size={14} strokeWidth={2} />
                 </button>
               </div>
             </div>

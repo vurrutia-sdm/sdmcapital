@@ -64,7 +64,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
           cursor: 'pointer',
           transition: 'border-color 0.15s, color 0.15s' }}
       >
-        <Share2 size={14} />
+        <Share2 aria-hidden="true" size={14} />
         {copied ? '¡Enlace copiado!' : 'Compartir'}
       </button>
 
@@ -142,7 +142,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
               background: '#6B7280',
               color: '#fff',
               flexShrink: 0 }}>
-              <Link2 size={14} strokeWidth={2} />
+              <Link2 aria-hidden="true" size={14} strokeWidth={2} />
             </span>
             Copiar enlace
           </button>
@@ -335,11 +335,11 @@ export default function PropiedadDetailPage() {
                 <>
                   <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
                     style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 2, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <ChevronLeft size={18} />
+                    <ChevronLeft aria-hidden="true" size={18} />
                   </button>
                   <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
                     style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 2, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <ChevronRight size={18} />
+                    <ChevronRight aria-hidden="true" size={18} />
                   </button>
                 </>
               )}
@@ -711,7 +711,7 @@ export default function PropiedadDetailPage() {
             aria-label="Cerrar la galería"
             style={{ position: 'absolute', top: 20, right: 24, background: 'none', border: 'none', color: '#fff', cursor: 'pointer', zIndex: 10 }}
           >
-            <X size={32} />
+            <X aria-hidden="true" size={32} />
           </button>
 
           {/* Contador */}
@@ -733,12 +733,12 @@ export default function PropiedadDetailPage() {
               <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
                 style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft aria-hidden="true" size={24} />
               </button>
               <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
                 style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
               >
-                <ChevronRight size={24} />
+                <ChevronRight aria-hidden="true" size={24} />
               </button>
             </>
           )}

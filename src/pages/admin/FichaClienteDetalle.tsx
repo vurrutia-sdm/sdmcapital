@@ -195,7 +195,7 @@ export default function FichaClienteDetalle() {
               <Guardado visible={guardado} />
               <button className="text-sdm-sm" onClick={() => setShowEdit(true)}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: 'var(--navy-dark)', fontFamily: 'inherit' }}>
-                <Edit2 size={13} /> Editar
+                <Edit2 aria-hidden="true" size={13} /> Editar
               </button>
             </div>
 
@@ -255,11 +255,11 @@ export default function FichaClienteDetalle() {
                         <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}/editar`) }}
                           title="Editar ficha"
                           style={{ position: 'relative', zIndex: 2, background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
-                          <Edit2 size={12} /> Editar
+                          <Edit2 aria-hidden="true" size={12} /> Editar
                         </button>
                         <button onClick={e => deleteFicha(e, f)} disabled={isDel} title="Eliminar ficha"
                           style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1 }}>
-                          <Trash2 size={14} />
+                          <Trash2 aria-hidden="true" size={14} />
                         </button>
                         <ChevronRight size={16} style={{ color: '#c0cdd8' }} />
                       </div>

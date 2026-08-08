@@ -113,7 +113,7 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
                 className="area-44 bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white"
                 style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
               >
-                {pausado ? <Play size={14} fill="currentColor" /> : <Pause size={14} fill="currentColor" />}
+                {pausado ? <Play aria-hidden="true" size={14} fill="currentColor" /> : <Pause aria-hidden="true" size={14} fill="currentColor" />}
               </button>
               <button className="area-44 text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={prev}
                 style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}

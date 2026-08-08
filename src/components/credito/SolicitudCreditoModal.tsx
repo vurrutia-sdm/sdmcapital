@@ -35,7 +35,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
           aria-label="Cerrar"
           style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
         >
-          <X size={20} color="#0F2535" />
+          <X aria-hidden="true" size={20} color="#0F2535" />
         </button>
 
         {/* ── Panel izquierdo: información del servicio ── */}

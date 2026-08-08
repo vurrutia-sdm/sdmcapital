@@ -139,7 +139,7 @@ export default function FichaClientesLista() {
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={openModal}
           style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-          <Plus size={15} /> Nuevo cliente
+          <Plus aria-hidden="true" size={15} /> Nuevo cliente
         </button>
       </div>
 
@@ -152,7 +152,7 @@ export default function FichaClientesLista() {
             <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 20 }}>Todavía no hay clientes. Crea el primero para armarle una ficha.</div>
             <button className="text-sdm-base" onClick={openModal}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              <Plus size={15} /> Crear primer cliente
+              <Plus aria-hidden="true" size={15} /> Crear primer cliente
             </button>
           </div>
         ) : (
@@ -195,7 +195,7 @@ export default function FichaClientesLista() {
                     <button onClick={e => deleteCliente(e, c.id)} disabled={isDel}
                       title="Eliminar cliente"
                       style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1, flexShrink: 0 }}>
-                      <Trash2 size={15} />
+                      <Trash2 aria-hidden="true" size={15} />
                     </button>
                     <ChevronRight size={16} style={{ color: '#c0cdd8', flexShrink: 0 }} />
                   </div>

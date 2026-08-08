@@ -271,17 +271,17 @@ export default function PropiedadesPage() {
             <div className="flex" style={{ border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
               <button className="text-sdm-sm" onClick={() => setViewMode('grid')}
                 style={{ padding: '8px 14px', background: viewMode === 'grid' ? 'var(--navy-dark)' : '#fff', color: viewMode === 'grid' ? '#fff' : 'var(--muted)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, transition: 'all 0.2s' }}>
-                <Grid size={14} /> Lista
+                <Grid aria-hidden="true" size={14} /> Lista
               </button>
               <button className="text-sdm-sm" onClick={() => setViewMode('map')}
                 style={{ padding: '8px 14px', background: viewMode === 'map' ? 'var(--navy-dark)' : '#fff', color: viewMode === 'map' ? '#fff' : 'var(--muted)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, transition: 'all 0.2s' }}>
-                <Map size={14} /> Mapa
+                <Map aria-hidden="true" size={14} /> Mapa
               </button>
             </div>
             <button onClick={() => setPanelOpen(v => !v)}
               className="flex items-center gap-2 text-sdm-sm tracking-sdm-wide"
               style={{ color: panelOpen ? 'var(--green)' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, textTransform: 'uppercase' }}>
-              <SlidersHorizontal size={14} />
+              <SlidersHorizontal aria-hidden="true" size={14} />
               Filtros {activeFiltros.length > 0 && `(${activeFiltros.length})`}
             </button>
           </div>
@@ -347,7 +347,7 @@ export default function PropiedadesPage() {
                 style={{ fontWeight: 400, color: 'var(--ink)', fontFamily: 'inherit', transition: 'border-color 0.2s, background 0.2s' }}
                 onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}>
                 {ETIQUETAS_FILTRO[String(val)] ?? String(val)}
-                <X size={11} style={{ color: 'var(--muted)' }} />
+                <X aria-hidden="true" size={11} style={{ color: 'var(--muted)' }} />
               </button>
             ))}
           </div>

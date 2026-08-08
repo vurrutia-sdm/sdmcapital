@@ -337,7 +337,7 @@ export default function SolicitudCreditoForm({
 
         <button type="submit" disabled={!canSubmit} className="btn-primary disabled:opacity-50 justify-center">
           {status === 'sending' ? (
-            <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin" /> Enviando…</span>
+            <span className="flex items-center gap-2"><Loader2 aria-hidden="true" size={15} className="animate-spin" /> Enviando…</span>
           ) : 'Enviar solicitud'}
         </button>
       </form>
