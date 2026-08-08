@@ -123,6 +123,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 2: cierre completo | Los tres envoltorios duplicados (`Fld`×2, `FLabel`×5) envuelven, más el login del admin y 4 controles de fila. **Fuera de `Captacion.tsx` no queda ningún campo sin nombre accesible en `src/`** | Cerrada — commits `ba3fe67`, `12da41f` y `9b7b66c` |
 | 2026-08-08 | Admin — un solo envoltorio de campo | Los dos `Fld` se borran y sus 40 usos pasan al `Field` de `campos.tsx`. `FLabel` sobrevive a propósito: diverge en estilo | Cerrada — commit `e3151a9` |
 | 2026-08-08 | Accesibilidad — tanda 3: teclado | Anillo de foco a `--green-dark` **en `globals.css`, ZONA COMPARTIDA**, indicador no cromático en `.input-line`, 16 `outline: none` fuera, 8 divs a `<button>`, 2 tarjetas, header completo y `RadioGroup` | Cerrada — commits `2e45121`, `c453e58`, `f90f602`, `4ced14d`, `22a5f60` y `f671ab9` |
+| 2026-08-08 | Accesibilidad — tanda 4: estructura, idioma y modales | Un `h1` por página en las 19 rutas, `sanitizarContenido()` en **`src/lib/`**, `lang` en el showcase y `useDialogoModal` en **`src/hooks/`** para los CINCO modales | Cerrada — commits `1955063`, `06aca14` y `19bc3c2` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -4546,3 +4547,184 @@ es el primero.
 - **Los 2 `stopPropagation`.** No son controles: solo evitan que el clic sobre
   la imagen cierre el modal.
 - **`Captacion.tsx`**, dominio de la sesión Sofía.
+
+---
+
+### Accesibilidad — tanda 4: estructura, idioma y modales — 2026-08-08
+
+WCAG 2.1 AA: 1.3.1, 2.4.6, 3.1.1, 3.1.2, 2.1.2 y 2.4.3. Tres commits.
+
+## La jerarquía de encabezados de las 19 rutas públicas
+
+**Esta tabla es el contrato.** Si un cambio futuro la altera, es una regresión
+salvo que sea deliberada. Se lee del DOM renderizado, no del JSX: los
+encabezados también llegan desde `ContactSection`, el pie y el contenido
+editable.
+
+| Ruta | Secuencia |
+|---|---|
+| `/` | 1 2 2 2 2 2 3 3 3 2 |
+| `/quienes-somos` | 1 2 3 3 3 3 2 2 3 3 3 2 2 |
+| `/servicios` · `/servicios/:slug` | 1 2 2 2 2 |
+| `/propiedades-usadas` · `/proyectos-nuevos` | 1 |
+| `/propiedades/:slug` | 1 2 |
+| `/asociados` | 1 2 2 2 2 2 |
+| `/blog` | 1 2 × 13 |
+| `/blog/:slug` | 1 2 2 2 2 2 |
+| `/rental` | 1 2 2 2 2 3 3 2 |
+| `/vende-con-nosotros` | 1 2 3 3 3 2 2 |
+| `/politica-de-privacidad` | 1 2 × 8 |
+| `/condiciones-del-servicio` | 1 2 × 9 |
+| `/eliminacion-de-datos` | 1 2 × 5 |
+| `/evaluacion-gratuita` | 1 2 |
+| `/reserva/confirmacion` · `/showcase` · 404 | 1 · 1 2 × 7 · 1 |
+
+**Las 19 con exactamente un `h1` y cero saltos de nivel.** Antes fallaban
+cuatro, una más de las tres que traía el encargo.
+
+#### El segundo `h1` no estaba en el código
+
+`/blog/:slug` tenía DOS `h1` con el mismo texto. El segundo venía del
+**contenido editable del post**, no del JSX. Y no era un caso suelto:
+
+| Tabla | Con `<h1>` en su contenido |
+|---|---|
+| `blog_posts.contenido` | **7 de 13** |
+| `propiedades.descripcion` | **6 de 54** |
+| `paginas_legales.contenido` | 0 de 3 |
+
+Por eso el arreglo no fue editar esas 13 entradas —eso no evita la
+catorceava, porque la barra del editor ofrece H1— sino
+`sanitizarContenido()` en `src/lib/contenidoRico.ts`, que sanea y además baja
+los `h1` a `h2` al renderizar. Lo usan `BlogPostPage` y `PropiedadDetailPage`.
+
+> **El `h1` lo pone la página; lo que va debajo empieza en `h2`.** Un `h1`
+> dentro del contenido crea un segundo título de documento.
+
+**Sí cambia el aspecto en esos 13 registros, y es una corrección.**
+`.prose-sdm` estiliza `h2` y `h3` pero **no** `h1`, y el reset de Tailwind deja
+los encabezados en `font-size: inherit`. O sea que esos `h1` se veían como un
+párrafo cualquiera: encabezados invisibles. Ahora se ven como los del resto de
+los posts. En el post medido, el bloque de prosa pasa de 1453 a 1462px.
+
+#### El `h1` del hero no movió un píxel, y se comprobó por geometría
+
+Detrás del titular rota el carrusel, así que **una captura no sirve**: dos
+capturas del mismo build daban 75 % de diferencia. Lo que sí discrimina es medir
+la caja:
+
+```
+             antes (DIV)              después (H1)
+caja         64,325  1272x272         64,325  1272x272
+fontSize     88px / 300 / 90.64px     igual
+margin       0 0 0 0                  igual
+renglones    3 × 1272x91              igual
+lo siguiente 64,849 1272x79           igual
+```
+
+Funciona porque `@tailwind base` deja los encabezados en `font-size: inherit`,
+`font-weight: inherit` y `margin: 0`. Sin ese reset, un `<h1>` traería el
+margen del navegador y empujaría todo.
+
+---
+
+## El idioma: el showcase era la única superficie bilingüe real
+
+`<html lang="es">` es fijo, pero `ElBarrancoShowcase` arranca en **inglés** —su
+estado local parte en `'en'`— y servía toda la página en inglés bajo `lang="es"`.
+Un lector la pronunciaba con fonemas españoles.
+
+`lang={lang}` en el contenedor de la sección. Alcanza porque **`lang` se
+hereda**, así que no hay que tocar el `<html>` ni el resto del sitio.
+
+#### Lo que se revisó y NO se tocó, con su motivo
+
+Hay código bilingüe en `PropertyCard`, `BlogPage`, `BlogPostPage`,
+`BlogPreviewSection` y `PropiedadDetailPage` —`titulo_en`, `resumen_en`,
+`contenido_en`—, pero **hoy no se puede alcanzar**: el `lang` global de
+`useLang` nace en `'es'` y **no hay un solo `setLang` en toda la aplicación**
+fuera del selector local de este showcase. Esas ramas nunca se evalúan.
+
+Las páginas legales tampoco: `paginas_legales` solo tiene la columna
+`contenido`, en español. Su `lang` se usa nada más para el título de SEO.
+
+> Si algún día se agrega un selector de idioma global, **hay que volver acá**:
+> el patrón es marcar el contenedor del contenido traducido, no el `<html>`.
+
+---
+
+## Los modales: son CINCO, y dos maneras de encerrar al usuario
+
+El quinto es el **lightbox de la galería de propiedad**, que no estaba en la
+lista: tapa la página entera y con Tab se salía a los enlaces de atrás sin
+cerrarlo. Es además el único público y de uso frecuente.
+
+| Modal | Qué tenía antes |
+|---|---|
+| Lightbox de la galería | solo Escape |
+| `SolicitudCreditoModal` | `role`, `aria-modal` y Escape |
+| Nuevo cliente · Nuevo agente · Editar cliente | nada |
+
+Todo en `src/hooks/useDialogoModal.ts`.
+
+### ATRAPAR EL FOCO MAL ES PEOR QUE NO ATRAPARLO
+
+> **1. Modal sin ningún elemento enfocable.** Si el ciclo no encuentra a quién
+> pasarle el foco y aun así bloquea el Tab, el usuario queda encerrado en la
+> página, sin salida y sin nada que pulsar. Con cero enfocables **el Tab no se
+> bloquea**: es preferible que el foco se escape a que no pueda moverse.
+>
+> Probado de verdad, no por lectura: se abre el modal, se deshabilitan sus 4
+> controles y se pulsa Tab — el foco sale.
+>
+> **2. Trap que no se libera.** Si el oyente sobrevive al desmontaje, el Tab
+> sigue secuestrado sobre una página donde ya no hay modal. Todo cuelga de un
+> único `useEffect` cuya limpieza lo quita siempre. Probado: tras cerrar, el Tab
+> vuelve a recorrer la página.
+
+#### El disparador NO se puede leer cuando el modal ya está abierto
+
+Los modales del admin enfocan su primer campo con `autoFocus`, y **React lo
+aplica durante el commit, antes de que corra ningún efecto**. Leer
+`document.activeElement` al abrir devolvía ese input, que al cerrarse ya no está
+en el documento: el foco terminaba en el `<body>`.
+
+Se anota mientras el modal está **cerrado**, siguiendo el foco de la página, e
+ignorando lo que caiga dentro de un `[aria-modal="true"]`.
+
+> **La guarda mira el DOM, no el `ref` del contenedor.** Cuando salta ese
+> `autoFocus` el ref todavía puede estar sin enganchar; el marcado ya está
+> puesto. Con la guarda por ref el fallo seguía igual, y solo se entendió
+> instrumentando el hook y leyendo la consola del navegador.
+
+#### Verificación de los cinco, con teclado real
+
+Abrir con Enter · Tab más veces que enfocables sin salirse · Shift+Tab ·
+Escape · foco de vuelta al disparador · Tab libre después.
+
+| Modal | Enfocables | Foco vuelve a |
+|---|---:|---|
+| Lightbox de la galería | 22 | «Ver la imagen ampliada» |
+| Modal de crédito | 12 | «Solicita una evaluación» |
+| Nuevo cliente | 4 | «Nuevo cliente» |
+| Nuevo agente | 5 | «Nuevo agente» |
+| Editar cliente | 5 | «Editar» |
+
+---
+
+### Una trampa nueva al comparar contra un worktree
+
+`.env` está en `.gitignore`, así que **un worktree recién creado no lo tiene** y
+el cliente de Supabase cae al `placeholder.supabase.co` del fallback. Todo lo
+que dependa de datos —el catálogo, las fichas, los posts— renderiza vacío.
+
+Costó un rato: `/asociados` daba 987px contra 984 y parecía un desplazamiento
+del cambio de `h3` a `h2`; con `.env` copiado dio 984 en los dos, o sea 0. La
+diferencia era la sección de asociados sin cargar.
+
+> **Antes de comparar contra un worktree, copiar `.env`.** Si no, se comparan
+> dos sitios distintos: uno con datos y otro sin ellos.
+
+Suma a las trampas ya anotadas —el foco, la caja de recorte inestable, el estado
+asíncrono, la medición no determinista— una quinta: **el entorno del árbol de
+comparación**.
