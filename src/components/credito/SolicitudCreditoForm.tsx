@@ -207,9 +207,9 @@ export default function SolicitudCreditoForm({
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(61,170,110,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
           <Check size={28} color="var(--green)" />
         </div>
-        <h3 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: 10 }}>
+        <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: 10 }}>
           {successTitle}
-        </h3>
+        </h2>
         <p className="text-sdm-base" style={{ color: 'var(--muted)', lineHeight: 1.7, maxWidth: 420, marginBottom: successAction ? 28 : 0 }}>
           {successMessage}
         </p>
@@ -220,9 +220,9 @@ export default function SolicitudCreditoForm({
 
   return (
     <>
-      <h3 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: subtitle ? 8 : 24 }}>
+      <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: subtitle ? 8 : 24 }}>
         {title}
-      </h3>
+      </h2>
       {subtitle && (
         <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', marginBottom: 24, lineHeight: 1.6 }}>
           {subtitle}

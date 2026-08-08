@@ -206,7 +206,12 @@ export default function HeroSection() {
 
         {/* Headline */}
         <div>
-          <div className="font-serif tracking-sdm-tight" style={{ fontSize: 'clamp(52px,6.5vw,88px)', fontWeight: 300, lineHeight: 1.03, color: '#fff' }}>
+          {/* El <h1> de la home. Las tres claves de contenido_sitio van dentro
+              de UNO solo, no en tres encabezados: son una sola frase partida en
+              renglones. El reset de Tailwind deja los encabezados en
+              `font-size: inherit` y sin margen, así que el estilo es el mismo
+              que tenía el <div>. */}
+          <h1 className="font-serif tracking-sdm-tight" style={{ fontSize: 'clamp(52px,6.5vw,88px)', fontWeight: 300, lineHeight: 1.03, color: '#fff' }}>
             <span style={{ display: 'block' }}>{titulo1}</span>
             <span style={{ display: 'block' }}>
               {titulo2.startsWith('en ') ? (
@@ -216,7 +221,7 @@ export default function HeroSection() {
               )}
             </span>
             <span style={{ display: 'block', fontWeight: 600 }}>{titulo3}</span>
-          </div>
+          </h1>
           <p className="text-sdm-base" style={{ fontWeight: 300, color: 'rgba(255,255,255,0.8)', borderLeft: '2px solid var(--green)', paddingLeft: 16, maxWidth: 460, lineHeight: 1.85, marginTop: 24 }}>
             {subtitulo}
           </p>

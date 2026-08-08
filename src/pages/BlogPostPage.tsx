@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import SEO from '@/components/SEO'
 import { useParams, Link } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
-import DOMPurify from 'dompurify'
+import { sanitizarContenido } from '@/lib/contenidoRico'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
@@ -104,7 +104,7 @@ export default function BlogPostPage() {
           <div
             className="prose-sdm text-sdm-base"
             style={{ fontWeight: 300, color: 'var(--ink)' }}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(contenido) }}
+            dangerouslySetInnerHTML={{ __html: sanitizarContenido(contenido) }}
           />
 
           {post.tags && post.tags.length > 0 && (

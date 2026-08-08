@@ -50,9 +50,9 @@ export default function AsociadosPage() {
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16" style={{ padding: '0 clamp(16px,5vw,0px)' }}>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-            <h3 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
+            <h2 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
               Alianzas <em>estratégicas</em>
-            </h3>
+            </h2>
             <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
                 ? 'Cada asociado ha sido seleccionado por su trayectoria, seriedad y compromiso con la excelencia en el servicio.'
@@ -62,9 +62,9 @@ export default function AsociadosPage() {
           </div>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-            <h3 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
+            <h2 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
               Red <em>global</em>
-            </h3>
+            </h2>
             <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
                 ? 'Nuestra red abarca instituciones financieras, portales inmobiliarios, notarías y consultoras en Chile y el extranjero.'
@@ -74,9 +74,9 @@ export default function AsociadosPage() {
           </div>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
-            <h3 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
+            <h2 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
               Servicio <em>integral</em>
-            </h3>
+            </h2>
             <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
                 ? 'Juntos garantizamos una experiencia completa: desde la búsqueda de la propiedad hasta la obtención del financiamiento.'
@@ -132,9 +132,9 @@ export default function AsociadosPage() {
           <div className="section-label justify-center mb-4">
             {lang === 'es' ? '¿Quieres ser socio?' : 'Want to be a partner?'}
           </div>
-          <h3 className="font-serif font-light mb-4 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
+          <h2 className="font-serif font-light mb-4 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
             Únete a nuestra <em>red</em>
-          </h3>
+          </h2>
           <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, marginBottom: 24, maxWidth: 480, margin: '0 auto 24px' }}>
             {lang === 'es'
               ? 'Si tu empresa comparte nuestros valores de excelencia y transparencia, nos encantaría explorar una colaboración estratégica.'

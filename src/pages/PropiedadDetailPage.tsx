@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Bath, ChevronLeft, ChevronRight, FileText, Hammer, Home, Link2, MapPin, Maximize2, Package, ParkingSquare, Share2, X } from 'lucide-react'
-import DOMPurify from 'dompurify'
+import { sanitizarContenido } from '@/lib/contenidoRico'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
@@ -482,7 +482,7 @@ export default function PropiedadDetailPage() {
               <div
                 className="prose-sdm text-sdm-lg"
                 style={{ fontWeight: 300, color: 'var(--muted)', marginBottom: 24 }}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(prop.descripcion) }}
+                dangerouslySetInnerHTML={{ __html: sanitizarContenido(prop.descripcion) }}
               />
             )}
 
