@@ -122,6 +122,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 2: cierre de los tres archivos | `PropiedadesPage`, `MapPicker` y `ElBarrancoShowcase` (9 campos), más el `aria-label` del input de URL de `ImageUploader`. **El barrido completo destapó 83 campos sin asociar en 10 archivos más** | Cerrada — commits `b184fa8` y `44e890a` |
 | 2026-08-08 | Accesibilidad — tanda 2: cierre completo | Los tres envoltorios duplicados (`Fld`×2, `FLabel`×5) envuelven, más el login del admin y 4 controles de fila. **Fuera de `Captacion.tsx` no queda ningún campo sin nombre accesible en `src/`** | Cerrada — commits `ba3fe67`, `12da41f` y `9b7b66c` |
 | 2026-08-08 | Admin — un solo envoltorio de campo | Los dos `Fld` se borran y sus 40 usos pasan al `Field` de `campos.tsx`. `FLabel` sobrevive a propósito: diverge en estilo | Cerrada — commit `e3151a9` |
+| 2026-08-08 | Accesibilidad — tanda 3: teclado | Anillo de foco a `--green-dark` **en `globals.css`, ZONA COMPARTIDA**, indicador no cromático en `.input-line`, 16 `outline: none` fuera, 8 divs a `<button>`, 2 tarjetas, header completo y `RadioGroup` | Cerrada — commits `2e45121`, `c453e58`, `f90f602`, `4ced14d`, `22a5f60` y `f671ab9` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -4357,3 +4358,191 @@ mirar la imagen. Recortando cada panel por separado, los dos dieron 0.
 > inestable— una tercera: **el estado asíncrono.** Si la caja abarca algo que
 > depende de una petición, la comparación mide la red, no el código. La firma
 > también es reconocible: un bloque compacto de texto en vez de una fila.
+
+---
+
+### Accesibilidad — tanda 3: teclado — 2026-08-08
+
+WCAG 2.1 AA, criterios 2.1.1, 2.4.7, 1.4.11 y 4.1.2. Seis commits.
+
+| Commit | Qué |
+|---|---|
+| `2e45121` | anillo de foco: contraste y señal no cromática |
+| `c453e58` | fuera los 16 `outline: none` |
+| `f90f602` | 8 `<div>` de acción a `<button>` |
+| `4ced14d` | 2 tarjetas navegables sin anidar interactivos |
+| `22a5f60` | el header completo |
+| `f671ab9` | `RadioGroup` |
+
+---
+
+## UN INDICADOR DE FOCO NO PUEDE DEPENDER SOLO DEL TONO
+
+> Es el criterio que deja esta tanda, y vale para cualquier indicador de estado.
+>
+> `.input-line` —unos 190 campos— marcaba el foco cambiando el color del borde,
+> de `--border-input` a `--green-dark`. Medido contra el fondo da **4.85:1**, o
+> sea que **cumple 1.4.11**. Y aun así el indicador era malo:
+>
+> ```
+> --green-dark contra el fondo blanco      4.85:1  ✓ cumple
+> --green-dark contra el borde en reposo   1.19:1  ← el cambio real
+> ```
+>
+> El cambio es **de tono, casi no de luminancia**. Con daltonismo —o en una
+> pantalla en escala de grises, o con poca luz— el campo enfocado se ve igual
+> que el de al lado. El ratio contra el fondo dice que el borde se ve; no dice
+> que se distinga del borde que ya había.
+>
+> **Cumplir el criterio y servir no son lo mismo.** Un indicador necesita
+> además un cambio no cromático: grosor, tamaño, forma o posición.
+>
+> Acá el borde engorda de 1px a 2px, y el `padding-bottom` baja ese mismo pixel
+> para que la altura del campo no cambie ni empuje lo que tiene debajo —45px
+> enfocado y en reposo—.
+>
+> **La prueba es en escala de grises.** Perfil de luminancia por fila de la
+> franja del borde:
+>
+> ```
+> enfocado  255 255 255 107 107 255 255 255   → 2 filas oscuras
+> reposo    255 255 255 255 126 255 255 255   → 1 fila oscura
+> ```
+
+### El anillo global también fallaba
+
+`*:focus-visible` usaba `--green` (#3DAA6E), que sobre fondos claros no llega a
+3:1. Pasa a `--green-dark`:
+
+| sobre | `--green` | `--green-dark` |
+|---|---:|---:|
+| blanco | 2.93 ✗ | **4.85** ✓ |
+| `--off` | 2.80 ✗ | **4.64** ✓ |
+| `--sky-pale` | 2.64 ✗ | **4.42** ✓ |
+| `--navy-dark` | 5.37 ✓ | **3.24** ✓ |
+
+Quitar los `outline: none` no habría bastado: habría restaurado un anillo que
+tampoco cumplía.
+
+#### Al medir el contraste del anillo, el fondo es el del PADRE
+
+`outline-offset: 2px` dibuja el anillo **fuera** de la caja del elemento, así
+que el color adyacente no es el fondo del propio control. Midiendo mal, dos
+botones verdes daban 1.15:1 y parecían fallar; el anillo en realidad se pinta
+sobre el blanco de la página. Con el fondo correcto: **22 de 22 controles del
+home y 16 de 16 del catálogo, ninguno bajo 3:1.**
+
+### Los 16 `outline: none` no reemplazaban nada
+
+Se buscó `:focus` y `onFocus` en los archivos que los concentran: cero. No se
+cambió el anillo por un borde ni por una sombra, se quitó y no se puso nada.
+Eran estilos **en línea**, que ganan sobre cualquier selector sin `!important`.
+
+El decimosexto vivía dentro del array de estilos que TipTap aplica al área
+editable de `RichTextEditor` — una cadena, no una propiedad, así que la misma
+búsqueda no lo encontraba. Los 5 de `Captacion.tsx` no se tocan.
+
+---
+
+### Un botón dentro de otro interactivo: la superposición
+
+Cuatro de los elementos a convertir tenían controles adentro, y ni `<button>` ni
+`<a>` admiten interactivos anidados. En vez de forzarlo:
+
+| Dónde | Qué contenía | Solución |
+|---|---|---|
+| imagen principal de la propiedad | flechas anterior/siguiente | `<button>` superpuesto, `inset: 0` |
+| disparador región/comuna | la X de limpiar | ídem |
+| tarjeta de cliente | botón eliminar | `<Link>` en el título, estirado con `::after` |
+| tarjeta de ficha | botones editar y eliminar | ídem |
+
+En los cuatro, **el elemento que va encima necesita `position: relative` y un
+z-index mayor**, o queda tapado por la superposición.
+
+La diferencia entre las dos formas: con la superposición el área entera es UN
+control; con `.enlace-tarjeta` el título es el enlace y la tarjeta solo amplía
+su zona de clic. Para las tarjetas es lo correcto — envolverlas habría hecho
+que el lector anunciara de una vez todo el texto de la tarjeta.
+
+Verificado: clic en medio de la tarjeta → ENLACE, clic sobre Eliminar → BOTÓN,
+y **un solo destino en el orden de tabulación**.
+
+#### La selección no puede usar `outline` si el foco también
+
+Las miniaturas de galería marcaban la seleccionada con
+`outline: 2px solid var(--green)`. Al pasar a `<button>`, esa es exactamente la
+propiedad del anillo de foco: la miniatura enfocada no se habría distinguido.
+La selección pasa a `box-shadow: 0 0 0 2px`, que dibuja el mismo anillo por
+fuera de la caja y sin tocar el layout.
+
+#### El arrastre del sidebar sobrevive al `<button>`
+
+Era el riesgo del commit 3. `filaProps` solo esparce `data-*`, `onPointerDown` y
+`onClickCapture`, y los tres se comportan igual en un `<button>`. Verificado con
+eventos de puntero reales: arrastrar la fila 1 a la 3 reordena, el orden se
+persiste en `localStorage`, y el clic que el navegador manda al soltar se sigue
+tragando. Enter y Espacio sí cambian de pestaña.
+
+---
+
+### El header: convertir el padre le quita el destino
+
+Los disparadores eran `<Link>` que navegaban. Al pasarlos a `<button
+aria-expanded>` ganan teclado pero pierden su destino. En Propiedades no se
+notaba —«Ver todas» va al mismo sitio—, pero `/servicios` se habría quedado sin
+enlace en el header. Por eso se agregó **«Ver todos los servicios»** al
+desplegable.
+
+Se encontró además que el menú móvil **nunca listó** «Vende con nosotros» ni las
+tres páginas de servicios, y que la hamburguesa no tenía nombre accesible.
+
+---
+
+### La comparación píxel a píxel encontró un cambio que yo no quería
+
+El header dio **970 píxeles de diferencia** después de convertir los
+disparadores, en una banda de 10px de alto —la altura del texto— pero **sin
+ningún desplazamiento**: las cajas medían exactamente lo mismo antes y después
+(x=766 w=199, x=1136 w=115).
+
+No era geometría, era color. Al convertirlos les puse `navLinkClass`, y resultó
+que **esos dos eran los únicos enlaces de la navegación que NO la llevaban**:
+heredaban `--ink` y se veían más oscuros que sus vecinos, que van en `--muted`.
+Ponerles la clase normalizó una inconsistencia que llevaba ahí desde siempre.
+
+Se revirtió con `color: 'inherit'` —un `<button>` tampoco hereda el color, el
+navegador le pone `buttontext`—. **La inconsistencia se conserva a propósito:
+corregirla es una decisión de diseño, y esta tanda es de teclado.**
+
+> Vale como método: la comparación píxel a píxel no solo confirma que no
+> rompiste nada. También **destapa lo que arreglaste sin querer**, que en un
+> encargo acotado es igual de indeseable. Sin ella, la normalización se habría
+> ido a producción sin que nadie la decidiera.
+
+Antes de dar por buena una diferencia hay que descartar el ruido: **dos capturas
+del mismo build dieron 0**, así que los 970 píxeles eran reales. Es la cuarta
+trampa de captura de la serie, después del foco, la caja inestable y el estado
+asíncrono: **verificar que la medición es determinista antes de interpretarla.**
+
+---
+
+### `RadioGroup`: la tabulación itinerante y el estado vacío
+
+Tres instancias, dos opciones cada una, mutuamente excluyentes. `role="radio"`
+con `aria-checked` y navegación con flechas circulares, donde solo una opción
+está en el orden de tabulación — el grupo entero cuenta como una parada, igual
+que un `<input type="radio">` nativo.
+
+**El detalle que hay que recordar:** el valor inicial es `''`, sin nada elegido.
+Si el tabulable fuera solo el seleccionado, el grupo entero se saldría del orden
+de tabulación y no habría forma de llegar a él. Con nada elegido, el tabulable
+es el primero.
+
+### Lo que NO se tocó, a propósito
+
+- **Los 5 fondos de modal y del cajón.** Un control a pantalla completa en el
+  orden de tabulación es peor que el problema. Lo que les falta es `Escape` y
+  atrapar el foco, y eso es otra tanda. El cajón del admin ya tiene `Escape`.
+- **Los 2 `stopPropagation`.** No son controles: solo evitan que el clic sobre
+  la imagen cierre el modal.
+- **`Captacion.tsx`**, dominio de la sesión Sofía.
