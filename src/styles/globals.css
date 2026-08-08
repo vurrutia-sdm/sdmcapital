@@ -17,6 +17,18 @@
     --border: #e8edf2;
     --off: #F9FAFB;
 
+    /* DOS COSAS DISTINTAS, NO UNIFICAR:
+       --border       separaciones decorativas (líneas de 1px, divisiones de
+                      tabla, bordes de tarjeta). 1.18:1 sobre blanco, y está
+                      BIEN: WCAG 1.4.11 no aplica a decoración.
+       --border-input límite de un CONTROL de formulario. 1.4.11 pide 3:1;
+                      #767F8A da 4.06:1 sobre blanco.
+       --border-input-admin  ídem sobre --sky-pale, donde el admin pinta sus
+                      campos. #5A81A2 da 3.71:1 sobre #EDF4F9 y 4.12:1 sobre
+                      blanco, así que sirve en los dos fondos. */
+    --border-input: #767F8A;
+    --border-input-admin: #5A81A2;
+
     /* ─── ESCALA TIPOGRÁFICA ─────────────────────────────────────────────
        Espejo exacto de `fontSize` y `letterSpacing` en tailwind.config.js.
        Existen para poder escribir `fontSize: 'var(--sdm-text-sm)'` desde
@@ -175,12 +187,12 @@
 
   .input-line {
     @apply w-full bg-transparent border-0 border-b py-2.5 text-[16px] font-light outline-none transition-colors duration-200;
-    border-color: var(--border);
+    border-color: var(--border-input);
     color: var(--ink);
     font-family: 'Inter', system-ui, sans-serif;
   }
   .input-line::placeholder { color: #9AA8B4; }
-  .input-line:focus { border-color: var(--green); }
+  .input-line:focus { border-color: var(--green-dark); }
 
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--off); }

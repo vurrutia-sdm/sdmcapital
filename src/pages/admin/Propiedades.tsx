@@ -117,7 +117,7 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
                 value={d.titulo || ''}
                 placeholder="Título a mostrar (opcional)"
                 onChange={e => setTitulo(d.url, e.target.value)}
-                style={{ flex: 1, padding: '6px 10px', border: '1px solid var(--sky)', borderRadius: 2, background: '#fff', color: 'var(--ink)' }}
+                style={{ flex: 1, padding: '6px 10px', border: '1px solid var(--border-input-admin)', borderRadius: 2, background: '#fff', color: 'var(--ink)' }}
               />
               <button className="text-sdm-xs" onClick={() => remove(d.url)}
                 style={{ color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
