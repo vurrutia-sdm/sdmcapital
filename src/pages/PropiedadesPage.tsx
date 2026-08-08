@@ -49,7 +49,7 @@ function SinArriendos() {
           className="btn-primary"
           style={{ marginTop: 28 }}
         >
-          Avísenme por WhatsApp
+          Avísame cuando haya arriendos
         </a>
       </div>
     </div>

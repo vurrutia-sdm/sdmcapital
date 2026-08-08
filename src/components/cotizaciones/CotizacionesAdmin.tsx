@@ -431,7 +431,7 @@ function CotizacionWizard({
             {draft.id ? `Editar ${PAD(0)}` : 'Nueva Cotización'}
           </h2>
           <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
-            Complete los 5 pasos para generar la cotización
+            Completa los 5 pasos para generar la cotización
           </p>
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={onCancel} style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>

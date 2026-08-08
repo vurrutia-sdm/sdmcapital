@@ -263,7 +263,7 @@ export default function SolicitudCreditoForm({
           {uf.loading ? (
             <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Consultando valor UF…</p>
           ) : uf.error ? (
-            <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Consulte el valor vigente en mindicador.cl</p>
+            <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Consulta el valor vigente en mindicador.cl</p>
           ) : (
             <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
               Valor UF hoy: ${Math.round(uf.valor as number).toLocaleString('es-CL')} CLP
