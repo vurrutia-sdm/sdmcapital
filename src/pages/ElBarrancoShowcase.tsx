@@ -218,18 +218,22 @@ export default function ElBarrancoShowcase() {
     return () => { document.head.removeChild(el) }
   }, [])
 
+  // 2.2.2: rota cada 5,5s indefinidamente, así que hace falta poder pararlo.
+  // Nace pausado si el sistema pide menos movimiento.
+  const [pausado, setPausado] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+
   const startCarousel = () => {
     if (interval.current) clearInterval(interval.current)
-    // Con «reduce» el slider no arranca. Sigue sin control de pausa: eso es
-    // 2.2.2 y va en su propia tanda.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (pausado) return
     interval.current = setInterval(() => setSlide(s => (s + 1) % heroSlides.length), 5500)
   }
   useEffect(() => {
     if (cmsLoading) return
     startCarousel()
     return () => { if (interval.current) clearInterval(interval.current) }
-  }, [cmsLoading])
+  }, [cmsLoading, pausado])
 
   const goSlide = (i: number) => { setSlide(i); startCarousel() }
 
@@ -300,9 +304,25 @@ export default function ElBarrancoShowcase() {
             <a href="#investment" style={S.btnGhost} onClick={() => setInvestTab('brief')}>{lang === 'es' ? 'Ver resumen financiero' : 'View Investment Brief'}</a>
           </div>
         </div>
-        <div style={S.heroDots}>
+        <div style={{ ...S.heroDots, display: 'flex', alignItems: 'center', gap: 20 }}>
+          {/* El nombre sigue al idioma activo: esta página arranca en inglés y
+              un rótulo fijo en español no lo leería nadie de los que la usan. */}
+          <button
+            type="button"
+            onClick={() => setPausado(p => !p)}
+            aria-label={pausado
+              ? (lang === 'es' ? 'Reanudar el cambio automático de fotos' : 'Resume the automatic photo change')
+              : (lang === 'es' ? 'Pausar el cambio automático de fotos'   : 'Pause the automatic photo change')}
+            className="area-44"
+            style={{ width: 20, height: 20, marginRight: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(10,12,11,0.6)', border: 'none', borderRadius: '50%', color: C.cream, cursor: 'pointer', padding: 0 }}
+          >
+            {pausado
+              ? <svg width="8" height="9" viewBox="0 0 8 9" fill="currentColor"><path d="M0 0l8 4.5L0 9z"/></svg>
+              : <svg width="8" height="9" viewBox="0 0 8 9" fill="currentColor"><rect x="0" y="0" width="3" height="9"/><rect x="5" y="0" width="3" height="9"/></svg>}
+          </button>
           {heroSlides.map((_, i) => (
-            <button key={i} onClick={() => goSlide(i)} aria-label={`Slide ${i + 1}`} style={{ width: i === slide ? 24 : 6, height: 6, background: i === slide ? C.green : 'rgba(240,236,228,0.25)', borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.3s, background 0.3s' }} />
+            <button key={i} onClick={() => goSlide(i)} aria-label={lang === 'es' ? `Foto ${i + 1} de ${heroSlides.length}` : `Slide ${i + 1} of ${heroSlides.length}`} style={{ width: i === slide ? 24 : 6, height: 6, background: i === slide ? C.green : 'rgba(240,236,228,0.25)', borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0, transition: 'width 0.3s, background 0.3s' }} />
           ))}
         </div>
       </section>
