@@ -110,6 +110,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | OG — imagen por defecto y Function del blog | **Invasión de dominio autorizada: `SEO.tsx` (og-image.jpg → .png) y `functions/blog/[slug].js` (nuevo, calcado de `propiedades/[id].js`).** `functions/` es de la sesión Sofía; no se tocó nada más de ahí | Cerrada — commits `b464c5b` y `42d61cb` |
 | 2026-08-07 | Accesibilidad — tanda 1: contraste | **Cambio en zona compartida: correcciones de contraste WCAG AA en la paleta y en las clases de componente. Afecta a todo el sitio.** Tocó `src/styles/globals.css`; `tailwind.config.js` no hizo falta | Cerrada — commits `4a0c90c`, `fe9cc70`, `abb845d` y `60b144d` |
 | 2026-08-07 | Sistema de color — tanda 1 | Insignias de estado y de oportunidad a variables semánticas, con contraste AA. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `12a46e2`. **`.btn-evaluacion` NO se eliminó: la condición de parada del encargo se disparó, ver el registro** |
+| 2026-08-07 | Sistema de color — botón invertido | `.btn-evaluacion` eliminado, `.btn-inverse` creada. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `8c9770b` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1789,6 +1790,97 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### `.btn-evaluacion` eliminado · `.btn-inverse` es la contraparte que faltaba — 2026-08-07
+
+Commit `8c9770b`.
+
+#### Por qué se fue el dorado
+
+Rompía **cuatro principios del sistema a la vez**: degradado donde el sistema
+usa color plano, `box-shadow` donde usa bordes finos, negrita siendo el único
+botón así, y un brillo animado en `:hover` donde el sistema dice movimiento
+mínimo. Se eliminó con su `::after` y su `@keyframes`.
+
+**La jerarquía que expresaba sí era correcta** —es el único de los tres botones
+que convierte; los otros dos navegan a leer— así que lo que cambió es el
+tratamiento, no el peso.
+
+#### `.btn-inverse` NO es una excepción
+
+`.btn-primary` es navy sobre claro; **`.btn-inverse` es claro sobre navy**.
+Mismas propiedades salvo los dos colores: plana, sin sombra, sin degradado,
+mismo peso (500), mismo radio, mismo padding.
+
+Hacía falta porque sobre el panel `--navy-dark` de la sección de financiamiento
+**`.btn-primary` es literalmente invisible**: el botón y el fondo son el mismo
+color, `1.00:1`. No era «poca separación».
+
+| | contra el panel | texto sobre el botón |
+|---|---|---|
+| `.btn-inverse` `#FFFFFF` | **15.71** | **15.71** |
+
+Se llama `inverse` y no `invertido` para seguir a las cuatro clases que
+sobreviven —`primary`, `green`, `outline`, `text`—, todas en inglés.
+`evaluacion` era la única en español y era justo la que se iba.
+
+Jerarquía resultante en esa sección, sobre panel `--navy-dark`:
+
+| botón | tratamiento | separación del panel | rol |
+|---|---|---|---|
+| Personas | verde sólido | 3.24 | navega a leer |
+| Empresas | contorno blanco | borde a 15.71 | navega a leer |
+| **Evaluación** | **blanco sólido** | **15.71** | **convierte** — único `<button>` |
+
+Los tres se distinguen por tratamiento, no solo por color, y el que convierte es
+el más contrastado. Es el orden correcto.
+
+### PARA SABER SI DOS COLORES SE DISTINGUEN, LA MEDIDA NO ES EL CONTRASTE
+
+Quedó claro tres veces seguidas y conviene que no se repita:
+
+| pregunta | medida correcta | medida que NO sirve |
+|---|---|---|
+| ¿se lee este texto sobre este fondo? | **ratio de luminancia** (WCAG 1.4.3) | — |
+| ¿se distinguen estos dos colores? | **ΔE2000** | el ratio de luminancia: dos tonos opuestos de igual claridad dan ~1.0 y se ven clarísimamente distintos |
+| ¿los distingue alguien con daltonismo? | **ΔE2000 sobre la simulación** | el ΔE2000 normal |
+
+#### Aplicado: «Vendida» contra «Reservada»
+
+**Sí coexisten en pantalla.** De las 53 propiedades activas hay **3 vendidas** y
+**2 reservadas**, todas en la misma grilla de `/propiedades`, así que dos
+tarjetas contiguas pueden llevar una de cada una.
+
+| par | ΔE2000 |
+|---|---|
+| Vendida `#C0392B` vs Reservada **nueva** `#B45309` | **13.8** |
+| Vendida vs Reservada **vieja** `#D97706` | 24.7 |
+| Vendida vs Arrendada `#2563EB` | 44.4 |
+
+A 13.8 **se distinguen** en visión normal —por encima de 10 son colores
+distintos—, aunque oscurecer el ámbar para cumplir contraste costó casi la mitad
+de la separación que había.
+
+**El problema real es otro, y no estaba en el encargo:**
+
+| simulación | Vendida | Reservada | ΔE2000 |
+|---|---|---|---|
+| protanopia | `#636329` | `#6C6C03` | **6.8** |
+| **deuteranopia** | `#7C7C1A` | `#7E7E00` | **2.1** |
+
+**Con deuteranopia —la forma más común de daltonismo, ~6 % de los hombres— las
+dos insignias son prácticamente el mismo color.** 2.1 está en el umbral de lo
+imperceptible. Y con el ámbar viejo tampoco se salvaba: rojo y naranja es
+exactamente el par que estas condiciones colapsan.
+
+Se distinguen por el **texto** de la insignia, que sí es distinto. Pero el color
+no está aportando información para esos usuarios. Si se quiere que aporte, hay
+que sacar «Reservada» de la franja rojo-naranja, no oscurecerla más. **No se
+tocó: es decisión de diseño.**
+
+#### Costo
+
+`index.css` **−0,14 kB gzip**. Se borró más de lo que se agregó.
 
 ### Insignias: dos familias, y el rojo que significaba dos cosas — 2026-08-07
 
