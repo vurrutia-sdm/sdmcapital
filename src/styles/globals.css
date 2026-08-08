@@ -125,7 +125,14 @@
 
   * { box-sizing: border-box; }
 
-  *:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  /* `--green-dark` y no `--green`. 1.4.11 pide 3:1 para el indicador de foco, y
+     `--green` (#3DAA6E) da 2.93:1 sobre blanco, 2.80 sobre `--off` y 2.64 sobre
+     `--sky-pale`: fallaba en casi todo el sitio, y solo cumplia sobre navy.
+     `--green-dark` da 4.85:1 sobre blanco y 3.24:1 sobre `--navy-dark`, o sea
+     que pasa en los dos extremos. Es el mismo criterio que llevo al resto de la
+     paleta: el color de marca se queda para lo decorativo, y lo que tiene que
+     cumplir contraste usa la variante oscura. */
+  *:focus-visible { outline: 2px solid var(--green-dark); outline-offset: 2px; }
 
   /* `clip` y no `hidden`, en las DOS reglas. `overflow-x: hidden` convierte al
      elemento en contenedor de scroll, y con html Y body en hidden a la vez
@@ -237,7 +244,19 @@
      normal, que es lo que corresponde: en varios formularios el placeholder es
      lo unico que identifica el campo. */
   .input-line::placeholder { color: #6B7681; }
-  .input-line:focus { border-color: var(--green-dark); }
+  /* EL INDICADOR DE FOCO NO PUEDE DEPENDER SOLO DEL TONO.
+     El color solo daba 4.85:1 contra el fondo —cumple 1.4.11— pero apenas
+     1.19:1 contra el borde en reposo: el cambio es de tono, casi no de
+     luminancia, y con daltonismo el campo enfocado se ve igual que el vecino.
+     El grosor lo arregla sin depender del color: en escala de grises el borde
+     se duplica y se nota.
+     El `padding-bottom` baja 1px justo el pixel que gana el borde, para que la
+     altura del campo no cambie y no empuje lo que tiene debajo. */
+  .input-line:focus {
+    border-color: var(--green-dark);
+    border-bottom-width: 2px;
+    padding-bottom: calc(0.625rem - 1px);
+  }
 
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--off); }
