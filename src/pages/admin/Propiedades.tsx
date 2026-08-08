@@ -235,7 +235,7 @@ function UnidadesEditor({ items, onChanged }: { items: UnidadPropiedad[]; onChan
         style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--navy-dark)', color: '#fff',
           padding: '9px 20px', borderRadius: 2, border: 'none', cursor: 'pointer', fontWeight: 600,
           textTransform: 'uppercase', fontFamily: 'inherit' }}>
-        <Plus size={14} strokeWidth={2} />Agregar unidad
+        <Plus aria-hidden="true" size={14} strokeWidth={2} />Agregar unidad
       </button>
 
       <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8 }}>
@@ -384,7 +384,7 @@ const upload = async (files: FileList) => {
                   onClick={() => remove(i)}
                   title="Eliminar foto"
                   style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
-                ><X size={14} strokeWidth={2} /></button>
+                ><X aria-hidden="true" size={14} strokeWidth={2} /></button>
               </div>
               <button className={`text-sdm-xs tracking-sdm-wide ${url === imagenPrincipal ? 'bg-[var(--green)] text-white' : 'bg-[var(--border)] text-[var(--muted)] hover:bg-[var(--sky)] hover:text-[var(--navy-dark)]'}`}
                 onClick={() => setPrincipal(url)}
@@ -393,7 +393,7 @@ const upload = async (files: FileList) => {
                   fontFamily: 'inherit', transition: 'all 0.15s',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
               >
-                {url === imagenPrincipal ? <><Star size={11} strokeWidth={2} />Portada</> : 'Portada'}
+                {url === imagenPrincipal ? <><Star aria-hidden="true" size={11} strokeWidth={2} />Portada</> : 'Portada'}
               </button>
             </div>
           ))}
@@ -546,7 +546,7 @@ export default function Propiedades() {
     <div>
       <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Propiedades</h2><Guardado visible={guardado} /></div>
-        <button className="btn-green" onClick={() => setEditing(blank())}><Plus size={15} strokeWidth={2} /> Nueva propiedad</button>
+        <button className="btn-green" onClick={() => setEditing(blank())}><Plus aria-hidden="true" size={15} strokeWidth={2} /> Nueva propiedad</button>
       </div>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
@@ -824,7 +824,7 @@ export default function Propiedades() {
                   {field ? (
                     <button type="button" onClick={() => toggleSort(field as typeof sortField)}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', letterSpacing: 'inherit', color: 'inherit', textTransform: 'uppercase' }}>
-                      {label}{sortField === field ? (sortDir === 'asc' ? <ArrowUp size={14} strokeWidth={2} /> : <ArrowDown size={14} strokeWidth={2} />) : <ArrowUpDown size={14} strokeWidth={2} />}
+                      {label}{sortField === field ? (sortDir === 'asc' ? <ArrowUp aria-hidden="true" size={14} strokeWidth={2} /> : <ArrowDown aria-hidden="true" size={14} strokeWidth={2} />) : <ArrowUpDown aria-hidden="true" size={14} strokeWidth={2} />}
                     </button>
                   ) : (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{label}</span>
@@ -872,17 +872,18 @@ export default function Propiedades() {
                 <td className="order-2 text-sdm-sm lg:table-cell lg:py-3 lg:pr-4" style={{ color: 'var(--muted)' }}>{p.tipo}</td>
                 <td className="order-6 lg:table-cell lg:py-3 lg:pr-4"><Badge label={p.estado.replace('_',' ')} color={p.estado==='en_venta'?'var(--navy-dark)':p.estado==='en_arriendo'?'var(--green)':p.estado==='vendida'?'var(--estado-vendida)':p.estado==='reservada'?'var(--estado-reservada)':p.estado==='arrendada'?'var(--estado-arrendada)':'#999'} /></td>
                 <td className="order-5 grow text-sdm-xl font-medium lg:table-cell lg:grow-0 lg:text-sdm-base lg:font-normal lg:py-3 lg:pr-4">{p.a_consultar ? 'Consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : p.precio_clp ? `$${p.precio_clp.toLocaleString('es-CL')}` : p.precio_usd ? `USD ${p.precio_usd}` : '—'}</td>
-                <td className="order-3 grow lg:table-cell lg:grow-0 lg:py-3 lg:pr-4"><span className="lg:hidden" aria-hidden> · </span><span>{p.internacional ? '🌐' : '🇨🇱'}</span></td>
+                <td className="order-3 grow lg:table-cell lg:grow-0 lg:py-3 lg:pr-4"><span className="lg:hidden" aria-hidden> · </span><span aria-hidden="true">{p.internacional ? '🌐' : '🇨🇱'}</span><span className="sr-only">{p.internacional ? 'Internacional' : 'Chile'}</span></td>
                 {/* El toggle lleva flex-1 para que su borde superior se estire hasta
                     encontrarse con el de las acciones: entre los dos dibujan una
                     sola linea continua sin necesidad de un contenedor. */}
                 <td className="flex-1 order-7 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
                   <button className="text-sdm-sm min-h-[44px] lg:min-h-0"
+                    aria-pressed={p.activo !== false}
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
                     onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
                     onPointerDown={e => e.stopPropagation()}
                     style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    {p.activo === false ? <><Pause size={14} strokeWidth={2} />Pausada</> : <><Check size={14} strokeWidth={2} />Activa</>}
+                    {p.activo === false ? <><Pause aria-hidden="true" size={14} strokeWidth={2} />Pausada</> : <><Check aria-hidden="true" size={14} strokeWidth={2} />Activa</>}
                   </button>
                 </td>
                 {/* pr-4 como el resto de las celdas: era la unica sin el, asi que

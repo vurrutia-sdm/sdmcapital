@@ -288,6 +288,23 @@
      controles estan a menos de 44px, sus areas se solapan y se pulsa el
      equivocado: eso es peor que el objetivo chico. Ver la tabla de SINCRONIA.md
      con el paso medido de cada grupo. */
+  /* Texto SOLO para el lector de pantalla.
+     No se usa `display: none` ni `visibility: hidden`: esos lo ocultan TAMBIEN
+     al lector, que es justo lo contrario de lo que hace falta. El patron
+     estandar lo saca del flujo con una caja de 1px recortada, que sigue en el
+     arbol de accesibilidad. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   .area-44 { position: relative; }
   .area-44::after {
     content: '';
