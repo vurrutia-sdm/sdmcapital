@@ -59,7 +59,6 @@ export interface Propiedad {
   destacada: boolean
   internacional: boolean
   amenidades?: string[]
-  agente_id?: string
   youtube_url?: string
   dossier_url?: string
   dossiers?: DossierItem[]
