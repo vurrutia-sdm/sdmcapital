@@ -102,7 +102,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Admin — tablas a tarjetas | Rediseño móvil de las tablas de `Propiedades` y `Blog`, y corrección del `<thead>` desalineado de Propiedades | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Limpieza técnica | Alinear las versiones de TipTap para quitar `--legacy-peer-deps`, y precisar la condición de `SinArriendos`. **Tocó `package.json` y `package-lock.json`, que son ZONA COMPARTIDA** | Cerrada — commits `be3fa8a` y `441065c`. **El lockfile se regeneró entero**: si otra sesión tenía cambios en él, hay que reinstalar |
 | 2026-08-07 | Cierre — tagline y línea de Captación | **Invasión de dominio autorizada por Víctor: una línea de `Captacion.tsx`** (`minmax(380px, 1fr)` → responsive). Sesión Sofía, no se tocó nada más de ese archivo. Además, tagline único en código y meta tags | Cerrada — commits `5916af3` y `1b2095c`. Quedan 3 claves de `contenido_sitio` por editar a mano desde el admin |
-| 2026-08-07 | UX copy — tanda 1 | Errores, confirmaciones de borrado y confirmación de guardado. **Toca `src/lib/errores.ts`, que es ZONA COMPARTIDA** — cambia solo el texto de la alerta, no la firma ni el log a consola | En curso |
+| 2026-08-07 | UX copy — tanda 1 | Errores, confirmaciones de borrado y confirmación de guardado. **Tocó `src/lib/errores.ts`, que es ZONA COMPARTIDA** — solo el texto de la alerta; la firma y el log a consola quedan igual | Cerrada — commits `a1c53a9`, `8187a81`, `4cdcbd2` y `4ad82a8` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1782,6 +1782,81 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### UX copy tanda 1 — errores, borrados y confirmación de guardado — 2026-08-07
+
+| Commit | Qué |
+|---|---|
+| `a1c53a9` | los 6 `alert()` crudos del dominio pasan a `avisarError()` |
+| `8187a81` | la alerta de `avisarError` habla al usuario |
+| `4cdcbd2` | las 8 confirmaciones de borrado nombran el elemento |
+| `4ad82a8` | los 14 paneles confirman el guardado |
+
+#### EL DETALLE TÉCNICO DE `avisarError` SE QUEDA EN CONSOLA. NO QUITARLO.
+
+La alerta ya **no** muestra `code`, `message`, `details` ni `hint`. Eso no
+significa que sobren: `console.error` los sigue recibiendo completos, y es lo
+que permitió encontrar que `prop_pais` no existía como columna. Si alguien ve
+que la alerta no los usa y decide limpiar el `console.error`, se pierde la
+única forma de diagnosticar un fallo de escritura en producción.
+
+Lo que ve el usuario ahora:
+
+```
+{contexto}.
+
+No se guardó ningún cambio. Vuelve a intentarlo; si sigue fallando, abre
+la consola del navegador y pásame el detalle.
+```
+
+La segunda frase es la que faltaba. El formulario **ya** quedaba abierto con lo
+escrito —para eso `avisarError` devuelve `true`— pero nunca se lo decía, así que
+un fallo se leía como pérdida del trabajo.
+
+#### El texto de Agentes que se pidió NO era cierto
+
+Se encargó «¿Eliminar a X? Sus fichas asignadas quedan sin agente». **No pasa
+eso.** `ficha_propiedades` no referencia al agente: copia `asesor_nombre`,
+`asesor_telefono` y `asesor_correo` al crearse. Borrar un agente no borra
+fichas ni las deja huérfanas — solo desaparece de la lista para elegir asesor,
+y eso es lo que dice el texto que quedó.
+
+De paso: **`agente_id` está declarado en `src/types/index.ts` pero la columna
+no existe en la base** (`42703: column propiedades.agente_id does not exist`) y
+nada la usa. Es un campo fantasma del tipo.
+
+#### Los borrados recargaban la lista aunque fallaran
+
+Los cuatro `alert()` de borrado no cortaban el flujo: llamaban a `load()`
+igual, así que la lista se recargaba como si la operación hubiera salido bien.
+Al pasar a `avisarError` ganaron el `return` que les faltaba.
+
+#### La píldora de guardado SÍ se extrajo
+
+Estaba duplicada literal en los cinco paneles que la tenían. Ahora vive una vez
+en `src/components/admin/acciones.tsx` como `Guardado` + `useGuardado`, y la
+usan **los catorce**. El hook se lleva también el temporizador, que estaba
+copiado con duraciones distintas —2000 ms en Vende, 2500 en el resto— y ahora
+es 2500 en todos, con limpieza al desmontar.
+
+Al migrar, cuatro paneles quedaron importando `Check` sin usarlo. `strict` está
+en `false` en `tsconfig.json` y **el build no lo detecta**: hay que mirarlo a
+mano.
+
+#### Costo
+
+`AdminPage.js` +0,37 kB gzip; el chunk nuevo `acciones.js` +0,54 kB. Total
+**+1,20 kB gzip**. Medido worktree contra worktree.
+
+#### Pendientes de esta tanda
+
+- **`Captacion.tsx`** (dominio Sofía): sus dos `alert()` crudos —línea 464,
+  «No se pudo cambiar el modo», y 1115, «Error al eliminar»— y su confirmación
+  «¿Cancelar esta visita?» siguen sin tocar.
+- **`TarjetasEquipo.tsx:189`**, `alert('El nombre es obligatorio.')`: es una
+  validación de formulario, no un error de Supabase, así que no entraba en la
+  migración a `avisarError`. Sigue siendo el único mensaje de validación propio
+  del admin.
 
 ### EL TAGLINE ES UNO SOLO: «Tu socio confiable en bienes raíces» — 2026-08-07
 
