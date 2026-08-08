@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
 
@@ -56,6 +57,11 @@ function FLabel({ label, children }: { label: string; children: React.ReactNode 
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Agentes() {
+  // Diálogo modal: Escape, foco atrapado mientras está abierto y foco
+  // devuelto al disparador al cerrar. Ver la nota del hook sobre por qué
+  // atrapar mal es peor que no atrapar.
+  const cajaModal = useRef<HTMLDivElement>(null)
+  const tituloModalId = useId()
   const { authed, checking } = useAdminAuth()
   const [agentes, setAgentes] = useState<Agente[]>([])
   const [guardado, avisarGuardado] = useGuardado()
@@ -144,6 +150,8 @@ export default function Agentes() {
     </div>
   )
 
+  useDialogoModal(modal.open, cajaModal, closeModal)
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
       {/* Header */}
@@ -218,9 +226,10 @@ export default function Agentes() {
       {/* Modal crear / editar */}
       {modal.open && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,34,64,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          role="dialog" aria-modal="true" aria-labelledby={tituloModalId}
           onClick={e => { if (e.target === e.currentTarget) closeModal() }}>
-          <div style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
-            <h2 className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>
+          <div ref={cajaModal} tabIndex={-1} style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
+            <h2 id={tituloModalId} className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>
               {modal.editing ? 'Editar agente' : 'Nuevo agente'}
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import type { CSSProperties } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Bath, ChevronLeft, ChevronRight, FileText, Hammer, Home, Link2, MapPin, Maximize2, Package, ParkingSquare, Share2, X } from 'lucide-react'
 import { sanitizarContenido } from '@/lib/contenidoRico'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
+import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
@@ -244,11 +245,19 @@ export default function PropiedadDetailPage() {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft')  prev()
       if (e.key === 'ArrowRight') next()
-      if (e.key === 'Escape')     setLightbox(false)
+      // Escape lo cierra `useDialogoModal`; acá solo quedan las flechas.
     }
     if (lightbox) window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [lightbox, imgIdx, allImgs.length])
+
+  // El lightbox es un diálogo modal como cualquier otro: tapa la página entera
+  // y con Tab se podía salir a los enlaces de atrás sin cerrarlo. Ya tenía
+  // Escape; le faltaban el foco atrapado, la devolución del foco a la miniatura
+  // que lo abrió, y las semánticas de diálogo.
+  const cajaLightbox = useRef<HTMLDivElement>(null)
+  const cerrarLightbox = useCallback(() => setLightbox(false), [])
+  useDialogoModal(lightbox, cajaLightbox, cerrarLightbox)
 
   if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--muted)' }}>Cargando…</div>
   if (!prop)   return <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--muted)' }}>Propiedad no encontrada.</div>
@@ -688,12 +697,18 @@ export default function PropiedadDetailPage() {
       {/* ── Lightbox ── */}
       {lightbox && allImgs.length > 0 && (
         <div
+          ref={cajaLightbox}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Galería de ${titulo}`}
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
           onClick={() => setLightbox(false)}
         >
           {/* Cerrar */}
           <button
             onClick={() => setLightbox(false)}
+            aria-label="Cerrar la galería"
             style={{ position: 'absolute', top: 20, right: 24, background: 'none', border: 'none', color: '#fff', cursor: 'pointer', zIndex: 10 }}
           >
             <X size={32} />

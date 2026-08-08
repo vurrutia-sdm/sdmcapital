@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId, useRef, useCallback } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2, ChevronRight, Image } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
 
@@ -72,6 +73,11 @@ function storagePathFromUrl(url: string): string | null {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function FichaClienteDetalle() {
+  // Diálogo modal: Escape, foco atrapado mientras está abierto y foco
+  // devuelto al disparador al cerrar. Ver la nota del hook sobre por qué
+  // atrapar mal es peor que no atrapar.
+  const cajaModal = useRef<HTMLDivElement>(null)
+  const tituloModalId = useId()
   const { authed, checking } = useAdminAuth()
   const { clienteId } = useParams<{ clienteId: string }>()
   const navigate = useNavigate()
@@ -144,6 +150,9 @@ export default function FichaClienteDetalle() {
       </div>
     </div>
   )
+
+  const cerrarModal = useCallback(() => setShowEdit(false), [])
+  useDialogoModal(showEdit, cajaModal, cerrarModal)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
@@ -266,9 +275,10 @@ export default function FichaClienteDetalle() {
       {/* Edit modal */}
       {showEdit && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,34,64,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          role="dialog" aria-modal="true" aria-labelledby={tituloModalId}
           onClick={e => { if (e.target === e.currentTarget) setShowEdit(false) }}>
-          <div style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
-            <h2 className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>Editar cliente</h2>
+          <div ref={cajaModal} tabIndex={-1} style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
+            <h2 id={tituloModalId} className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>Editar cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <FLabel label="Nombre *">
                 <input autoFocus value={editForm.nombre} onChange={e => setEditForm(f => ({ ...f, nombre: e.target.value }))} style={inp} />

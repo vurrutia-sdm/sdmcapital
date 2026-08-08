@@ -1,26 +1,31 @@
-import { useEffect } from 'react'
+import { useEffect, useId, useRef } from 'react'
+import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { X, Check } from 'lucide-react'
 import SolicitudCreditoForm from './SolicitudCreditoForm'
 
 export default function SolicitudCreditoModal({ onClose }: { onClose: () => void }) {
+  const caja = useRef<HTMLDivElement>(null)
+  const tituloId = useId()
+  // Escape, foco atrapado y foco devuelto al disparador. Ya tenía Escape suelto;
+  // el hook lo reemplaza para no tener dos oyentes haciendo lo mismo.
+  useDialogoModal(true, caja, onClose)
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
-  }, [onClose])
+    return () => { document.body.style.overflow = '' }
+  }, [])
 
   return (
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby={tituloId}
       style={{ position: 'fixed', inset: 0, background: 'rgba(15,37,53,0.72)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
       onClick={onClose}
     >
       <div
+        ref={caja}
+        tabIndex={-1}
         onClick={e => e.stopPropagation()}
         className="w-full grid grid-cols-1 md:grid-cols-[2fr_3fr]"
         style={{ maxWidth: 980, maxHeight: '92vh', overflowY: 'auto', borderRadius: 2, position: 'relative', backgroundColor: '#FFFFFF' }}
@@ -42,7 +47,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
             </span>
           </div>
 
-          <h2 className="font-serif font-light text-sdm-display-sm" style={{ marginBottom: 6, backgroundColor: 'transparent', color: '#FFFFFF' }}>
+          <h2 id={tituloId} className="font-serif font-light text-sdm-display-sm" style={{ marginBottom: 6, backgroundColor: 'transparent', color: '#FFFFFF' }}>
             Asesoría Hipotecaria <em style={{ backgroundColor: 'transparent', color: 'inherit' }}>Integral</em>
           </h2>
           <p className="text-sdm-base" style={{ color: 'rgba(255,255,255,0.55)', marginBottom: 24, backgroundColor: 'transparent' }}>
