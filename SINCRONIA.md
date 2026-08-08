@@ -3658,6 +3658,20 @@ Y el **nombre accesible real**, leído del árbol de accesibilidad
 `textContent` **no sirve** para esta verificación: en el `<select>` daba
 «Tipo de propiedadCasaDepartamentoOficina…», que no es lo que anuncia el lector.
 
+##### Trampa al medir: leer el árbol AX antes de que React renderice
+
+La primera lectura contra producción dio los 19 nombres saliendo del
+`placeholder`, como si el arreglo no hubiera llegado. No era eso: la sonda
+esperaba un tiempo fijo tras `Page.navigate`, que alcanzaba en `localhost` y no
+contra la red. El árbol de accesibilidad se leía antes de que el formulario
+existiera.
+
+Es un **falso negativo especialmente confuso**, porque el síntoma —«el nombre
+viene del placeholder»— es idéntico al del defecto que se está arreglando. Se
+descartó comparando el chunk servido en producción contra el local (`sha256`
+idéntico) y pidiendo el DOM real. La sonda ahora espera a que exista
+`form input` antes de pedir el árbol.
+
 #### Que no cambió nada visualmente
 
 Se construyó `HEAD` en un worktree aparte, se levantaron los dos builds en
@@ -3702,3 +3716,24 @@ Lo que sí quedó despejado: **ningún `Field` contiene más de un control direc
 ninguno se usa para mostrar un valor de solo lectura, ninguno mezcla el control
 con texto de ayuda, y **ningún `Chk` vive dentro de un `Field`** —los 9 son
 hermanos—, así que por ese lado no hay riesgo de etiquetas anidadas.
+
+#### Campos públicos que siguen sin etiqueta
+
+No entran en el paso 1 y no son formularios de captación, pero son públicos:
+
+| Dónde | Campos | Estado |
+|---|---:|---|
+| `SearchBar.tsx` | 3 `<select>` | **sin rótulo de ningún tipo**: ni `<label>`, ni `placeholder`, ni `aria-label`. El buscador del home |
+| `PropiedadesPage.tsx` | 2 `<select>` | 2 `<label>` sueltos, sin asociar. Filtros del catálogo |
+| `MapPicker.tsx` | 1 `<input>` | solo `placeholder` |
+| `ElBarrancoShowcase.tsx` | 2 | 2 `<label>` sueltos y un `aria-label` |
+| `TarjetasEquipo.tsx` | 1 | 1 `<label>` |
+
+Un `<select>` sin nombre es el peor caso de la lista: no tiene `placeholder` que
+dé siquiera una pista, así que un lector anuncia «cuadro combinado» y el valor
+seleccionado, sin decir nunca de qué se trata la lista.
+
+Verificado en producción tras el deploy: los 19 campos con `labels.length === 1`,
+clic que enfoca en 19 de 19, cero ids duplicados y los 19 nombres con origen
+`relatedElement`. En `/evaluacion-gratuita` se miden 7 de los 8 campos porque
+«Tipo de propiedad» solo se monta cuando la acción elegida es «comprar».
