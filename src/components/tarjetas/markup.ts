@@ -52,7 +52,7 @@ export function backHTML() {
   return `<div class="sdm-face sdm-f2b">
   <div class="sdm-barmini"><i></i><i></i><i></i></div>
   <div class="sdm-monoxl">${MONO}</div>
-  <div class="sdm-tag">Tus Sueños en nuestras manos</div>
+  <div class="sdm-tag">Tu socio confiable en bienes raíces</div>
 </div>`
 }
 

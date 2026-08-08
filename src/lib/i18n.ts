@@ -88,7 +88,7 @@ const translationsRaw = {
     },
     footer: {
       copy: '© 2025 SDM Capital · Todos los derechos reservados · Diseño HaikuFlow',
-      tagline: 'Tu socio confiable en el mundo de los bienes raíces.',
+      tagline: 'Tu socio confiable en bienes raíces.',
       nav: 'Navegación',
       servicios: 'Servicios',
       contacto: 'Contacto',

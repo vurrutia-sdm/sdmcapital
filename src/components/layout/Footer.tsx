@@ -70,7 +70,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: 'var(--muted)', maxWidth: 220 }}>
-              {get('footer_tagline', 'Tu socio confiable en el mundo de los bienes raíces.')}
+              {get('footer_tagline', 'Tu socio confiable en bienes raíces.')}
             </p>
           </div>
 

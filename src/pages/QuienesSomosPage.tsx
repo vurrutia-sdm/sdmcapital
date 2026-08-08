@@ -47,7 +47,7 @@ export default function QuienesSomosPage() {
           {lang === 'es' ? 'Quiénes Somos' : 'About Us'}
         </div>
         <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(32px,5vw,68px)', color: '#fff', lineHeight: 1.07, maxWidth: 700 }}>
-          Tu socio estratégico en<br /><em>bienes raíces</em>
+          Tu socio confiable en<br /><em>bienes raíces</em>
         </h1>
         <p className="font-light mt-6 border-l-2 pl-4 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.9, borderColor: 'var(--green)', maxWidth: 520 }}>
           {lang === 'es'

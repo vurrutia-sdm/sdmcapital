@@ -14,7 +14,7 @@ const SITE_NAME = 'SDM Capital'
 
 export default function SEO({ title, description, image, url, type = 'website' }: SEOProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | Inversión Inmobiliaria Chile & Internacional`
-  const desc = description || 'Tu socio estratégico en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el mundo.'
+  const desc = description || 'Tu socio confiable en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el mundo.'
   const img = image || DEFAULT_IMG
   const canonical = url ? `${BASE}${url}` : BASE
 
