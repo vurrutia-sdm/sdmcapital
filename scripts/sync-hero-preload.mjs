@@ -19,6 +19,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
+import { leerEnv } from './lib/entorno.mjs'
 
 const RAIZ = path.resolve(import.meta.dirname, '..')
 const INDEX = path.join(RAIZ, 'index.html')
@@ -26,21 +27,6 @@ const MARCA_INI = '<!-- HERO_PRELOAD:inicio -->'
 const MARCA_FIN = '<!-- HERO_PRELOAD:fin -->'
 
 const aviso = (m) => console.warn(`[hero-preload] ${m}`)
-
-function leerEnv() {
-  // Los archivos primero y process.env encima: las variables de entorno mandan,
-  // que es lo convencional y lo que permite sobrescribir en CI o en pruebas.
-  const env = {}
-  for (const archivo of ['.env', '.env.local']) {
-    const p = path.join(RAIZ, archivo)
-    if (!fs.existsSync(p)) continue
-    for (const linea of fs.readFileSync(p, 'utf8').split('\n')) {
-      const m = linea.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/)
-      if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, '')
-    }
-  }
-  return { ...env, ...process.env }
-}
 
 // Mismo orden que HeroSection.tsx. Si cambia alla, tiene que cambiar aca.
 const CLAVES_HERO = [

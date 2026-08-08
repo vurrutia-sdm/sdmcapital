@@ -7,7 +7,7 @@
     "dev": "vite --port 5103 --strictPort",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "prebuild": "node scripts/sync-hero-preload.mjs"
+    "prebuild": "node scripts/sync-hero-preload.mjs && node scripts/sync-contenido-seed.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.5.1",
