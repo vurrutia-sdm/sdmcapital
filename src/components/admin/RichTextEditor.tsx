@@ -53,7 +53,8 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
         style: [
           'min-height: 320px',
           'padding: 16px',
-          'outline: none',
+          // Sin `outline: none`: el area editable es un control con foco, y era
+          // el unico sitio del editor donde el anillo no se veia.
           'font-size: 15px',
           'line-height: 1.8',
           'color: var(--ink)',

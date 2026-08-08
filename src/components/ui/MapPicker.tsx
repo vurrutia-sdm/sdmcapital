@@ -127,7 +127,7 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
           placeholder="Escribe la dirección — aparecerán sugerencias"
           style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)',
             padding: '8px 0', fontFamily: 'inherit',
-            color: 'var(--ink)', background: 'transparent', outline: 'none' }}
+            color: 'var(--ink)', background: 'transparent' }}
         />
       </label>
 

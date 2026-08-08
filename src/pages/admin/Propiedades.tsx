@@ -596,7 +596,7 @@ export default function Propiedades() {
                 value={editing.region || ''}
                 onChange={e => setEditing(p => ({ ...p, region: e.target.value, comuna: '' }))}
                 className="input-line w-full text-sdm-base"
-                style={{ fontFamily: 'inherit', color: 'var(--ink)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: 'pointer' }}
+                style={{ fontFamily: 'inherit', color: 'var(--ink)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', cursor: 'pointer' }}
               >
                 <option value="">Seleccionar región...</option>
                 {REGIONES.map(r => <option key={r} value={r}>{r}</option>)}
@@ -608,7 +608,7 @@ export default function Propiedades() {
                 onChange={e => setEditing(p => ({ ...p, comuna: e.target.value }))}
                 disabled={!editing.region}
                 className="input-line w-full text-sdm-base"
-                style={{ fontFamily: 'inherit', color: editing.region ? 'var(--ink)' : 'var(--muted)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', outline: 'none', cursor: editing.region ? 'pointer' : 'not-allowed' }}
+                style={{ fontFamily: 'inherit', color: editing.region ? 'var(--ink)' : 'var(--muted)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', cursor: editing.region ? 'pointer' : 'not-allowed' }}
               >
                 <option value="">{editing.region ? 'Seleccionar comuna...' : 'Primero elige una región'}</option>
                 {getComunas(editing.region || '').map(c => <option key={c} value={c}>{c}</option>)}

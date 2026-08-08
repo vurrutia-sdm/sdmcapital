@@ -150,8 +150,8 @@ const S: Record<string, React.CSSProperties> = {
   footerText: { fontSize: 'var(--sdm-text-sm)', fontWeight: 300, color: C.faint, letterSpacing: '0.08em' },
   backBtn: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--sdm-text-xs)', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: "'Jost', sans-serif" },
   formLabel: { display: 'block', fontSize: 'var(--sdm-text-xs)', fontWeight: 300, letterSpacing: '0.3em', textTransform: 'uppercase', color: C.muted, marginBottom: 8 },
-  formInput: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-base)', outline: 'none', boxSizing: 'border-box' as const },
-  formTextarea: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-base)', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const, minHeight: 80 },
+  formInput: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-base)', boxSizing: 'border-box' as const },
+  formTextarea: { width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid rgba(168,196,216,0.2)`, padding: '10px 0', color: C.cream, fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: 'var(--sdm-text-base)', resize: 'none' as const, boxSizing: 'border-box' as const, minHeight: 80 },
 }
 
 // Estilo dinámico — fuera de S porque es una función, no un CSSProperties.

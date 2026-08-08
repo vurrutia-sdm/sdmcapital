@@ -35,8 +35,7 @@ type FormState = {
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
   fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: 'var(--navy-dark)', background: '#fff',
-  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
-  outline: 'none', width: '100%',
+  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0', width: '100%',
 }
 const sel: React.CSSProperties = { ...inp, cursor: 'pointer' }
 

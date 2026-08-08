@@ -32,8 +32,7 @@ type ModalForm = { nombre: string; telefono: string; correo: string; activo: boo
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
   fontFamily: 'inherit', fontSize: 'var(--sdm-text-base)', color: 'var(--navy-dark)', background: '#fff',
-  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0',
-  outline: 'none', width: '100%',
+  border: 'none', borderBottom: '1px solid var(--border)', padding: '7px 0', width: '100%',
 }
 
 // El <label> ENVUELVE a su control: eso los asocia, sin htmlFor y sin ids que

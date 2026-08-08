@@ -306,7 +306,7 @@ export default function PropiedadesPage() {
                     if (f.key === 'region') nuevos.delete('comuna')
                     setSearchParams(nuevos, { replace: true })
                   }}
-                  style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: 'var(--ink)', background: 'transparent', outline: 'none', cursor: 'pointer' }}>
+                  style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: 'var(--ink)', background: 'transparent', cursor: 'pointer' }}>
                   {f.opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </label>
@@ -323,7 +323,7 @@ export default function PropiedadesPage() {
                   setSearchParams(nuevos, { replace: true })
                 }}
                 disabled={!filtros.region}
-                style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: filtros.region ? 'var(--ink)' : 'var(--muted)', background: 'transparent', outline: 'none', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
+                style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: filtros.region ? 'var(--ink)' : 'var(--muted)', background: 'transparent', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
               >
                 <option value="">{filtros.region ? 'Todas las comunas' : 'Primero elige región'}</option>
                 {filtros.region && getComunas(filtros.region).map(c => (
