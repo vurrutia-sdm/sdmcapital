@@ -111,6 +111,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Accesibilidad — tanda 1: contraste | **Cambio en zona compartida: correcciones de contraste WCAG AA en la paleta y en las clases de componente. Afecta a todo el sitio.** Tocó `src/styles/globals.css`; `tailwind.config.js` no hizo falta | Cerrada — commits `4a0c90c`, `fe9cc70`, `abb845d` y `60b144d` |
 | 2026-08-07 | Sistema de color — tanda 1 | Insignias de estado y de oportunidad a variables semánticas, con contraste AA. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `12a46e2`. **`.btn-evaluacion` NO se eliminó: la condición de parada del encargo se disparó, ver el registro** |
 | 2026-08-07 | Sistema de color — botón invertido | `.btn-evaluacion` eliminado, `.btn-inverse` creada. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `8c9770b` |
+| 2026-08-07 | Color de estado — «Reservada» a tono frío | `--estado-reservada` de ámbar a petróleo, por daltonismo. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `f3d5860` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1790,6 +1791,63 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### LOS COLORES DE ESTADO SE VERIFICAN CON ΔE2000 BAJO DALTONISMO — 2026-08-07
+
+Commit `f3d5860`. **El criterio, para cualquier color de estado que se agregue:**
+
+| pregunta | medida | criterio |
+|---|---|---|
+| ¿se lee el texto sobre la insignia? | **ratio de luminancia** WCAG | ≥ 4.5:1 |
+| ¿se distinguen dos estados entre sí? | **ΔE2000** | > 10 |
+| ¿los distingue alguien con daltonismo? | **ΔE2000 sobre la simulación**, protanopia y deuteranopia | > 10 |
+
+**Los tres hacen falta y miden cosas distintas.** El ratio dice si el texto se
+lee; el ΔE dice si dos estados se diferencian. Un color puede cumplir 4.5:1
+perfecto y ser indistinguible de su vecino.
+
+#### Qué pasó con «Reservada»
+
+En ámbar `#B45309` cumplía contraste (5.02:1) y **bajo deuteranopia daba ΔE2000
+de 2.1 contra «Vendida»**: prácticamente el mismo color. El ámbar anterior
+`#D97706` tampoco se salvaba. Rojo contra naranja es justo el par que esas
+condiciones colapsan, y la deuteranopia es la forma más común —alrededor del
+6 % de los hombres—.
+
+Se buscó barriendo H165-300°, S30-95 %, L18-52 %, filtrando por contraste ≥4.5 y
+ordenando por **el peor ΔE** contra los otros tres estados en las tres
+condiciones. Ganó `#1F5F6B` — petróleo, H189° S55% L27%.
+
+| | |
+|---|---|
+| contraste con blanco | **7.22:1** (antes 5.02) |
+| peor ΔE de los nueve pares | **21.2** |
+| distancia de `--navy` | 16.7 — familia adyacente, distinto |
+
+**La agrupación es también semántica:** «Reservada» y «Arrendada» son ocupación
+temporal y ahora son las dos frías; «Vendida» es lo único definitivo y se queda
+sola en rojo.
+
+#### La matriz completa, cinco estados × tres condiciones
+
+Peor par en cada condición, excluyendo «Precio rebajado» vs «Bono Pie» que son
+**el mismo color a propósito** (nunca coexisten):
+
+| condición | peor par | ΔE |
+|---|---|---|
+| normal | Reservada vs Arrendada | 23.3 |
+| protanopia | **Vendida vs Precio rebajado** | **10.2** |
+| deuteranopia | Vendida vs Precio rebajado | 16.3 |
+
+**El par más ajustado del sistema ya no es Vendida/Reservada sino Vendida contra
+Precio rebajado bajo protanopia: 10.2**, justo en el umbral. Es rojo contra
+verde, que es lo que la protanopia colapsa, y son de familias distintas —una de
+estado y otra de oportunidad— así que pueden aparecer en la misma tarjeta. Pasa,
+pero es el siguiente candidato a revisar si algún día se toca la paleta.
+
+#### Costo
+
+Cero: `+0,02 kB gzip`, y es ruido de compresión. Se cambió un valor hexadecimal.
 
 ### `.btn-evaluacion` eliminado · `.btn-inverse` es la contraparte que faltaba — 2026-08-07
 
