@@ -3,7 +3,7 @@ import { Check, FileText, Loader2, Mail, Pencil, PencilLine, Plus, Search, Trash
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
-import { FieldGroup } from '@/components/admin/campos'
+import { Field, FieldGroup } from '@/components/admin/campos'
 import { subirImagen } from '@/lib/subirImagen'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import type { Cotizacion, CotizacionDraft, EstadoCotizacion, FormaPago, Propiedad } from '@/types'
@@ -170,31 +170,6 @@ function ImageUploader({
   )
 }
 
-// ─── Pequeñas piezas UI ───────────────────────────────────────────────────────
-// El <label> ENVUELVE a su control: es lo que los asocia, sin htmlFor y sin
-// ids que puedan colisionar.
-//
-// EL ESTILO DEL ROTULO VA EN EL <span>, NUNCA EN EL <label>. `text-transform`
-// y `letter-spacing` son propiedades heredadas y se aplican al texto que se
-// escribe dentro de un input; `.input-line` no fija ninguna de las dos. Con el
-// `uppercase` en el elemento que envuelve, todo lo tecleado en estos campos
-// saldria en mayusculas, sin que el build ni la consola avisen.
-//
-// No hace falta `display: block`: la clase ya fija `display: flex`, que gana
-// sobre el `inline` que trae <label> por defecto.
-//
-// Solo sirve para un control etiquetable. Para `ImageUploader` y para el valor
-// de UF de solo lectura se usa `FieldGroup`.
-function Fld({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-2">
-      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
-        {label}
-      </span>
-      {children}
-    </label>
-  )
-}
 
 function Inp({
   value, onChange, type = 'text', placeholder = '', disabled = false,
@@ -472,21 +447,21 @@ function CotizacionWizard({
               Datos del cliente
             </h3>
             <div className="grid grid-cols-2 gap-6">
-              <Fld label="Nombre completo *">
+              <Field label="Nombre completo *">
                 <Inp value={draft.cliente_nombre} placeholder="Juan Pérez" onChange={v => upd({ cliente_nombre: v })} />
-              </Fld>
-              <Fld label="RUT">
+              </Field>
+              <Field label="RUT">
                 <Inp value={draft.cliente_rut} placeholder="12.345.678-9" onChange={v => upd({ cliente_rut: v })} />
-              </Fld>
-              <Fld label="Email">
+              </Field>
+              <Field label="Email">
                 <Inp value={draft.cliente_email} type="email" placeholder="juan@email.com" onChange={v => upd({ cliente_email: v })} />
-              </Fld>
-              <Fld label="Teléfono">
+              </Field>
+              <Field label="Teléfono">
                 <Inp value={draft.cliente_telefono} placeholder="+56 9 1234 5678" onChange={v => upd({ cliente_telefono: v })} />
-              </Fld>
-              <Fld label="Empresa / Institución">
+              </Field>
+              <Field label="Empresa / Institución">
                 <Inp value={draft.cliente_empresa} placeholder="Empresa S.A." onChange={v => upd({ cliente_empresa: v })} />
-              </Fld>
+              </Field>
             </div>
           </div>
         )}
@@ -501,7 +476,7 @@ function CotizacionWizard({
             {/* Buscador de catálogo */}
             {!manualProp && (
               <div className="flex flex-col gap-3">
-                <Fld label="Buscar en catálogo SDM">
+                <Field label="Buscar en catálogo SDM">
                   <input
                     type="text"
                     className="input-line"
@@ -509,7 +484,7 @@ function CotizacionWizard({
                     value={propSearch}
                     onChange={e => setPropSearch(e.target.value)}
                   />
-                </Fld>
+                </Field>
                 {/* Sin tope de resultados. Lo habia -- .slice(0, 12) -- y no lo
                     justificaba ni el espacio ni el rendimiento: el contenedor ya
                     scrollea (maxHeight 220) y el catalogo son 53 filas que ademas
@@ -567,10 +542,10 @@ function CotizacionWizard({
                 )}
 
                 <div className="grid grid-cols-2 gap-6">
-                  <Fld label="Título *">
+                  <Field label="Título *">
                     <Inp value={draft.prop_titulo} placeholder="Departamento en Las Condes" onChange={v => upd({ prop_titulo: v })} />
-                  </Fld>
-                  <Fld label="Tipo">
+                  </Field>
+                  <Field label="Tipo">
                     <Sel value={draft.prop_tipo ?? ''} onChange={v => upd({ prop_tipo: v })} options={[
                       { value: '',             label: 'Sin especificar' },
                       { value: 'departamento', label: 'Departamento' },
@@ -582,15 +557,15 @@ function CotizacionWizard({
                       { value: 'terreno',      label: 'Terreno' },
                       { value: 'otro',         label: 'Otro' },
                     ]} />
-                  </Fld>
-                  <Fld label="Dirección">
+                  </Field>
+                  <Field label="Dirección">
                     <Inp value={draft.prop_direccion} placeholder="Av. Apoquindo 1234" onChange={v => upd({ prop_direccion: v })} />
-                  </Fld>
+                  </Field>
                 </div>
 
                 {/* País → Región/Comuna en cascada */}
                 <div className="grid grid-cols-3 gap-6">
-                  <Fld label="País">
+                  <Field label="País">
                     <select
                       value={draft.prop_pais ?? 'Chile'}
                       onChange={e => {
@@ -601,11 +576,11 @@ function CotizacionWizard({
                     >
                       {PAISES.map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
-                  </Fld>
+                  </Field>
 
                   {esChile ? (
                     <>
-                      <Fld label="Región">
+                      <Field label="Región">
                         <select
                           value={draft.prop_region ?? ''}
                           onChange={e => upd({ prop_region: e.target.value, prop_comuna: '' })}
@@ -615,8 +590,8 @@ function CotizacionWizard({
                           <option value="">Seleccionar región…</option>
                           {REGIONES.map(r => <option key={r} value={r}>{r}</option>)}
                         </select>
-                      </Fld>
-                      <Fld label="Comuna">
+                      </Field>
+                      <Field label="Comuna">
                         <select
                           value={draft.prop_comuna ?? ''}
                           onChange={e => upd({ prop_comuna: e.target.value })}
@@ -631,16 +606,16 @@ function CotizacionWizard({
                             <option key={c} value={c}>{c}</option>
                           ))}
                         </select>
-                      </Fld>
+                      </Field>
                     </>
                   ) : (
-                    <Fld label="Ciudad">
+                    <Field label="Ciudad">
                       <Inp
                         value={draft.prop_ciudad}
                         placeholder="Asunción, Buenos Aires…"
                         onChange={v => upd({ prop_ciudad: v })}
                       />
-                    </Fld>
+                    </Field>
                   )}
                 </div>
 
@@ -658,29 +633,29 @@ function CotizacionWizard({
                 </FieldGroup>
 
                 <div className="grid grid-cols-5 gap-4">
-                  <Fld label="Dormitorios">
+                  <Field label="Dormitorios">
                     <Inp value={draft.prop_dormitorios} type="number" placeholder="3" onChange={v => upd({ prop_dormitorios: n0(v) })} />
-                  </Fld>
-                  <Fld label="Baños">
+                  </Field>
+                  <Field label="Baños">
                     <Inp value={draft.prop_banos} type="number" placeholder="2" onChange={v => upd({ prop_banos: n0(v) })} />
-                  </Fld>
-                  <Fld label="Sup. Útil m²">
+                  </Field>
+                  <Field label="Sup. Útil m²">
                     <Inp value={draft.prop_sup_util} type="number" placeholder="85" onChange={v => upd({ prop_sup_util: n0(v) })} />
-                  </Fld>
-                  <Fld label="Estac.">
+                  </Field>
+                  <Field label="Estac.">
                     <Inp value={draft.prop_estacionamientos} type="number" placeholder="1" onChange={v => upd({ prop_estacionamientos: n0(v) })} />
-                  </Fld>
-                  <Fld label="Bodegas">
+                  </Field>
+                  <Field label="Bodegas">
                     <Inp value={draft.prop_bodegas} type="number" placeholder="1" onChange={v => upd({ prop_bodegas: n0(v) })} />
-                  </Fld>
+                  </Field>
                 </div>
 
-                <Fld label="Amenidades (separadas por coma)">
+                <Field label="Amenidades (separadas por coma)">
                   <AmenidadesInput
                     value={draft.prop_amenidades ?? []}
                     onChange={v => upd({ prop_amenidades: v })}
                   />
-                </Fld>
+                </Field>
               </>
             )}
           </div>
@@ -724,12 +699,12 @@ function CotizacionWizard({
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              <Fld label="Precio publicado (UF)">
+              <Field label="Precio publicado (UF)">
                 <Inp value={draft.precio_uf} type="number" placeholder="5000" onChange={v => upd({ precio_uf: n0(v) })} />
-              </Fld>
-              <Fld label="Descuento (%)">
+              </Field>
+              <Field label="Descuento (%)">
                 <Inp value={draft.descuento_pct} type="number" placeholder="0" onChange={v => upd({ descuento_pct: n0(v) })} />
-              </Fld>
+              </Field>
             </div>
 
             {/* Resumen calculado */}
@@ -746,9 +721,9 @@ function CotizacionWizard({
               ))}
             </div>
 
-            <Fld label="Precio USD (opcional)">
+            <Field label="Precio USD (opcional)">
               <Inp value={draft.precio_usd} type="number" placeholder="190000" onChange={v => upd({ precio_usd: n0(v) })} />
-            </Fld>
+            </Field>
           </div>
         )}
 
@@ -759,7 +734,7 @@ function CotizacionWizard({
               Forma de pago
             </h3>
 
-            <Fld label="Modalidad">
+            <Field label="Modalidad">
               <Sel value={draft.forma_pago ?? ''} onChange={v => upd({ forma_pago: v as FormaPago })} options={[
                 { value: '',        label: 'Sin especificar' },
                 { value: 'contado', label: 'Contado' },
@@ -767,7 +742,7 @@ function CotizacionWizard({
                 { value: 'leasing', label: 'Leasing inmobiliario' },
                 { value: 'mixto',   label: 'Mixto (pie + crédito)' },
               ]} />
-            </Fld>
+            </Field>
 
             {draft.forma_pago && draft.forma_pago !== 'contado' && (
               <>
@@ -787,15 +762,15 @@ function CotizacionWizard({
                 </div>
 
                 <div className="grid grid-cols-3 gap-6">
-                  <Fld label="% Pie">
+                  <Field label="% Pie">
                     <Inp value={draft.pie_pct} type="number" placeholder="20" onChange={v => upd({ pie_pct: n0(v) })} />
-                  </Fld>
-                  <Fld label="Plazo (años)">
+                  </Field>
+                  <Field label="Plazo (años)">
                     <Inp value={draft.plazo_anos} type="number" placeholder="20" onChange={v => upd({ plazo_anos: n0(v) })} />
-                  </Fld>
-                  <Fld label="Tasa anual (%)">
+                  </Field>
+                  <Field label="Tasa anual (%)">
                     <Inp value={draft.tasa_anual} type="number" placeholder="4.5" onChange={v => upd({ tasa_anual: n0(v) })} />
-                  </Fld>
+                  </Field>
                 </div>
 
                 {divUF != null && (
@@ -823,20 +798,20 @@ function CotizacionWizard({
               Ejecutivo y observaciones
             </h3>
             <div className="grid grid-cols-2 gap-6">
-              <Fld label="Nombre ejecutivo">
+              <Field label="Nombre ejecutivo">
                 <Inp value={draft.ejecutivo_nombre} placeholder="María González" onChange={v => upd({ ejecutivo_nombre: v })} />
-              </Fld>
-              <Fld label="Cargo">
+              </Field>
+              <Field label="Cargo">
                 <Inp value={draft.ejecutivo_cargo} placeholder="Ejecutiva Comercial" onChange={v => upd({ ejecutivo_cargo: v })} />
-              </Fld>
-              <Fld label="Email ejecutivo">
+              </Field>
+              <Field label="Email ejecutivo">
                 <Inp value={draft.ejecutivo_email} type="email" placeholder="maria@sdmcapital.cl" onChange={v => upd({ ejecutivo_email: v })} />
-              </Fld>
-              <Fld label="Teléfono ejecutivo">
+              </Field>
+              <Field label="Teléfono ejecutivo">
                 <Inp value={draft.ejecutivo_telefono} placeholder="+56 9 1234 5678" onChange={v => upd({ ejecutivo_telefono: v })} />
-              </Fld>
+              </Field>
             </div>
-            <Fld label="Observaciones">
+            <Field label="Observaciones">
               <textarea
                 className="input-line resize-none"
                 rows={4}
@@ -844,24 +819,24 @@ function CotizacionWizard({
                 value={draft.observaciones ?? ''}
                 onChange={e => upd({ observaciones: e.target.value })}
               />
-            </Fld>
+            </Field>
             <div className="grid grid-cols-2 gap-6">
-              <Fld label="Vigencia (días)">
+              <Field label="Vigencia (días)">
                 <NumInp
                   value={draft.vigencia_dias}
                   placeholder="30"
                   min={1}
                   onChange={v => upd({ vigencia_dias: v })}
                 />
-              </Fld>
-              <Fld label="Estado inicial">
+              </Field>
+              <Field label="Estado inicial">
                 <Sel value={draft.estado} onChange={v => upd({ estado: v as EstadoCotizacion })} options={[
                   { value: 'borrador',  label: 'Borrador' },
                   { value: 'enviada',   label: 'Enviada' },
                   { value: 'aceptada',  label: 'Aceptada' },
                   { value: 'rechazada', label: 'Rechazada' },
                 ]} />
-              </Fld>
+              </Field>
             </div>
           </div>
         )}

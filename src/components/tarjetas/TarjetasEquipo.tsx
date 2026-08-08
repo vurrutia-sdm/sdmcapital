@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
+import { Field } from '@/components/admin/campos'
 import {
   TarjetaFrente, TarjetaReverso,
   EMPTY_TARJETA, TARJETA_DEFAULTS,
@@ -16,23 +17,6 @@ const imprimirTarjeta = async (tarjeta: Parameters<
   Awaited<typeof import('./imprimir')>['imprimirTarjeta']
 >[0]) => (await import('./imprimir')).imprimirTarjeta(tarjeta)
 
-// ─── Pequeñas piezas UI (mismo patrón que CotizacionesAdmin) ──────────────────
-// El <label> ENVUELVE a su control, y el estilo del rotulo baja al <span>:
-// `text-transform` y `letter-spacing` se heredan al texto que se escribe
-// dentro del input, y `.input-line` no fija ninguna de las dos. Ver la nota
-// completa en el `Fld` de `CotizacionesAdmin.tsx`, identico a este.
-//
-// `display: flex` viene de la clase, asi que no hace falta `display: block`.
-function Fld({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-2">
-      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>
-        {label}
-      </span>
-      {children}
-    </label>
-  )
-}
 
 function Inp({
   value, onChange, type = 'text', placeholder = '',
@@ -98,27 +82,27 @@ function TarjetaForm({
         {/* Formulario */}
         <div className="bg-white p-6" style={{ border: '1px solid var(--border)', borderRadius: 2 }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <Fld label="Nombre completo">
+            <Field label="Nombre completo">
               <Inp value={draft.nombre} onChange={v => upd({ nombre: v })} placeholder="Nombre Apellido" />
-            </Fld>
-            <Fld label="Cargo">
+            </Field>
+            <Field label="Cargo">
               <Inp value={draft.cargo ?? ''} onChange={v => upd({ cargo: v })} placeholder="Asesor Comercial" />
-            </Fld>
-            <Fld label="Teléfono">
+            </Field>
+            <Field label="Teléfono">
               <Inp value={draft.telefono ?? ''} onChange={v => upd({ telefono: v })} placeholder="(56) 9 0000 0000" />
-            </Fld>
-            <Fld label="Email">
+            </Field>
+            <Field label="Email">
               <Inp type="email" value={draft.email ?? ''} onChange={v => upd({ email: v })} placeholder="nombre@sdmcapital.cl" />
-            </Fld>
-            <Fld label="Dirección">
+            </Field>
+            <Field label="Dirección">
               <Inp value={draft.direccion ?? ''} onChange={v => upd({ direccion: v })} placeholder={TARJETA_DEFAULTS.direccion} />
-            </Fld>
-            <Fld label="Web">
+            </Field>
+            <Field label="Web">
               <Inp value={draft.web ?? ''} onChange={v => upd({ web: v })} placeholder={TARJETA_DEFAULTS.web} />
-            </Fld>
-            <Fld label="Orden">
+            </Field>
+            <Field label="Orden">
               <Inp type="number" value={draft.orden ?? 0} onChange={v => upd({ orden: Number(v) })} />
-            </Fld>
+            </Field>
           </div>
 
           <div className="flex flex-wrap gap-3">
