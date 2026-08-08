@@ -136,10 +136,10 @@ export default function Header() {
             Propiedades Usadas
           </Link>
           <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas?estado=en_venta" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
-            → En Venta
+            En Venta
           </Link>
           <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas?estado=en_arriendo" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
-            → En Arriendo
+            En Arriendo
           </Link>
 
           {/* Proyectos Nuevos */}

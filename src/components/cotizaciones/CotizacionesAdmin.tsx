@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Search, PencilLine } from 'lucide-react'
+import { PencilLine, Plus, Search } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
@@ -435,7 +435,7 @@ function CotizacionWizard({
           </p>
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={onCancel} style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>
-          ← Volver al listado
+          ← Volver a Cotizaciones
         </button>
       </div>
 
@@ -1037,7 +1037,7 @@ export function CotizacionesAdmin() {
           <div style={{ marginTop: 6 }}><Guardado visible={guardado} /></div>
         </div>
         <button onClick={openCreate} className="btn-green">
-          + Nueva cotización
+          <Plus size={15} strokeWidth={2} /> Nueva cotización
         </button>
       </div>
 

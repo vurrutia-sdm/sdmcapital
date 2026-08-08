@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
@@ -268,7 +269,7 @@ export function TarjetasEquipo() {
           <div style={{ marginTop: 6 }}><Guardado visible={guardado} /></div>
         </div>
         <button onClick={openCreate} className="btn-green">
-          + Nueva tarjeta
+          <Plus size={15} strokeWidth={2} /> Nueva tarjeta
         </button>
       </div>
 

@@ -5,7 +5,7 @@
 // persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
-import { Building2, GripVertical, MousePointer2 } from 'lucide-react'
+import { Building2, GripVertical, MousePointer2, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import type { Asociado } from '@/types'
@@ -55,7 +55,7 @@ export default function Asociados() {
     <div>
       <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2><Guardado visible={guardado} /></div>
-        <button className="btn-green" onClick={() => setEditing({ nombre: '', logo: '', url: '', orden: items.length + 1, activo: true })}>+ Nuevo asociado</button>
+        <button className="btn-green" onClick={() => setEditing({ nombre: '', logo: '', url: '', orden: items.length + 1, activo: true })}><Plus size={15} strokeWidth={2} /> Nuevo asociado</button>
       </div>
       <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las tarjetas para cambiar el orden.</p>
 
