@@ -1173,7 +1173,7 @@ export default function Captacion() {
                 No hay visitas pendientes por confirmar.
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))', gap: 16 }}>
                 {visitas.map(v => (
                   <VisitaCard
                     key={v.id}
