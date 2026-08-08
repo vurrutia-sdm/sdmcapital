@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
@@ -55,7 +55,6 @@ function FLabel({ label, children }: { label: string; children: React.ReactNode 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function FichaClientesLista() {
   const { authed, checking } = useAdminAuth()
-  const navigate = useNavigate()
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -153,10 +152,16 @@ export default function FichaClientesLista() {
               const fichaCount = c.ficha_propiedades.length
               const isDel = deleting === c.id
               return (
+                // La tarjeta NO se envuelve en <Link>: contiene el botón de
+                // eliminar, y un botón dentro de un enlace es inválido. El
+                // enlace es el nombre, y se estira sobre la tarjeta con
+                // `enlace-tarjeta` (globals.css), que le pone un ::after
+                // absoluto. Con ratón se sigue pulsando entera; en el orden de
+                // tabulación aparece un solo destino, el nombre, y el botón de
+                // eliminar queda por encima gracias a su z-index.
                 <div key={c.id}
                   className="border border-[var(--border)] hover:border-[var(--green-dark)] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
-                  onClick={() => navigate(`/admin/ficha-cliente/${c.id}`)}
-                  style={{ background: '#fff', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+                  style={{ background: '#fff', borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', position: 'relative' }}
                 >
                   {/* Avatar inicial */}
                   <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--navy-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -164,7 +169,9 @@ export default function FichaClientesLista() {
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 3 }}>{c.nombre}</div>
+                    <div className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 3 }}>
+                      <Link to={`/admin/ficha-cliente/${c.id}`} className="enlace-tarjeta" style={{ color: 'inherit', textDecoration: 'none' }}>{c.nombre}</Link>
+                    </div>
                     <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                       {c.telefono && <span>{c.telefono}</span>}
                       {c.correo && <span>{c.correo}</span>}
@@ -178,7 +185,7 @@ export default function FichaClientesLista() {
                     </span>
                     <button onClick={e => deleteCliente(e, c.id)} disabled={isDel}
                       title="Eliminar cliente"
-                      style={{ background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1, flexShrink: 0 }}>
+                      style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1, flexShrink: 0 }}>
                       <Trash2 size={15} />
                     </button>
                     <ChevronRight size={16} style={{ color: '#c0cdd8', flexShrink: 0 }} />

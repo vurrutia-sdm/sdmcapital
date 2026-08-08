@@ -208,10 +208,14 @@ export default function FichaClienteDetalle() {
                 {fichas.map(f => {
                   const isDel = deleting === f.id
                   return (
+                    // La tarjeta NO se envuelve en <Link>: contiene los
+                    // botones de editar y eliminar, y un botón dentro de un
+                    // enlace es inválido. El enlace es la dirección, estirada
+                    // sobre la tarjeta con `enlace-tarjeta`; los botones quedan
+                    // encima por su z-index.
                     <div key={f.id}
                       className="border border-[var(--border)] hover:border-[var(--green-dark)] hover:shadow-[0_2px_8px_rgba(77,184,112,0.1)]"
-                      onClick={() => navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}`)}
-                      style={{ background: '#fff', borderRadius: 4, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', opacity: isDel ? 0.5 : 1 }}
+                      style={{ background: '#fff', borderRadius: 4, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', opacity: isDel ? 0.5 : 1 , position: 'relative' }}
                     >
                       {/* Thumb */}
                       <div style={{ width: 56, height: 42, borderRadius: 3, overflow: 'hidden', flexShrink: 0, background: '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -223,7 +227,9 @@ export default function FichaClienteDetalle() {
 
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {f.direccion || 'Sin dirección'}
+                          <Link to={`/admin/ficha-cliente/${clienteId}/ficha/${f.id}`} className="enlace-tarjeta" style={{ color: 'inherit', textDecoration: 'none' }}>
+                            {f.direccion || 'Sin dirección'}
+                          </Link>
                         </div>
                         <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                           {f.tipo && <span>{f.tipo}</span>}
@@ -239,11 +245,11 @@ export default function FichaClienteDetalle() {
                         )}
                         <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}/editar`) }}
                           title="Editar ficha"
-                          style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
+                          style={{ position: 'relative', zIndex: 2, background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
                           <Edit2 size={12} /> Editar
                         </button>
                         <button onClick={e => deleteFicha(e, f)} disabled={isDel} title="Eliminar ficha"
-                          style={{ background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1 }}>
+                          style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1 }}>
                           <Trash2 size={14} />
                         </button>
                         <ChevronRight size={16} style={{ color: '#c0cdd8' }} />

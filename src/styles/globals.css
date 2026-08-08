@@ -243,6 +243,21 @@
   /* #9AA8B4 daba 2.43:1 sobre blanco. #6B7681 da 4.63:1 y cumple AA para texto
      normal, que es lo que corresponde: en varios formularios el placeholder es
      lo unico que identifica el campo. */
+  /* Tarjeta clicable entera SIN envolverla en un enlace.
+     Estas tarjetas llevan botones dentro —eliminar, editar—, y un <button>
+     dentro de un <a> es markup invalido. Envolver tampoco serviria para el
+     teclado: el enlace anunciaria de una vez todo el texto de la tarjeta.
+     Asi el enlace es solo el titulo, y su ::after se estira sobre el
+     contenedor para que el raton siga pulsando cualquier parte. Los botones
+     necesitan `position: relative` y un z-index mayor para quedar encima.
+     El contenedor tiene que ser `position: relative`. */
+  .enlace-tarjeta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
   .input-line::placeholder { color: #6B7681; }
   /* EL INDICADOR DE FOCO NO PUEDE DEPENDER SOLO DEL TONO.
      El color solo daba 4.85:1 contra el fondo —cumple 1.4.11— pero apenas
