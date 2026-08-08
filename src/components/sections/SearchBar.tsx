@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, ChevronDown, Check, X } from 'lucide-react'
 import { getComunas } from '@/data/comunas-chile'
@@ -118,6 +118,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'region' | 'comuna'>('region')
   const ref = useRef<HTMLDivElement>(null)
+  const etiquetaId = useId()
 
   useEffect(() => {
     const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
@@ -150,23 +151,32 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
 
   return (
     <div ref={ref} className="relative" style={{ flex: 1 }}>
-      {/* Trigger */}
+      {/* Trigger. El <button> va superpuesto y transparente en vez de ser el
+          contenedor: adentro está la X de limpiar, y un botón dentro de otro es
+          inválido. La X lleva position:relative para quedar por encima. */}
       <div
-        onClick={() => { setOpen(v => !v); setStep(region && !comuna ? 'comuna' : 'region') }}
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
           background: '#fff',
           border: `1.5px solid ${open ? 'var(--navy-dark)' : 'var(--border)'}`,
           borderRadius: 8, padding: '0 16px', transition: 'border-color 0.2s', cursor: 'pointer',
-          height: 46,
+          height: 46, position: 'relative',
         }}
       >
+        <button
+          type="button"
+          aria-labelledby={etiquetaId}
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          onClick={() => { setOpen(v => !v); setStep(region && !comuna ? 'comuna' : 'region') }}
+          style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+        />
         <Search size={16} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-        <span className="text-sdm-base" style={{ flex: 1, fontWeight: 300, color: hasValue ? 'var(--ink)' : 'var(--muted)', fontFamily: 'inherit' }}>
+        <span id={etiquetaId} className="text-sdm-base" style={{ flex: 1, fontWeight: 300, color: hasValue ? 'var(--ink)' : 'var(--muted)', fontFamily: 'inherit', position: 'relative' }}>
           {label}
         </span>
         {hasValue && (
-          <button onClick={handleClear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', padding: 0 }}>
+          <button type="button" aria-label="Quitar la región y la comuna elegidas" onClick={handleClear} style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', padding: 0 }}>
             <X size={14} />
           </button>
         )}

@@ -812,11 +812,23 @@ export default function Propiedades() {
                 { label: 'Activo', field: null },
                 { label: 'Acciones', field: null },
               ].map(({ label, field }) => (
+                // El <th> deja de ser clicable: quien ordena es un <button>
+                // dentro, que es el patrón correcto para una cabecera
+                // ordenable. El `aria-sort` va en el <th> con su valor real,
+                // para que un lector anuncie por qué columna está ordenada la
+                // tabla y en qué sentido.
                 <th key={label} className="text-left pb-3 pr-4 text-sdm-xs tracking-sdm-wide"
-                  style={{ textTransform: 'uppercase', color: field ? 'var(--navy)' : 'var(--muted)', fontWeight: 400, cursor: field ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'nowrap' }}
-                  onClick={() => field && toggleSort(field as typeof sortField)}
+                  aria-sort={!field ? undefined : sortField === field ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                  style={{ textTransform: 'uppercase', color: field ? 'var(--navy)' : 'var(--muted)', fontWeight: 400, userSelect: 'none', whiteSpace: 'nowrap' }}
                 >
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{label}{field && (sortField === field ? (sortDir === 'asc' ? <ArrowUp size={14} strokeWidth={2} /> : <ArrowDown size={14} strokeWidth={2} />) : <ArrowUpDown size={14} strokeWidth={2} />)}</span>
+                  {field ? (
+                    <button type="button" onClick={() => toggleSort(field as typeof sortField)}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', letterSpacing: 'inherit', color: 'inherit', textTransform: 'uppercase' }}>
+                      {label}{sortField === field ? (sortDir === 'asc' ? <ArrowUp size={14} strokeWidth={2} /> : <ArrowDown size={14} strokeWidth={2} />) : <ArrowUpDown size={14} strokeWidth={2} />}
+                    </button>
+                  ) : (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{label}</span>
+                  )}
                 </th>
               ))}
             </tr>

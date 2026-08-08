@@ -223,9 +223,15 @@ export default function AdminPage() {
             Arrastra para ordenar
           </div>
           {tabs.map((t, i) => (
-            <div key={t.key} {...filaProps(i)}
+            // <button> y no <div>: cambia de pestaña, así que trae foco, Enter
+            // y Espacio sin código. `filaProps` solo esparce data-*,
+            // onPointerDown y onClickCapture, que funcionan igual acá.
+            // `aria-current` marca la pestaña activa, que hasta ahora solo se
+            // distinguía por el color y el borde izquierdo.
+            <button key={t.key} type="button" {...filaProps(i)}
+              aria-current={tab === t.key ? 'page' : undefined}
               onClick={() => { setTab(t.key); setMenuAbierto(false) }} className="flex items-center gap-3 transition-all duration-150 text-sdm-sm"
-              style={{ padding: '11px 16px', fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none', opacity: arrastrando === i ? 0.45 : 1 }}>
+              style={{ width: '100%', textAlign: 'left', border: 'none', fontFamily: 'inherit', padding: '11px 16px', fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none', opacity: arrastrando === i ? 0.45 : 1 }}>
               {/* El relleno le da al dedo un blanco de ~20x36 sobre un icono de
                   8x12; los márgenes negativos se lo devuelven a la fila para que
                   no crezca. */}
@@ -234,7 +240,7 @@ export default function AdminPage() {
               </span>
               <t.icon size={16} strokeWidth={1.75} style={{ flexShrink: 0 }} />
               {t.label}
-            </div>
+            </button>
           ))}
           {/* ── Herramientas ── */}
           <div style={{ borderTop: '1px solid var(--border)', marginTop: 12, paddingTop: 12 }}>

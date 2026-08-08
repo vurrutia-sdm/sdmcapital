@@ -284,11 +284,24 @@ export default function PropiedadDetailPage() {
           {/* ── Galería ── */}
           <div>
             {/* Imagen principal — clic para abrir lightbox */}
+            {/* El contenedor NO puede ser el <button>: contiene las flechas de
+                anterior/siguiente, y un botón dentro de otro es inválido. El
+                botón va superpuesto y transparente, antes que las flechas en el
+                DOM, así que ellas quedan encima y siguen recibiendo su clic.
+                Para el ratón la imagen se sigue pulsando entera. */}
             <div
-              className="w-full mb-3 relative overflow-hidden cursor-zoom-in"
+              className="w-full mb-3 relative overflow-hidden"
               style={{ height: 420, background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', borderRadius: 2 }}
-              onClick={() => allImgs.length > 0 && setLightbox(true)}
             >
+              {allImgs.length > 0 && (
+                <button
+                  type="button"
+                  aria-label="Ver la imagen ampliada"
+                  onClick={() => setLightbox(true)}
+                  className="cursor-zoom-in"
+                  style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'transparent', border: 'none', padding: 0 }}
+                />
+              )}
               {allImgs[imgIdx] ? (
                 <img
                   src={allImgs[imgIdx]}
@@ -312,11 +325,11 @@ export default function PropiedadDetailPage() {
               {allImgs.length > 1 && (
                 <>
                   <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
-                    style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 2, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ChevronLeft size={18} />
                   </button>
                   <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
-                    style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 2, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ChevronRight size={18} />
                   </button>
                 </>
@@ -327,9 +340,17 @@ export default function PropiedadDetailPage() {
             {allImgs.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {allImgs.map((img, i) => (
-                  <div key={i} onClick={() => setImgIdx(i)} className="flex-shrink-0 cursor-pointer" style={{ width: 76, height: 56, borderRadius: 2, overflow: 'hidden', outline: i === imgIdx ? '2px solid var(--green)' : '2px solid transparent', transition: 'outline 0.15s', background: '#0d1e2e' }}>
+                  // La selección pasa de `outline` a `box-shadow` porque el
+                  // anillo de foco TAMBIÉN es un outline: con los dos en la
+                  // misma propiedad, la miniatura enfocada no se distinguiría.
+                  // `box-shadow: 0 0 0 2px` dibuja el mismo anillo por fuera de
+                  // la caja y sin afectar al layout.
+                  <button key={i} type="button" onClick={() => setImgIdx(i)}
+                    aria-label={`Ver imagen ${i + 1} de ${allImgs.length}`}
+                    aria-current={i === imgIdx ? 'true' : undefined}
+                    className="flex-shrink-0 cursor-pointer" style={{ width: 76, height: 56, borderRadius: 2, overflow: 'hidden', padding: 0, border: 'none', boxShadow: i === imgIdx ? '0 0 0 2px var(--green)' : '0 0 0 2px transparent', transition: 'box-shadow 0.15s', background: '#0d1e2e' }}>
                     <img src={thumbUrl(img)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
@@ -711,10 +732,12 @@ export default function PropiedadDetailPage() {
           {allImgs.length > 1 && (
             <div className="flex gap-2 overflow-x-auto" style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', maxWidth: '90vw', padding: '0 8px' }}>
               {allImgs.map((img, i) => (
-                <div key={i} onClick={e => { e.stopPropagation(); setImgIdx(i) }}
-                  style={{ width: 60, height: 44, borderRadius: 2, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', outline: i === imgIdx ? '2px solid var(--green)' : '2px solid transparent', opacity: i === imgIdx ? 1 : 0.55, transition: 'all 0.15s' }}>
+                <button key={i} type="button" onClick={e => { e.stopPropagation(); setImgIdx(i) }}
+                  aria-label={`Ver imagen ${i + 1} de ${allImgs.length}`}
+                  aria-current={i === imgIdx ? 'true' : undefined}
+                  style={{ width: 60, height: 44, borderRadius: 2, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', padding: 0, border: 'none', background: 'transparent', boxShadow: i === imgIdx ? '0 0 0 2px var(--green)' : '0 0 0 2px transparent', opacity: i === imgIdx ? 1 : 0.55, transition: 'all 0.15s' }}>
                   <img src={thumbUrl(img)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
+                </button>
               ))}
             </div>
           )}
