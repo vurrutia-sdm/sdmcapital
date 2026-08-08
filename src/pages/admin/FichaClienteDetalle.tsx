@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2, ChevronRight, Image } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useDialogoModal } from '@/hooks/useDialogoModal'
+import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
 
@@ -153,6 +154,7 @@ export default function FichaClienteDetalle() {
 
   const cerrarModal = useCallback(() => setShowEdit(false), [])
   useDialogoModal(showEdit, cajaModal, cerrarModal)
+  useBloquearScroll(showEdit)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>

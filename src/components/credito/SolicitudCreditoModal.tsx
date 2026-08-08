@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef } from 'react'
+import { useId, useRef } from 'react'
 import { useDialogoModal } from '@/hooks/useDialogoModal'
+import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { X, Check } from 'lucide-react'
 import SolicitudCreditoForm from './SolicitudCreditoForm'
 
@@ -10,10 +11,10 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
   // el hook lo reemplaza para no tener dos oyentes haciendo lo mismo.
   useDialogoModal(true, caja, onClose)
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
-  }, [])
+  // `overflow: hidden` sobre body no alcanza en iOS y además dejaba la página
+  // arriba del todo al cerrar. El hook usa `position: fixed` + `top: -scrollY`
+  // y restaura la posición.
+  useBloquearScroll(true)
 
   return (
     <div
@@ -28,7 +29,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
         tabIndex={-1}
         onClick={e => e.stopPropagation()}
         className="w-full grid grid-cols-1 md:grid-cols-[2fr_3fr]"
-        style={{ maxWidth: 980, maxHeight: '92vh', overflowY: 'auto', borderRadius: 2, position: 'relative', backgroundColor: '#FFFFFF' }}
+        style={{ maxWidth: 980, maxHeight: '92vh', overflowY: 'auto', overscrollBehavior: 'contain', borderRadius: 2, position: 'relative', backgroundColor: '#FFFFFF' }}
       >
         <button
           onClick={onClose}

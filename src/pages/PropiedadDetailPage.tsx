@@ -6,6 +6,7 @@ import { sanitizarContenido } from '@/lib/contenidoRico'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import { useDialogoModal } from '@/hooks/useDialogoModal'
+import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
@@ -258,6 +259,7 @@ export default function PropiedadDetailPage() {
   const cajaLightbox = useRef<HTMLDivElement>(null)
   const cerrarLightbox = useCallback(() => setLightbox(false), [])
   useDialogoModal(lightbox, cajaLightbox, cerrarLightbox)
+  useBloquearScroll(lightbox)
 
   if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--muted)' }}>Cargando…</div>
   if (!prop)   return <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--muted)' }}>Propiedad no encontrada.</div>

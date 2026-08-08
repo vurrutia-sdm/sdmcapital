@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useDialogoModal } from '@/hooks/useDialogoModal'
+import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
 
@@ -151,6 +152,7 @@ export default function Agentes() {
   )
 
   useDialogoModal(modal.open, cajaModal, closeModal)
+  useBloquearScroll(modal.open)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
