@@ -108,7 +108,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | UX copy — subida de fotos | La subida descartaba archivos en silencio. Solo `src/pages/admin/Propiedades.tsx` | Cerrada — commit `0d95c6d` |
 | 2026-08-07 | UX copy — `<SEO>` en las rutas que faltaban | Blog, post, asociados, reserva, 404 y showcase. **Tocó `src/pages/`, dominio de la sesión web pública**, y `src/App.tsx` para la 404 | Cerrada — commit `209ec68`. **Deja dos pendientes: la Function del blog y el og-image roto** |
 | 2026-08-07 | OG — imagen por defecto y Function del blog | **Invasión de dominio autorizada: `SEO.tsx` (og-image.jpg → .png) y `functions/blog/[slug].js` (nuevo, calcado de `propiedades/[id].js`).** `functions/` es de la sesión Sofía; no se tocó nada más de ahí | Cerrada — commits `b464c5b` y `42d61cb` |
-| 2026-08-07 | Accesibilidad — tanda 1: contraste | **Cambio en zona compartida: correcciones de contraste WCAG AA en la paleta y en las clases de componente. Afecta a todo el sitio.** Toca `src/styles/globals.css` y, si hace falta, `tailwind.config.js` | En curso |
+| 2026-08-07 | Accesibilidad — tanda 1: contraste | **Cambio en zona compartida: correcciones de contraste WCAG AA en la paleta y en las clases de componente. Afecta a todo el sitio.** Tocó `src/styles/globals.css`; `tailwind.config.js` no hizo falta | Cerrada — commits `4a0c90c`, `fe9cc70`, `abb845d` y `60b144d` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1788,6 +1788,89 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### Contraste WCAG AA — tanda 1 — 2026-08-07
+
+Ratios calculados con la fórmula de luminancia relativa de WCAG 2.1, validada
+contra la referencia conocida `#767676` sobre blanco = **4.54**. Ningún número
+de acá es estimado.
+
+| qué | antes | después | criterio |
+|---|---|---|---|
+| `.btn-green` blanco sobre fondo | `--green` **2.93** | `--green-dark` **4.85** | 1.4.3 (4.5) |
+| borde de campo público | `--border` **1.18** | `--border-input` **4.06** | 1.4.11 (3.0) |
+| borde de foco del campo | `--green` **2.93** | `--green-dark` **4.85** | 1.4.11 |
+| borde de campo del admin | `--sky`/`--sky-pale` **1.63** | `--border-input-admin` **3.71** | 1.4.11 |
+| placeholder | `#9AA8B4` **2.43** | `#6B7681` **4.63** | 1.4.3 |
+| «Verificando sesión…» | blanco 40 % **3.67** | blanco 70 % **8.35** | 1.4.3 |
+| pie de tarjeta vacía | blanco 20 % **1.82** | blanco 60 % **5.14** | 1.4.3 |
+
+#### `--border` y `--border-input` SON COSAS DISTINTAS. No unificarlas.
+
+| variable | para qué | ratio sobre blanco |
+|---|---|---|
+| `--border` `#e8edf2` | **separaciones decorativas** — líneas de 1 px, divisiones de tabla, bordes de tarjeta | 1.18, **y está bien** |
+| `--border-input` `#767F8A` | **límite de un CONTROL** de formulario | 4.06 |
+| `--border-input-admin` `#5A81A2` | ídem sobre `--sky-pale` | 3.71 (y 4.12 sobre blanco) |
+
+**1.4.11 aplica al límite de un control, no a una separación decorativa.** Subir
+`--border` habría engordado todas las líneas finas del sitio para resolver un
+criterio que no las alcanza. Son requisitos distintos y la variable separada es
+lo que impide que alguien los junte «para simplificar».
+
+#### `--green` no se toca: el problema es blanco ENCIMA de verde
+
+| `--green` como texto, sobre… | ratio |
+|---|---|
+| blanco | 2.93 ✗ |
+| `--off` | 2.80 ✗ |
+| `--sky-pale` | 2.64 ✗ |
+| `--navy` | 3.83 (solo texto grande) |
+| `--navy-dark` | **5.37** ✓ |
+| `--navy-deeper` | **6.12** ✓ |
+
+**Y `--green-dark` es PEOR sobre fondo oscuro**: 2.31 sobre `--navy`, 3.24 sobre
+`--navy-dark`. O sea el arreglo depende del fondo y **no se puede hacer un
+buscar-y-reemplazar global de `--green` por `--green-dark`**. Sobre claro,
+oscurecer; sobre oscuro, el verde de marca ya cumple.
+
+Armonía: mismo tono (147° contra 149°), misma saturación (47 % contra 48 %),
+solo 11 puntos menos de luminosidad. `--green-dark` ya existía en la paleta.
+Quedan 13 elementos con `--green` de fondo —líneas, puntos del carrusel,
+insignias— y no se tocan: no llevan texto encima.
+
+#### El `.btn-outline` no está sobre el velo del hero
+
+Se pidió medir dónde cae dentro del degradado a 390/768/1440. **La premisa no se
+sostiene:** `.btn-outline` se usa en **dos** sitios y **ninguno** es el hero.
+
+| dónde | color real | fondo real | ratio |
+|---|---|---|---|
+| `HomePage.tsx:268` | `#FFFFFF` pisado inline | `--navy-dark` sólido | **15.71** ✓ |
+| `CotizacionesAdmin.tsx:861` | `--muted` pisado inline | blanco | **5.03** ✓ |
+
+**Los dos consumidores pisan el color de la clase con un `style` inline**, así
+que el `rgba(255,255,255,0.65)` que declara `.btn-outline` en `globals.css:135`
+**nunca se renderiza**. El 1.93:1 del inventario describe un estado que no
+existe en pantalla.
+
+Lo que sí queda por revisar del segundo: su borde es `--border` sobre blanco,
+1.18:1, y ahí sí es el límite de un control.
+
+#### Encontrado de paso, sin tocar
+
+- **`--sky` como texto sobre casi-blanco**: `BlogPostPage.tsx:82` pinta las
+  iniciales del autor en `--sky` sobre `rgba(168,196,220,0.2)` sobre blanco —
+  fondo efectivo `#EEF3F8`, ratio **1.62**. Es el peor par del sitio.
+- **`--muted` sobre `--sky-light` (3.92) y sobre `--sky` (2.78)**: se buscaron y
+  **no hay texto `--muted` sobre esos dos fondos**. Los usos de `--sky` como
+  fondo son barras de progreso y avatares, sin texto `--muted` encima.
+- **`Captacion.tsx:1126`** tiene el octavo «Verificando sesión…» con blanco al
+  40 %. Es dominio de la sesión Sofía y quedó sin tocar.
+
+#### Costo
+
+`index.css` **+0,02 kB gzip**.
 
 ### `og-image.jpg` NUNCA EXISTIÓ, y el catch-all lo disimulaba — 2026-08-07
 
