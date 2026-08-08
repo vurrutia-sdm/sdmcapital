@@ -108,7 +108,7 @@ export default function Blog() {
                 <td className="block w-full order-5 mt-3 pt-3 border-t border-[#e8edf2] lg:table-cell lg:w-auto lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-4"><div className="flex justify-end gap-6 lg:justify-start lg:gap-3"><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => setEditing(p)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => del(p.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
               </tr>
             ))}
-            {posts.length === 0 && <tr className="block lg:table-row"><td colSpan={5} className="block py-12 text-center text-sdm-base lg:table-cell" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>No hay artículos aún.</td></tr>}
+            {posts.length === 0 && <tr className="block lg:table-row"><td colSpan={5} className="block py-12 text-center text-sdm-base lg:table-cell" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Todavía no hay artículos.</td></tr>}
           </tbody>
         </table>
       </div>

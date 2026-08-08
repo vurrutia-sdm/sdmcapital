@@ -276,7 +276,7 @@ export function TarjetasEquipo() {
         <div className="text-center py-16" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Cargando…</div>
       ) : tarjetas.length === 0 ? (
         <div className="text-center py-16" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>
-          No hay tarjetas todavía. Crea la primera.
+          Todavía no hay tarjetas. Crea la primera.
         </div>
       ) : (
         <div className="flex flex-col gap-4">

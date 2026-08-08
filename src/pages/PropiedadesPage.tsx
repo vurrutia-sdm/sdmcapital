@@ -20,8 +20,8 @@ declare global { interface Window { google: typeof google } }
 // el visitante concluye que SDM no hace arriendos y se va. El arriendo es línea
 // de negocio propia, así que aquí se capta en vez de no decir nada.
 //
-// Solo aplica a este filtro: para el resto, "No se encontraron propiedades" es
-// la respuesta correcta.
+// Solo aplica a este filtro: para el resto, el vacío genérico —"Ninguna
+// propiedad coincide con estos filtros"— es la respuesta correcta.
 function SinArriendos() {
   const { get } = useContenido()
   const wa = get('whatsapp', '56937478846')
@@ -364,7 +364,7 @@ export default function PropiedadesPage() {
       ) : displayProps.length === 0 ? (
         soloArriendo ? <SinArriendos /> : (
           <div className="text-center py-24">
-            <p className="text-sdm-xl" style={{ color: 'var(--muted)', fontWeight: 300 }}>No se encontraron propiedades.</p>
+            <p className="text-sdm-xl" style={{ color: 'var(--muted)', fontWeight: 300 }}>Ninguna propiedad coincide con estos filtros. Prueba quitando alguno o ampliando la comuna.</p>
           </div>
         )
       ) : viewMode === 'map' ? (

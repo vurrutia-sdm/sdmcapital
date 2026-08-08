@@ -491,7 +491,7 @@ function CotizacionWizard({
                 {propSearch.length > 0 && (
                   <div style={{ border: '1px solid var(--border)', borderRadius: 2, maxHeight: 220, overflowY: 'auto' }}>
                     {propsFiltradas.length === 0 ? (
-                      <div className="text-sdm-sm" style={{ padding: '12px 16px', color: 'var(--muted)' }}>Sin resultados</div>
+                      <div className="text-sdm-sm" style={{ padding: '12px 16px', color: 'var(--muted)' }}>Ninguna propiedad coincide. Prueba con otro término.</div>
                     ) : propsFiltradas.slice(0, 12).map(p => (
                       <button
                         key={p.id}
@@ -1061,7 +1061,7 @@ export function CotizacionesAdmin() {
         <div className="text-center py-16" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Cargando…</div>
       ) : cotizaciones.length === 0 ? (
         <div className="text-center py-16" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>
-          No hay cotizaciones todavía. Crea la primera.
+          Todavía no hay cotizaciones. Crea la primera.
         </div>
       ) : (
         <div className="bg-white" style={{ border: '1px solid var(--border)', borderRadius: 2, overflow: 'hidden' }}>

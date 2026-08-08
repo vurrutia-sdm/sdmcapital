@@ -188,7 +188,7 @@ export default function FichaClienteDetalle() {
 
             {fichas.length === 0 ? (
               <div style={{ background: '#fff', border: '1px dashed #dce4ec', borderRadius: 4, padding: '48px 24px', textAlign: 'center' }}>
-                <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 16 }}>Sin fichas todavía.</div>
+                <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 16 }}>Todavía no hay fichas para este cliente.</div>
                 <Link className="text-sdm-base" to={`/admin/ficha-cliente/${clienteId}/nueva`}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', textDecoration: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600 }}>
                   <Plus size={15} /> Crear primera ficha

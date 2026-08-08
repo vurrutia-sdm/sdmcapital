@@ -158,7 +158,7 @@ export default function Agentes() {
           <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: '#7a8fa6', fontStyle: 'italic' }}>Cargando agentes…</div>
         ) : agentes.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 20 }}>No hay agentes todavía.</div>
+            <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 20 }}>Todavía no hay agentes. Crea el primero para asignarle fichas de cliente.</div>
             <button className="text-sdm-base" onClick={openCreate}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               <Plus size={15} /> Crear primer agente

@@ -50,7 +50,7 @@ export default function Mensajes() {
             </div>
           </div>
         ))}
-        {msgs.length === 0 && <div className="text-center py-16 text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>No hay mensajes todavía.</div>}
+        {msgs.length === 0 && <div className="text-center py-16 text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Todavía no hay mensajes. Los que lleguen por el formulario de contacto aparecen acá.</div>}
       </div>
     </div>
   )

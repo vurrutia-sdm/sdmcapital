@@ -132,7 +132,7 @@ export default function FichaClientesLista() {
           <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: '#7a8fa6', fontStyle: 'italic' }}>Cargando clientes…</div>
         ) : clientes.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 20 }}>No hay clientes todavía.</div>
+            <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 20 }}>Todavía no hay clientes. Crea el primero para armarle una ficha.</div>
             <button className="text-sdm-base" onClick={openModal}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               <Plus size={15} /> Crear primer cliente

@@ -200,7 +200,7 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
       <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 16 }}>Elige hasta <strong>6 propiedades</strong> para el Inicio. Arrastra para reordenar.</p>
       <div style={{ marginBottom: 24 }}>
         <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Seleccionadas ({selected.length}/6)</div>
-        {selected.length === 0 && <div className="text-sdm-sm bg-[var(--off)]" style={{ padding: '16px', borderRadius: 4, color: 'var(--muted)', textAlign: 'center' }}>Aún no hay propiedades seleccionadas.</div>}
+        {selected.length === 0 && <div className="text-sdm-sm bg-[var(--off)]" style={{ padding: '16px', borderRadius: 4, color: 'var(--muted)', textAlign: 'center' }}>Todavía no hay destacadas. Elige hasta 6 propiedades para mostrar en el Inicio.</div>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {selected.map((p, i) => (
             <div key={p.id} {...filaProps(i)}
