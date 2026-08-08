@@ -254,9 +254,15 @@ export function CotizacionPDF({ c }: { c: Cotizacion }) {
                     ))}
                   </View>
                 )}
+                {/* Todas, sin recortar. Habia un .slice(0, 6) y esto es un
+                    documento que se le manda a un cliente: descartar amenidades
+                    en silencio le entrega una propiedad peor descrita de lo que
+                    es. Medido renderizando el PDF: 60 amenidades siguen cabiendo
+                    en una pagina, y recien a las 200 pasa a dos -- fluyendo, sin
+                    cortar nada. No habia razon de espacio. */}
                 {c.prop_amenidades?.length ? (
                   <Text style={S.amenLine}>
-                    {c.prop_amenidades.slice(0, 6).join('  ·  ')}
+                    {c.prop_amenidades.join('  ·  ')}
                   </Text>
                 ) : null}
               </View>
