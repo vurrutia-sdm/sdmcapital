@@ -39,7 +39,7 @@ const inp: React.CSSProperties = {
 function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: '#7a8fa6', fontWeight: 500 }}>{label}</label>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</label>
       {children}
     </div>
   )
@@ -140,7 +140,7 @@ export default function Agentes() {
       {/* Header */}
       <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link className="text-sdm-sm" to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
+          <Link className="text-sdm-sm" to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al admin
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
@@ -155,10 +155,10 @@ export default function Agentes() {
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '32px 24px' }}>
         {loading ? (
-          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: '#7a8fa6', fontStyle: 'italic' }}>Cargando agentes…</div>
+          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: 'var(--muted)', fontStyle: 'italic' }}>Cargando agentes…</div>
         ) : agentes.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 20 }}>Todavía no hay agentes. Crea el primero para asignarle fichas de cliente.</div>
+            <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 20 }}>Todavía no hay agentes. Crea el primero para asignarle fichas de cliente.</div>
             <button className="text-sdm-base" onClick={openCreate}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               <Plus size={15} /> Crear primer agente
@@ -176,11 +176,11 @@ export default function Agentes() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 3 }}>
                     <span className="text-sdm-base" style={{ fontWeight: 600, color: '#0d2240' }}>{a.nombre}</span>
-                    <span className="text-sdm-xs" style={{ background: a.activo ? '#f0faf4' : 'var(--off)', color: a.activo ? '#1a6e3c' : '#7a8fa6', border: `1px solid ${a.activo ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '2px 8px', fontWeight: 600 }}>
+                    <span className="text-sdm-xs" style={{ background: a.activo ? '#f0faf4' : 'var(--off)', color: a.activo ? '#1a6e3c' : 'var(--muted)', border: `1px solid ${a.activo ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '2px 8px', fontWeight: 600 }}>
                       {a.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </div>
-                  <div className="text-sdm-sm" style={{ color: '#7a8fa6', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                  <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                     {a.telefono && <span>{a.telefono}</span>}
                     {a.correo && <span>{a.correo}</span>}
                   </div>
@@ -236,7 +236,7 @@ export default function Agentes() {
                 {saving ? 'Guardando…' : modal.editing ? 'Guardar cambios' : 'Crear agente'}
               </button>
               <button className="text-sdm-base" onClick={closeModal}
-                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
                 Cancelar
               </button>
             </div>

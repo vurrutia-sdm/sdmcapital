@@ -43,7 +43,7 @@ function SpecCell({ icon, value, label }: { icon: React.ReactNode; value: string
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '10px 14px', border: '1px solid #e0e4ea', borderRadius: 4, minWidth: 72, background: '#fff' }}>
       <div style={{ color: '#4db870' }}>{icon}</div>
       <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240', lineHeight: 1 }}>{value}</span>
-      <span className="text-sdm-xs tracking-sdm-wide" style={{ color: '#7a8fa6', textTransform: 'uppercase' }}>{label}</span>
+      <span className="text-sdm-xs tracking-sdm-wide" style={{ color: 'var(--muted)', textTransform: 'uppercase' }}>{label}</span>
     </div>
   )
 }
@@ -116,7 +116,7 @@ export default function FichaClienteVer() {
       {/* ── Admin UI (no-print) ── */}
       <div className="no-print" style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link className="text-sdm-sm" to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
+          <Link className="text-sdm-sm" to={`/admin/ficha-cliente/${clienteId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al cliente
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
@@ -133,7 +133,7 @@ export default function FichaClienteVer() {
       {/* ── Loading ── */}
       {loading && (
         <div className="no-print" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--off)' }}>
-          <span className="text-sdm-base" style={{ color: '#7a8fa6', fontStyle: 'italic' }}>Cargando ficha…</span>
+          <span className="text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Cargando ficha…</span>
         </div>
       )}
 
@@ -199,7 +199,7 @@ export default function FichaClienteVer() {
               {/* Descripción */}
               {ficha.descripcion && (
                 <div style={{ marginBottom: 24 }}>
-                  <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: '#7a8fa6', marginBottom: 10 }}>Descripción</div>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>Descripción</div>
                   {ficha.descripcion.split('\n').filter(l => l.trim()).map((p, i) => (
                     <p className="text-sdm-base" key={i} style={{ color: '#3a4353', lineHeight: 1.75, margin: '0 0 10px' }}>{p}</p>
                   ))}

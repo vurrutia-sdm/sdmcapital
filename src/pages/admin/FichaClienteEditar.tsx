@@ -43,7 +43,7 @@ const sel: React.CSSProperties = { ...inp, cursor: 'pointer' }
 function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: '#7a8fa6', fontWeight: 500 }}>{label}</label>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</label>
       {children}
     </div>
   )
@@ -251,7 +251,7 @@ export default function FichaClienteEditar() {
       <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Link className="text-sdm-sm" to={`/admin/ficha-cliente/${clienteId}/ficha/${fichaId}`}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Cancelar
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
@@ -261,7 +261,7 @@ export default function FichaClienteEditar() {
 
       {loading ? (
         <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span className="text-sdm-base" style={{ color: '#7a8fa6', fontStyle: 'italic' }}>Cargando ficha…</span>
+          <span className="text-sdm-base" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Cargando ficha…</span>
         </div>
       ) : (
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 24px 80px' }}>
@@ -347,7 +347,7 @@ export default function FichaClienteEditar() {
             {photos.length > 0 && (
               <>
                 {photos.length > 1 && (
-                  <div className="text-sdm-sm" style={{ color: '#7a8fa6', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 9l4-4 4 4M5 15l4 4 4-4"/></svg>
                     Arrastra para reordenar
                   </div>
@@ -400,11 +400,11 @@ export default function FichaClienteEditar() {
 
           <div style={{ display: 'flex', gap: 12 }}>
             <button className="text-sdm-base tracking-sdm-wide" onClick={save} disabled={saving}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? '#7a8fa6' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 8, background: saving ? 'var(--muted)' : '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '13px 28px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>
             <Link className="text-sdm-base" to={`/admin/ficha-cliente/${clienteId}/ficha/${fichaId}`}
-              style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, color: '#7a8fa6', textDecoration: 'none', fontWeight: 500 }}>
+              style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--muted)', textDecoration: 'none', fontWeight: 500 }}>
               Cancelar
             </Link>
           </div>

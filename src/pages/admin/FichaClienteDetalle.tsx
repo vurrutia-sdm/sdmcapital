@@ -49,7 +49,7 @@ const inp: React.CSSProperties = {
 function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: '#7a8fa6', fontWeight: 500 }}>{label}</label>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</label>
       {children}
     </div>
   )
@@ -141,7 +141,7 @@ export default function FichaClienteDetalle() {
       {/* Header */}
       <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link className="text-sdm-sm" to="/admin/ficha-cliente" style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
+          <Link className="text-sdm-sm" to="/admin/ficha-cliente" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Clientes
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
@@ -157,7 +157,7 @@ export default function FichaClienteDetalle() {
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 24px' }}>
         {loading ? (
-          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: '#7a8fa6', fontStyle: 'italic' }}>Cargando…</div>
+          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: 'var(--muted)', fontStyle: 'italic' }}>Cargando…</div>
         ) : !cliente ? (
           <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: '#e24b4a' }}>Cliente no encontrado.</div>
         ) : (
@@ -169,7 +169,7 @@ export default function FichaClienteDetalle() {
               </div>
               <div style={{ flex: 1 }}>
                 <div className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 4 }}>{cliente.nombre}</div>
-                <div className="text-sdm-sm" style={{ color: '#7a8fa6', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                   {cliente.telefono && <span>{cliente.telefono}</span>}
                   {cliente.correo && <span>{cliente.correo}</span>}
                 </div>
@@ -188,7 +188,7 @@ export default function FichaClienteDetalle() {
 
             {fichas.length === 0 ? (
               <div style={{ background: '#fff', border: '1px dashed var(--border)', borderRadius: 4, padding: '48px 24px', textAlign: 'center' }}>
-                <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 16 }}>Todavía no hay fichas para este cliente.</div>
+                <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 16 }}>Todavía no hay fichas para este cliente.</div>
                 <Link className="text-sdm-base" to={`/admin/ficha-cliente/${clienteId}/nueva`}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', textDecoration: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600 }}>
                   <Plus size={15} /> Crear primera ficha
@@ -216,7 +216,7 @@ export default function FichaClienteDetalle() {
                         <div className="text-sdm-base" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {f.direccion || 'Sin dirección'}
                         </div>
-                        <div className="text-sdm-sm" style={{ color: '#7a8fa6', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                        <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                           {f.tipo && <span>{f.tipo}</span>}
                           {f.operacion && <span>{f.operacion}</span>}
                           {f.precio_uf && <span style={{ color: '#0d2240', fontWeight: 600 }}>UF {f.precio_uf.toLocaleString('es-CL')}</span>}
@@ -226,7 +226,7 @@ export default function FichaClienteDetalle() {
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                         {f.fotos && f.fotos.length > 0 && (
-                          <span className="text-sdm-xs" style={{ color: '#7a8fa6', whiteSpace: 'nowrap' }}>{f.fotos.length} foto{f.fotos.length !== 1 ? 's' : ''}</span>
+                          <span className="text-sdm-xs" style={{ color: 'var(--muted)', whiteSpace: 'nowrap' }}>{f.fotos.length} foto{f.fotos.length !== 1 ? 's' : ''}</span>
                         )}
                         <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}/editar`) }}
                           title="Editar ficha"
@@ -271,7 +271,7 @@ export default function FichaClienteDetalle() {
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowEdit(false)}
-                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
                 Cancelar
               </button>
             </div>

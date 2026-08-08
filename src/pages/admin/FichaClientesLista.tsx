@@ -37,7 +37,7 @@ const inp: React.CSSProperties = {
 function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: '#7a8fa6', fontWeight: 500 }}>{label}</label>
+      <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</label>
       {children}
     </div>
   )
@@ -113,7 +113,7 @@ export default function FichaClientesLista() {
       {/* Header */}
       <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link className="text-sdm-sm" to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a8fa6', textDecoration: 'none' }}>
+          <Link className="text-sdm-sm" to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Volver al admin
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
@@ -129,10 +129,10 @@ export default function FichaClientesLista() {
       {/* Content */}
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 24px' }}>
         {loading ? (
-          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: '#7a8fa6', fontStyle: 'italic' }}>Cargando clientes…</div>
+          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: 'var(--muted)', fontStyle: 'italic' }}>Cargando clientes…</div>
         ) : clientes.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div className="text-sdm-base" style={{ color: '#7a8fa6', marginBottom: 20 }}>Todavía no hay clientes. Crea el primero para armarle una ficha.</div>
+            <div className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 20 }}>Todavía no hay clientes. Crea el primero para armarle una ficha.</div>
             <button className="text-sdm-base" onClick={openModal}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 24px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               <Plus size={15} /> Crear primer cliente
@@ -156,7 +156,7 @@ export default function FichaClientesLista() {
 
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="text-sdm-base" style={{ fontWeight: 600, color: '#0d2240', marginBottom: 3 }}>{c.nombre}</div>
-                    <div className="text-sdm-sm" style={{ color: '#7a8fa6', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                    <div className="text-sdm-sm" style={{ color: 'var(--muted)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                       {c.telefono && <span>{c.telefono}</span>}
                       {c.correo && <span>{c.correo}</span>}
                       <span>{new Date(c.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
@@ -164,7 +164,7 @@ export default function FichaClientesLista() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <span className="text-sdm-sm" style={{ background: fichaCount > 0 ? '#f0faf4' : 'var(--off)', color: fichaCount > 0 ? '#1a6e3c' : '#7a8fa6', border: `1px solid ${fichaCount > 0 ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '3px 12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    <span className="text-sdm-sm" style={{ background: fichaCount > 0 ? '#f0faf4' : 'var(--off)', color: fichaCount > 0 ? '#1a6e3c' : 'var(--muted)', border: `1px solid ${fichaCount > 0 ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '3px 12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {fichaCount} {fichaCount === 1 ? 'ficha' : 'fichas'}
                     </span>
                     <button onClick={e => deleteCliente(e, c.id)} disabled={isDel}
@@ -204,7 +204,7 @@ export default function FichaClientesLista() {
                 {saving ? 'Guardando…' : 'Crear cliente'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowModal(false)}
-                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: '#7a8fa6' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
                 Cancelar
               </button>
             </div>
