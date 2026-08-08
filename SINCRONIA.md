@@ -120,6 +120,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 1) | Los tres formularios **públicos** pasan a `<label>` que envuelve al control: `ContactSection`, `SolicitudCreditoForm` y `VendeConNosotrosPage`. **`campos.tsx` NO se toca** — el paso 2 espera el visto bueno | Cerrada — commits `20d7fd4`, `e260e6e` y `5d3b007` |
 | 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 2) | `Field` envuelve a su control (152 campos del admin), nace `FieldGroup` para los 19 editores compuestos, y los `<select>` de `SearchBar` reciben rótulo asociado. **Toca `src/components/admin/campos.tsx` y `src/components/sections/SearchBar.tsx`** | Cerrada — commits `ed40ebe`, `7db6be7` y `03fed5c` |
 | 2026-08-08 | Accesibilidad — tanda 2: cierre de los tres archivos | `PropiedadesPage`, `MapPicker` y `ElBarrancoShowcase` (9 campos), más el `aria-label` del input de URL de `ImageUploader`. **El barrido completo destapó 83 campos sin asociar en 10 archivos más** | Cerrada — commits `b184fa8` y `44e890a` |
+| 2026-08-08 | Accesibilidad — tanda 2: cierre completo | Los tres envoltorios duplicados (`Fld`×2, `FLabel`×5) envuelven, más el login del admin y 4 controles de fila. **Fuera de `Captacion.tsx` no queda ningún campo sin nombre accesible en `src/`** | Cerrada — commits `ba3fe67`, `12da41f` y `9b7b66c` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -4076,3 +4077,189 @@ dejan de importar.
 > con AST dio 45 en vez de 83, porque se había supuesto que `Fld` asociaba, por
 > parecerse a `Field`. Un envoltorio no asocia porque se llame parecido: hay que
 > abrir su implementación.
+
+---
+
+### Accesibilidad — tanda 2: cierre completo — 2026-08-08
+
+**De 83 campos sin nombre accesible a 0**, fuera de `Captacion.tsx`.
+
+| Commit | Qué | Campos |
+|---|---|---:|
+| `ba3fe67` | los dos `Fld` duplicados envuelven | 38 |
+| `12da41f` | los cinco `FLabel` duplicados envuelven | 34 |
+| `9b7b66c` | login del admin + 4 controles de fila | 7 |
+
+#### El mismo defecto estaba copiado en ocho lugares
+
+`Field`, dos `Fld` y cinco `FLabel`. Ocho definiciones del mismo componente,
+cada una con el mismo error: un `<div>` con un `<label>` yuxtapuesto que no
+asocia nada.
+
+| Componente | Copias | Dónde |
+|---|---:|---|
+| `Field` | 1 | `components/admin/campos.tsx` — arreglado en el paso 2 |
+| `Fld` | 2 | `CotizacionesAdmin.tsx`, `TarjetasEquipo.tsx` |
+| `FLabel` | 5 | los cuatro `FichaCliente*` y `Agentes.tsx` |
+
+Los dos `Fld` son idénticos byte a byte entre sí. Los cinco `FLabel`, también.
+Se reemplazaron exigiendo **coincidencia exacta del bloque completo**, así que
+una copia divergente se habría saltado y reportado en vez de romperse
+silenciosamente: los cinco dieron `ok`.
+
+##### Ninguno necesitó `display: block`
+
+`Fld` trae la clase `flex flex-col gap-2` y `FLabel` trae
+`display: flex` en línea. En los dos casos el `display` ya estaba fijado y gana
+sobre el `inline` que un `<label>` trae por defecto. Es la diferencia con
+`SearchBar`, `MapPicker` y `PropiedadesPage`, donde el contenedor no era flex y
+hubo que ponerlo explícito.
+
+##### Y en los ocho, el estilo va en el `<span>`
+
+Los ocho rótulos llevan `textTransform: uppercase` más `tracking-sdm-wide` o
+`letterSpacing`. Dejarlos en el elemento que ahora envuelve habría puesto en
+mayúsculas todo lo tecleado en 79 campos. Verificado tecleando de verdad:
+
+```
+CotizacionesAdmin  valor: "Juan Pérez de la Barra"  text-transform: none
+TarjetasEquipo     valor: "María Fernández"         text-transform: none
+                   rótulo: uppercase
+```
+
+#### Revisión previa, con AST, antes de envolver
+
+| | `Fld` (42 usos) | `FLabel` (37 usos) |
+|---|---:|---:|
+| con más de un control | 0 | 0 |
+| con un interactivo además del campo | 1 | 0 |
+| que no envuelven exactamente 1 control | 1 | 0 |
+
+Los dos casos de `Fld` pasaron a `FieldGroup`:
+
+- **«Imagen principal»** — `ImageUploader` trae su propio `<label>` con un
+  `<input type="file">` oculto y un segundo input con la URL.
+- **«Valor UF del día (auto)»** — no contiene ningún control: es un valor de
+  solo lectura con su rótulo. **Caso nuevo**, que no existía con `Field`: un
+  `<label>` que no envuelve a nada no etiqueta nada.
+
+#### Los 4 que llevan `aria-label`, y por qué
+
+Son controles repetidos **por fila**, donde un rótulo visible partiría el
+layout y se repetiría en cada elemento. El `aria-label` lleva el contexto de la
+fila, que es lo que un rótulo repetido no daría:
+
+| Dónde | Nombre |
+|---|---|
+| `Contenido` — posición de cada foto del hero | `Posición de la foto N` |
+| `Propiedades` — título de cada dossier | `Título del dossier <archivo>` |
+| `CotizacionesAdmin` — estado de cada fila | `Estado de la cotización <nº>` |
+| `CotizacionesAdmin` — URL en su `ImageUploader` local | `URL de la imagen` |
+
+El login del admin, en cambio, se envolvió como todo lo demás. Se le agregaron
+`autoComplete="username"` y `"current-password"`, que no son asociación pero sí
+lo que corresponde en un formulario de acceso.
+
+#### La verificación, sin poder entrar al admin
+
+| Qué | Cómo se llegó |
+|---|---|
+| login | ruta real `/admin`, que es lo que se ve sin sesión |
+| `Fld` | banco temporal montando `CotizacionesAdmin` y `TarjetasEquipo` **reales** |
+| `FLabel` | dos worktrees desechables —antes y después— con el **mismo** parche local a `useAdminAuth` |
+
+El parche de `useAdminAuth` se aplicó **igual en los dos árboles**, así que la
+comparación sigue siendo válida, y **nunca tocó el árbol de trabajo**: vivió y
+murió en los worktrees. El banco temporal también se borró.
+
+> Antes se intentó plantar una sesión falsa en `localStorage`. **No sirve:**
+> `useAdminAuth` llama a `supabase.auth.getSession()` en un `useEffect` y
+> escribe el resultado en el estado, así que el valor vuelve a `false` aunque
+> el `useState` inicial diga otra cosa. Lo que funciona es fijar el objeto que
+> el hook **devuelve**.
+
+| | antes | después |
+|---|---|---|
+| login | `[0,0]` | `[1,1]` |
+| `FLabel` (ficha) | `[0×14, 1]` | `[1×15]` |
+| `Fld` (cotización) | `[0,0,0,0,0]` | `[1,1,1,1,1]` |
+| `Fld` (tarjetas) | `[0×7]` | `[1×7]` |
+
+Todos con origen `relatedElement`. Píxel a píxel, con foco neutro y la misma
+caja de recorte en las dos corridas: **0 diferencias en los cuatro.**
+
+#### Conteo final
+
+```
+campos en src/: 289
+  con nombre accesible: 284
+  SIN nombre: 5   ← los 5 de Captacion.tsx, dominio de Sofía
+```
+
+---
+
+## Cómo contar campos sin equivocarse
+
+Tres tandas dieron tres números distintos —104, 83, 79— y ninguno estaba mal
+calculado: estaban mal **definidos**. Vale la pena dejar por qué.
+
+### Trampa 1 — contar sobre el texto crudo incluye los comentarios
+
+`Propiedades.tsx` tiene un comentario que explica por qué el navegador no puede
+limitar la cantidad de archivos, y **menciona `<input type="file">`**. Un
+`grep` lo cuenta como un campo real.
+
+Es el error inofensivo de los dos: infla el número y se descubre al abrir el
+archivo.
+
+### Trampa 2 — blanquear comentarios con regex rompe la pila de etiquetas
+
+Al quitar los comentarios con expresiones regulares para arreglar la trampa 1,
+desapareció un `</label>`. La pila de ancestros quedó abierta y **los 35 campos
+de `CotizacionesAdmin` pasaron a figurar como asociados**.
+
+> **Este es el error peligroso**, y no por ser más sutil: porque **da el
+> resultado que uno quiere ver.** Un barrido que dice «ya no queda nada» no
+> invita a revisarlo. La trampa 1 sobra campos y molesta; la trampa 2 los borra
+> y tranquiliza.
+
+La versión fiable **parsea con el compilador de TypeScript** —ya está instalado,
+lo usa `tsc` en el build— y recorre el AST de JSX con la pila real de
+ancestros. Comentarios, cadenas y anidamiento dejan de importar.
+
+### Trampa 3 — un barrido solo ve los envoltorios que le enseñaste
+
+Aun con AST, el conteo depende de qué componentes se declaran como
+«asociadores». Dos errores de este tipo, los dos reales:
+
+- **`FLabel` no estaba en la lista**, así que los 37 campos de las fichas
+  figuraban como sueltos. De ahí salió el reporte de que «los `FichaCliente*`
+  no tienen envoltorio», que era falso: tenían uno, roto.
+- **`Fld` sí se puso en la lista, suponiendo que asociaba** por parecerse a
+  `Field`. No asociaba. Eso dio 45 en vez de 83.
+
+**Un envoltorio no asocia porque se llame parecido.** Hay que abrir su
+implementación y mirar si el `<label>` envuelve o se yuxtapone.
+
+También hay que decidir qué es «un campo»: el `<input>` que vive **dentro** de
+la definición de `Inp` no es un campo aparte del `<Inp>` que se escribe en el
+panel. Contar los dos duplica.
+
+### Pregunta abierta: unificar los tres envoltorios
+
+Los ocho ya funcionan igual, pero siguen siendo ocho copias. `Fld` y `FLabel`
+podrían reemplazarse por el `Field` de `campos.tsx`. **No se hizo: es un
+refactor, no un arreglo de accesibilidad.** Lo que hay que saber antes de
+hacerlo:
+
+| | `Field` | `Fld` | `FLabel` |
+|---|---|---|---|
+| `label` | `React.ReactNode` | `string` | `string` |
+| separación | `gap-2` (8px) | `gap-2` (8px) | `gap: 6` |
+| peso del rótulo | heredado | heredado | `fontWeight: 500` |
+| rótulo | `display:flex`, `gap:6` para iconos | sin `display` propio | sin `display` propio |
+
+`Fld` es **idéntico a `Field` salvo el tipo de `label` y el `display:flex` del
+rótulo**. `FLabel` diverge además en la separación (6 vs 8px) y en el peso, así
+que cambiarlo por `Field` **sí movería píxeles** en las cinco pantallas de
+fichas. Ese es el trabajo real del refactor, y por eso va aparte.
