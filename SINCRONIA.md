@@ -109,7 +109,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | UX copy — `<SEO>` en las rutas que faltaban | Blog, post, asociados, reserva, 404 y showcase. **Tocó `src/pages/`, dominio de la sesión web pública**, y `src/App.tsx` para la 404 | Cerrada — commit `209ec68`. **Deja dos pendientes: la Function del blog y el og-image roto** |
 | 2026-08-07 | OG — imagen por defecto y Function del blog | **Invasión de dominio autorizada: `SEO.tsx` (og-image.jpg → .png) y `functions/blog/[slug].js` (nuevo, calcado de `propiedades/[id].js`).** `functions/` es de la sesión Sofía; no se tocó nada más de ahí | Cerrada — commits `b464c5b` y `42d61cb` |
 | 2026-08-07 | Accesibilidad — tanda 1: contraste | **Cambio en zona compartida: correcciones de contraste WCAG AA en la paleta y en las clases de componente. Afecta a todo el sitio.** Tocó `src/styles/globals.css`; `tailwind.config.js` no hizo falta | Cerrada — commits `4a0c90c`, `fe9cc70`, `abb845d` y `60b144d` |
-| 2026-08-07 | Sistema de color — tanda 1 | Insignias de estado y de oportunidad a variables semánticas, con contraste AA. **Toca `src/styles/globals.css`, ZONA COMPARTIDA.** El botón dorado queda pendiente de decisión | En curso |
+| 2026-08-07 | Sistema de color — tanda 1 | Insignias de estado y de oportunidad a variables semánticas, con contraste AA. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `12a46e2`. **`.btn-evaluacion` NO se eliminó: la condición de parada del encargo se disparó, ver el registro** |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1789,6 +1789,79 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### Insignias: dos familias, y el rojo que significaba dos cosas — 2026-08-07
+
+Commit `12a46e2`.
+
+#### Las variables y qué significan
+
+| variable | valor | blanco encima | qué comunica |
+|---|---|---|---|
+| `--estado-vendida` | `#C0392B` | **5.44** | la propiedad ya no está disponible |
+| `--estado-reservada` | `#B45309` | **5.02** | tiene una reserva en curso |
+| `--estado-arrendada` | `#2563EB` | **5.17** | ya no está disponible |
+| `--oportunidad` | `#2D8055` | **4.85** | tiene una ventaja comercial |
+
+**Son dos familias y no deben mezclarse.** *Estado* dice en qué situación está
+la propiedad y ocupa la insignia de arriba; *oportunidad* dice qué ventaja tiene
+y ocupa la de abajo. Pueden convivir una de cada una; dentro de cada familia son
+excluyentes.
+
+#### El rojo significaba dos cosas opuestas
+
+`#c0392b` se usaba para «Vendida» **y** para «Precio rebajado»: un cierre y una
+oportunidad, con el mismo color, en una grilla donde conviven. El rojo se queda
+con «Vendida», que es lo que comunica.
+
+«Precio rebajado» y «Bono Pie» comparten `--oportunidad` **a propósito**: nunca
+coexisten —la insignia secundaria es una o la otra— y ahora se leen como familia
+frente a las de estado. `--oportunidad` es `--green-dark`, o sea **no se agrega
+un color nuevo** a la paleta.
+
+El ámbar de «Reservada» sube manteniendo el tono: H32° → H26°, claridad 44 % →
+37 %. Es el candidato más cercano al original que llega a 4.5.
+
+**Nota de método:** para «¿se distinguen a simple vista?» el ratio de luminancia
+**no sirve** —dos colores de tono opuesto e igual claridad dan ~1.0 y se ven
+clarísimamente distintos—. La medida es la distancia de tono. `--oportunidad`
+está a **143°** del rojo de «Vendida»; el ámbar, a **20°**, que es la
+convergencia que ya tenía y que oscurecerlo acentúa un poco.
+
+### `.btn-evaluacion` NO se eliminó: `.btn-primary` sería INVISIBLE ahí
+
+Se pidió reemplazarlo por `.btn-primary` en sus dos usos. En uno funciona; en el
+otro **no puede funcionar**, y el encargo traía una condición de parada para
+justo esto.
+
+| dónde | fondo del panel | `.btn-primary` sobre él |
+|---|---|---|
+| `ServiciosPage.tsx:86` | `bg-white` | **15.71** ✓ |
+| `HomePage.tsx:275` | **`var(--navy-dark)`** | **1.00** ✗ |
+
+El panel de la home es `--navy-dark` y `.btn-primary` tiene
+`background: var(--navy-dark)`: **el mismo color exacto**. No es «poca
+separación», es un botón que desaparece.
+
+Separación de cada alternativa contra ese panel `#0F2535`:
+
+| opción | separación | problema |
+|---|---|---|
+| dorado actual | 6.88 | rompe cuatro principios del sistema |
+| `.btn-green` (`--green-dark`) | 3.24 | **queda idéntico al botón «Personas»** de la misma sección |
+| blanco sólido | **15.71** | trata­miento nuevo, no existe en el sistema |
+
+La jerarquía a preservar: «Personas» y «Empresas» **navegan a leer** y son un
+par; el tercero **convierte** —es el único `<button>`, abre el modal— y va en
+una fila aparte. Si el tercero se vuelve `.btn-green` queda igual que
+«Personas» y se pierde justo lo que el dorado expresaba bien.
+
+**Queda pendiente de decisión.** Mientras tanto `.btn-evaluacion` sigue en
+`globals.css` con sus dos consumidores; no se borró nada a medias.
+
+#### Costo
+
+`index.css` **+0,06 kB gzip**.
 
 ### Contraste WCAG AA — tanda 1 — 2026-08-07
 
