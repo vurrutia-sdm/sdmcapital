@@ -86,12 +86,13 @@ export default function Agentes() {
     }
     if (modal.editing) {
       const { error } = await supabase.from('sdm_agentes').update(payload).eq('id', modal.editing.id)
-      if (error) { alert('Error al guardar: ' + error.message); setSaving(false); return }
+      setSaving(false)
+      if (avisarError('No se pudo guardar el agente', error)) return
     } else {
       const { error } = await supabase.from('sdm_agentes').insert([payload])
-      if (error) { alert('Error al crear: ' + error.message); setSaving(false); return }
+      setSaving(false)
+      if (avisarError('No se pudo crear el agente', error)) return
     }
-    setSaving(false)
     closeModal()
     load()
   }

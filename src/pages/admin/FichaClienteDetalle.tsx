@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2, ChevronRight, Image } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { avisarError } from '@/lib/errores'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -95,8 +96,8 @@ export default function FichaClienteDetalle() {
       telefono: editForm.telefono.trim() || null,
       correo: editForm.correo.trim() || null,
     }).eq('id', clienteId)
-    if (error) { alert('Error al guardar: ' + error.message); setSaving(false); return }
     setSaving(false)
+    if (avisarError('No se pudo guardar la ficha', error)) return
     setShowEdit(false)
     loadAll()
   }
@@ -113,8 +114,8 @@ export default function FichaClienteDetalle() {
     }
 
     const { error } = await supabase.from('ficha_propiedades').delete().eq('id', ficha.id)
-    if (error) { alert('Error al eliminar: ' + error.message) }
     setDeleting(null)
+    if (avisarError('No se pudo eliminar la ficha', error)) return
     loadAll()
   }
 

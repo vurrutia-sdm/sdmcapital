@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { avisarError } from '@/lib/errores'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -74,8 +75,8 @@ export default function FichaClientesLista() {
       telefono: form.telefono.trim() || null,
       correo: form.correo.trim() || null,
     }])
-    if (error) { alert('Error al guardar: ' + error.message); setSaving(false); return }
     setSaving(false)
+    if (avisarError('No se pudo guardar el cliente', error)) return
     setShowModal(false)
     load()
   }
@@ -85,8 +86,8 @@ export default function FichaClientesLista() {
     if (!confirm('¿Eliminar este cliente y todas sus fichas? Esta acción no se puede deshacer.')) return
     setDeleting(id)
     const { error } = await supabase.from('ficha_clientes').delete().eq('id', id)
-    if (error) { alert('Error al eliminar: ' + error.message) }
     setDeleting(null)
+    if (avisarError('No se pudo eliminar el cliente', error)) return
     load()
   }
 
