@@ -21,11 +21,17 @@ const PAISES = [
   'Colombia', 'Perú', 'México', 'España', 'Estados Unidos', 'Otro',
 ]
 
+// Hex a propósito, no `var(--…)`: el selector de estado deriva su fondo
+// concatenando el alfa —`ESTADO_COLORS[estado] + '22'`—, y eso es aritmética de
+// color en JS. Con una variable saldría la cadena `var(--error)22`, que no es
+// CSS válido, y el fondo se caería solo en «Rechazada».
+// `rechazada` es el espejo de `--error` de globals.css: si allá cambia, acá hay
+// que copiarlo a mano.
 const ESTADO_COLORS: Record<EstadoCotizacion, string> = {
   borrador:  '#7a8a96',
   enviada:   '#1C3D5C',
   aceptada:  '#3DAA6E',
-  rechazada: '#E24B4A',
+  rechazada: '#A8384B',
 }
 const ESTADO_LABELS: Record<EstadoCotizacion, string> = {
   borrador:  'Borrador',
@@ -1175,7 +1181,7 @@ export function CotizacionesAdmin() {
                   onClick={() => deleteCot(c.id)}
                   title="Eliminar"
                   disabled={deleting === c.id}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: '#E24B4A', borderRadius: 2, opacity: deleting === c.id ? 0.5 : 1 }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--error)', borderRadius: 2, opacity: deleting === c.id ? 0.5 : 1 }}
                 >
                   <Trash2 size={14} strokeWidth={2} />
                 </button>

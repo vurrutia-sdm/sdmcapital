@@ -331,7 +331,7 @@ export function TarjetasEquipo() {
                   <button className="text-sdm-sm min-h-[44px] lg:min-h-0" onClick={() => openEdit(t)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>
                     Editar
                   </button>
-                  <button className="text-sdm-sm min-h-[44px] lg:min-h-0" onClick={() => del(t.id)} disabled={deleting === t.id} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>
+                  <button className="text-sdm-sm min-h-[44px] lg:min-h-0" onClick={() => del(t.id)} disabled={deleting === t.id} style={{ color: 'var(--error)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>
                     {deleting === t.id ? 'Eliminando…' : 'Eliminar'}
                   </button>
                 </div>

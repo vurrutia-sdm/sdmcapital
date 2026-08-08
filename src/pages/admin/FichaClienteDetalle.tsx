@@ -159,7 +159,7 @@ export default function FichaClienteDetalle() {
         {loading ? (
           <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: 'var(--muted)', fontStyle: 'italic' }}>Cargando…</div>
         ) : !cliente ? (
-          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: '#e24b4a' }}>Cliente no encontrado.</div>
+          <div className="text-sdm-base" style={{ textAlign: 'center', padding: '60px 0', color: 'var(--error)' }}>Cliente no encontrado.</div>
         ) : (
           <>
             {/* Cliente card */}
@@ -234,7 +234,7 @@ export default function FichaClienteDetalle() {
                           <Edit2 size={12} /> Editar
                         </button>
                         <button onClick={e => deleteFicha(e, f)} disabled={isDel} title="Eliminar ficha"
-                          style={{ background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: '#e24b4a', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1 }}>
+                          style={{ background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1 }}>
                           <Trash2 size={14} />
                         </button>
                         <ChevronRight size={16} style={{ color: '#c0cdd8' }} />

@@ -55,6 +55,34 @@
        La agrupación además es semántica: «Reservada» y «Arrendada» son
        ocupación temporal; «Vendida» es lo único definitivo. */
 
+    /* ─── ERROR ────────────────────────────────────────────────────────────
+       Algo falló: un envío que no salió, un registro que no se encontró, y el
+       texto de los botones «Eliminar». NADA MÁS. No es una insignia de estado
+       ni marca urgencia comercial.
+
+       Un solo valor cubre los dos roles que hacían falta —texto rojo sobre
+       fondo claro y texto blanco sobre fondo rojo— porque las dos cosas son el
+       mismo cálculo: contraste contra blanco. No hace falta el par que sí
+       necesitaron `--border` / `--border-input`.
+
+         sobre blanco       6.30:1   (el #E24B4A anterior daba 3.93)
+         sobre --off        6.03:1
+         sobre --sky-pale   5.67:1
+         blanco encima      6.30:1
+
+       Por qué #A8384B y no un rojo más vivo: tiene que distinguirse de
+       `--estado-vendida` #C0392B, con la que comparte pantalla en el listado
+       de propiedades. ΔE2000 de 12.7 / 12.8 / 11.4 en visión normal,
+       protanopia y deuteranopia. Por encima de 10 son colores distintos.
+
+       Y por qué se pudo elegir: mientras el precio rebajado usó este rojo,
+       también tenía que separarse de `--oportunidad`, y todo rojo que cumple
+       4.5:1 y se aleja de «Vendida» se corre hacia el magenta, donde colapsa
+       contra el verde bajo deuteranopia. Sacar la rebaja del rojo liberó la
+       restricción. Si algún día vuelve a usarse el rojo para algo que no sea
+       un error, el problema reaparece. */
+    --error: #A8384B;
+
     /* ─── ESCALA TIPOGRÁFICA ─────────────────────────────────────────────
        Espejo exacto de `fontSize` y `letterSpacing` en tailwind.config.js.
        Existen para poder escribir `fontSize: 'var(--sdm-text-sm)'` desde

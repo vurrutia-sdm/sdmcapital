@@ -120,7 +120,7 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
                 style={{ flex: 1, padding: '6px 10px', border: '1px solid var(--border-input-admin)', borderRadius: 2, background: '#fff', color: 'var(--ink)' }}
               />
               <button className="text-sdm-xs" onClick={() => remove(d.url)}
-                style={{ color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
+                style={{ color: 'var(--error)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
                 Eliminar
               </button>
             </div>
@@ -212,7 +212,7 @@ function UnidadesEditor({ items, onChanged }: { items: UnidadPropiedad[]; onChan
 
                 <button data-orden-quieto="" className="order-last text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0 lg:w-[70px] lg:text-right"
                   onClick={() => onChanged(items.filter((_, j) => j !== i))}
-                  style={{ color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
+                  style={{ color: 'var(--error)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
                   Eliminar
                 </button>
               </div>
@@ -881,7 +881,7 @@ export default function Propiedades() {
                 <td className="order-8 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
                   <div className="flex items-center justify-end gap-6 lg:justify-start lg:gap-3">
                     <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500, whiteSpace: 'nowrap' }}>Editar</button>
-                    <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Eliminar</button>
+                    <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--error)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Eliminar</button>
                   </div>
                 </td>
               </tr>

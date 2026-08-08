@@ -206,7 +206,7 @@ export default function VendeConNosotrosPage() {
               </div>
 
               {status === 'error' && (
-                <p className="text-sdm-base" style={{ color: '#E24B4A', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
+                <p className="text-sdm-base" style={{ color: 'var(--error)', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
               )}
 
               <div className="flex justify-center">

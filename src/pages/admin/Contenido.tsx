@@ -214,7 +214,7 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
                 <div className="text-sdm-sm" style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
                 <div className="text-sdm-xs" style={{ color: 'var(--muted)' }}>{p.comuna} · {precio(p)}</div>
               </div>
-              <button className="text-sdm-xl" onClick={() => remove(p.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E24B4A', lineHeight: 1, padding: '0 4px' }}>×</button>
+              <button className="text-sdm-xl" onClick={() => remove(p.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--error)', lineHeight: 1, padding: '0 4px' }}>×</button>
             </div>
           ))}
         </div>

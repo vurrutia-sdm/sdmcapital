@@ -169,7 +169,7 @@ export default function FichaClientesLista() {
                     </span>
                     <button onClick={e => deleteCliente(e, c.id)} disabled={isDel}
                       title="Eliminar cliente"
-                      style={{ background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: '#e24b4a', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1, flexShrink: 0 }}>
+                      style={{ background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1, flexShrink: 0 }}>
                       <Trash2 size={15} />
                     </button>
                     <ChevronRight size={16} style={{ color: '#c0cdd8', flexShrink: 0 }} />

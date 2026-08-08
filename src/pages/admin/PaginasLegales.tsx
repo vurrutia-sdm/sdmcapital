@@ -71,7 +71,7 @@ export default function PaginasLegales() {
         ))}
       </div>
 
-      {error && <p className="text-sdm-sm" style={{ color: '#E24B4A', marginBottom: 16 }}>{error}</p>}
+      {error && <p className="text-sdm-sm" style={{ color: 'var(--error)', marginBottom: 16 }}>{error}</p>}
 
       <div className="bg-white border border-[#e8edf2] rounded-sm p-8">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>

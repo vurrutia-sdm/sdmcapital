@@ -105,7 +105,7 @@ export default function Asociados() {
             <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sky)', textDecoration: 'none', marginBottom: 10 }} className="truncate w-full text-sdm-sm">{a.url}</a>
             <div className="flex gap-3 border-t pt-3 w-full justify-center" style={{ borderColor: 'var(--border)' }}>
               <button className="text-sdm-sm" onClick={() => setEditing(a)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-              <button className="text-sdm-sm" onClick={() => del(a.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
+              <button className="text-sdm-sm" onClick={() => del(a.id)} style={{ color: 'var(--error)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
             </div>
           </div>
         ))}

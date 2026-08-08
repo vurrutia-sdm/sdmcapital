@@ -294,7 +294,7 @@ export default function SolicitudCreditoForm({
         </div>
 
         {status === 'error' && (
-          <p className="text-sdm-base" style={{ color: '#E24B4A' }}>{errorMsg || 'Error al enviar. Intenta de nuevo.'}</p>
+          <p className="text-sdm-base" style={{ color: 'var(--error)' }}>{errorMsg || 'Error al enviar. Intenta de nuevo.'}</p>
         )}
 
         <button type="submit" disabled={!canSubmit} className="btn-primary disabled:opacity-50 justify-center">

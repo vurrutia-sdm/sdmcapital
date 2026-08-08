@@ -113,7 +113,7 @@ export default function Equipo() {
             <p style={{ color: 'var(--muted)', lineHeight: 1.6, marginBottom: 12 }} className="line-clamp-2 text-sdm-sm">{m.bio}</p>
             <div className="flex gap-3 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
               <button className="text-sdm-sm" onClick={() => setEditing(m)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button>
-              <button className="text-sdm-sm" onClick={() => del(m.id)} style={{ color: '#E24B4A', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
+              <button className="text-sdm-sm" onClick={() => del(m.id)} style={{ color: 'var(--error)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button>
               <Badge label={m.activo ? 'Activo' : 'Inactivo'} color={m.activo ? 'var(--green)' : 'var(--muted)'} />
             </div>
           </div>

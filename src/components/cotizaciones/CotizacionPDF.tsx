@@ -13,7 +13,10 @@ const C = {
   muted:    '#7a8a96',
   ink:      '#1a1a1a',
   white:    '#FFFFFF',
-  red:      '#E24B4A',
+  // Literal a propósito, igual que el resto de esta paleta: @react-pdf/renderer
+  // rasteriza fuera del DOM y no resuelve `var(--…)`. Espejo de `--error` de
+  // globals.css — si allá cambia, acá hay que copiarlo a mano.
+  red:      '#A8384B',
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

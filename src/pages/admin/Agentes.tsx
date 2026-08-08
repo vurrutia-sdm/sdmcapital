@@ -196,7 +196,7 @@ export default function Agentes() {
                     <Edit2 size={13} />
                   </button>
                   <button onClick={() => del(a.id)} disabled={deleting === a.id} title="Eliminar"
-                    style={{ background: 'none', border: 'none', cursor: deleting === a.id ? 'not-allowed' : 'pointer', color: '#e24b4a', padding: 6, display: 'flex', alignItems: 'center', opacity: deleting === a.id ? 0.5 : 1 }}>
+                    style={{ background: 'none', border: 'none', cursor: deleting === a.id ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 6, display: 'flex', alignItems: 'center', opacity: deleting === a.id ? 0.5 : 1 }}>
                     <Trash2 size={14} />
                   </button>
                 </div>

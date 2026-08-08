@@ -58,7 +58,7 @@ function LoginForm() {
             <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Contraseña</label>
             <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="input-line" placeholder="••••••••" />
           </div>
-          {error && <p className="text-sdm-sm" style={{ color: '#E24B4A' }}>{error}</p>}
+          {error && <p className="text-sdm-sm" style={{ color: 'var(--error)' }}>{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary justify-center mt-2">{loading ? 'Ingresando…' : 'Ingresar →'}</button>
         </form>
       </div>

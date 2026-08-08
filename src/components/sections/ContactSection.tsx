@@ -74,7 +74,7 @@ export default function ContactSection() {
                 <textarea required className="input-line resize-none" rows={4} value={form.mensaje} onChange={set('mensaje')} placeholder="¿En qué te podemos ayudar?" />
               </div>
               {status === 'error' && (
-                <p className="text-sdm-base" style={{ color: '#E24B4A', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
+                <p className="text-sdm-base" style={{ color: 'var(--error)', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
               )}
               <div className="flex justify-center">
                 <button type="submit" disabled={status === 'sending'} className="btn-primary disabled:opacity-60 text-sdm-sm" style={{ padding: '13px 48px' }}>
