@@ -42,6 +42,7 @@ export function usePointerSort<T>(
   const movio = useRef(false)
   const tragarClick = useRef(false)
   const oyentes = useRef<Oyente[] | null>(null)
+  const seleccionPrevia = useRef('')
 
   // El commit final sale de este ref y no de la clausura: durante el arrastre la
   // lista se reordena en vivo, así que al soltar hace falta el orden que quedó,
@@ -71,6 +72,7 @@ export function usePointerSort<T>(
 
   const limpiar = () => {
     soltarOyentes()
+    if (activo.current) document.body.style.userSelect = seleccionPrevia.current
     desde.current = null; origen.current = null
     activo.current = false; movio.current = false
     setArrastrando(null)
@@ -94,6 +96,14 @@ export function usePointerSort<T>(
       if (!activo.current) {
         if (Math.hypot(e.clientX - origen.current.x, e.clientY - origen.current.y) < UMBRAL) return
         activo.current = true
+        // Con el ratón, arrastrar por encima de las filas inicia una selección
+        // de texto que compite con el reordenamiento: medido, un arrastre de
+        // dos posiciones terminaba moviendo la fila equivocada. Se suprime solo
+        // mientras dura el arrastre, y no con `user-select: none` fijo en la
+        // fila, porque estas listas llevan campos de texto adentro y ahí el
+        // usuario sí tiene que poder seleccionar.
+        seleccionPrevia.current = document.body.style.userSelect
+        document.body.style.userSelect = 'none'
         setArrastrando(desde.current)
       }
 
