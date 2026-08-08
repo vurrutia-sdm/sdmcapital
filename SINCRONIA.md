@@ -107,7 +107,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | UX copy — tanda 3 | Las listas que se recortaban en silencio, más dos pendientes de la tanda 2 | Cerrada — commits `490fa33`, `59c5feb` y `b2df33d` |
 | 2026-08-07 | UX copy — subida de fotos | La subida descartaba archivos en silencio. Solo `src/pages/admin/Propiedades.tsx` | Cerrada — commit `0d95c6d` |
 | 2026-08-07 | UX copy — `<SEO>` en las rutas que faltaban | Blog, post, asociados, reserva, 404 y showcase. **Tocó `src/pages/`, dominio de la sesión web pública**, y `src/App.tsx` para la 404 | Cerrada — commit `209ec68`. **Deja dos pendientes: la Function del blog y el og-image roto** |
-| 2026-08-07 | OG — imagen por defecto y Function del blog | **Invasión de dominio autorizada: `SEO.tsx` (og-image.jpg → .png) y `functions/blog/[slug].js` (nuevo, calcado de `propiedades/[id].js`).** `functions/` es de la sesión Sofía | En curso |
+| 2026-08-07 | OG — imagen por defecto y Function del blog | **Invasión de dominio autorizada: `SEO.tsx` (og-image.jpg → .png) y `functions/blog/[slug].js` (nuevo, calcado de `propiedades/[id].js`).** `functions/` es de la sesión Sofía; no se tocó nada más de ahí | Cerrada — commits `b464c5b` y `42d61cb` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1787,6 +1787,60 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### `og-image.jpg` NUNCA EXISTIÓ, y el catch-all lo disimulaba — 2026-08-07
+
+Commits `b464c5b` y `42d61cb`. Cierran los dos pendientes de la entrada de
+abajo.
+
+#### El bug de la imagen, y por qué tardó tanto en verse
+
+`SEO.tsx` pedía `${BASE}/og-image.jpg`. En `public/` solo hay
+**`og-image.png`** y `og-image.svg`. El `.jpg` **no existió nunca**.
+
+No se notó porque el catch-all de SPA —`/*  /index.html  200` en
+`public/_redirects`— devuelve `index.html` con **status 200** para cualquier
+ruta. O sea la URL «funcionaba»: respondía 200, y el crawler recibía HTML donde
+esperaba una imagen.
+
+**Es la trampa del 404 ya documentada, mordiendo en un sitio nuevo.** Está
+anotada desde la entrada del `.DS_Store`: *en este sitio ninguna URL devuelve
+404 nunca, así que comprobar existencia por código de estado da falsos
+positivos*. Acá el falso positivo llevaba meses.
+
+**Cómo comprobar que un asset existe de verdad en este sitio:** mirar el
+`content-type` **y** que el hash del cuerpo **no** coincida con el de `/`. Un
+200 no prueba nada.
+
+El valor correcto ya estaba escrito en el repo desde siempre:
+`functions/propiedades/[id].js` usa `og-image.png`.
+
+#### La Function del blog
+
+`functions/blog/[slug].js`, calcada de la de propiedades. Misma detección de bot
+por user-agent, misma consulta con la anon key y sus fallbacks de entorno, mismo
+`escapeHtml` sobre todos los valores, mismo caché de 300 s.
+
+Dos diferencias deliberadas con la de propiedades:
+
+| | por qué |
+|---|---|
+| `og:type` = **`article`** y no `website` | es un artículo, y es lo que ya pasa `<SEO>` desde el cliente |
+| filtro **`publicado=eq.true`** explícito | desde fuera no se distingue «RLS filtra los borradores» de «no hay borradores» —la anon key devuelve 13 filas y 0 despublicadas, compatible con ambas— y un borrador no debe filtrarse por el previsualizador de WhatsApp |
+
+`DEFAULT_DESCRIPTION` es un **espejo** de la de `SEO.tsx`. Al escribirla de
+memoria le sobraba una frase; se alineó comparando las dos cadenas. **Si se
+cambia una, cambiar la otra.**
+
+#### Lo que esto arregla y lo que no
+
+Arregla la vista previa de **los artículos del blog**. El resto de las rutas
+—`/blog`, `/asociados`, `/quienes-somos`, `/servicios`…— siguen sin Function, o
+sea que para un crawler que no ejecuta JS siguen mostrando el título genérico.
+Ahora al menos comparten **con imagen**, que es lo que arregla `b464c5b`.
+
+Si algún día importa que esas rutas también se compartan bien, el patrón está
+escrito dos veces y es mecánico.
 
 ### `<SEO>` en las seis rutas que faltaban — y dos cosas que quedan rotas — 2026-08-07
 
