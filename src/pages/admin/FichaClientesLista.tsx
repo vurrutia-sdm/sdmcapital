@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
+import { Guardado, useGuardado } from '@/components/admin/acciones'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -52,6 +53,7 @@ export default function FichaClientesLista() {
   const [form, setForm] = useState({ nombre: '', telefono: '', correo: '' })
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [guardado, avisarGuardado] = useGuardado()
 
   const load = async () => {
     setLoading(true)
@@ -77,6 +79,7 @@ export default function FichaClientesLista() {
     }])
     setSaving(false)
     if (avisarError('No se pudo guardar el cliente', error)) return
+    avisarGuardado()
     setShowModal(false)
     load()
   }
@@ -115,6 +118,7 @@ export default function FichaClientesLista() {
           </Link>
           <span style={{ color: '#dce4ec' }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Fichas para clientes</span>
+          <Guardado visible={guardado} />
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={openModal}
           style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>

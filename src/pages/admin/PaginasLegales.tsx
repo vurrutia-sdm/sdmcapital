@@ -5,9 +5,9 @@
 // persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
-import { Check } from 'lucide-react'
+
 import { supabase } from '@/lib/supabase'
-import { SaveBtn } from '@/components/admin/acciones'
+import { SaveBtn, Guardado } from '@/components/admin/acciones'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
 
 const LEGAL_PAGES: { slug: string; label: string; ruta: string }[] = [
@@ -53,7 +53,7 @@ export default function PaginasLegales() {
       <div className="flex flex-col items-start gap-3 mb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Páginas Legales</h2>
         <div className="flex items-center gap-4">
-          {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+          <Guardado visible={saved} />
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>

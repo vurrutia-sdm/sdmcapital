@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2, ChevronRight, Image } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
+import { Guardado, useGuardado } from '@/components/admin/acciones'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -73,6 +74,7 @@ export default function FichaClienteDetalle() {
   const [editForm, setEditForm] = useState({ nombre: '', telefono: '', correo: '' })
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [guardado, avisarGuardado] = useGuardado()
 
   const loadAll = async () => {
     if (!clienteId) return
@@ -98,6 +100,7 @@ export default function FichaClienteDetalle() {
     }).eq('id', clienteId)
     setSaving(false)
     if (avisarError('No se pudo guardar la ficha', error)) return
+    avisarGuardado()
     setShowEdit(false)
     loadAll()
   }
@@ -171,6 +174,7 @@ export default function FichaClienteDetalle() {
                   {cliente.correo && <span>{cliente.correo}</span>}
                 </div>
               </div>
+              <Guardado visible={guardado} />
               <button className="text-sdm-sm" onClick={() => setShowEdit(true)}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f5f7fa', border: '1px solid #dce4ec', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: '#0d2240', fontFamily: 'inherit' }}>
                 <Edit2 size={13} /> Editar

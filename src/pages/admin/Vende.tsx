@@ -6,8 +6,9 @@
 // se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
-import { Check, FileText, Image, Landmark, RefreshCw } from 'lucide-react'
+import { FileText, Image, Landmark, RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { Guardado } from '@/components/admin/acciones'
 import { avisarError } from '@/lib/errores'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
 import { Sec, Full } from '@/components/admin/layout'
@@ -61,7 +62,7 @@ export default function Vende() {
     <div>
       <div className="flex flex-col items-start gap-3 mb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Vende con Nosotros</h2>
-        {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+        <Guardado visible={saved} />
       </div>
 
       <Sec title={<><Image size={18} strokeWidth={1.75} />Hero</>}>

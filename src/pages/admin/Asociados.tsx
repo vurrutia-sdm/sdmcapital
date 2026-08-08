@@ -10,12 +10,13 @@ import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import type { Asociado } from '@/types'
 import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
-import { SaveBtn } from '@/components/admin/acciones'
+import { SaveBtn, Guardado, useGuardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { useDragSort } from '@/components/admin/useDragSort'
 
 export default function Asociados() {
   const [items, setItems]     = useState<Asociado[]>([])
+  const [guardado, avisarGuardado] = useGuardado()
   const [editing, setEditing] = useState<Partial<Asociado> | null>(null)
   const [saving, setSaving]   = useState(false)
 
@@ -36,6 +37,7 @@ export default function Asociados() {
       : await supabase.from('asociados').insert([{ ...editing, activo: editing.activo !== false, logo: editing.logo || '', orden: items.length + 1 }])
     setSaving(false)
     if (avisarError('No se pudo guardar el asociado', error)) return
+    avisarGuardado()
     setEditing(null); load()
   }
 
@@ -52,7 +54,7 @@ export default function Asociados() {
   return (
     <div>
       <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
-        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2>
+        <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Asociados / Socios Comerciales</h2><Guardado visible={guardado} /></div>
         <button className="btn-green" onClick={() => setEditing({ nombre: '', logo: '', url: '', orden: items.length + 1, activo: true })}>+ Nuevo asociado</button>
       </div>
       <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las tarjetas para cambiar el orden.</p>

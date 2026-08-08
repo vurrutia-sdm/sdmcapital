@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Search, PencilLine } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
+import { Guardado, useGuardado } from '@/components/admin/acciones'
 import { subirImagen } from '@/lib/subirImagen'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import type { Cotizacion, CotizacionDraft, EstadoCotizacion, FormaPago, Propiedad } from '@/types'
@@ -868,6 +869,7 @@ function CotizacionWizard({
 // ─── Panel principal ──────────────────────────────────────────────────────────
 export function CotizacionesAdmin() {
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([])
+  const [guardado, avisarGuardado] = useGuardado()
   const [loading,      setLoading]      = useState(true)
   const [editing,      setEditing]      = useState<CotizacionDraft | null>(null)
   const [step,         setStep]         = useState(1)
@@ -936,6 +938,7 @@ export function CotizacionesAdmin() {
     // cinco pasos no debería perderlos por un error de la base.
     if (avisarError('No se pudo guardar la cotización', error)) return
 
+    avisarGuardado()
     await loadCots()
     setEditing(null)
   }
@@ -1031,6 +1034,7 @@ export function CotizacionesAdmin() {
           <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
             {cotizaciones.length} cotización{cotizaciones.length !== 1 ? 'es' : ''} registradas
           </p>
+          <div style={{ marginTop: 6 }}><Guardado visible={guardado} /></div>
         </div>
         <button onClick={openCreate} className="btn-green">
           + Nueva cotización

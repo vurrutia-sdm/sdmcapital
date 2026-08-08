@@ -9,12 +9,13 @@ import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import type { BlogPost } from '@/types'
 import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
-import { SaveBtn, Badge } from '@/components/admin/acciones'
+import { SaveBtn, Badge, Guardado, useGuardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
 
 export default function Blog() {
   const [posts, setPosts]     = useState<BlogPost[]>([])
+  const [guardado, avisarGuardado] = useGuardado()
   const [editing, setEditing] = useState<Partial<BlogPost> | null>(null)
   const [saving, setSaving]   = useState(false)
 
@@ -39,13 +40,14 @@ export default function Blog() {
       : await supabase.from('blog_posts').insert([{ ...editing, publicado: editing.publicado || false, destacado: editing.destacado || false }])
     setSaving(false)
     if (avisarError('No se pudo guardar el artículo', error)) return
+    avisarGuardado()
     setEditing(null); load()
   }
 
   return (
     <div>
       <div className="flex flex-col items-start gap-3 mb-8 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
-        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Blog</h2>
+        <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Blog</h2><Guardado visible={guardado} /></div>
         <button className="btn-green" onClick={() => setEditing({ titulo: '', slug: '', resumen: '', contenido: '', autor_nombre: 'Equipo SDM Capital', categoria: 'Mercado', publicado: false, destacado: false })}>+ Nuevo artículo</button>
       </div>
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, Edit2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
+import { Guardado, useGuardado } from '@/components/admin/acciones'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -48,6 +49,7 @@ function FLabel({ label, children }: { label: string; children: React.ReactNode 
 export default function Agentes() {
   const { authed, checking } = useAdminAuth()
   const [agentes, setAgentes] = useState<Agente[]>([])
+  const [guardado, avisarGuardado] = useGuardado()
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState<{ open: boolean; editing: Agente | null }>({ open: false, editing: null })
   const [form, setForm] = useState<ModalForm>({ nombre: '', telefono: '', correo: '', activo: true })
@@ -93,6 +95,7 @@ export default function Agentes() {
       setSaving(false)
       if (avisarError('No se pudo crear el agente', error)) return
     }
+    avisarGuardado()
     closeModal()
     load()
   }
@@ -142,6 +145,7 @@ export default function Agentes() {
           </Link>
           <span style={{ color: '#dce4ec' }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: '#0d2240' }}>Agentes SDM Capital</span>
+          <Guardado visible={guardado} />
         </div>
         <button className="text-sdm-sm tracking-sdm-wide" onClick={openCreate}
           style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#4db870', color: '#fff', border: 'none', borderRadius: 2, padding: '9px 20px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>

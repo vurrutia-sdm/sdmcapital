@@ -28,7 +28,7 @@ import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad } from '@/types'
 import { Sec, Full } from '@/components/admin/layout'
 import { Field, Inp, Txa, Sel } from '@/components/admin/campos'
-import { SaveBtn } from '@/components/admin/acciones'
+import { SaveBtn, Guardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 
 const HERO_KEYS = ['hero_imagen_url','hero_imagen_url_2','hero_imagen_url_3','hero_imagen_url_4','hero_imagen_url_5'] as const
@@ -363,7 +363,7 @@ export default function Contenido() {
       <div className="flex flex-col items-start gap-3 mb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Textos del sitio</h2>
         <div className="flex items-center gap-4">
-          {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+          <Guardado visible={saved} />
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>

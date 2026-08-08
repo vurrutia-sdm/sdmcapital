@@ -6,12 +6,12 @@
 // pestañas se persiste en localStorage y renombrarla borraría esa preferencia.
 
 import { useState, useEffect } from 'react'
-import { BarChart3, Check, Bed, BookOpen, Building2, Clapperboard, ClipboardList, Image, Lightbulb, Wallet, Waves, Wind } from 'lucide-react'
+import { BarChart3, Bed, BookOpen, Building2, Clapperboard, ClipboardList, Image, Lightbulb, Wallet, Waves, Wind } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Sec, Full } from '@/components/admin/layout'
 import { Field, Inp, Txa } from '@/components/admin/campos'
-import { SaveBtn } from '@/components/admin/acciones'
+import { SaveBtn, Guardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 
 export default function Barranco() {
@@ -175,7 +175,7 @@ export default function Barranco() {
       <div className="flex flex-col items-start gap-3 mb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <h2 className="font-serif font-light flex items-center gap-2 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}><Building2 size={18} strokeWidth={1.75} />El Barranco — Showcase</h2>
         <div className="flex items-center gap-4">
-          {saved && <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} strokeWidth={2} />Guardado correctamente</span>}
+          <Guardado visible={saved} />
           <SaveBtn onClick={save} loading={saving} />
         </div>
       </div>

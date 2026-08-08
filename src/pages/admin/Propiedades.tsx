@@ -30,7 +30,7 @@ import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad, DossierItem, UnidadPropiedad } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
 import { Field, Inp, Chk, Sel } from '@/components/admin/campos'
-import { SaveBtn, Badge } from '@/components/admin/acciones'
+import { SaveBtn, Badge, Guardado, useGuardado } from '@/components/admin/acciones'
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
 import type { Dispatch, SetStateAction } from 'react'
 import { useDragSort, usePointerSort } from '@/components/admin/useDragSort'
@@ -393,6 +393,7 @@ function slugify(titulo: string, comuna?: string, dormitorios?: number) {
 
 export default function Propiedades() {
   const [items, setItems]         = useState<Propiedad[]>([])
+  const [guardado, avisarGuardado] = useGuardado()
   const [editing, setEditing]     = useState<Partial<Propiedad> | null>(null)
   const [saving, setSaving]       = useState(false)
   const [sortField, setSortField] = useState<'tipo'|'estado'|'precio_uf'|null>(null)
@@ -495,6 +496,7 @@ export default function Propiedades() {
     setSaving(false)
     if (avisarError('No se pudo guardar la propiedad', error)) return
 
+    avisarGuardado()
     setEditing(null)
     load()
   }
@@ -504,7 +506,7 @@ export default function Propiedades() {
   return (
     <div>
       <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
-        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Propiedades</h2>
+        <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Propiedades</h2><Guardado visible={guardado} /></div>
         <button className="btn-green" onClick={() => setEditing(blank())}>+ Nueva propiedad</button>
       </div>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">

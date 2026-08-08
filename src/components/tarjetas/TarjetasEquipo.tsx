@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
+import { Guardado, useGuardado } from '@/components/admin/acciones'
 import {
   TarjetaFrente, TarjetaReverso,
   EMPTY_TARJETA, TARJETA_DEFAULTS,
@@ -141,6 +142,7 @@ function TarjetaForm({
 // ─── Componente principal ──────────────────────────────────────────────────────
 export function TarjetasEquipo() {
   const [tarjetas, setTarjetas] = useState<Tarjeta[]>([])
+  const [guardado, avisarGuardado] = useGuardado()
   const [loading,  setLoading]  = useState(true)
   const [editing,  setEditing]  = useState<TarjetaDraft | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -208,6 +210,7 @@ export function TarjetasEquipo() {
     // No se llama a cancel(): si falló, el formulario sigue con lo escrito.
     if (avisarError('No se pudo guardar la tarjeta', error)) return
 
+    avisarGuardado()
     await load()
     cancel()
   }
@@ -262,6 +265,7 @@ export function TarjetasEquipo() {
           <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 4 }}>
             {tarjetas.length} integrante{tarjetas.length !== 1 ? 's' : ''} del equipo
           </p>
+          <div style={{ marginTop: 6 }}><Guardado visible={guardado} /></div>
         </div>
         <button onClick={openCreate} className="btn-green">
           + Nueva tarjeta
