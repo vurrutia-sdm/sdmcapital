@@ -101,7 +101,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Admin — Cotizaciones a tarjetas | Rediseño móvil de `CotizacionesAdmin` y eliminación de los 23 fondos `var(--off)` inline que disparaban el selector de `mobile.css` | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Admin — tablas a tarjetas | Rediseño móvil de las tablas de `Propiedades` y `Blog`, y corrección del `<thead>` desalineado de Propiedades | Cerrada — commiteada, desplegada y verificada |
 | 2026-08-07 | Limpieza técnica | Alinear las versiones de TipTap para quitar `--legacy-peer-deps`, y precisar la condición de `SinArriendos`. **Tocó `package.json` y `package-lock.json`, que son ZONA COMPARTIDA** | Cerrada — commits `be3fa8a` y `441065c`. **El lockfile se regeneró entero**: si otra sesión tenía cambios en él, hay que reinstalar |
-| 2026-08-07 | Cierre — tagline y línea de Captación | **Invasión de dominio autorizada por Víctor: una línea de `Captacion.tsx`** (`minmax(380px, 1fr)` → responsive). Sesión Sofía, no tocar nada más de ese archivo. Además, tagline único en código y meta tags | En curso |
+| 2026-08-07 | Cierre — tagline y línea de Captación | **Invasión de dominio autorizada por Víctor: una línea de `Captacion.tsx`** (`minmax(380px, 1fr)` → responsive). Sesión Sofía, no se tocó nada más de ese archivo. Además, tagline único en código y meta tags | Cerrada — commits `5916af3` y `1b2095c`. Quedan 3 claves de `contenido_sitio` por editar a mano desde el admin |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1781,6 +1781,77 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### EL TAGLINE ES UNO SOLO: «Tu socio confiable en bienes raíces» — 2026-08-07
+
+Sin punto final cuando va como título; con punto cuando va como frase en el
+footer o en un meta. **No inventar variantes.** Convivían cuatro:
+
+| variante | dónde estaba |
+|---|---|
+| «Tu socio confiable en el mundo de los bienes raíces» | footer, i18n, defaults del admin |
+| «Tu socio en bienes raíces» | hero, partido en 3 claves |
+| «Tus Sueños en nuestras manos» | dorso de la tarjeta de presentación |
+| **«Tu socio estratégico en bienes raíces»** | **meta tags, SEO, Quiénes Somos** |
+
+La cuarta no estaba en el encargo y era la más visible de todas: es la que leen
+Google y las vistas previas de WhatsApp y LinkedIn.
+
+#### Lo que se cambió en código — commit `5916af3`
+
+`index.html` (description, og:description, twitter:description), `SEO.tsx`,
+`HomePage.tsx`, `QuienesSomosPage.tsx`, `markup.ts` (tarjeta),
+`i18n.ts`, `Footer.tsx` y los 3 valores por defecto de `Contenido.tsx`.
+
+#### Lo que NO se toca desde el código
+
+Los valores **vivos** de `contenido_sitio` son contenido editable y se cambian
+desde el admin. Lo que hay en `Contenido.tsx` es solo el respaldo para cuando
+la clave no existe en la base.
+
+| clave | valor actual | dónde se edita |
+|---|---|---|
+| `hero_titulo_1/2/3` | «Tu socio» / «en bienes» / «raíces» | Textos del sitio → **Inicio** → «Título y subtítulo del hero» → Línea 1, 2 y 3 |
+| `qs_titulo` | «Tu socio estratégico en bienes raíces» | Textos del sitio → **Quiénes Somos** → «Título principal» |
+| `footer_tagline` | «Tu socio confiable en el mundo de los bienes raíces.» | Textos del sitio → **Contacto y Redes** → «Texto del footer» |
+
+#### La clave `tagline` está muerta
+
+Existe en la base y en el mapa de defaults, pero **nadie la lee y no tiene
+campo en el admin**. Por eso no se encontraba dónde editarla: no hay dónde, y
+cambiarla no haría nada. El footer usa `footer_tagline`, que sí es otra clave.
+Si algún día estorba, se borra; no se toca ahora porque no molesta.
+
+Verificado que el tagline no aparece en `blog_posts` (13 filas),
+`paginas_legales` (3) ni `propiedades` (53).
+
+### La línea de Captación, y por qué `scrollWidth` no la detectaba — 2026-08-07
+
+Commit `1b2095c`. Invasión de dominio autorizada, **una sola línea**:
+
+```
+minmax(380px, 1fr)  →  minmax(min(380px, 100%), 1fr)
+```
+
+| viewport | antes (tarjeta/caja) | después |
+|---|---|---|
+| 360 | 380/306 → **se salía 74 px** | 306/306 |
+| 390 | 380/336 → **44 px** | 336/336 |
+| 430 | 380/376 → **4 px** | 376/376 |
+| 1024 | 477px × 2 | **idéntico** |
+| 1440 | 518px × 2 | **idéntico** |
+
+**Lo que hay que recordar:** el síntoma no era una barra de scroll horizontal
+sino **contenido cortado**. `body` lleva `overflow-x: clip` en `globals.css`,
+así que el desborde se recorta en vez de generar scroll, y
+`scrollWidth - innerWidth` da **0 en los dos casos**. Esa métrica no sirve para
+detectar este tipo de defecto en este sitio: hay que comparar el borde de la
+tarjeta con el de su contenedor.
+
+Y de nuevo: `Emulation.setDeviceMetricsOverride` **no se re-aplica** al abrir
+una sesión CDP nueva sobre la misma pestaña. Cinco mediciones seguidas
+reportaron los cinco el mismo viewport. **Iframes de ancho real**, como ya
+estaba anotado.
 
 ### Editor de unidades, y la trampa de `undefined` con supabase-js — 2026-08-07
 
