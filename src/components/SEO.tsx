@@ -9,7 +9,11 @@ interface SEOProps {
 }
 
 const BASE = 'https://sdmcapital.cl'
-const DEFAULT_IMG = `${BASE}/og-image.jpg`
+// .png y no .jpg: og-image.jpg NUNCA existió en public/. El catch-all de SPA lo
+// disimulaba devolviendo index.html con status 200, así que el crawler pedía una
+// imagen y recibía HTML, y toda ruta sin imagen propia se compartía sin imagen.
+// La Pages Function de propiedades ya usaba el valor correcto.
+const DEFAULT_IMG = `${BASE}/og-image.png`
 const SITE_NAME = 'SDM Capital'
 
 export default function SEO({ title, description, image, url, type = 'website' }: SEOProps) {
