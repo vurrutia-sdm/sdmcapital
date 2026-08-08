@@ -517,9 +517,9 @@ export default function ElBarrancoShowcase() {
       {/* ── FOOTER ── */}
       <footer style={S.footer}>
         <span style={S.footerText}>© {new Date().getFullYear()} SDM Capital Real Estate · Hotel El Barranco · Futaleufú, Chile</span>
-        <button style={S.backBtn} onClick={() => navigate('/propiedades/eccfd92d-713e-4e0a-a074-ff76daffd81e')}>
+        <button style={S.backBtn} onClick={() => navigate('/propiedades/hotel-restaurante-futaleufu-futaleufu-10d')}>
           <Icon.ArrowLeft />
-          {lang === 'es' ? 'Volver al listado' : 'Back to listing'}
+          {lang === 'es' ? 'Volver a la propiedad' : 'Back to the property'}
         </button>
       </footer>
 

@@ -47,7 +47,7 @@ export default function ReservaConfirmacionPage() {
               </div>
             )}
             <button onClick={() => navigate("/")} className="w-full bg-[#1a3c5e] text-white py-3 rounded-lg font-semibold">
-              Volver al inicio
+              ← Volver al inicio
             </button>
           </>
         )}
