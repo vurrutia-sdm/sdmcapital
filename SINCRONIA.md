@@ -125,6 +125,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 3: teclado | Anillo de foco a `--green-dark` **en `globals.css`, ZONA COMPARTIDA**, indicador no cromático en `.input-line`, 16 `outline: none` fuera, 8 divs a `<button>`, 2 tarjetas, header completo y `RadioGroup` | Cerrada — commits `2e45121`, `c453e58`, `f90f602`, `4ced14d`, `22a5f60` y `f671ab9` |
 | 2026-08-08 | Accesibilidad — tanda 4: estructura, idioma y modales | Un `h1` por página en las 19 rutas, `sanitizarContenido()` en **`src/lib/`**, `lang` en el showcase y `useDialogoModal` en **`src/hooks/`** para los CINCO modales | Cerrada — commits `1955063`, `06aca14` y `19bc3c2` |
 | 2026-08-08 | Accesibilidad — tanda 5: tamaño táctil y movimiento | `.area-44` en **`globals.css`, ZONA COMPARTIDA** para 13 objetivos, botón de pausa en los dos carruseles de la home y `prefers-reduced-motion` en todo el sitio | Cerrada — commits `e1e201e`, `cb73a07` y `da5b0ef` |
+| 2026-08-08 | Accesibilidad — tanda 6: cierre de tamaño táctil y del último carrusel | Los 6 puntos que fallaban 2.5.8 pasan a 18px de separación; el resto cumple por excepción. El slider de El Barranco recibe pausa bilingüe | Cerrada — commits `c0250e9` y `91ba9b1` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -4841,11 +4842,89 @@ muestran el número final en vez de contar de 0 a 120 durante 1,8s.
 | elementos a medio camino | ninguno | ninguno |
 | texto del hero | visible | visible |
 
-### Nota sobre el criterio
+### EL CRITERIO CORRECTO DE TAMAÑO TÁCTIL
 
-**2.5.5 «Tamaño del objetivo» (44×44) es nivel AAA en WCAG 2.1, no AA.** El
-criterio de nivel AA es 2.5.8 «Tamaño del objetivo (mínimo)», de WCAG 2.2, y
-pide **24×24** con una excepción por separación. Vale tenerlo presente antes de
-mover el diseño por los 28 que faltan: llevar el paso de los puntos de 16 a
-24px cumpliría el criterio AA con una fracción del costo visual que exige
-llegar a 44.
+> **2.5.5 «Tamaño del objetivo» (44×44) es nivel AAA en WCAG 2.1.**
+> El criterio de nivel **AA** es **2.5.8 «Tamaño del objetivo (mínimo)»**, de
+> WCAG 2.2, y pide **24×24** — con dos excepciones que cambian el alcance por
+> completo:
+>
+> - **Separación.** Un objetivo menor de 24×24 cumple igual si un círculo de
+>   24px de diámetro centrado en su caja no toca la caja ni el círculo de otro
+>   objetivo.
+> - **Inline.** Está exento el objetivo que va dentro de una frase, o cuyo alto
+>   lo fija el interlineado del texto que lo rodea.
+>
+> **El admin usa 44×44 por decisión propia, no por obligación normativa.** Y
+> los 13 objetivos que se ampliaron a 44 en la home se quedan así: cumplir AAA
+> donde salió gratis es mejor, no peor. Lo que no corresponde es pagar un
+> cambio de diseño para llegar a 44 donde AA se cumple con 24.
+
+---
+
+### Accesibilidad — tanda 6: el criterio correcto, y el último carrusel — 2026-08-08
+
+## La excepción por separación cambió el alcance de 28 a 6
+
+Evaluados los 21 objetivos por debajo de 24px con la **regla real** de 2.5.8 —un
+círculo de 24px centrado en la caja que no debe tocar ni la caja ni el círculo
+de un vecino— y no por tamaño:
+
+| Grupo | n | Veredicto |
+|---|---:|---|
+| enlaces del footer | 13 | **✓ ya cumplían.** 167×23, el círculo llega a 12px y la caja vecina está a 21px |
+| legales del footer | 4 | **✓ exentos por inline.** Van dentro de un `<p>`: «© 2026 SDM Capital · … · Diseño …» |
+| puntos de carrusel | 10 | **✗ 6 fallaban.** Paso de 16px entre los de 8px: sus círculos se cortaban |
+
+**El cambio real fueron dos números**, no un rediseño: la separación de las dos
+filas de puntos pasa de 8px a 18px. El paso entre los puntos chicos queda en
+26px y el círculo llega a 22px de la caja vecina.
+
+> **El punto se sigue viendo de 8px.** Lo que cambia es el aire entre ellos. En
+> 2.5.8 el tamaño y la separación son intercambiables: se cumple agrandando el
+> objetivo *o* separándolo, y separar suele costar mucho menos diseño.
+
+Cuánto creció, medido:
+
+| | antes | después |
+|---|---:|---:|
+| extensión de cada fila de puntos | 88px | **128px** (+40, centrada) |
+| alto total de la página | 10127 | **10127** (sin cambio) |
+
+Y comprobado con `elementFromPoint` sobre el centro de cada punto: **5 de 5 se
+pulsan a sí mismos**, ninguno queda tapado por el vecino.
+
+#### El caso de los enlaces del footer merece guardarse
+
+Tenían 222×23 y **parecían** incumplir: 23 < 24. Contarlos por tamaño daba 13
+problemas; evaluarlos por la regla completa daba cero. **Un pixel de diferencia
+en la altura no dice nada por sí solo** — lo que decide es cuánto aire hay
+alrededor.
+
+## El último movimiento automático sin control
+
+El slider de `ElBarrancoShowcase` rotaba cada 5,5s. Recibe el mismo botón que el
+hero y los testimonios.
+
+> **El nombre accesible sigue al idioma activo.** Esa página arranca en inglés y
+> tiene su propio diccionario dentro del componente: un rótulo fijo en español
+> no lo leería nadie de los que efectivamente la usan. El botón y los puntos se
+> traducen con el mismo `lang` que el resto de la página.
+
+De paso, los puntos pasan de «Slide 1» a «Slide 1 of 4» / «Foto 1 de 4»: en un
+carrusel, el total es la mitad de la información.
+
+Ahí los puntos miden 6px, así que la separación va a **20px** y no 18: con 18 el
+paso quedaba exactamente en 24 —círculos tangentes, el límite justo del
+criterio— y con 20 queda en 26, el mismo margen que en la home.
+
+### Inventario final de movimiento automático
+
+| Qué | Cada | Control |
+|---|---|---|
+| carrusel del hero | 5.000ms | ✓ botón |
+| carrusel de testimonios | 5.000ms | ✓ botón |
+| slider de El Barranco | 5.500ms | ✓ botón, bilingüe |
+| contadores del hero | 1,8s una vez | no aplica (<5s), y con `reduce` no animan |
+
+**No queda movimiento automático sin forma de detenerlo.**
