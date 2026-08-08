@@ -127,6 +127,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 5: tamaño táctil y movimiento | `.area-44` en **`globals.css`, ZONA COMPARTIDA** para 13 objetivos, botón de pausa en los dos carruseles de la home y `prefers-reduced-motion` en todo el sitio | Cerrada — commits `e1e201e`, `cb73a07` y `da5b0ef` |
 | 2026-08-08 | Accesibilidad — tanda 6: cierre de tamaño táctil y del último carrusel | Los 6 puntos que fallaban 2.5.8 pasan a 18px de separación; el resto cumple por excepción. El slider de El Barranco recibe pausa bilingüe | Cerrada — commits `c0250e9` y `91ba9b1` |
 | 2026-08-08 | Accesibilidad — tanda 6: los menores | 70 iconos decorativos ocultos, estado en los 3 controles de dos estados, `.sr-only` nueva en **`globals.css`** y los 13 tokens tipográficos a `rem` en **`globals.css` y `tailwind.config.js`, ZONA COMPARTIDA**. **El reordenamiento por teclado NO se hizo** | Cerrada — commits `b306c5a`, `49fef29`, `ea2ea11` y `248e418` |
+| 2026-08-08 | Contenido — cierre de la inconsistencia internacional | 12 textos de «el mundo» pasan a «Chile y Paraguay» —**`src/lib/i18n.ts` y `functions/blog/[slug].js`, ZONA COMPARTIDA y dominio Sofía**— y se borra el material muerto de los seis destinos | Cerrada — commits `48d38dd` y `2fb2712` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -5057,3 +5058,90 @@ lector consume, pero no es lo mismo que oírlo:
 
 Eso pide una sesión con VoiceOver o NVDA y, sobre todo, con alguien que los use
 a diario. **Lo automatizable está hecho; lo que falta no es automatizable.**
+
+---
+
+### La operación es CHILE Y PARAGUAY — 2026-08-08
+
+> **Dos países. `stats_paises = 2` es correcto y NO debe «corregirse» a 1.**
+>
+> El sitio arrastraba una promesa de operación mundial que no existía: una
+> sección de destinos con Miami, Orlando, Nueva York, Punta Cana, España y
+> Uruguay, y textos que decían «Chile y el mundo». Víctor confirmó que la
+> operación real es Chile y Paraguay.
+>
+> `servicio_inv_int_desc` ya estaba reescrito a Paraguay en la base antes de
+> esta tanda, y `servicio_banco_visible` (bancarización en EE.UU.) ya estaba en
+> `false`. Lo de acá es el resto.
+
+#### Eran 12 textos, no 3
+
+El encargo listaba tres. El barrido encontró la misma frase repartida en:
+
+| Dónde | Qué |
+|---|---|
+| `index.html` | meta description, `og:description` y el JSON-LD |
+| `SEO.tsx` | la descripción por defecto de todas las rutas |
+| `functions/blog/[slug].js` | **la misma descripción, duplicada** |
+| `HomePage.tsx` | su propio `<SEO description>`, que pisa a la anterior |
+| `HeroSection.tsx` | el respaldo de `hero_kicker` |
+| `i18n.ts` | el kicker, en español **y en inglés** («Chile & worldwide») |
+| `BlogPage.tsx` · `QuienesSomosPage.tsx` | respaldos de `blog_subtitulo` y `qs_historia_2` |
+| `Contenido.tsx` | los valores por defecto de esas tres claves |
+
+##### El que ninguna búsqueda encontraba
+
+En el hero hay un bloque **visible** escrito a mano que decía «Inversión
+inmobiliaria / Chile & el mundo», con el ampersand como entidad HTML
+`&amp;`. Buscar `Chile & el mundo` no lo encuentra: en el archivo dice
+`Chile &amp; el mundo`.
+
+**Era el único de los doce que se leía en pantalla.** Los otros once son
+metadatos o respaldos que la base pisa.
+
+> Y al verificarlo en el navegador tampoco aparecía: `innerText` **aplica
+> `text-transform`**, así que buscar «Paraguay» falla donde el CSS muestra
+> «PARAGUAY». Hay que comparar sin distinguir mayúsculas.
+
+#### El tagline NO se toca
+
+«Tu socio confiable en el **mundo** de los bienes raíces» usa «mundo» en
+sentido figurado, no geográfico. Vive solo en la base.
+
+#### Material muerto borrado, y cómo se confirmó
+
+| Símbolo | AST |
+|---|---|
+| `CITIES` | 1 declaración, 0 usos |
+| `cityImgs` | 1 declaración, 0 usos |
+| sección `internacional` del i18n | 0 accesos fuera de `i18n.ts` |
+
+> Se comprobó con el AST y no con grep. Los tres `.internacional` que aparecían
+> en el barrido eran la **columna `propiedades.internacional` de la base**, no
+> la sección del diccionario: un grep los habría contado como uso y el bloque
+> se habría quedado.
+
+`CITIES` traía conteos por destino —Miami 3, Punta Cana 5, Orlando 2, España 3,
+Uruguay 8— **escritos a mano, que nunca salieron de la base**. Nunca se
+renderizaron: la constante estaba declarada y sin usar.
+
+También se fue el panel del admin que subía las seis imágenes de destinos, que
+era lo que más molestaba: le ofrecía a Víctor administrar imágenes que no se
+publicaban en ninguna parte.
+
+#### HUÉRFANO CONOCIDO: las seis claves `dest_*_img`
+
+`dest_miami_img`, `dest_punta_cana_img`, `dest_orlando_img`, `dest_espana_img`,
+`dest_uruguay_img` y `dest_nueva_york_img` **siguen en `contenido_sitio`, con
+sus imágenes subidas**. Ya no las lee ni las escribe nadie.
+
+Se dejan a propósito: borrar filas de la base es otra decisión y no urge. Si
+alguien las ve y no encuentra quién las usa, la respuesta está acá.
+
+#### Verificación
+
+Ningún «el mundo» geográfico queda en el código. En el home, el hero dice
+«INVERSIÓN INMOBILIARIA · CHILE & PARAGUAY», el contador sigue en «2+ PAÍSES»,
+y no aparecen Miami, Punta Cana ni Uruguay. El panel «Inicio» del admin termina
+en «Sección Financiamiento» sin ningún contenedor vacío. Los chunks bajan:
+AdminPage 186,54 → 185,85 kB, index 243,77 → 243,29 kB.
