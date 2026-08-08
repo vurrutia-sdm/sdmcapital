@@ -51,12 +51,6 @@ const translationsRaw = {
         personas: 'Personas',
         empresas: 'Empresas',
       },
-      internacional: {
-        label: 'Inversión global',
-        title: 'Explora el mundo',
-        sub: 'Proyectos en los mercados más dinámicos del planeta.',
-        verTodos: 'Ver todos los destinos',
-      },
       testimonios: {
         label: 'Experiencias',
         title: 'Palabras de nuestros clientes',
@@ -156,12 +150,6 @@ const translationsRaw = {
         body: 'We manage consumer, mortgage and banking credit for individuals and companies in Chile and abroad. No upfront payments.',
         personas: 'Individuals',
         empresas: 'Companies',
-      },
-      internacional: {
-        label: 'Global investment',
-        title: 'Explore the world',
-        sub: 'Projects in the most dynamic markets on the planet.',
-        verTodos: 'View all destinations',
       },
       testimonios: {
         label: 'Experiences',

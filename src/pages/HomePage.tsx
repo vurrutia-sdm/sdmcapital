@@ -24,14 +24,6 @@ const SAMPLE_PROPS: Propiedad[] = [
   { id:'6', titulo:'Casa 3D 3B con piscina · Condominio Valle Grande', descripcion:'', tipo:'casa', estado:'en_venta', precio_uf:4273, a_consultar:false, dormitorios:3, banos:3, region:'R. Metropolitana', comuna:'Lampa', pais:'Chile', imagenes:[], destacada:false, internacional:false, created_at:'', updated_at:'' },
 ]
 
-const CITIES = [
-  { key: 'miami',      name: 'Miami',      country: 'Florida, Estados Unidos',         count: '3', bg: 'linear-gradient(160deg,#1a3d5c,#0a1f30)', span2: true  },
-  { key: 'punta_cana', name: 'Punta Cana', country: 'Rep. Dominicana',                 count: '5', bg: 'linear-gradient(160deg,#1a3528,#0a2018)', span2: false },
-  { key: 'orlando',    name: 'Orlando',    country: 'Florida, EE.UU.',                  count: '2', bg: 'linear-gradient(160deg,#1a2d40,#0a1a28)', span2: false },
-  { key: 'espana',     name: 'España',     country: 'Madrid · Barcelona',               count: '3', bg: 'linear-gradient(160deg,#2a1a2a,#180d18)', span2: false },
-  { key: 'uruguay',    name: 'Uruguay',    country: 'Montevideo · Punta del Este',      count: '8', bg: 'linear-gradient(160deg,#1a2810,#0d1a08)', span2: false },
-  { key: 'nueva_york', name: 'Nueva York', country: 'Estados Unidos',                  count: '—', bg: 'linear-gradient(160deg,#2a2010,#1a1208)', span2: false },
-]
 
 const TESTIMONIALS = [
   { num: '01', quote: '"SDM Capital hizo posible el sueño de mi familia de adquirir nuestra primera vivienda en Santiago. Asesoramiento personalizado y soluciones de financiamiento a medida."', sig: 'María Sánchez · Santiago, Chile' },
@@ -210,15 +202,6 @@ export default function HomePage() {
 
   const finImg = get('financiamiento_imagen', '')
 
-  // Imágenes de destinos internacionales
-  const cityImgs: Record<string, string> = {
-    miami:      get('dest_miami_img', ''),
-    punta_cana: get('dest_punta_cana_img', ''),
-    orlando:    get('dest_orlando_img', ''),
-    espana:     get('dest_espana_img', ''),
-    uruguay:    get('dest_uruguay_img', ''),
-    nueva_york: get('dest_nueva_york_img', ''),
-  }
 
   return (
     <div>

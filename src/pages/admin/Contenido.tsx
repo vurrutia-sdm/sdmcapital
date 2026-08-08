@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
-import { BarChart3, Briefcase, Check, GripVertical, Pause, X, Building, Camera, Eye, EyeOff, FileText, FolderTree, Globe, HeartHandshake, Home, Image, MapPin, MessageCircle, Smartphone, Users, Wallet } from 'lucide-react'
+import { BarChart3, Briefcase, Check, GripVertical, Pause, X, Building, Camera, Eye, EyeOff, FileText, FolderTree, HeartHandshake, Home, Image, MapPin, MessageCircle, Smartphone, Users, Wallet } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { usePointerSort } from '@/components/admin/useDragSort'
 import { avisarError } from '@/lib/errores'
@@ -313,8 +313,6 @@ export default function Contenido() {
     financiamiento_imagen: '', quienes_imagen_historia: '',
     servicio_inv_int_imagen: '', servicio_inv_cl_imagen: '',
     servicio_fin_per_imagen: '', servicio_fin_emp_imagen: '', servicio_banco_imagen: '',
-    dest_miami_img: '', dest_punta_cana_img: '', dest_orlando_img: '',
-    dest_espana_img: '', dest_uruguay_img: '', dest_nueva_york_img: '',
     asociados_intro: 'Trabajamos con una red selecta de socios estratégicos que nos permiten ofrecer a nuestros clientes el mejor servicio integral en cada etapa del proceso inmobiliario y financiero.',
     asociados_cta: 'Si tu empresa comparte nuestros valores de excelencia y transparencia, nos encantaría explorar una colaboración estratégica.',
     blog_titulo: 'Blog SDM Capital',
@@ -456,15 +454,6 @@ export default function Contenido() {
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>
           <Full><Field label="Descripción"><Txa value={d.financiamiento_body} onChange={set('financiamiento_body')} rows={3} /></Field></Full>
           <Full><FieldGroup label="Foto de apoyo"><ImageUploader currentUrl={d.financiamiento_imagen} folder="paginas" onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} /></FieldGroup></Full>
-        </Sec>
-        <Sec title={<><Globe size={18} strokeWidth={1.75} />Fotos de destinos internacionales</>}>
-          {[
-            { key: 'dest_miami_img', label: 'Miami' }, { key: 'dest_punta_cana_img', label: 'Punta Cana' },
-            { key: 'dest_orlando_img', label: 'Orlando' }, { key: 'dest_espana_img', label: '🇪🇸 España' },
-            { key: 'dest_uruguay_img', label: '🇺🇾 Uruguay' }, { key: 'dest_nueva_york_img', label: 'Nueva York' },
-          ].map(({ key, label }) => (
-            <Full key={key}><FieldGroup label={label}><ImageUploader currentUrl={(d as Record<string,string>)[key] || ''} folder="destinos" onUploaded={url => setD(p => ({ ...p, [key]: url }))} /></FieldGroup></Full>
-          ))}
         </Sec>
       </>}
 
