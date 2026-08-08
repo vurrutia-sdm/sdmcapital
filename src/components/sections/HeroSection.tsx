@@ -7,6 +7,12 @@ function useCounter(target: number, duration = 1800, active = false) {
   const [count, setCount] = useState(0)
   useEffect(() => {
     if (!active) return
+    // Con «reduce», el número aparece directo. Contar de 0 a 120 es movimiento
+    // igual que rotar una foto, y acá además el dato tarda 1,8s en ser legible.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setCount(target)
+      return
+    }
     let start = 0
     const step = target / (duration / 16)
     const timer = setInterval(() => {

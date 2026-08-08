@@ -220,6 +220,9 @@ export default function ElBarrancoShowcase() {
 
   const startCarousel = () => {
     if (interval.current) clearInterval(interval.current)
+    // Con «reduce» el slider no arranca. Sigue sin control de pausa: eso es
+    // 2.2.2 y va en su propia tanda.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     interval.current = setInterval(() => setSlide(s => (s + 1) % heroSlides.length), 5500)
   }
   useEffect(() => {

@@ -156,6 +156,34 @@
     overflow-x: clip;
   }
 
+  /* ─── prefers-reduced-motion ─────────────────────────────────────────────
+     «reduce» no es «sin animación»: es «no me muevas cosas sin que lo pida».
+     Las transiciones no se ELIMINAN, se acortan a un instante — y esa
+     diferencia importa. Con `transition: none` un cambio de estado a mitad de
+     camino puede quedarse trabado; con una duración mínima siempre llega a su
+     valor final, solo que sin recorrido visible.
+
+     Lo mismo con las animaciones: `iteration-count: 1` más una duración mínima
+     las lleva a su fotograma final en vez de cortarlas donde estén. Se
+     comprobó que ninguna del proyecto TERMINA ocultando algo —la única,
+     `admin-loading-in`, va de opacity 0 a 1—, así que saltar al final nunca
+     deja contenido invisible.
+
+     `scroll-behavior: auto` quita el desplazamiento suave del `html`, que es
+     movimiento automático de pantalla completa.
+
+     El alcance real: 1 @keyframes, 7 transiciones en este archivo, 64 en
+     estilos inline y 18 clases de Tailwind. Por eso la regla es global y no
+     una lista. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   ::selection {
     background: var(--sky-light);
     color: var(--navy-dark);
