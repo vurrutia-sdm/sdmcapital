@@ -242,6 +242,12 @@ function UnidadesEditor({ items, onChanged }: { items: UnidadPropiedad[]; onChan
   )
 }
 
+// Máximo de fotos por propiedad. Es deliberado y estaba escrito cuatro veces a
+// mano en este archivo; acá vive una sola vez. No hay otro tope en el camino:
+// `subirImagen.ts` y `functions/api/subir.js` limitan el LADO de la imagen
+// (1920 px), no cuántas se suben.
+const MAX_FOTOS = 20
+
 // ─── PROP IMAGE MANAGER ───────────────────────────────────────────────────────
 function PropImageManager({
   imagenes, imagenPrincipal, onChange,
@@ -274,9 +280,31 @@ function PropImageManager({
     })
 
 const upload = async (files: FileList) => {
+    // El navegador no puede evitar que se seleccionen de más: <input type="file">
+    // tiene `multiple` y `accept`, pero HTML no define ningún atributo de cantidad
+    // máxima. Así que se avisa acá, ANTES de subir, y con el conteo real.
+    //
+    // Antes esto hacía `.slice(0, 20 - imagenes.length)` a secas: si elegías 25
+    // con 0 cargadas, cinco se descartaban en silencio y quedabas creyendo que
+    // habías subido 25.
+    const cupo = MAX_FOTOS - imagenes.length
+    const elegidas = Array.from(files)
+
+    if (cupo <= 0) {
+      alert(`Esta propiedad ya tiene las ${MAX_FOTOS} fotos. Elimina alguna antes de subir más.`)
+      return
+    }
+    if (elegidas.length > cupo) {
+      alert(
+        `Seleccionaste ${elegidas.length} fotos y ${cupo === 1 ? 'queda 1 cupo' : `quedan ${cupo} cupos`}. ` +
+        `${cupo === 1 ? 'Se subirá la primera' : `Se subirán las primeras ${cupo}`}. ` +
+        `El máximo es ${MAX_FOTOS} por propiedad.`
+      )
+    }
+
     setUploading(true)
     const newUrls: string[] = []
-    const list = Array.from(files).slice(0, 20 - imagenes.length)
+    const list = elegidas.slice(0, cupo)
     for (let idx = 0; idx < list.length; idx++) {
       const file = list[idx]
       setProgress(`Subiendo ${idx + 1}/${list.length}…`)
@@ -367,15 +395,22 @@ const upload = async (files: FileList) => {
           ))}
         </div>
       )}
-      {imagenes.length < 20 && (
+      {/* Con el cupo lleno el botón desaparecía y no quedaba dicho por qué.
+          Ahora en su lugar va el motivo. */}
+      {imagenes.length >= MAX_FOTOS && (
+        <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
+          Esta propiedad ya tiene las {MAX_FOTOS} fotos. Elimina alguna antes de subir más.
+        </p>
+      )}
+      {imagenes.length < MAX_FOTOS && (
         <label className="text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: uploading ? 'var(--muted)' : 'var(--navy-dark)', color: '#fff', padding: '9px 20px', borderRadius: 2, cursor: uploading ? 'not-allowed' : 'pointer', fontWeight: 600, textTransform: 'uppercase' }}>
-          {uploading ? (progress || 'Procesando…') : `+ Agregar fotos (${imagenes.length}/20)`}
+          {uploading ? (progress || 'Procesando…') : `+ Agregar fotos (${imagenes.length}/${MAX_FOTOS})`}
           <input type="file" accept="image/*" multiple style={{ display: 'none' }} disabled={uploading}
             onChange={e => { if (e.target.files?.length) upload(e.target.files) }} />
         </label>
       )}
       <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8, lineHeight: 1.6 }}>
-        Arrastra para reordenar · <Star size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para elegir la imagen principal (borde verde) · <X size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para eliminar
+        Máximo {MAX_FOTOS} fotos · Arrastra para reordenar · <Star size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para elegir la imagen principal (borde verde) · <X size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> para eliminar
       </p>
     </div>
   )
@@ -704,7 +739,7 @@ export default function Propiedades() {
           </div>
 
           <div className="mb-6">
-            <Field label="Galería de imágenes (hasta 20 fotos)">
+            <Field label={`Galería de imágenes (hasta ${MAX_FOTOS} fotos)`}>
               <PropImageManager
                 imagenes={editing.imagenes || []}
                 imagenPrincipal={editing.imagen_principal || ''}
