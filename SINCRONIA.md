@@ -105,6 +105,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | UX copy — tanda 1 | Errores, confirmaciones de borrado y confirmación de guardado. **Tocó `src/lib/errores.ts`, que es ZONA COMPARTIDA** — solo el texto de la alerta; la firma y el log a consola quedan igual | Cerrada — commits `a1c53a9`, `8187a81`, `4cdcbd2` y `4ad82a8` |
 | 2026-08-07 | UX copy — tanda 2 | Estados vacíos, consistencia de botones, tuteo, últimos emojis. **Tocó `src/types/index.ts`, que es ZONA COMPARTIDA** — borró `agente_id`, un campo cuya columna nunca existió | Cerrada — commits `153765c`, `55ac084`, `edf05b6`, `e9ed05e` y `36a093e` |
 | 2026-08-07 | UX copy — tanda 3 | Las listas que se recortaban en silencio, más dos pendientes de la tanda 2 | Cerrada — commits `490fa33`, `59c5feb` y `b2df33d` |
+| 2026-08-07 | UX copy — subida de fotos | La subida descartaba archivos en silencio. Solo `src/pages/admin/Propiedades.tsx` | Cerrada — commit `0d95c6d` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -1784,6 +1785,62 @@ Verificadas borrándolas del CSSOM en vivo y comparando el estilo computado:
 Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
+
+### SI EL CÓDIGO DESCARTA ALGO QUE EL USUARIO PIDIÓ, TIENE QUE DECIRLO — 2026-08-07
+
+Commit `0d95c6d`. Generaliza el criterio de la entrada de abajo, que hablaba de
+listas que se recortan al mostrarse. Esto es un grado peor:
+
+> **Recortar al mostrar** = no ves algo.
+> **Descartar al ejecutar** = crees que hiciste algo que no ocurrió.
+
+`Propiedades.tsx` hacía `Array.from(files).slice(0, 20 - imagenes.length)` a
+secas. Elegías 25 fotos con 0 cargadas, subían 20, y nada lo decía: quedabas
+convencido de que la propiedad tenía 25.
+
+**El comportamiento no cambió** —suben las que caben, se descarta el resto— y el
+límite de 20 sigue siendo deliberado. Lo único que cambió es que ahora se avisa,
+**antes** de subir y con el conteo real.
+
+#### El navegador no puede impedirlo
+
+Se verificó antes de escribir el aviso: `<input type="file">` tiene `multiple` y
+`accept`, pero **HTML no define ningún atributo de cantidad máxima**. No hay
+forma de que el selector del sistema operativo limite cuántos archivos se
+eligen. Avisar después de elegir es la única vía.
+
+#### Por qué `alert()` y no la píldora
+
+No había mecanismo para avisos informativos: la píldora «Guardado correctamente»
+es de éxito y `avisarError` es de fallo. Se usó `alert()` a propósito:
+
+- El mensaje **tiene que interrumpir**. Aparece justo antes de una operación
+  lenta que va a hacer algo distinto de lo que el usuario pidió.
+- Un aviso no bloqueante se lo comería la barra de progreso de la subida, que
+  arranca inmediatamente después.
+- `alert()` ya es el mecanismo del panel para detener y hacer leer —lo usa
+  `avisarError`—, así que no introduce una forma nueva.
+
+**Si algún día hace falta un aviso informativo que no interrumpa, ahí sí
+corresponde un componente nuevo.** Este caso no era ese.
+
+#### El botón desaparecía sin explicar por qué
+
+Con 20 fotos cargadas, el botón de agregar simplemente no se renderizaba
+(`{imagenes.length < 20 && …}`). Otro silencio: no había forma de saber si
+faltaba un permiso, si estaba roto, o si era el tope. Ahora en su lugar va el
+motivo.
+
+#### El 20 estaba escrito cuatro veces
+
+Literal, a mano, en las líneas 279, 370, 372 y 707 del mismo archivo. Ahora es
+`MAX_FOTOS` y vive una vez. **No hay otro tope de cantidad en el camino**:
+`subirImagen.ts` y `functions/api/subir.js` limitan el **lado** de la imagen
+(1920 px), no cuántas se suben. Tampoco hay uno en la base.
+
+#### Costo
+
+`AdminPage.js` **+0,20 kB gzip**. Medido worktree contra worktree.
 
 ### UNA LISTA QUE SE RECORTA TIENE QUE DECIRLO — 2026-08-07
 
