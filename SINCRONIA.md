@@ -126,6 +126,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 4: estructura, idioma y modales | Un `h1` por página en las 19 rutas, `sanitizarContenido()` en **`src/lib/`**, `lang` en el showcase y `useDialogoModal` en **`src/hooks/`** para los CINCO modales | Cerrada — commits `1955063`, `06aca14` y `19bc3c2` |
 | 2026-08-08 | Accesibilidad — tanda 5: tamaño táctil y movimiento | `.area-44` en **`globals.css`, ZONA COMPARTIDA** para 13 objetivos, botón de pausa en los dos carruseles de la home y `prefers-reduced-motion` en todo el sitio | Cerrada — commits `e1e201e`, `cb73a07` y `da5b0ef` |
 | 2026-08-08 | Accesibilidad — tanda 6: cierre de tamaño táctil y del último carrusel | Los 6 puntos que fallaban 2.5.8 pasan a 18px de separación; el resto cumple por excepción. El slider de El Barranco recibe pausa bilingüe | Cerrada — commits `c0250e9` y `91ba9b1` |
+| 2026-08-08 | Accesibilidad — tanda 6: los menores | 70 iconos decorativos ocultos, estado en los 3 controles de dos estados, `.sr-only` nueva en **`globals.css`** y los 13 tokens tipográficos a `rem` en **`globals.css` y `tailwind.config.js`, ZONA COMPARTIDA**. **El reordenamiento por teclado NO se hizo** | Cerrada — commits `b306c5a`, `49fef29`, `ea2ea11` y `248e418` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -4928,3 +4929,131 @@ criterio— y con 20 queda en 26, el mismo margen que en la home.
 | contadores del hero | 1,8s una vez | no aplica (<5s), y con `reduce` no animan |
 
 **No queda movimiento automático sin forma de detenerlo.**
+
+---
+
+### Accesibilidad — tanda 6: los menores — 2026-08-08
+
+## Los tokens en px ignoraban la preferencia de tamaño de fuente
+
+> Un tamaño en `px` no responde al ajuste de tamaño de letra del navegador, que
+> es lo que usa mucha gente con baja visión. Subirla a 20px no hacía nada.
+
+Los 13 tokens pasan a `rem` sobre base 16 — **en los dos sitios a la vez**,
+`globals.css` y `tailwind.config.js`. Si solo se tocaran las custom properties,
+`text-sdm-sm` seguiría en px mientras `var(--sdm-text-sm)` escalaría, y la misma
+escala se comportaría distinto según cómo se escriba.
+
+Las dos verificaciones previas, antes de aplicar:
+
+- **El `<html>` no fija `font-size`**, así que la base es 16 y el cálculo vale:
+  11px = 0.6875rem, 15px = 0.9375rem, 72px = 4.5rem.
+- **Nadie hace aritmética con esos valores**: ni `parseInt`, ni `calc()`, ni
+  alturas derivadas. Solo se usan como `fontSize`.
+
+Medido con la fuente del navegador en 20px, en cuatro rutas:
+
+| fuente | base | texto medio | ancho | recortes |
+|---|---|---|---|---|
+| 16px | 16px | 15–17px | 500/500 ✓ | 0 ✓ |
+| 20px | 20px | 19–21px | 500/500 ✓ | 0 ✓ |
+
+Ni desbordes ni cajas con texto cortado, así que no hizo falta detenerse. Con la
+fuente por defecto: **0 píxeles de diferencia** — 0.9375rem sobre base 16 son
+exactamente los 15px de antes.
+
+`CotizacionPDF` y `tarjeta.css` no se tocaron, y no hacía falta excluirlos: **no
+referencian los tokens ni una vez**.
+
+## Un icono junto a un texto se anuncia además del texto
+
+70 iconos de lucide dentro de botones que ya tienen texto pasan a
+`aria-hidden="true"`: sin eso el lector dice «Imprimir / Guardar PDF, imagen».
+
+> Aplicado con AST y **solo donde el botón tiene texto propio**. Si el icono
+> fuera el único contenido, ocultarlo dejaría al botón sin nombre.
+
+Sobre los botones de solo icono: **no había ninguno sin nombre accesible**.
+Verificado sobre el árbol de accesibilidad, no leyendo el código: **179 botones
+en `/admin`, 0 sin nombre**.
+
+## `.sr-only` no existía
+
+Se crea en `globals.css` con el patrón estándar: caja de 1px recortada y fuera
+del flujo.
+
+> **Ni `display: none` ni `visibility: hidden`.** Esos ocultan también al lector,
+> que es exactamente lo contrario de lo que hace falta. Verificado: la caja mide
+> ≤1×1 y su texto sigue en el árbol de accesibilidad.
+
+La usa la celda de país de `Propiedades`, donde la bandera era el único
+contenido: ahora el emoji va `aria-hidden` y al lado va «Chile» o
+«Internacional».
+
+## Estado programático: eran tres controles, no uno
+
+| Control | Qué faltaba |
+|---|---|
+| Activa/Pausada de propiedades | `aria-pressed`. Ya tenía texto además del color |
+| interruptor del banner | **todo**: sin texto dentro, el lector decía «botón» |
+| interruptor de cada servicio | ídem |
+
+Los dos interruptores llevan `role="switch"` con `aria-checked`, **no
+`aria-pressed`**: son encendido/apagado, no un botón que queda hundido. Y
+`aria-label`, porque su rótulo vive en un `<span>` hermano que no los nombra.
+
+---
+
+## AUDITORÍA DE ACCESIBILIDAD — CIERRE
+
+Seis tandas. Lo que se corrigió, por criterio:
+
+| Criterio | Qué |
+|---|---|
+| 1.1.1 | la bandera deja de ser el único contenido |
+| 1.3.1 · 2.4.6 | 190 campos asociados a su etiqueta · un `h1` por página en las 19 rutas |
+| 1.4.1 · 1.4.3 · 1.4.11 | contraste de paleta, insignias y el anillo de foco |
+| 2.1.1 · 2.1.2 | menús del header, 8 divs a `<button>`, 5 modales con foco atrapado |
+| 2.2.2 | los tres carruseles con control de pausa |
+| 2.4.3 · 2.4.7 | orden de foco en los modales · anillo visible en todo control |
+| 2.5.8 | tamaño táctil, con la regla de separación |
+| 3.1.1 · 3.1.2 | idioma declarado donde el contenido cambia |
+| 4.1.2 | nombre y estado en botones, interruptores y grupos |
+
+### LO QUE QUEDÓ FUERA, Y POR QUÉ
+
+**1. El reordenamiento por teclado — NO SE HIZO.** `usePointerSort` usa Pointer
+Events: propiedades, equipo, asociados, fotos del hero, destacadas, dossiers,
+imágenes de propiedad, unidades y el sidebar solo se reordenan con ratón o dedo.
+`TarjetasEquipo` es el único con botones ▲▼.
+
+> Son **diez** puntos de uso del hook, no seis, y cada uno tiene su propio
+> manejador de reordenamiento —unos escriben en Supabase, otros en estado local,
+> el sidebar en `localStorage`—. Hacerlo bien es un componente compartido, diez
+> integraciones y el manejo del foco tras mover en cada una.
+>
+> **Se dejó entero a propósito.** Media función de teclado —que anda en tres
+> paneles y en siete no— es peor que ninguna: el usuario no puede saber dónde
+> funciona. Va en su propia tanda.
+
+**2. `Captacion.tsx`** — dominio de la sesión Sofía. Conserva 5 campos sin
+etiqueta, 5 `outline: none` y un `<div>` clicable.
+
+**3. Los rótulos en mayúsculas** — excepción consciente, no pendiente. Ver la
+tanda 2: el texto ya está en minúsculas y Chrome aplica el `text-transform` al
+calcular el nombre accesible. Quitarlo cambiaría el aspecto de todos los
+formularios.
+
+**4. Lo que no se puede medir sin un lector de pantalla real.** Todo lo de acá
+se verificó contra el **árbol de accesibilidad de Chrome**, que es lo que un
+lector consume, pero no es lo mismo que oírlo:
+
+- Si el orden en que se anuncian las cosas **se entiende** al escucharlo.
+- Si los nombres son claros dichos en voz alta y sin ver la pantalla.
+- Cómo se comporta el foco atrapado con los gestos de VoiceOver o NVDA, que no
+  usan Tab.
+- Si un rótulo en mayúsculas se deletrea, y en qué lectores.
+- Si las tablas del admin se recorren bien en modo tabla.
+
+Eso pide una sesión con VoiceOver o NVDA y, sobre todo, con alguien que los use
+a diario. **Lo automatizable está hecho; lo que falta no es automatizable.**
