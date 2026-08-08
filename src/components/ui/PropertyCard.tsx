@@ -98,7 +98,7 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
                   }}
                 />
               ) : (
-                <span className="font-serif italic text-sdm-sm" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                <span className="font-serif italic text-sdm-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
                   {propiedad.tipo} · {propiedad.comuna}
                 </span>
               )}

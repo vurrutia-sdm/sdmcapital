@@ -170,7 +170,7 @@ export default function AdminPage() {
     }
   }, [menuAbierto])
 
-  if (checking) return <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--navy-dark)' }}><div className="font-serif italic text-sdm-xl" style={{ color: 'rgba(255,255,255,0.4)' }}>Verificando sesión…</div></div>
+  if (checking) return <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--navy-dark)' }}><div className="font-serif italic text-sdm-xl" style={{ color: 'rgba(255,255,255,0.7)' }}>Verificando sesión…</div></div>
   if (!authed)  return <LoginForm />
 
   return (

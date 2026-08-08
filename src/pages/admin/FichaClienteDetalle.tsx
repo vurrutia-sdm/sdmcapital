@@ -124,7 +124,7 @@ export default function FichaClienteDetalle() {
 
   if (checking) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d2240' }}>
-      <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>Verificando sesión…</span>
+      <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>Verificando sesión…</span>
     </div>
   )
   if (!authed) return (
