@@ -5145,3 +5145,152 @@ Ningún «el mundo» geográfico queda en el código. En el home, el hero dice
 y no aparecen Miami, Punta Cana ni Uruguay. El panel «Inicio» del admin termina
 en «Sección Financiamiento» sin ningún contenedor vacío. Los chunks bajan:
 AdminPage 186,54 → 185,85 kB, index 243,77 → 243,29 kB.
+
+---
+
+## El flash del hero: siembra del contenido en index.html
+
+**Sesión de accesibilidad — dominio `HeroSection.tsx`, `src/hooks/`, `scripts/`.**
+
+### El problema
+
+Los textos del hero viven en `contenido_sitio` y `useContenido` los consulta
+recién después de que React monta. Hasta que llega la respuesta se pintan los
+defaults escritos en el código, así que el visitante leía «Tu socio» y a los
+~600ms el texto saltaba a «Tu socio confiable».
+
+Medido antes del arreglo (localhost, mediana de 5 corridas):
+
+| | |
+|---|---|
+| Primer texto pintado | 142 ms |
+| El texto cambia | 807 ms |
+| **Flash visible** | **249 ms** (mediana) |
+| **LCP** | **408 ms** — el div del fondo del hero, 1440×749 |
+
+Los defaults además se habían desincronizado: decían «Tu socio», «en Chile **y
+el extranjero**» y «**10** países» mucho después de que la operación quedara en
+Chile y Paraguay. Eso se pintaba en cada carga.
+
+### El mecanismo
+
+`scripts/sync-contenido-seed.mjs` corre en el `prebuild`, consulta las 18 claves
+del hero y las deja escritas en `index.html` entre las marcas
+`CONTENIDO_SEED:inicio` / `:fin`, dentro de un
+`<script type="application/json" id="sdm-contenido-seed">`. `useContenido` lo lee
+al importarse y arranca con esos valores en vez de con `{}`.
+
+**La consulta se hace igual**: lo que vuelve pisa la semilla. La semilla es solo
+el arranque.
+
+Mismo patrón que `sync-hero-preload.mjs`, que ya hacía esto con la URL de la
+foto. Los dos comparten `scripts/lib/entorno.mjs` — antes cada uno tenía su
+copia de `leerEnv()`.
+
+### Resultado
+
+| | Antes | Después |
+|---|---|---|
+| Flash | 249 ms | **0 ms** |
+| LCP | 408 ms | **164 ms** |
+| Contador de países | 0→1→2→**3**, vuelve a **0**, sube a 2 | 0→1→2, monótono |
+
+El LCP mejoró en vez de empeorar, y por una razón concreta: el elemento del LCP
+es el div del fondo del hero, y su `background-image` **colgaba de la consulta**.
+El `<link rel="preload">` calentaba los bytes pero el pintado seguía esperando a
+que React supiera la URL. Con la semilla, la URL está en el primer render.
+
+### EL COMPROMISO: la semilla envejece
+
+**La semilla es de la hora del build.** Si Víctor edita un texto del hero desde
+el admin y no hay deploy, el primer pintado muestra lo anterior y la consulta en
+vivo lo corrige — o sea, vuelve el flash.
+
+Es un efecto **nuevo**, y hay que saberlo: hoy el flash era constante; ahora es
+intermitente, solo entre una edición del hero y el siguiente deploy. Cualquier
+deploy lo resincroniza. El cambio es a mejor, pero deja de ser un
+comportamiento estable y pasa a depender de cuándo fue el último build.
+
+### El contador
+
+`useCounter` anima de 0 al objetivo, y su efecto depende de `target`. Si arranca
+antes de que llegue la base, anima hacia el default y a mitad de camino el
+objetivo cambia: el intervalo se rehace con `start = 0` y **el número vuelve a
+cero a la vista**. Medido en países (default 10, base 2): 0→1→2→3 a los 657ms,
+de vuelta a 0 a los 807ms, y recién el 2 final a los 2390ms.
+
+Ahora `AnimatedStat` recibe `habilitado` y no arranca hasta que el número es
+definitivo — `listo` de `useContenido`, que es true desde el primer render si
+hay semilla, o cuando contesta la consulta si no la hay.
+
+Con un plazo de 2,5s como red de seguridad: si la consulta se cuelga sin
+resolver ni fallar, `listo` no llegaría nunca y los tres números se quedarían en
+0 para siempre. Verificado colgando la consulta con la semilla vacía: los
+contadores quedan en 0 hasta los 2,5s y después animan a 120 / 15 / 2.
+
+### Lo que NO rompe el build
+
+`sync-contenido-seed.mjs` sale con 0 pase lo que pase. Verificado en cinco
+modos: 500 de Supabase, respuesta que no es un arreglo, host caído, sin
+credenciales, y `npm run build` entero con `VITE_SUPABASE_URL` apuntando a un
+puerto muerto. En los cinco `index.html` queda **sin tocar**.
+
+Al fallar se deja la semilla anterior en vez de vaciarla: una semilla de ayer
+sigue siendo mejor que ninguna, y ninguna es exactamente el comportamiento de
+antes de que este script existiera.
+
+### El escapado
+
+El contenido de `contenido_sitio` lo escribe Víctor desde el admin: desde el
+script es **entrada no confiable**. Un `</script>` en cualquier texto cerraría el
+bloque y lo que siguiera se parsearía como HTML.
+
+Dentro de un `<script>` el parser de HTML trata todo como texto crudo y **no
+decodifica entidades**, así que `&` y `"` viajan tal cual y escaparlos los
+rompería — llegarían como `&amp;` literal. Lo único que termina el bloque
+empieza por `<`, así que se escapan todos los `<` como `\u003c`, que dentro de
+JSON es el mismo carácter. Encima el bloque va con `type="application/json"`:
+el navegador no lo ejecuta jamás.
+
+Verificado con un Supabase falso que devuelve
+`Cierra </script><img src=x onerror="alert(1)"> y sigue`, comillas dobles y
+simples, `&`, `&amp;`, `<!-- -->`, saltos de línea, tabs, emoji y U+2028. El
+round-trip es exacto, en el DOM hay **0** `<img src=x>`, **0** scripts sin tipo,
+ningún diálogo se abrió, y el `h1` renderiza el texto como texto.
+
+> No se pudo probar escribiendo en la base real: la clave anon **no tiene
+> permiso de escritura** sobre `contenido_sitio`, que es lo correcto. Por eso el
+> servidor falso.
+
+### ALCANCE: solo el hero
+
+Se sembraron **18 claves, 807 bytes** (361 gzip). `contenido_sitio` tiene **148
+claves, 11 kB** (4 kB gzip) — sembrarla entera cabría de sobra.
+
+**Los otros 15 componentes que usan `useContenido` siguen con el patrón viejo** y
+tienen el mismo flash dondequiera que un default difiera de la base: `RentalPage`
+(29 claves), `VendeConNosotrosPage` (15), `HomePage` (11), `BannerPromo` (7),
+`ServiciosPage`, `QuienesSomosPage`, `PropiedadesPage`, `PropiedadDetailPage`,
+`BlogPostPage`, `ContactSection`, `Footer`, `FloatingButtons`.
+
+Se resuelven ampliando `CLAVES` en el script o sembrando la tabla entera. Se
+dejó fuera a propósito para medir el hero primero.
+
+### `hero_kicker` ya no pinta nada
+
+El kicker del hero es **texto fijo en el JSX** desde la limpieza de «Chile y
+Paraguay»: necesita el salto de línea en un punto exacto. La clave `hero_kicker`
+sigue en la base y editable desde el admin, pero no se renderiza — se leía en un
+`const` que nadie usaba, y ese `const` se borró.
+
+En la base la clave tiene `"Inversión inmobiliaria · Chile "`, con espacio al
+final y sin Paraguay. No importa mientras nadie la reconecte; si alguien lo
+hace, tiene que ir también a `CLAVES` en `sync-contenido-seed.mjs`.
+
+### Efecto en el repositorio
+
+`index.html` **se modifica en cada build** si cambió alguna clave del hero, igual
+que ya pasaba con el preload. Es intencional: así lo que se sembró queda
+commiteado y revisable en el historial. Al deployar, `npm run build` regenera la
+semilla antes de `wrangler pages deploy`, así que lo que sube siempre está al día
+con la base en ese momento.
