@@ -3,6 +3,14 @@ import { Pause, Play } from 'lucide-react'
 import { useContenido } from '@/hooks/useContenido'
 
 // ─── Contador animado ─────────────────────────────────────────────────────────
+//
+// `active` tiene que significar dos cosas a la vez: que el contador entró en
+// pantalla Y que `target` ya es el número definitivo. Si arranca antes de que
+// llegue `contenido_sitio`, anima hacia el default y a mitad de camino el
+// objetivo cambia — y como el efecto depende de `target`, el intervalo se rehace
+// con `start = 0` y el número vuelve a cero a la vista. Medido en países, que
+// tenía 10 de default y 2 en la base: 0→1→2→3 a los 657ms, de vuelta a 0 a los
+// 807ms cuando contestó la consulta, y recién a los 2390ms el 2 final.
 function useCounter(target: number, duration = 1800, active = false) {
   const [count, setCount] = useState(0)
   useEffect(() => {
@@ -25,10 +33,12 @@ function useCounter(target: number, duration = 1800, active = false) {
   return count
 }
 
-function AnimatedStat({ n, unit, label }: { n: number; unit: string; label: string }) {
+function AnimatedStat({ n, unit, label, habilitado }: { n: number; unit: string; label: string; habilitado: boolean }) {
   const [active, setActive] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const count = useCounter(n, 1600, active)
+  // Dos condiciones, y las dos hacen falta: `active` es «entró en pantalla» y
+  // `habilitado` es «el número ya es el definitivo». Ver la nota de arriba.
+  const count = useCounter(n, 1600, active && habilitado)
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setActive(true) },
@@ -175,17 +185,33 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
 
 // ─── Hero principal ───────────────────────────────────────────────────────────
 export default function HeroSection() {
-  const { get } = useContenido()
+  const { get, listo } = useContenido()
 
-  const kicker    = get('hero_kicker',     'Inversión inmobiliaria · Chile & Paraguay')
-  const titulo1   = get('hero_titulo_1',   'Tu socio')
+  // Los defaults son lo que se ve mientras no haya semilla ni respuesta. Tienen
+  // que decir la verdad: hasta hoy quedaron «Tu socio», «Chile y el extranjero»
+  // y «10 países» de una época anterior, y eso se pintaba en cada carga. No
+  // están para calzar con la base — para eso está la semilla de index.html —
+  // sino para no mentir cuando la base no está.
+  const titulo1   = get('hero_titulo_1',   'Tu socio confiable')
   const titulo2   = get('hero_titulo_2',   'en bienes')
   const titulo3   = get('hero_titulo_3',   'raíces')
-  const subtitulo = get('hero_subtitulo',  'Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y el extranjero. Financiamiento sin pagos adelantados.')
+  const subtitulo = get('hero_subtitulo',  'Más de 15 años conectando personas con oportunidades inmobiliarias.')
   const location  = get('hero_location',   'Las Condes · Santiago · Chile')
   const statProp  = Number(get('stats_propiedades', '120'))
   const statAnios = Number(get('stats_anios',        '15'))
-  const statPais  = Number(get('stats_paises',       '10'))
+  const statPais  = Number(get('stats_paises',        '2'))
+
+  // El contador no arranca hasta que el número es definitivo — ver useCounter.
+  // El plazo es la red de seguridad: si la consulta se cuelga sin resolver ni
+  // fallar, `listo` no llegaría nunca y los tres números se quedarían en 0. A
+  // los 2,5s se anima igual, hacia lo sembrado o hacia el default. Nunca cero.
+  const [plazoVencido, setPlazoVencido] = useState(false)
+  useEffect(() => {
+    if (listo) return
+    const t = setTimeout(() => setPlazoVencido(true), 2500)
+    return () => clearTimeout(t)
+  }, [listo])
+  const numeroDefinitivo = listo || plazoVencido
 
   // Fotos del carrusel — hero_imagen_url_1 hasta hero_imagen_url_5
   // También acepta el campo original hero_imagen_url como primera imagen
@@ -231,7 +257,12 @@ export default function HeroSection() {
       {/* Contenido encima de todo */}
       <div className="relative h-full flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-14" style={{ zIndex: 4 }}>
 
-        {/* Kicker */}
+        {/* Kicker — texto fijo, NO sale de `contenido_sitio`. Quedó así en la
+            limpieza de «Chile y Paraguay» porque necesita el salto de línea en
+            un punto exacto. La clave `hero_kicker` sigue existiendo en la base y
+            editable desde el admin, pero ya no pinta nada: hasta hace un momento
+            se leía en un `const` que nadie usaba. Si alguien la vuelve a
+            conectar, tiene que ir también a scripts/sync-contenido-seed.mjs. */}
         <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green)' }}>
           <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
           <span>
@@ -266,9 +297,9 @@ export default function HeroSection() {
         {/* Stats + location */}
         <div className="flex items-end justify-between flex-wrap gap-6">
           <div className="flex gap-12">
-            <AnimatedStat n={statProp}  unit="+" label="Propiedades" />
-            <AnimatedStat n={statAnios} unit="+" label="Años" />
-            <AnimatedStat n={statPais}  unit="+" label="Países" />
+            <AnimatedStat n={statProp}  unit="+" label="Propiedades" habilitado={numeroDefinitivo} />
+            <AnimatedStat n={statAnios} unit="+" label="Años"        habilitado={numeroDefinitivo} />
+            <AnimatedStat n={statPais}  unit="+" label="Países"      habilitado={numeroDefinitivo} />
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
