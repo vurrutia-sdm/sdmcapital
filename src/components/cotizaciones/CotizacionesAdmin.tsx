@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { PencilLine, Plus, Search } from 'lucide-react'
+import { Check, FileText, Loader2, Mail, Pencil, PencilLine, Plus, Search, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
@@ -304,7 +304,7 @@ function StepIndicator({ step }: { step: number }) {
                   color: active || done ? '#fff' : 'var(--muted)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, flexShrink: 0 }}
               >
-                {done ? '✓' : idx}
+                {done ? <Check size={14} strokeWidth={3} /> : idx}
               </div>
               <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase',
                 color: active ? 'var(--navy-dark)' : 'var(--muted)',
@@ -534,7 +534,7 @@ function CotizacionWizard({
                 )}
                 {draft.propiedad_id && (
                   <div className="text-sdm-sm" style={{ color: 'var(--green)', marginBottom: -8 }}>
-                    ✓ Propiedad vinculada al catálogo — puedes editar los datos del snapshot
+                    <Check size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-2px' }} /> Propiedad vinculada al catálogo — puedes editar los datos del snapshot
                   </div>
                 )}
 
@@ -1141,7 +1141,7 @@ export function CotizacionesAdmin() {
                   title="Editar"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: 'var(--navy-dark)', borderRadius: 2 }}
                 >
-                  ✏️
+                  <Pencil size={14} strokeWidth={2} />
                 </button>
 
                 {/* Descargar PDF */}
@@ -1151,7 +1151,7 @@ export function CotizacionesAdmin() {
                   disabled={pdfLoading === c.id}
                   style={{ background: 'none', border: 'none', cursor: pdfLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', color: pdfLoading === c.id ? 'var(--muted)' : 'var(--green)', borderRadius: 2 }}
                 >
-                  {pdfLoading === c.id ? '⏳' : '📄'}
+                  {pdfLoading === c.id ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <FileText size={14} strokeWidth={2} />}
                 </button>
 
                 {/* Gmail */}
@@ -1161,7 +1161,7 @@ export function CotizacionesAdmin() {
                   disabled={gmailLoading === c.id}
                   style={{ background: 'none', border: 'none', cursor: gmailLoading === c.id ? 'wait' : 'pointer', padding: '4px 6px', borderRadius: 2 }}
                 >
-                  {gmailLoading === c.id ? '⏳' : '📧'}
+                  {gmailLoading === c.id ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Mail size={14} strokeWidth={2} />}
                 </button>
 
                 {/* Eliminar */}
@@ -1171,7 +1171,7 @@ export function CotizacionesAdmin() {
                   disabled={deleting === c.id}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', color: '#E24B4A', borderRadius: 2, opacity: deleting === c.id ? 0.5 : 1 }}
                 >
-                  🗑
+                  <Trash2 size={14} strokeWidth={2} />
                 </button>
               </div>
             </div>

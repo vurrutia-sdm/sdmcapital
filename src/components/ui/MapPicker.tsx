@@ -1,3 +1,4 @@
+import { MapPin } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY
@@ -131,7 +132,7 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
         <div>
           <div ref={mapRef} style={{ width: '100%', height: 280, borderRadius: 2, overflow: 'hidden', background: '#f0f4f7', marginBottom: 8 }} />
           <p className="text-sdm-xs" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>
-            📌 Arrastra el pin verde o haz clic en el mapa para ajustar la ubicación exacta.
+            <MapPin size={13} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-2px' }} /> Arrastra el pin verde o haz clic en el mapa para ajustar la ubicación exacta.
           </p>
         </div>
       ) : (

@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus, Printer } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
@@ -123,7 +123,7 @@ function TarjetaForm({
               Cancelar
             </button>
             <button onClick={() => imprimirTarjeta(draft)} className="btn-primary">
-              🖨️ Imprimir / Guardar PDF
+              <Printer size={14} strokeWidth={2} /> Imprimir / Guardar PDF
             </button>
           </div>
         </div>
@@ -325,7 +325,7 @@ export function TarjetasEquipo() {
                   encima del texto. 44px de alto tactil y 24px entre botones. */}
               <div className="order-4 w-full flex items-center justify-end gap-6 mt-1 pt-2 border-t border-[#e8edf2] lg:order-none lg:w-auto lg:flex-col lg:items-end lg:gap-2 lg:mt-0 lg:pt-0 lg:border-t-0" style={{ flexShrink: 0 }}>
                 <button onClick={() => imprimirTarjeta(t)} className="btn-primary text-sdm-xs min-h-[44px] lg:min-h-0" style={{ padding: '8px 14px' }}>
-                  🖨️ Imprimir / PDF
+                  <Printer size={14} strokeWidth={2} /> Imprimir / PDF
                 </button>
                 <div className="flex items-center gap-6 lg:gap-3">
                   <button className="text-sdm-sm min-h-[44px] lg:min-h-0" onClick={() => openEdit(t)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>

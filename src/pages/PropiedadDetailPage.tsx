@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { MapPin, Home, Bath, Maximize2, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
+import { Bath, ChevronLeft, ChevronRight, FileText, Hammer, Home, Link2, MapPin, Maximize2, Package, ParkingSquare, Share2, X } from 'lucide-react'
 import DOMPurify from 'dompurify'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
@@ -141,7 +141,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
               background: '#6B7280',
               color: '#fff',
               flexShrink: 0 }}>
-              🔗
+              <Link2 size={14} strokeWidth={2} />
             </span>
             Copiar enlace
           </button>
@@ -407,9 +407,9 @@ export default function PropiedadDetailPage() {
                 prop.banos            ? { icon: <Bath size={22} style={{ color: 'var(--navy)' }} />,         val: prop.banos,                  label: 'Baños' }          : null,
                 prop.superficie_total ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)' }} />,   val: `${prop.superficie_total} m²`, label: 'Sup. total' }     : null,
                 p.superficie_util     ? { icon: <Maximize2 size={22} style={{ color: 'var(--navy)', opacity: 0.6 }} />, val: `${p.superficie_util} m²`, label: 'Sup. construida' } : null,
-                prop.estacionamientos ? { icon: <span className="text-sdm-xl">🅿</span>, val: prop.estacionamientos, label: 'Estacionam.' } : null,
-                p.bodegas             ? { icon: <span className="text-sdm-xl">📦</span>,                   val: p.bodegas as number,         label: 'Bodegas' }         : null,
-                prop.ano_construccion ? { icon: <span className="text-sdm-xl">🏗</span>,                   val: prop.ano_construccion,       label: 'Año const.' }      : null,
+                prop.estacionamientos ? { icon: <ParkingSquare size={22} style={{ color: 'var(--navy)' }} />, val: prop.estacionamientos, label: 'Estacionam.' } : null,
+                p.bodegas             ? { icon: <Package size={22} style={{ color: 'var(--navy)' }} />,                   val: p.bodegas as number,         label: 'Bodegas' }         : null,
+                prop.ano_construccion ? { icon: <Hammer size={22} style={{ color: 'var(--navy)' }} />,                   val: prop.ano_construccion,       label: 'Año const.' }      : null,
               ].filter(Boolean)
 
               if (specs.length === 0) return null
@@ -596,7 +596,7 @@ export default function PropiedadDetailPage() {
                         className="inline-flex items-center gap-3 px-4 py-3 rounded-sm text-sdm-base bg-[var(--sky-pale)] hover:bg-[#dbeaf5]"
                         style={{ border: '1px solid var(--sky)', textDecoration: 'none', color: 'var(--navy)', transition: 'background 0.15s' }}
                       >
-                        <span className="text-sdm-xl">📄</span>
+                        <FileText size={20} strokeWidth={2} style={{ color: 'var(--navy)', flexShrink: 0 }} />
                         <span style={{ flex: 1 }}>{dossierTitle(d)}</span>
                         <span className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Descargar ↗</span>
                       </a>
