@@ -166,44 +166,44 @@ export default function VendeConNosotrosPage() {
           ) : (
             <form onSubmit={submit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Nombre completo</label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Nombre completo</span>
                   <input required className="input-line" value={form.nombre} onChange={set('nombre')} placeholder="Tu nombre completo" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Email</label>
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Email</span>
                   <input required type="email" className="input-line" value={form.email} onChange={set('email')} placeholder="tu@email.com" />
-                </div>
+                </label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Teléfono</label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Teléfono</span>
                   <input type="tel" className="input-line" value={form.telefono} onChange={set('telefono')} placeholder="+56 9 ···" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Tipo de propiedad</label>
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Tipo de propiedad</span>
                   <select className="input-line" value={form.tipo_propiedad} onChange={set('tipo_propiedad')}>
                     {TIPOS_PROPIEDAD.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
-                </div>
+                </label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Comuna</label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Comuna</span>
                   <input className="input-line" value={form.comuna} onChange={set('comuna')} placeholder="Ej: Las Condes" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Precio estimado (UF)</label>
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Precio estimado (UF)</span>
                   <input type="number" min="0" className="input-line" value={form.precio_uf} onChange={set('precio_uf')} placeholder="Ej: 5000" />
-                </div>
+                </label>
               </div>
 
-              <div className="flex flex-col gap-2 mb-10">
-                <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Mensaje / comentarios</label>
+              <label className="flex flex-col gap-2 mb-10">
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Mensaje / comentarios</span>
                 <textarea className="input-line resize-none" rows={4} value={form.mensaje} onChange={set('mensaje')} placeholder="Cuéntanos más sobre tu propiedad…" />
-              </div>
+              </label>
 
               {status === 'error' && (
                 <p className="text-sdm-base" style={{ color: 'var(--error)', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
