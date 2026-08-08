@@ -384,7 +384,12 @@ export default function PropiedadDetailPage() {
                     UF {prop.precio_anterior_uf.toLocaleString('es-CL')} — precio anterior
                   </div>
                 )}
-                <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: prop.baja_precio ? '#E24B4A' : 'var(--navy-dark)' }}>
+                {/* Una rebaja es una oportunidad, no un error. Estaba en el rojo
+                    de error mientras la insignia de acá arriba ya decía «Precio
+                    rebajado» en verde: la misma tarjeta afirmaba dos cosas
+                    opuestas sobre el mismo hecho. La comparación ya la comunica
+                    el precio anterior tachado; el color no tiene que reforzarla. */}
+                <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: prop.baja_precio ? 'var(--oportunidad)' : 'var(--navy-dark)' }}>
                   {prop.a_consultar
                     ? 'A consultar'
                     : prop.precio_uf
