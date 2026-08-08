@@ -511,15 +511,19 @@ export default function ElBarrancoShowcase() {
                 { label: lang === 'es' ? 'Nombre completo'    : 'Full name',     key: 'name',  type: 'text' },
                 { label: lang === 'es' ? 'Correo electrónico' : 'Email address', key: 'email', type: 'email' },
               ].map(({ label, key, type }) => (
-                <div key={key} style={{ marginBottom: 24 }}>
-                  <label style={S.formLabel}>{label}</label>
+                <label key={key} style={{ display: 'block', marginBottom: 24 }}>
+                  {/* S.formLabel se queda en el <span>: lleva letterSpacing
+                      0.3em y textTransform uppercase, y S.formInput no fija
+                      ninguna de las dos. En el <label> se heredarían al texto
+                      que el visitante escribe. */}
+                  <span style={S.formLabel}>{label}</span>
                   <input type={type} required style={S.formInput} value={form[key as keyof typeof form]} onChange={e => setForm({ ...form, [key]: e.target.value })} />
-                </div>
+                </label>
               ))}
-              <div style={{ marginBottom: 32 }}>
-                <label style={S.formLabel}>{lang === 'es' ? 'Mensaje' : 'Message'}</label>
+              <label style={{ display: 'block', marginBottom: 32 }}>
+                <span style={S.formLabel}>{lang === 'es' ? 'Mensaje' : 'Message'}</span>
                 <textarea rows={4} style={S.formTextarea} value={form.message} placeholder={lang === 'es' ? 'Cuéntanos tu interés en esta propiedad...' : 'Tell us about your interest in this property...'} onChange={e => setForm({ ...form, message: e.target.value })} />
-              </div>
+              </label>
               <button type="submit" style={S.btnPrimary}>{lang === 'es' ? 'Enviar consulta' : 'Send Inquiry'}</button>
             </form>
           )}

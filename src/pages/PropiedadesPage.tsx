@@ -296,8 +296,8 @@ export default function PropiedadesPage() {
               { label: 'Región', key: 'region', opts: REGIONES },
               { label: 'Precio',   key: 'precio_max', opts: PRECIOS },
             ].map(f => (
-              <div key={f.key}>
-                <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>{f.label}</label>
+              <label key={f.key} style={{ display: 'block' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>{f.label}</span>
                 <select className="text-sdm-base" value={(filtros as Record<string,unknown>)[f.key] as string || ''}
                   onChange={e => {
                     const nuevos = new URLSearchParams(searchParams)
@@ -309,11 +309,11 @@ export default function PropiedadesPage() {
                   style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: 'var(--ink)', background: 'transparent', outline: 'none', cursor: 'pointer' }}>
                   {f.opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
-              </div>
+              </label>
             ))}
             {/* Comuna filter */}
-            <div>
-              <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Comuna</label>
+            <label style={{ display: 'block' }}>
+              <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Comuna</span>
               <select className="text-sdm-base"
                 value={filtros.comuna || ''}
                 onChange={e => {
@@ -330,7 +330,7 @@ export default function PropiedadesPage() {
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-            </div>
+            </label>
           </div>
         )}
 

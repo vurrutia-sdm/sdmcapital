@@ -113,10 +113,14 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
   return (
     <div>
       {/* Autocomplete input */}
-      <div style={{ marginBottom: 12 }}>
-        <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+      {/* El rótulo «Dirección» ya estaba, pero como <div>: visible y sin
+          asociar. El contenedor pasa a <label> y el rótulo a <span>, los dos
+          con display: block explícito — ninguno de los dos es flex y el
+          marginBottom no se comporta igual en inline. */}
+      <label style={{ display: 'block', marginBottom: 12 }}>
+        <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
           Dirección
-        </div>
+        </span>
         <input className="text-sdm-base"
           ref={inputRef}
           defaultValue={address}
@@ -125,7 +129,7 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
             padding: '8px 0', fontFamily: 'inherit',
             color: 'var(--ink)', background: 'transparent', outline: 'none' }}
         />
-      </div>
+      </label>
 
       {/* Map */}
       {showMap ? (
