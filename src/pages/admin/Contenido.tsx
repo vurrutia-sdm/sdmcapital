@@ -124,7 +124,7 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
                   <div {...manijaProps} style={{ ...manijaProps.style, position: 'absolute', top: 6, right: 28, background: 'rgba(0,0,0,0.5)', borderRadius: 3, padding: '2px 4px' }}>
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="white" opacity="0.8"><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
                   </div>
-                  <button className="text-sdm-sm" onClick={() => remove(i)} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.85)', border: 'none', borderRadius: 3, color: '#fff', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}><X size={14} strokeWidth={2} /></button>
+                  <button className="text-sdm-sm" onClick={() => remove(i)} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.85)', border: 'none', borderRadius: 3, color: '#fff', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}><X aria-hidden="true" size={14} strokeWidth={2} /></button>
                 </>
               ) : (
                 <label style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', gap: 4 }}>
@@ -412,7 +412,11 @@ export default function Contenido() {
                   visitantes mientras esté activa: para retirarla, apaga este switch.
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: activo ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${activo ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
-                  <button onClick={() => setD(p => ({ ...p, banner_activo: activo ? 'false' : 'true' }))}
+                  {/* `role="switch"` y no `aria-pressed`: es un interruptor de
+                      encendido/apagado, no un botón que queda hundido. Sin esto
+                      el lector solo decía «botón». */}
+                  <button role="switch" aria-checked={activo} aria-label="Mostrar el banner promocional"
+                    onClick={() => setD(p => ({ ...p, banner_activo: activo ? 'false' : 'true' }))}
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: activo ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: activo ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
@@ -508,7 +512,8 @@ export default function Contenido() {
             <Sec key={key} title={<>{isVisible ? <Eye size={18} strokeWidth={1.75} /> : <EyeOff size={18} strokeWidth={1.75} />}{label}</>}>
               <Full>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: isVisible ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${isVisible ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
-                  <button onClick={() => setD(p => ({ ...p, [`servicio_${key}_visible`]: isVisible ? 'false' : 'true' }))}
+                  <button role="switch" aria-checked={isVisible} aria-label={`Mostrar ${label} en el sitio`}
+                    onClick={() => setD(p => ({ ...p, [`servicio_${key}_visible`]: isVisible ? 'false' : 'true' }))}
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: isVisible ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: isVisible ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
