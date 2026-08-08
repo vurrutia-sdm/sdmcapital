@@ -191,7 +191,10 @@
     color: var(--ink);
     font-family: 'Inter', system-ui, sans-serif;
   }
-  .input-line::placeholder { color: #9AA8B4; }
+  /* #9AA8B4 daba 2.43:1 sobre blanco. #6B7681 da 4.63:1 y cumple AA para texto
+     normal, que es lo que corresponde: en varios formularios el placeholder es
+     lo unico que identifica el campo. */
+  .input-line::placeholder { color: #6B7681; }
   .input-line:focus { border-color: var(--green-dark); }
 
   ::-webkit-scrollbar { width: 6px; }
