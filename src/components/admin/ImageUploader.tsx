@@ -32,7 +32,11 @@ export function ImageUploader({ currentUrl, onUploaded, folder = 'general' }: { 
         <input type="file" accept="image/*" onChange={upload} style={{ display: 'none' }} disabled={uploading} />
       </label>
       {currentUrl && (
-        <input value={currentUrl} readOnly className="input-line flex-1 text-sdm-sm" style={{ color: 'var(--muted)' }} onClick={e => (e.target as HTMLInputElement).select()} />
+        // Acá sí va aria-label y no un <label> visible: el campo es un apoyo
+        // para copiar la URL, no un dato que se edite, y el rótulo del
+        // FieldGroup que lo contiene ya nombra al conjunto. Un segundo rótulo
+        // visible sería ruido.
+        <input value={currentUrl} readOnly aria-label="URL de la imagen" className="input-line flex-1 text-sdm-sm" style={{ color: 'var(--muted)' }} onClick={e => (e.target as HTMLInputElement).select()} />
       )}
     </div>
   )
