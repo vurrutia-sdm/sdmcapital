@@ -113,6 +113,7 @@ línea o se marca como cerrada.
 | 2026-08-07 | Sistema de color — botón invertido | `.btn-evaluacion` eliminado, `.btn-inverse` creada. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `8c9770b` |
 | 2026-08-07 | Color de estado — «Reservada» a tono frío | `--estado-reservada` de ámbar a petróleo, por daltonismo. **Tocó `src/styles/globals.css`, ZONA COMPARTIDA** | Cerrada — commit `f3d5860` |
 | 2026-08-07 | Sistema de color — unificar la paleta paralela | **Los cinco colores del módulo de fichas pasan a la paleta oficial. La paleta paralela queda eliminada** | Cerrada — commits `2560d41`, `fcc24dc`, `788f51f` y `0768274` |
+| 2026-08-08 | Sistema de color — el rojo de error | `--error: #A8384B` nace en **`src/styles/globals.css`, ZONA COMPARTIDA**, y reemplaza los 21 literales `#E24B4A` de admin y web pública. Antes, el precio rebajado de `PropiedadDetailPage` deja de usar el rojo y pasa a `--oportunidad`. **`Captacion.tsx` no se toca** — su uso queda pendiente | Cerrada — commits `95e7b25` y `c7ee2a7` |
 | 2026-08-06 | Admin — sticky del header en móvil | **CAMBIO EN ZONA COMPARTIDA**: `src/styles/mobile.css` pasa de `overflow-x: hidden` a `clip`. Completa el cambio de `globals.css` — `html: clip` + `body: hidden` también rompe el `position: sticky`. **Afecta a todo el sitio debajo de 768px** | Cerrada — el header se pega en los 7 anchos medidos, commiteada, desplegada y verificada |
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
@@ -3446,3 +3447,99 @@ admin.
 Pendiente operativo **ya resuelto**: aquellos commits estaban solo en local,
 pero desde el 2026-08-05 `main` está a la par con `origin/main`. No queda nada
 sin pushear de esa sesión.
+
+---
+
+### EL COLOR DE ERROR NO SE USA PARA NADA QUE NO SEA UN ERROR — 2026-08-08
+
+`--error: #A8384B` reemplaza los 21 literales de `#E24B4A`. Pero lo que hay que
+recordar no es el valor: es **por qué antes no había ningún valor posible**.
+
+#### El bloqueo
+
+`#E24B4A` fallaba WCAG 1.4.3 en los 18 usos de texto pequeño —3.93:1 sobre
+blanco, 3.76 sobre `--off`, 3.54 sobre `--sky-pale`— y había que reemplazarlo.
+Pero cualquier reemplazo tenía que cumplir dos condiciones a la vez:
+
+1. **Contraste ≥ 4.5:1**, que obliga a oscurecer.
+2. **Distinguirse de `--estado-vendida` #C0392B**, que comparte pantalla en el
+   listado de propiedades. Oscurecer un rojo lo acerca a esa marca ladrillo, así
+   que para separarse hay que **correrse en tono, hacia el magenta**.
+
+Y ahí aparecía la tercera condición, que era la que cerraba la puerta:
+`PropiedadDetailPage` usaba este mismo rojo para el **precio rebajado**, en la
+única pantalla que lleva `--oportunidad` #2D8055. O sea que el rojo también
+tenía que separarse del verde. Medido:
+
+| candidato | contraste | ΔE vs Vendida (peor de 3) | ΔE vs Oportunidad (peor) |
+|---|---|---|---|
+| `#A8385D` carmín | 6.20 | 16.5 ✓ | **0.6** ✗ deuteranopia |
+| `#A8384B` frambuesa | 6.30 | 11.4 ✓ | **5.8** ✗ deuteranopia |
+| `#C0392B` (= Vendida) | 5.44 | **0.0** ✗ | 10.2 |
+| `#E24B4A` (el de entonces) | **3.93** ✗ | 10.0 | **3.8** ✗ protanopia |
+
+Cuanto más se corre al magenta para separarse de «Vendida», más colapsa contra
+el verde bajo deuteranopia. Es el mismo choque rojo-verde que ya había obligado
+a sacar «Reservada» del ámbar. **No existe un rojo que cumpla las tres.** Los
+burdeos oscuros (`#6F203A`) lo consiguen, pero con contraste 10-11 dejan de
+leerse como alerta.
+
+#### La salida no fue de color, fue de semántica
+
+El precio rebajado **nunca debió estar en el rojo de error**. Peor: la insignia
+que va justo encima decía «Precio rebajado» en `--oportunidad` desde el cambio
+anterior, así que la misma tarjeta afirmaba dos cosas opuestas sobre el mismo
+hecho. La comparación ya la comunica el precio anterior tachado.
+
+Con la rebaja en `--oportunidad`, el rojo dejó de convivir con el verde y la
+tercera condición desapareció. `#A8384B` entra sin forzar nada.
+
+#### LA REGLA
+
+> **El color de error es solo para errores.** Un envío que falló, un registro
+> que no se encontró, el texto de los botones «Eliminar». Nada más.
+>
+> No es una insignia de estado, no marca urgencia comercial, no señala una
+> oferta. En el momento en que se usa para otra cosa, hereda las restricciones
+> de esa otra cosa, y el rojo se queda sin margen para cumplir contraste.
+
+Lo mismo vale al revés y ya había pasado una vez: `--estado-vendida` se usaba
+también para «Precio rebajado» —el mismo rojo para un cierre y para una
+oportunidad—. Es el segundo caso del mismo error en dos semanas.
+
+#### Los números que quedaron
+
+| | antes | ahora |
+|---|---|---|
+| sobre blanco | 3.93 ✗ | **6.30** ✓ |
+| sobre `--off` | 3.76 ✗ | **6.03** ✓ |
+| sobre `--sky-pale` | 3.54 ✗ | **5.67** ✓ |
+| blanco encima (badge del PDF) | 3.93 ✗ | **6.30** ✓ |
+| selector de estado, sobre su color al 13 % | `#FBE7E7` → 3.31 ✗ | `#F3E4E7` → **5.12** ✓ |
+| precio rebajado, 40 px | 3.93 (pasaba por tamaño) | **4.85** ✓ con `--oportunidad` |
+
+ΔE2000 de `--error` contra `--estado-vendida`, en visión normal / protanopia /
+deuteranopia: **12.7 / 12.8 / 11.4**. Por encima de 10 en las tres.
+
+#### `var()` no sirve cuando el color se opera en JS
+
+Dos literales sobreviven a propósito, los dos comentados como espejo de
+`--error`:
+
+- **`CotizacionPDF.tsx`** — `@react-pdf/renderer` rasteriza fuera del DOM y no
+  resuelve `var(--…)`. Misma razón que `tarjeta.css`.
+- **`CotizacionesAdmin.tsx`, `ESTADO_COLORS`** — el selector de estado deriva su
+  fondo concatenando el alfa: `ESTADO_COLORS[estado] + '22'`. Con una variable
+  el resultado es la cadena `var(--error)22`, que **no es CSS válido**: React la
+  escribe igual, el navegador la descarta y el fondo desaparece **solo en
+  «Rechazada»**, sin ningún error en consola. Se detectó revisando el consumidor
+  del mapa, no compilando.
+
+  Generalizable: **antes de cambiar un hex por `var()`, mirar si alguien hace
+  aritmética de cadena con ese valor.** El build pasa igual.
+
+#### Pendiente
+
+`Captacion.tsx:112` conserva su `red: '#E24B4A'` — dominio de la sesión Sofía.
+Cuando esa sesión lo toque, el valor a poner es `#A8384B`, y conviene revisar si
+ese mapa también concatena alfa.
