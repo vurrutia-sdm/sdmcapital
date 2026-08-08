@@ -9,8 +9,27 @@
 
 import { useState, useEffect, useRef } from 'react'
 
+// `Field` ENVUELVE a su control. Un <label> que contiene a su campo lo asocia
+// sin `htmlFor` y sin `id`, y sin ids no hay ninguno que pueda colisionar.
+//
+// EL ESTILO DEL ROTULO VA EN EL <span>, NUNCA EN EL <label>.
+//
+// `text-transform` y `letter-spacing` son propiedades HEREDADAS, y se aplican
+// al texto que el usuario escribe dentro de un input. `.input-line` no fija
+// ninguna de las dos. Subirlas al <label> que ahora envuelve deja todo lo
+// tecleado en MAYUSCULAS y con 2px de separacion entre letras, en los 152
+// campos del admin de una sola vez. No falla el build ni salta en consola: se
+// descubre escribiendo.
+//
+// Solo sirve para un control etiquetable. Para `ImageUploader`,
+// `RichTextEditor` y `PropImageManager` va `FieldGroup`, que no usa <label>.
 export function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
-  return <div className="flex flex-col gap-2"><label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>{label}</label>{children}</div>
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>{label}</span>
+      {children}
+    </label>
+  )
 }
 
 export function Inp({ value, onChange, type = 'text', placeholder = '', min, max }: {
