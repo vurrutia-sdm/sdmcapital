@@ -245,7 +245,17 @@ export default function ElBarrancoShowcase() {
   )
 
   return (
-    <div className="sitio-publico" style={S.page}>
+    // `lang` en el contenedor, y no en el <html>.
+    //
+    // El <html lang="es"> de index.html es fijo y nadie lo actualiza, pero esta
+    // pagina arranca en INGLES —el estado local parte en 'en'— y sirve todo su
+    // texto en ingles. Un lector de pantalla lo pronunciaria con fonemas
+    // espanoles: «The Barranco» sonando como si fuera castellano.
+    //
+    // Marcar el contenedor alcanza: `lang` se hereda, asi que toda la seccion
+    // queda en el idioma correcto, y el resto del sitio sigue en es. Cambia con
+    // el selector EN/ES sin tocar nada mas.
+    <div className="sitio-publico" lang={lang} style={S.page}>
       {/* En ingles porque la pagina arranca en ingles: el estado `lang` parte en
           'en' y solo cambia si el visitante pulsa ES. Un titulo en espanol para
           una pagina que se ve en ingles descoloca en la pestana y al compartir. */}
