@@ -118,6 +118,7 @@ línea o se marca como cerrada.
 | 2026-08-06 | Admin — sticky del header | **CAMBIO EN ZONA COMPARTIDA**: `html` y `body` pasan de `overflow-x: hidden` a `clip`. `hidden` creaba contenedor de scroll y rompía el `position: sticky` del header del admin. `clip` recorta igual sin ese efecto. **Afecta a todo el sitio** | Cerrada — escritorio arreglado y verificado. **Debajo de 768px sigue roto**: `mobile.css` reintroduce `body { overflow-x: hidden }` |
 | 2026-08-06 | Admin — Fase 3, escala tipográfica (fase 2, tanda 2) | **INVASIÓN DE DOMINIO** sobre `src/pages/` (fuera de `admin/`), `src/components/sections/` y `src/components/ui/`, para completar la migración iniciada en la tanda 1 | Cerrada — 29 archivos, 4 commits, desplegada y verificada. **Los 17 `em` quedan pendientes de tu revisión** |
 | 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 1) | Los tres formularios **públicos** pasan a `<label>` que envuelve al control: `ContactSection`, `SolicitudCreditoForm` y `VendeConNosotrosPage`. **`campos.tsx` NO se toca** — el paso 2 espera el visto bueno | Cerrada — commits `20d7fd4`, `e260e6e` y `5d3b007` |
+| 2026-08-08 | Accesibilidad — tanda 2: etiquetas de formulario (paso 2) | `Field` envuelve a su control (152 campos del admin), nace `FieldGroup` para los 19 editores compuestos, y los `<select>` de `SearchBar` reciben rótulo asociado. **Toca `src/components/admin/campos.tsx` y `src/components/sections/SearchBar.tsx`** | Cerrada — commits `ed40ebe`, `7db6be7` y `03fed5c` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -3737,3 +3738,196 @@ Verificado en producción tras el deploy: los 19 campos con `labels.length === 1
 clic que enfoca en 19 de 19, cero ids duplicados y los 19 nombres con origen
 `relatedElement`. En `/evaluacion-gratuita` se miden 7 de los 8 campos porque
 «Tipo de propiedad» solo se monta cuando la acción elegida es «comprar».
+
+---
+
+### Accesibilidad — tanda 2, paso 2: el admin y el buscador — 2026-08-08
+
+Cierra lo que el paso 1 dejó abierto. **171 campos del admin más los del
+buscador del home.**
+
+| Commit | Qué |
+|---|---|
+| `ed40ebe` | `Field` envuelve a su control — 152 campos |
+| `7db6be7` | `FieldGroup` para los 19 editores compuestos |
+| `03fed5c` | los `<select>` de `SearchBar` |
+
+#### UN `<label>` QUE ENVUELVE LE HEREDA `text-transform` AL CAMPO
+
+> Es la trampa central de este paso, y no se ve venir.
+>
+> El rótulo de `Field` llevaba `textTransform: 'uppercase'` y
+> `tracking-sdm-wide` (2px). Al convertir el `<div>` contenedor en `<label>`,
+> lo natural es dejar ese estilo donde estaba —ahora en el elemento que
+> envuelve— y quedarse tranquilo, porque el rótulo se sigue viendo idéntico.
+>
+> **`text-transform` y `letter-spacing` son propiedades heredadas, y sí se
+> aplican al texto que el usuario escribe dentro de un `input`.** No es un
+> caso raro de CSS: es el comportamiento normal, y `.input-line` no fija
+> ninguna de las dos, así que no hay nada que corte la herencia.
+>
+> El resultado habría sido que **todo lo que Víctor teclee en los 152 campos
+> del admin salga en MAYÚSCULAS y con 2px de separación entre letras**. De una
+> sola vez, en los 8 paneles.
+>
+> Y no se detecta:
+>
+> - `tsc` pasa en verde. No es un error de tipos.
+> - No hay advertencia en consola. Es CSS válido y deliberado.
+> - **El rótulo se ve exactamente igual**, que es lo que uno mira al revisar.
+> - La captura de pantalla del formulario vacío también es idéntica.
+>
+> Solo aparece cuando alguien escribe. Un formulario recién cargado no lo
+> delata.
+>
+> **La regla:** en un `<label>` que envuelve a su control, el estilo del
+> rótulo va en un `<span>` interior, nunca en el `<label>`. Vale para
+> `Field`, para `FieldGroup` y para los tres formularios públicos del paso 1.
+>
+> Verificado midiendo `getComputedStyle` del input, no mirando el JSX:
+> `text-transform: none` y `letter-spacing: normal` en el campo, `uppercase`
+> en el `<span>` del rótulo, con el texto tecleado intacto.
+
+#### `FieldGroup` — la variante sin `<label>`
+
+19 de los 171 `Field` no envolvían un control etiquetable:
+
+| Componente | Usos |
+|---|---:|
+| `ImageUploader` | 16 |
+| `RichTextEditor` | 2 |
+| `PropImageManager` | 1 |
+
+`ImageUploader` y `PropImageManager` traen **su propio `<label>`** alrededor de
+un `<input type="file">` oculto. Un `<label>` por fuera anida etiquetas
+—inválido— y apunta al primer descendiente etiquetable, que es justamente ese
+selector: **pulsar el rótulo «Foto del destino» habría abierto el diálogo de
+subida de archivos.** `ImageUploader` tiene además un segundo control, el input
+de solo lectura con la URL, y un `<label>` solo asocia al primero.
+
+`FieldGroup` usa `<span id>` + `role="group"` + `aria-labelledby`. Se ve igual
+que un `Field`. El id sale de `useId()` y **no se escribe a mano**: ocho de
+estos se montan a la vez en `Barranco` y cinco en `Contenido`, y dos ids
+iguales no fallan — se asocian al primero y dejan al resto sin nombre, en
+silencio.
+
+##### El nombre lo dice el `role`
+
+Se llamó `FieldGroup` y no `Campo`, `Grupo` ni `FieldSet` porque nombra
+exactamente el `role="group"` que emite, y porque su hermano `Field` ya está en
+inglés y sin abreviar. `FieldSet` habría sugerido un `<fieldset>`, que trae
+`<legend>` y estilos propios del navegador.
+
+#### La migración se hizo con un parser, no a mano
+
+El mismo parser de bloques balanceados de la auditoría: localiza cada
+`<Field>…</Field>`, mira si su contenido tiene un compuesto y reemplaza los dos
+extremos. Las 19 líneas resultantes coincidieron una a una con las de la
+auditoría previa.
+
+Quedaron **152 pares `Field` y 19 pares `FieldGroup`**, que son los 171
+originales, con las aperturas y los cierres balanceados en los 8 archivos.
+
+> **Ojo al auditar:** `indexOf('<Field')` engancha también `<FieldGroup`. Los
+> scripts de conteo necesitan `<Field(?![A-Za-z])`. La primera re-auditoría dio
+> «70 bloques, 4 con más de un control» por esto, y no era un problema del
+> código.
+
+#### `SearchBar` — no hizo falta `aria-label`
+
+Los `<select>` del buscador **ya tenían rótulo visible** —«Región», «Comuna»,
+«Tipo», «Precio»—, puesto como `<div>`. Solo faltaba la asociación. El
+contenedor pasa a `<label>` y el rótulo a `<span>`, sin tocar el texto ni el
+diseño. Un rótulo que se ve sirve a todo el mundo; un `aria-label` invisible,
+solo a quien usa lector.
+
+**Los dos llevan `display: block` explícito**, y esto sí era necesario:
+`<label>` y `<span>` son `inline` por defecto, y estos contenedores tenían
+`padding`, `border` y `marginBottom`, que en inline no se comportan igual. Es
+distinto de `Field`, donde la clase `flex flex-col gap-2` ya fijaba
+`display: flex` y no hubo que agregar nada.
+
+En el DOM se renderizan **4** `<select>`, no 3: el par tipo/precio sale de un
+`.map` sobre dos entradas. Los cuatro quedaron asociados.
+
+El buscador de escritorio no usa `<select>`: son dropdowns hechos con `<button>`
+que llevan su texto dentro, así que ya tenían nombre accesible.
+
+#### Cómo se verificó sin poder entrar al admin
+
+`AdminPage` exige sesión de Supabase, así que los 8 paneles no se pueden
+recorrer con el navegador. Pero **el arreglo de los 152 vive entero en `Field` y
+el de los 19 en `FieldGroup`**: se montó un banco de pruebas temporal con los
+componentes reales —`Field`, `FieldGroup`, `Inp`, `Txa`, `Sel`, `Chk`,
+`ImageUploader` y `RichTextEditor`— y se midió ahí. `PropImageManager` no se
+exporta desde `Propiedades.tsx`, así que se replicó su estructura interna
+exacta, que es la propiedad bajo prueba.
+
+El banco se borró al terminar. No quedó en el repositorio.
+
+| Prueba | Antes | Después |
+|---|---|---|
+| `labels.length` en input, textarea y select de `Field` | 0 | **1** |
+| `text-transform` computado del campo | `none` | **`none`** |
+| `letter-spacing` computado del campo | `normal` | **`normal`** |
+| texto tecleado | — | **«Depto en Las Condes», intacto** |
+| nombre accesible de los `FieldGroup` | no existían | **4 de 4, origen `relatedElement`** |
+| pulsar el rótulo de un `FieldGroup` | habría abierto el selector | **no enfoca nada** |
+| `<label>` anidados | — | **0** |
+| ids duplicados | — | **0**, con 4 ids de `useId()` (`:r0:`…`:r3:`) |
+| `<select>` de `SearchBar` con label | `[0,0,0,0]` | **`[1,1,1,1]`** |
+
+#### Comparación visual: 0 píxeles
+
+No se compararon hashes de PNG sino **píxel a píxel**, decodificando las dos
+imágenes en un canvas y contando las diferencias:
+
+| Captura | Píxeles distintos |
+|---|---:|
+| banco de `Field` + `FieldGroup` (1280×1083) | **0** |
+| `SearchBar` a 390px de ancho (500×333) | **0** |
+
+##### El falso positivo del foco
+
+La primera comparación del banco dio 776 píxeles distintos (0,056 %), y **656
+de ellos estaban en una sola fila**, la 101, a lo ancho del primer campo. No era
+el cambio: era `.input-line:focus`, el borde verde. La sonda de accesibilidad
+había tecleado en ese input y, en una de las dos corridas, después pulsaba los
+rótulos de los `FieldGroup` y con eso quitaba el foco.
+
+**Una captura solo sirve para comparar si el estado es neutro.** Se repitió sin
+teclear, sin pulsar y con `blur()` explícito antes de disparar, y dio 0.
+
+Que el grueso de la diferencia caiga en una única fila horizontal es la firma de
+un borde, no de un cambio de layout: si algo se hubiera movido, las diferencias
+se repartirían por muchas filas.
+
+#### Lo que NO se hizo, y por qué
+
+**Los rótulos en mayúsculas: no había nada que cambiar.** El encargo pedía pasar
+el texto a minúsculas y dejar las mayúsculas al CSS. Ya estaba así. De **243
+rótulos localizados en `src/`, solo 4 están escritos en mayúsculas**, y los
+cuatro son siglas legítimas: `RUT` una vez y `SDM` tres —y las de `SDM` ni
+siquiera son rótulos de campo, son la marca en el header, el footer y la página
+de evaluación—.
+
+Las mayúsculas que se ven vienen todas de `text-transform: uppercase` en CSS. El
+problema real es otro: **Chrome aplica `text-transform` al calcular el nombre
+accesible.** El código dice `Nombre completo` y el árbol de accesibilidad
+expone `NOMBRE COMPLETO`. Medido, no supuesto.
+
+Así que mover las mayúsculas al CSS no arregla nada, porque ya están en el CSS.
+Las únicas salidas de verdad son quitar `text-transform: uppercase` de los
+rótulos —que **cambia el aspecto de todo el sitio**— o aceptarlo. Es una
+decisión de diseño, no de semántica, y quedó **pendiente de Víctor**.
+
+#### Pendiente
+
+- El input de solo lectura con la URL dentro de `ImageUploader` no tiene nombre
+  propio. Está dentro de un `FieldGroup` con nombre, así que hay contexto, pero
+  un lector lo anuncia sin decir qué es.
+- Los botones de `RadioGroup` en `SolicitudCreditoForm` siguen sin exponer
+  estado de selección — ver el paso 1.
+- `PropiedadesPage.tsx` (2 `<select>` con `<label>` sueltos), `MapPicker.tsx`
+  (solo `placeholder`) y `ElBarrancoShowcase.tsx` (2 `<label>` sueltos) siguen
+  sin asociar.
