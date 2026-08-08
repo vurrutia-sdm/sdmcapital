@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Pause, Play } from 'lucide-react'
 import { useContenido } from '@/hooks/useContenido'
 
 // ─── Contador animado ─────────────────────────────────────────────────────────
@@ -47,11 +48,26 @@ const INTERVAL_MS = 5000 // Cambia cada 5 segundos
 
 function HeroCarousel({ images, positions }: { images: string[]; positions: string[] }) {
   const [current, setCurrent] = useState(0)
+  // 2.2.2 pide poder detener cualquier movimiento automático que dure más de 5
+  // segundos. Este rota indefinidamente, así que necesita un control explícito.
+  // Nace pausado si el sistema pide menos movimiento — ver el efecto de abajo.
+  const [pausado, setPausado] = useState(false)
   const [prev, setPrev] = useState<number | null>(null)
   const [transitioning, setTransitioning] = useState(false)
 
+  // `prefers-reduced-motion: reduce` significa «no me muevas cosas sin que yo
+  // lo pida». La rotación automática arranca detenida; los puntos y el botón
+  // siguen funcionando, así que no se pierde ninguna foto.
   useEffect(() => {
-    if (images.length < 2) return
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const aplicar = () => setPausado(mq.matches)
+    aplicar()
+    mq.addEventListener('change', aplicar)
+    return () => mq.removeEventListener('change', aplicar)
+  }, [])
+
+  useEffect(() => {
+    if (images.length < 2 || pausado) return
     const timer = setInterval(() => {
       setPrev(current)
       setTransitioning(true)
@@ -60,7 +76,7 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
       setTimeout(() => { setPrev(null); setTransitioning(false) }, 1200)
     }, INTERVAL_MS)
     return () => clearInterval(timer)
-  }, [images.length, current])
+  }, [images.length, current, pausado])
 
   const goTo = (idx: number) => {
     if (idx === current) return
@@ -112,9 +128,21 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
       {/* Dots de navegación */}
       {images.length > 1 && (
         <div
-          className="absolute flex gap-2"
+          className="absolute flex items-center gap-2"
           style={{ bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}
         >
+          {/* El control de 2.2.2. Va junto a los puntos, que cambian de foto
+              pero NO detienen la rotación: sin esto no había forma de pararla. */}
+          <button
+            type="button"
+            onClick={() => setPausado(p => !p)}
+            aria-label={pausado ? 'Reanudar el cambio automático de fotos' : 'Pausar el cambio automático de fotos'}
+            className="area-44"
+            style={{ width: 22, height: 22, marginRight: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(15,37,53,0.55)', border: 'none', borderRadius: '50%', color: '#fff', cursor: 'pointer', padding: 0 }}
+          >
+            {pausado ? <Play size={10} fill="currentColor" /> : <Pause size={10} fill="currentColor" />}
+          </button>
           {images.map((_, i) => (
             <button
               key={i}

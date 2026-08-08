@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { Pause, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
@@ -47,6 +48,9 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
   })).filter(i => i.texto)
 
   const [current, setCurrent] = useState(0)
+  // Mismo criterio que el carrusel del hero: rota indefinidamente, así que
+  // 2.2.2 exige poder detenerlo. Nace pausado con `prefers-reduced-motion`.
+  const [pausado, setPausado] = useState(false)
   const [animating, setAnimating] = useState(false)
   const [direction, setDirection] = useState<'up' | 'down'>('up')
   const timer = useRef<ReturnType<typeof setInterval>>()
@@ -65,10 +69,18 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
   const prev = () => goTo((current - 1 + items.length) % items.length, 'down')
 
   useEffect(() => {
-    if (items.length <= 1) return
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const aplicar = () => setPausado(mq.matches)
+    aplicar()
+    mq.addEventListener('change', aplicar)
+    return () => mq.removeEventListener('change', aplicar)
+  }, [])
+
+  useEffect(() => {
+    if (items.length <= 1 || pausado) return
     timer.current = setInterval(next, 5000)
     return () => clearInterval(timer.current)
-  }, [current, items.length])
+  }, [current, items.length, pausado])
 
   if (items.length === 0) return null
 
@@ -92,6 +104,17 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
           {/* Controles */}
           {items.length > 1 && (
             <div className="flex items-center gap-4 mt-10" style={{ justifyContent: 'center' }}>
+              {/* El control de 2.2.2: las flechas cambian de testimonio pero no
+                  detienen la rotación. */}
+              <button
+                type="button"
+                onClick={() => setPausado(p => !p)}
+                aria-label={pausado ? 'Reanudar el cambio automático de testimonios' : 'Pausar el cambio automático de testimonios'}
+                className="area-44 bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white"
+                style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+              >
+                {pausado ? <Play size={14} fill="currentColor" /> : <Pause size={14} fill="currentColor" />}
+              </button>
               <button className="area-44 text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={prev}
                 style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
               >↑</button>
