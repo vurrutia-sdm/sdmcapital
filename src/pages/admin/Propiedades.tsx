@@ -20,14 +20,14 @@
 // no proxea `/api`. Esa parte se prueba en producción.
 
 import { useState, useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ArrowUpDown, Briefcase, Camera, Check, File, GripVertical, MapPin, MousePointer2, Paperclip, Pause, Star, X, Youtube } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Briefcase, Camera, Check, File, GripVertical, MapPin, MousePointer2, Paperclip, Pause, Plus, Star, X, Youtube } from 'lucide-react'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { subirImagen, subirArchivo } from '@/lib/subirImagen'
 import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
-import type { Propiedad, DossierItem } from '@/types'
+import type { Propiedad, DossierItem, UnidadPropiedad } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
 import { Field, Inp, Chk, Sel } from '@/components/admin/campos'
 import { SaveBtn, Badge } from '@/components/admin/acciones'
@@ -130,6 +130,112 @@ function DossierUploader({ items, onChanged }: { items: DossierItem[]; onChanged
         <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple style={{ display: 'none' }} disabled={uploading} onChange={upload} />
       </label>
       <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 6 }}>PDF, Word, Excel. Puedes subir varios a la vez. Si dejas el título vacío, se muestra el nombre del archivo.</p>
+    </div>
+  )
+}
+
+
+// ─── UNIDADES ─────────────────────────────────────────────────────────────────
+// Desglose piso por piso de un edificio. Controlado como `DossierUploader`: sin
+// estado propio de la lista, guardado por el `save()` del padre. La conversión a
+// NULL vive en ese `save()` y no acá — este componente solo produce arrays.
+//
+// `piso` es TEXTO y no se valida como número: el catálogo real trae etiquetas
+// como "701" o "23 a 25".
+//
+// `m2` distingue null de 0. `Inp` entrega siempre string, así que '' llega
+// distinguible de '0' sin inventar ningún centinela: '' ⇒ null ("Por confirmar"
+// en la ficha), '0' ⇒ 0.
+function UnidadesEditor({ items, onChanged }: { items: UnidadPropiedad[]; onChanged: (items: UnidadPropiedad[]) => void }) {
+  // El ref se actualiza en el acto además de en el render. El oyente que sigue
+  // el arrastre se crea UNA sola vez, en el pointerdown, así que si el setter
+  // leyera `items` de la clausura cada paso partiría del array original: medido,
+  // arrastrar dos posiciones movía la fila equivocada.
+  const actuales = useRef(items)
+  actuales.current = items
+  const aplicarOrden: Dispatch<SetStateAction<UnidadPropiedad[]>> = accion => {
+    const next = typeof accion === 'function' ? accion(actuales.current) : accion
+    actuales.current = next
+    onChanged(next)
+  }
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(items, aplicarOrden, () => {})
+
+  const editar = (i: number, cambio: Partial<UnidadPropiedad>) =>
+    onChanged(items.map((u, j) => j === i ? { ...u, ...cambio } : u))
+
+  const conSuperficie = items.filter(u => typeof u.m2 === 'number')
+  const totalM2 = conSuperficie.reduce((suma, u) => suma + (u.m2 as number), 0)
+
+  return (
+    <div>
+      {items.length > 0 && (
+        <>
+          {/* El encabezado solo existe de lg para arriba: debajo las filas son
+              tarjetas apiladas y cada campo lleva su propia etiqueta. */}
+          <div className="hidden lg:flex items-center gap-3 text-sdm-xs tracking-sdm-wide"
+            style={{ textTransform: 'uppercase', color: 'var(--muted)', padding: '0 0 6px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
+            <span style={{ width: 20, flexShrink: 0 }} />
+            <span style={{ width: 140, flexShrink: 0 }}>Piso</span>
+            <span style={{ width: 120, flexShrink: 0 }}>m² (vacío = por confirmar)</span>
+            <span style={{ flex: 1 }}>Nota (opcional)</span>
+            <span style={{ width: 70, flexShrink: 0 }} />
+          </div>
+
+          <div className="flex flex-col gap-3 lg:gap-2 mb-3">
+            {items.map((u, i) => (
+              <div key={i} {...filaProps(i)}
+                className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-sm border border-[#e8edf2] p-3 lg:flex-nowrap lg:border-0 lg:rounded-none lg:p-0"
+                style={{ opacity: arrastrando === i ? 0.45 : 1, cursor: 'grab' }}>
+
+                <span {...manijaProps} className="order-first flex items-center"
+                  style={{ ...manijaProps.style, color: 'var(--muted)', padding: '10px 8px', margin: '-10px -4px -10px -8px', flexShrink: 0 }}>
+                  <GripVertical size={16} strokeWidth={2} />
+                </span>
+
+                <label className="order-2 w-full lg:w-[140px] lg:flex-shrink-0">
+                  <span className="lg:hidden text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Piso</span>
+                  <Inp value={u.piso} onChange={v => editar(i, { piso: v })} placeholder="3, 701, 23 a 25" />
+                </label>
+
+                <label className="order-3 w-full lg:w-[120px] lg:flex-shrink-0">
+                  <span className="lg:hidden text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>m²</span>
+                  {/* '' ⇒ null, no 0. Ver la nota del componente. */}
+                  <Inp type="number" value={u.m2 ?? ''} onChange={v => editar(i, { m2: v.trim() === '' ? null : Number(v) })} placeholder="Por confirmar" />
+                </label>
+
+                <label className="order-4 w-full lg:flex-1">
+                  <span className="lg:hidden text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Nota</span>
+                  <Inp value={u.nota || ''} onChange={v => editar(i, { nota: v || undefined })} placeholder="Opcional" />
+                </label>
+
+                <button data-orden-quieto="" className="order-last text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0 lg:w-[70px] lg:text-right"
+                  onClick={() => onChanged(items.filter((_, j) => j !== i))}
+                  style={{ color: '#E24B4A', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
+                  Eliminar
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 12 }}>
+            {items.length} {items.length === 1 ? 'unidad' : 'unidades'} · {totalM2.toLocaleString('es-CL')} m²
+            {conSuperficie.length < items.length && ` · ${items.length - conSuperficie.length} por confirmar`}
+          </div>
+        </>
+      )}
+
+      <button className="text-sdm-xs tracking-sdm-wide min-h-[44px] lg:min-h-0"
+        onClick={() => onChanged([...items, { piso: '', m2: null }])}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--navy-dark)', color: '#fff',
+          padding: '9px 20px', borderRadius: 2, border: 'none', cursor: 'pointer', fontWeight: 600,
+          textTransform: 'uppercase', fontFamily: 'inherit' }}>
+        <Plus size={14} strokeWidth={2} />Agregar unidad
+      </button>
+
+      <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginTop: 8 }}>
+        Solo para edificios que se arriendan por piso. Si la lista queda vacía, la
+        ficha no dibuja el desglose.
+      </p>
     </div>
   )
 }
@@ -373,6 +479,11 @@ export default function Propiedades() {
       fecha_entrega:       editing.fecha_entrega || null,
       avance_obra:         editing.avance_obra ?? null,
       subsidios:           editing.subsidios ?? [],
+      // Lista vacía ⇒ NULL, y NUNCA `undefined`. supabase-js serializa con
+      // JSON.stringify, que descarta las claves `undefined`: la columna
+      // quedaría fuera del UPDATE y el array anterior sobreviviría. Vaciar la
+      // lista tiene que borrarla de verdad.
+      unidades:            editing.unidades?.length ? editing.unidades : null,
     }
     const { error } = editing.id
       ? await supabase.from('propiedades').update(payload).eq('id', editing.id)
@@ -498,6 +609,14 @@ export default function Propiedades() {
                   options={[{value:'',label:'No especificado'},{value:'nuevo',label:'Nuevo'},{value:'seminuevo',label:'Seminuevo'}]} />
               </Field>
             </div>
+          </div>
+
+          <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Unidades disponibles</div>
+            <UnidadesEditor
+              items={editing.unidades || []}
+              onChanged={items => setEditing(p => ({ ...p, unidades: items }))}
+            />
           </div>
 
           {editing.categoria === 'proyecto_nuevo' && (
