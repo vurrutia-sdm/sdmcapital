@@ -1781,6 +1781,109 @@ Las dos que se salvaron —`section.relative` y el `.lg\:grid-cols-3` del bloque
 tablet— quedaron con un comentario en el archivo explicando por qué no se
 borran.
 
+### Editor de unidades, y la trampa de `undefined` con supabase-js — 2026-08-07
+
+| Commit | Qué |
+|---|---|
+| `58d4fad` | suprimir la selección de texto mientras dura el arrastre |
+| `c67cd20` | el editor de unidades |
+
+#### `undefined` NO vacía una columna: la deja fuera del UPDATE
+
+Es lo más importante de esta entrada y aplica a **cualquier campo opcional
+que se edite desde el admin**, no solo a `unidades`.
+
+`supabase-js` serializa el payload con `JSON.stringify`, y `JSON.stringify`
+descarta las claves cuyo valor es `undefined`:
+
+```js
+JSON.stringify({ unidades: undefined })  // {}                    ← la columna ni se menciona
+JSON.stringify({ unidades: null })       // {"unidades":null}     ← la columna queda en NULL
+JSON.stringify({ unidades: [] })         // {"unidades":[]}       ← array vacío, que NO es NULL
+```
+
+O sea: si el formulario manda `undefined`, **el valor anterior sobrevive** al
+guardado. Borrar todas las unidades y guardar habría dejado las 42 de siempre
+en la base, y el admin habría dicho que guardó. Es la misma familia de fallo
+silencioso que motivó `avisarError`.
+
+Por eso la conversión vive en `save()` y no en el componente:
+
+```js
+unidades: editing.unidades?.length ? editing.unidades : null
+```
+
+**Regla para el futuro: para vaciar una columna desde el admin, `null`
+explícito. Nunca `undefined`, nunca omitir la clave.**
+
+#### `null` y `[]` se ven igual en la ficha, pero no son lo mismo
+
+`PropiedadDetailPage` hace `Array.isArray(prop.unidades) ? prop.unidades : []`
+y sale si el largo es 0, así que los dos estados no dibujan nada. La ficha
+genérica de oficinas se vería igual con `[]`. Se manda `NULL` igual, porque es
+lo que dice la migración y porque el RAG de Sofía —que vive en otro repo— sí
+podría distinguirlos.
+
+#### `m2`: null y 0 se distinguen sin inventar centinelas
+
+`Inp` entrega **siempre** un string, así que `''` llega distinguible de `'0'`.
+`''` ⇒ `null` (la ficha muestra "Por confirmar"), `'0'` ⇒ `0`. Verificado en el
+payload: `[{"piso":"PB","m2":0}]` frente a `[{"piso":"23 a 25","m2":null}]`.
+
+#### Dos defectos que aparecieron al probar, los dos reales
+
+**1 · El setter no puede leer del closure.** El oyente que sigue el arrastre se
+monta **una sola vez**, en el `pointerdown`. Si el adaptador de `setItems` lee
+`items` de la clausura, cada paso del reordenamiento parte del array original.
+Medido paso a paso: un arrastre de dos posiciones daba
+
+```
+paso  4  destino=1  → [20, 3, 23a25]      correcto
+paso 10  destino=2  → [3, 23a25, 20]      partió otra vez del original
+```
+
+La cura es el ref actualizado en el acto, el mismo patrón que ya estaba en
+`PropImageManager`. **Cualquier consumidor nuevo de `usePointerSort` que no
+use un `useState` propio necesita ese ref.**
+
+**2 · La selección de texto compite con el arrastre.** Con el ratón, arrastrar
+por encima de las filas empieza a seleccionar texto. El sidebar no lo sufría
+porque lleva `userSelect: 'none'` inline; la tabla de Propiedades y las listas
+nuevas sí. Ahora el hook lo suprime en `document.body` solo mientras dura el
+arrastre y lo restaura al soltar — no fijo en la fila, porque estas listas
+llevan campos de texto adentro.
+
+#### Costo
+
+`AdminPage.js` +3,95 kB sin comprimir, **+0,81 kB gzip**. Medido worktree
+contra worktree.
+
+#### Método: el panel real contra un PostgREST falso
+
+El admin pide sesión, así que no se puede manejar desde fuera, y escribir en
+producción para probar no es opción. Se empaquetó el componente **real** con
+esbuild apuntando `import.meta.env` a un servidor local que devuelve dos
+propiedades fijas y **registra el cuerpo crudo de cada escritura**. Eso permite
+ver exactamente qué JSON habría viajado, que es justo donde vive la trampa de
+`undefined`.
+
+Tres cosas que costaron y conviene no repetir:
+
+- El bundle servido **sin `charset=utf-8`** se decodifica como latin-1 y revienta
+  el regex de diacríticos de `slugify`. El servidor de pruebas tiene que mandar
+  el charset.
+- **`npm run build` vacía `dist/`**, y se lleva por delante los archivos de
+  prueba que se hayan dejado ahí.
+- React mapea `onBlur` a **`focusout`**, no a `blur`. Un `blur` sintético no
+  dispara el `onBlur` deliberado de `Inp` y nada se propaga — parecía que los
+  campos no guardaban.
+
+Y dos falsos positivos que costaron más que los defectos reales: medir con las
+filas **fuera del viewport** (los eventos sintéticos no llegan, y en táctil el
+navegador lo toma como scroll y manda `pointercancel`), y localizar campos por
+un `placeholder` que se repite cuatro veces en la página. Los selectores de
+prueba van **relativos a la fila**, nunca globales.
+
 ### TipTap alineado — ya no hace falta `--legacy-peer-deps` — 2026-08-07
 
 ```bash
