@@ -124,6 +124,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Admin — un solo envoltorio de campo | Los dos `Fld` se borran y sus 40 usos pasan al `Field` de `campos.tsx`. `FLabel` sobrevive a propósito: diverge en estilo | Cerrada — commit `e3151a9` |
 | 2026-08-08 | Accesibilidad — tanda 3: teclado | Anillo de foco a `--green-dark` **en `globals.css`, ZONA COMPARTIDA**, indicador no cromático en `.input-line`, 16 `outline: none` fuera, 8 divs a `<button>`, 2 tarjetas, header completo y `RadioGroup` | Cerrada — commits `2e45121`, `c453e58`, `f90f602`, `4ced14d`, `22a5f60` y `f671ab9` |
 | 2026-08-08 | Accesibilidad — tanda 4: estructura, idioma y modales | Un `h1` por página en las 19 rutas, `sanitizarContenido()` en **`src/lib/`**, `lang` en el showcase y `useDialogoModal` en **`src/hooks/`** para los CINCO modales | Cerrada — commits `1955063`, `06aca14` y `19bc3c2` |
+| 2026-08-08 | Accesibilidad — tanda 5: tamaño táctil y movimiento | `.area-44` en **`globals.css`, ZONA COMPARTIDA** para 13 objetivos, botón de pausa en los dos carruseles de la home y `prefers-reduced-motion` en todo el sitio | Cerrada — commits `e1e201e`, `cb73a07` y `da5b0ef` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -4728,3 +4729,123 @@ diferencia era la sección de asociados sin cargar.
 Suma a las trampas ya anotadas —el foco, la caja de recorte inestable, el estado
 asíncrono, la medición no determinista— una quinta: **el entorno del árbol de
 comparación**.
+
+---
+
+### Accesibilidad — tanda 5: tamaño táctil y movimiento — 2026-08-08
+
+## ÁREA TÁCTIL: 44×44 SIN CAMBIAR EL TAMAÑO VISUAL
+
+> Un objetivo pequeño no hay que agrandarlo: hay que agrandarle la **zona que
+> responde al toque**. `.area-44` en `globals.css` pone un `::after` absoluto,
+> centrado, de `max(100%, 44px)`. Como es absoluto no ocupa espacio: el control
+> se sigue viendo igual y el layout no se mueve. Un punto de carrusel puede
+> medir 8px y tener 44px de área.
+
+### VERIFICAR LA SEPARACIÓN, NO SOLO EL TAMAÑO
+
+> **Ampliar sin mirar al vecino crea un problema peor que el que resuelve.** Si
+> dos controles están a menos de 44px, sus áreas se solapan y el toque cae en el
+> equivocado — y eso no se ve, porque las áreas son invisibles. Un objetivo
+> chico se falla; uno solapado activa otra cosa.
+>
+> Lo que manda es el **paso entre centros**, no el tamaño. Medido antes de tocar
+> nada:
+
+| Grupo | n | Tamaño | Paso | ¿Cabe 44? |
+|---|---:|---|---:|---|
+| puntos del hero | 5 | 8×8 / 24×8 | 16px | ✗ se solaparían 28px por lado |
+| puntos de testimonios | 5 | 8×8 / 24×8 | 16px | ✗ ídem |
+| enlaces del footer | 13 | 222×23 | 33px | ✗ se solaparían 11px |
+| legales del footer | 4 | 93×16 | 20px | ✗ se solaparían 24px |
+| selects del buscador | 4 | 442×18 / 204×18 | 69px | ✓ |
+| pastillas Comprar/Arrendar | 2 | 230×31 | 238px | ✓ |
+| flechas ↑↓ de testimonios | 2 | 40×40 | 56px | ✓ |
+| hamburguesa + logo | 2 | 36×36 / 109×35 | 395px | ✓ |
+| enlaces «Ver todas» sueltos | 3 | 266×23 · 196×23 · 216×20 | aislados | ✓ |
+
+**13 ampliados, 28 no.** Los 28 exigen separar elementos, o sea mover el
+diseño; eso es una decisión de diseño y no entra en una tanda de accesibilidad.
+
+#### Y comprobar que el área invisible no tape otro control
+
+`«Ver todas las propiedades»` tiene **0px de separación con la tarjeta de
+abajo**. Centrada, su área se comía el borde superior de esa tarjeta: el toque
+ahí abría el enlace en vez de la propiedad. Arriba tenía 237px libres, así que
+usa `.area-44--arriba`, que ancla el pseudo-elemento abajo y crece solo hacia
+arriba.
+
+Se comprueba con `elementFromPoint`, no mirando el CSS:
+
+```
+18px por encima → el enlace       4px por debajo → la tarjeta
+ 8px por encima → el enlace       9px por debajo → la tarjeta
+```
+
+> **Trampa de medición:** la sonda seguía marcando conflicto después de
+> arreglarlo, porque calculaba el área como centrada en vez de leer el
+> pseudo-elemento. Con `elementFromPoint` sobre puntos concretos se ve lo que
+> pasa de verdad. Y antes de eso marcaba cuatro solapes falsos entre el header y
+> el buscador: **a un elemento `position: fixed` no se le suma `scrollY`**, o
+> aparece cientos de píxeles más abajo de donde está.
+
+## 2.2.2 — Un botón de pausa, no «detener al pasar el ratón»
+
+Los dos carruseles de la home rotan cada 5s indefinidamente. Los puntos y las
+flechas cambian de elemento pero **no detienen la rotación**: no había forma de
+pararla.
+
+> Se eligió el **botón visible** sobre «detener al enfocar o al pasar el ratón».
+> El hover no existe para quien navega con teclado, y detener al enfocar obliga
+> a tabular hasta el hero. Ninguna de las dos cubre el caso que el criterio
+> protege: alguien que está **leyendo el texto de al lado** y necesita que la
+> foto deje de cambiar. El botón sirve a los tres.
+
+Con `prefers-reduced-motion: reduce` nacen pausados, y el botón ofrece
+reanudar: no se pierde contenido, solo deja de moverse sin pedirlo.
+
+### Inventario de movimiento automático
+
+| Qué | Cada | Duración | Control |
+|---|---|---|---|
+| carrusel del hero | 5.000ms | indefinido | ✓ botón |
+| carrusel de testimonios | 5.000ms | indefinido | ✓ botón |
+| contadores del hero | — | 1,8s, una vez | no aplica (<5s) |
+| slider de `ElBarrancoShowcase` | 5.500ms | indefinido | **✗ pendiente** |
+
+## prefers-reduced-motion: acortar, no eliminar
+
+No aparecía ni una vez en el proyecto. El alcance: 1 `@keyframes`, 7
+transiciones en `globals.css`, 64 en estilos inline y 18 clases de Tailwind.
+Por eso la regla es global.
+
+> **`transition-duration: 0.01ms`, no `transition: none`.** Con `none`, un
+> cambio de estado a mitad de camino puede quedarse trabado; con una duración
+> mínima siempre llega a su valor final, solo que sin recorrido visible. Lo
+> mismo con `animation-iteration-count: 1`: lleva la animación a su fotograma
+> final en vez de cortarla donde esté.
+>
+> Antes de poner una regla global hay que comprobar que **ninguna animación
+> termine ocultando algo**. Acá la única va de `opacity: 0` a `1`, así que
+> saltar al final nunca deja contenido invisible. Si alguna terminara en
+> `opacity: 0`, esta regla la haría desaparecer.
+
+Además: `scroll-behavior` pasa de `smooth` a `auto`, y los contadores del hero
+muestran el número final en vez de contar de 0 a 120 durante 1,8s.
+
+| | normal | reduce |
+|---|---|---|
+| transiciones | 0.2s · 1.2s · 0.4s | 1e-05s |
+| `scroll-behavior` | smooth | auto |
+| contadores | 15 · 120+ · 15+ | iguales |
+| elementos a medio camino | ninguno | ninguno |
+| texto del hero | visible | visible |
+
+### Nota sobre el criterio
+
+**2.5.5 «Tamaño del objetivo» (44×44) es nivel AAA en WCAG 2.1, no AA.** El
+criterio de nivel AA es 2.5.8 «Tamaño del objetivo (mínimo)», de WCAG 2.2, y
+pide **24×24** con una excepción por separación. Vale tenerlo presente antes de
+mover el diseño por los 28 que faltan: llevar el paso de los puntos de 16 a
+24px cumpliría el criterio AA con una fracción del costo visual que exige
+llegar a 44.
