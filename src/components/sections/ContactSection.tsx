@@ -56,23 +56,23 @@ export default function ContactSection() {
           ) : (
             <form onSubmit={submit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Nombre</label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Nombre</span>
                   <input required className="input-line" value={form.nombre} onChange={set('nombre')} placeholder="Tu nombre completo" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Email</label>
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Email</span>
                   <input required type="email" className="input-line" value={form.email} onChange={set('email')} placeholder="tu@email.com" />
-                </div>
+                </label>
               </div>
-              <div className="flex flex-col gap-2 mb-8">
-                <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Teléfono</label>
+              <label className="flex flex-col gap-2 mb-8">
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Teléfono</span>
                 <input type="tel" className="input-line" value={form.telefono} onChange={set('telefono')} placeholder="+56 9 ···" />
-              </div>
-              <div className="flex flex-col gap-2 mb-10">
-                <label className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Mensaje</label>
+              </label>
+              <label className="flex flex-col gap-2 mb-10">
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)' }}>Mensaje</span>
                 <textarea required className="input-line resize-none" rows={4} value={form.mensaje} onChange={set('mensaje')} placeholder="¿En qué te podemos ayudar?" />
-              </div>
+              </label>
               {status === 'error' && (
                 <p className="text-sdm-base" style={{ color: 'var(--error)', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
               )}
