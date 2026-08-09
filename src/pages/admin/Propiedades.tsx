@@ -553,7 +553,14 @@ export default function Propiedades() {
   }
 
   const { items: dragged, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
-    const updates = reordered.map((p, i) => supabase.from('propiedades').update({ destacada: i < 6 }).eq('id', p.id))
+    // `orden` va en el MISMO PATCH que ya se hacía, así que no cuesta ni un
+    // request más: son los mismos 65, uno por fila, y ahora llevan los dos
+    // campos. Es también el patrón de Equipo y Asociados.
+    //
+    // De paso deja de haber filas sin `orden`: 32 de las 65 lo tenían en NULL
+    // —las creadas después de que alguien numerara a mano las primeras— y en el
+    // catálogo caían todas al final, ordenadas como quisiera Postgres.
+    const updates = reordered.map((p, i) => supabase.from('propiedades').update({ orden: i + 1, destacada: i < 6 }).eq('id', p.id))
     const fallo = (await Promise.all(updates)).find(r => r.error)
     avisarError('No se pudo guardar el nuevo orden de las propiedades', fallo?.error ?? null)
     load()
