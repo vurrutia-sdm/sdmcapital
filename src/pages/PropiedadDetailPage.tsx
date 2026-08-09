@@ -262,7 +262,16 @@ export default function PropiedadDetailPage() {
   useBloquearScroll(lightbox)
 
   if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--muted)' }}>Cargando…</div>
-  if (!prop)   return <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--muted)' }}>Propiedad no encontrada.</div>
+  // Esta rama se saltaba el contrato de la tanda 4: era la única página del
+  // sitio que se renderizaba sin ningún <h1>. El estilo es el mismo de antes
+  // —el reset de Tailwind deja los encabezados en `font-size: inherit` y sin
+  // margen—, así que solo cambia la etiqueta.
+  if (!prop)   return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ color: 'var(--muted)' }}>
+      <h1>Propiedad no encontrada.</h1>
+      <Link to="/propiedades" className="btn-text">Ver todas las propiedades</Link>
+    </div>
+  )
 
   const titulo = lang === 'en' && prop.titulo_en ? prop.titulo_en : prop.titulo
 
