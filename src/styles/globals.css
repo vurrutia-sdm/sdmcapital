@@ -255,6 +255,42 @@
     --sdm-peso-normal: 400;
     --sdm-peso-medio:  500;
 
+    /* ─── MOVIMIENTO ───────────────────────────────────────────────────────
+       TRES DURACIONES Y UNA CURVA, derivadas de las 134 transiciones que hay.
+
+         150ms  43 usos   ← rápida
+         200ms  51 usos   ← normal, la más usada
+         500ms  11 usos   ← lenta
+         resto  29 usos repartidos entre 100, 180, 300, 400, 600, 1200 y 5000
+
+       Los tres tokens cubren 105 de 134. La cola no se migra: 180ms son
+       cuatro usos de SearchBar que redondean a normal, y 100ms seis que
+       redondean a rápida — diferencias que nadie distingue, pero cambiarlas
+       ahora tocaría archivos sin necesidad.
+
+       LO QUE NO ENTRA EN LA ESCALA:
+         · Los 1200ms y 5000ms del hero y del showcase. Son entradas y zooms
+           lentos, no retroalimentación de interfaz: una escala de respuesta
+           no debe describirlos.
+         · La rotación de los carruseles (`setInterval` a 1200 y 5500ms). Un
+           intervalo NO es una transición: dice cada cuánto ocurre algo, no
+           cuánto tarda.
+
+       LA CURVA es la de Tailwind y no el `ease` por defecto. De las 134,
+       setenta y siete llegan por clases `transition-*` de Tailwind, que ya
+       usan `cubic-bezier(.4,0,.2,1)`; de las inline, 49 no declaran curva
+       ninguna y heredan el `ease` implícito del navegador. Tokenizar la de
+       Tailwind alinea los dos caminos en el que ya manda.
+
+       ESTOS TOKENS NO TOCAN `prefers-reduced-motion`. La media query de más
+       abajo fuerza `transition-duration: 0.01ms !important`, y `!important`
+       gana a cualquier valor, venga de un token o de un literal. Verificado
+       en el navegador tras definirlos. */
+    --sdm-mov-rapido: 150ms;
+    --sdm-mov-normal: 200ms;
+    --sdm-mov-lento:  500ms;
+    --sdm-curva: cubic-bezier(0.4, 0, 0.2, 1);
+
     --sdm-radio-control:    2px;
     --sdm-radio-contenedor: 4px;
     --sdm-radio-flotante:   8px;

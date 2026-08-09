@@ -88,6 +88,17 @@ export default {
         'sdm-xl':   '1.25rem',
         'sdm-2xl':  '1.5rem',
       },
+      // Espejo de la escala de movimiento. La curva es la que Tailwind ya usa
+      // por defecto: tokenizarla alinea las transiciones inline —49 de las
+      // cuales no declaran ninguna— con las que llegan por clase.
+      transitionDuration: {
+        'sdm-rapido': 'var(--sdm-mov-rapido)',
+        'sdm-normal': 'var(--sdm-mov-normal)',
+        'sdm-lento':  'var(--sdm-mov-lento)',
+      },
+      transitionTimingFunction: {
+        'sdm': 'var(--sdm-curva)',
+      },
       // Espejo de la escala de peso. Solo los tres que las dos familias tienen
       // de verdad: Inter carga 300/400/500 y nada más, así que `font-semibold`
       // y `font-bold` producen negrita SINTÉTICA sobre Inter. No se tokenizan.
