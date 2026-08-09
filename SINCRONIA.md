@@ -5639,3 +5639,102 @@ es el extranjero— pero reabrían la ambigüedad que se venía cerrando.
 a servicios financieros en el extranjero» describe un servicio, no dónde opera
 SDM. Ahí «el extranjero» es correcto y acotarlo a Paraguay achicaría el
 servicio.
+
+---
+
+## El arrastre de fotos, roto en escritorio desde la migración a Pointer Events
+
+`<img>` y `<a>` son **arrastrables por defecto en HTML**. Al presionar sobre una
+miniatura y mover, el navegador arranca SU propio arrastre y **deja de entregar
+eventos de puntero**. Medido: llegaba un solo `pointermove` y ningún
+`pointerup`. El hook se quedaba esperando y la lista no se reordenaba nunca.
+
+```
+10 movimientos SIN botón presionado  → 10 pointermove   ✓
+10 movimientos CON el botón          →  1 pointermove   ✗   y 0 pointerup
+```
+
+Arreglo, una línea en `filaProps` de `useDragSort.ts`:
+
+```ts
+onDragStart: (e) => { e.preventDefault() },
+```
+
+Va en el hook y no como `draggable={false}` en cada `<img>`: son siete listas, y
+la octava que alguien agregue mañana volvería a nacer rota. `dragstart` burbujea,
+así que cancelarlo en la fila cubre todo lo que tenga adentro.
+
+### LA LECCIÓN DE MÉTODO, que es lo que más vale de acá
+
+El hook se migró de la API HTML5 a Pointer Events **porque HTML5 no funcionaba en
+táctil**. Se verificó en táctil, funcionó, y se dio por bueno.
+
+Quedó roto en **escritorio**, que era justamente donde antes andaba.
+
+Bajo HTML5 el arrastre nativo ERA el mecanismo, así que nadie tenía que pensar en
+él. Al cambiar de mecanismo pasó de aliado a competidor, y eso solo se ve con
+ratón: desde el dedo el arrastre nativo no se dispara.
+
+> **Al cambiar un mecanismo de interacción hay que probar las DOS entradas, no
+> solo la que motivó el cambio.** La entrada que ya funcionaba es precisamente la
+> que nadie vuelve a mirar.
+
+### Bisección
+
+`1347901` para la galería de fotos —la migración de `PropImageManager`— y
+`ae82003` para el resto. Su diff quita `draggable` de la fila y deja adentro los
+elementos que lo traen de fábrica.
+
+**No fue ninguna de las tandas de accesibilidad**, que era la sospecha inicial.
+Descartadas una por una: `FieldGroup` es un `div role="group"` y no un `<label>`;
+`area-44` no aparece ni una vez en `Propiedades.tsx` —y su `::after` *debe*
+recibir eventos, que es lo que agranda el área táctil—; la tarjeta sigue siendo
+un `div`; `ea2ea11` solo agregó `aria-hidden`; y el editor de propiedades no es
+un modal.
+
+### Verificación — las siete listas, ratón y dedo
+
+| Lista | Ratón | Dedo | Qué queda guardado |
+|---|---|---|---|
+| Sidebar de pestañas | ✓ | ✓ | localStorage — 0 escrituras a Supabase |
+| Propiedades — lista | ✓ | ✓ | 58 × `PATCH propiedades {destacada}` |
+| Propiedades — galería | ✓ | ✓ | el `imagenes[]` del formulario |
+| Equipo | ✓ | ✓ | 3 × `PATCH equipo {orden}` |
+| Asociados | ✓ | ✓ | 5 × `PATCH asociados {orden}` |
+| Textos — carrusel del hero | ✓ | ✓ | el formulario de Contenido |
+| Textos — destacadas del home | ✓ | ✓ | el formulario de Contenido |
+
+El editor de unidades usa el mismo hook, así que hereda el arreglo, pero **sus
+filas no llevan `<img>`: nunca estuvo roto**. No se pudo ejercitar porque la
+propiedad abierta no tenía unidades.
+
+La galería se verificó **contra lo guardado**, no contra la pantalla: se
+reordena, se pulsa «Guardar cambios» y se captura el cuerpo del `PATCH`. El
+`imagenes[]` enviado coincide exactamente con el orden visible, y
+`imagen_principal` se mantiene en su foto — reordenar no cambia la portada.
+
+Los tres casos límite:
+
+- **Soltar fuera de la lista** (400px por debajo de la grilla): reordena igual.
+  Es lo que arregló `4352f9a` moviendo los oyentes a `window`, y sigue en pie.
+- **Clic simple sobre una miniatura**: no reordena y no escribe nada.
+- **`[data-orden-quieto]`**: 122 marcados, todos dentro de filas ordenables — el
+  interruptor «Activa» y la columna Editar/Eliminar. Arrastrar desde uno de
+  ellos no reordena.
+
+### Qué se pierde al cancelar el `dragstart`
+
+Solo esto: **arrastrar una imagen hacia fuera** —a otra pestaña, al escritorio—
+desde dentro de una fila ordenable del admin. Verificado que el alcance es
+exactamente ese: un `<a>` fuera de las filas sigue arrastrándose, y el menú
+contextual sobre la miniatura **no** se cancela, así que «Guardar imagen como…»
+sigue funcionando. El sitio público no usa este hook.
+
+### Nota al margen: el orden de la lista de propiedades no se persiste
+
+`Propiedades.tsx:463` escribe `{ destacada: i < 6 }` a cada fila al reordenar:
+el orden de esa lista **es** la selección de destacadas del inicio. No escribe
+`orden`, así que al recargar la lista vuelve a salir ordenada por la columna
+`orden`. Es anterior a este arreglo y puede ser deliberado —lo que se administra
+ahí son las seis destacadas, no un orden de catálogo— pero conviene saberlo
+antes de reportarlo como bug.
