@@ -99,13 +99,15 @@ export default {
       transitionTimingFunction: {
         'sdm': 'var(--sdm-curva)',
       },
-      // Espejo de la escala de peso. Solo los tres que las dos familias tienen
-      // de verdad: Inter carga 300/400/500 y nada más, así que `font-semibold`
-      // y `font-bold` producen negrita SINTÉTICA sobre Inter. No se tokenizan.
+      // Espejo de la escala de peso. Los cinco son caras REALES desde que
+      // index.html carga Inter en 300;400;500;600;700 — y no costó ninguna
+      // descarga, porque Google la sirve como fuente variable.
       fontWeight: {
         'sdm-ligero': 'var(--sdm-peso-ligero)',
         'sdm-normal': 'var(--sdm-peso-normal)',
         'sdm-medio':  'var(--sdm-peso-medio)',
+        'sdm-semi':   'var(--sdm-peso-semi)',
+        'sdm-fuerte': 'var(--sdm-peso-fuerte)',
       },
       // Espejo de la escala de radio de globals.css, con `var()` por la misma
       // razón que los cuatro colores: el valor vive en un solo sitio.

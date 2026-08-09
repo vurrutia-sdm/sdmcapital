@@ -13,7 +13,7 @@ transcritas. Última verificación: **2026-08-09**.
 
 ## 1 · TOKENS
 
-**56 custom properties** en [`src/styles/globals.css`](./src/styles/globals.css)
+**58 custom properties** en [`src/styles/globals.css`](./src/styles/globals.css)
 (`:root`) y **13 entradas de color** en
 [`tailwind.config.js`](./tailwind.config.js), de las cuales 4 son punteros
 `var()` a las anteriores.
@@ -135,29 +135,56 @@ para UI y cuerpo (`.font-sans`).
 
 **No hay tokens de interlínea.** Ver 1.6. Los de peso están en 1.3.
 
-### 1.3 Peso tipográfico — 3 tokens
-
-Son los tres que **las dos familias tienen de verdad**.
+### 1.3 Peso tipográfico — 5 tokens
 
 | token | valor | clase | usos hoy |
 |---|---|---|---|
 | `--sdm-peso-ligero` | `300` | `font-sdm-ligero` | 224 |
 | `--sdm-peso-normal` | `400` | `font-sdm-normal` | 42 |
 | `--sdm-peso-medio` | `500` | `font-sdm-medio` | 70 |
+| `--sdm-peso-semi` | `600` | `font-sdm-semi` | 128 |
+| `--sdm-peso-fuerte` | `700` | `font-sdm-fuerte` | 50 |
 
-**600 y 700 no están, y es deliberado.** `index.html` carga
-`Inter:wght@300;400;500` y nada más: los **119 usos de 600 y 47 de 700 sobre
-Inter son negrita sintética**, que el navegador falsifica engordando los
-trazos. Se ve peor y cambia entre motores. Tokenizarlos habría sido bendecir
-un defecto; los 166 se corrigen a `medio` cuando se toque cada componente.
+**Los cinco son caras reales.** Hasta el 2026-08-09 la escala tenía solo tres:
+`index.html` cargaba `Inter:wght@300;400;500`, así que los 168 usos de 600 y
+700 sobre Inter eran **negrita sintética** — el navegador los falsificaba
+engordando los trazos.
+
+**La razón desapareció al medir el coste.** Google sirve Inter como **fuente
+variable**: un único `.woff2` cubre todo el rango, y los siete ficheros que
+sirve para tres pesos son *exactamente los mismos* que para cinco, comparados
+byte a byte. Cargar 600 y 700 no añadió ni una descarga.
+
+Medido con caché fría, antes y después:
+
+| | antes | después |
+|---|---|---|
+| peticiones a `fonts.gstatic` | 3 | **3** |
+| el `.woff2` de Inter | `UcC73…Q5nw` 48.567 B | **el mismo** |
+| CLS | 0,00240 | 0,00241 |
+| FCP (3 muestras) | 172 / 180 / 168 ms | 168 / 148 / 164 ms |
+
+Lo único que creció es la hoja CSS de Google, de 7.521 a 12.535 bytes — ~1 kB
+con gzip, desde un dominio con `preconnect` ya establecido.
+
+**Cómo se comprobó que las caras son reales y no sintéticas.** Midiendo el
+ancho trazado del mismo texto a cada peso:
+
+```
+  antes    300→492,86   400→499,08   500→503,47   600→503,47   700→503,47
+  después  300→492,86   400→499,08   500→503,47   600→507,86   700→512,24
+```
+
+Antes, 600 y 700 medían **exactamente lo mismo que 500**: el navegador usaba
+la cara de 500 y engordaba encima. Ahora cada peso tiene su métrica, en pasos
+regulares — el interpolado de una variable real.
 
 **La escala no es por familia, y podría haberlo sido.** Cormorant carga
-300/400/500/600 y usa sobre todo 300 (152 de 176); Inter reparte entre las
-tres que tiene. Los tres valores comunes sirven a las dos. El único peso real
-fuera de la escala es Cormorant 600, con 6 usos.
-
-Medido sobre 514 literales: 300 → 43,6 % · 400 → 8,2 % · 500 → 13,6 % ·
-600 → 24,9 % · 700 → 9,7 %.
+300/400/500/600, Lora 400/500/600/700 y Poppins 300/400/500/600. Ningún peso
+de la escala falta en Inter, que lleva el grueso del texto de interfaz, así
+que un solo juego sirve a todas. **`fuerte` (700) no existe en Cormorant ni en
+Poppins**: ahí el navegador seguiría sintetizando, y por eso no debe usarse
+sobre esas dos.
 
 ### 1.4 Radio — 3 tokens
 

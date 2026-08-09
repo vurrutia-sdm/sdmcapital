@@ -235,25 +235,35 @@
          600  128       24,9 %   ← el segundo más usado
          700   50        9,7 %
 
-       Cinco valores, no tres. Pero 600 y 700 NO EXISTEN EN INTER: index.html
-       carga `Inter:wght@300;400;500` y nada más. Comprobado contra
-       `document.fonts`: solo se descargan Inter 300, 400 y 500. Los 119 usos
-       de 600 y los 47 de 700 sobre Inter son NEGRITA SINTÉTICA, que el
-       navegador falsifica engordando los trazos. Se ve peor y cambia entre
-       navegadores.
+       Cinco valores, y los cinco existen. Hasta el 2026-08-09 la escala tenía
+       solo tres: `index.html` cargaba `Inter:wght@300;400;500`, así que los
+       168 usos de 600 y 700 sobre Inter eran NEGRITA SINTÉTICA — el navegador
+       los falsificaba engordando los trazos, se veía peor y cambiaba entre
+       motores. Tokenizarlos habría sido bendecir un defecto.
 
-       Por eso la escala no los incluye: tokenizarlos sería bendecir un
-       defecto. Los 166 se corrigen a `medio` cuando se toque cada componente.
+       LA RAZÓN DESAPARECIÓ AL MEDIR EL COSTE. Google sirve Inter como FUENTE
+       VARIABLE: un único .woff2 cubre todo el rango, y los siete ficheros que
+       sirve para tres pesos son EXACTAMENTE LOS MISMOS que para cinco,
+       comparados byte a byte. Pedir 600 y 700 no añade ni una descarga —
+       ese archivo ya estaba en el navegador—; solo crece la hoja CSS de
+       Google, de 7.521 a 12.535 bytes, ~1 kB con gzip y desde un dominio con
+       `preconnect` ya establecido.
+
+       Con las caras reales cargadas, 600 —el segundo peso más usado del
+       proyecto, 128 veces— pasa a tener token.
 
        LA ESCALA NO ES POR FAMILIA, y podría haberlo sido. Cormorant carga
-       300/400/500/600 y usa sobre todo 300 (152 de 176); Inter reparte entre
-       las tres que tiene. Los tres valores comunes son 300, 400 y 500, así
-       que un solo juego sirve a las dos: nombrarlos por familia habría
-       duplicado tokens sin añadir nada. El único peso real que queda fuera es
-       Cormorant 600, con 6 usos — no llega a justificar un cuarto token. */
+       300/400/500/600, Lora 400/500/600/700 y Poppins 300/400/500/600. Ningún
+       peso de la escala falta en Inter, que es la que lleva el 96 % del texto
+       de interfaz, así que un solo juego sirve a todas: nombrarlos por familia
+       habría duplicado tokens sin añadir nada. `fuerte` (700) no existe en
+       Cormorant ni en Poppins — ahí el navegador seguiría sintetizando, y por
+       eso no debe usarse sobre esas dos. */
     --sdm-peso-ligero: 300;
     --sdm-peso-normal: 400;
     --sdm-peso-medio:  500;
+    --sdm-peso-semi:   600;
+    --sdm-peso-fuerte: 700;
 
     /* ─── MOVIMIENTO ───────────────────────────────────────────────────────
        TRES DURACIONES Y UNA CURVA, derivadas de las 134 transiciones que hay.
