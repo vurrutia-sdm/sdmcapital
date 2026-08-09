@@ -6692,7 +6692,18 @@ y cero `destacada`.
 - `catalogo_orden = 'precio_alto'`, y `applyCatalogOrder` descarta `orden` salvo
   en modo manual. Escribir `orden` no mueve el catálogo público hoy.
 
-### Pendiente: el mismo defecto en Equipo y Asociados
+### Las tres listas de arrastre se comportan igual ante el error
 
-`Equipo.tsx:27` y `Asociados.tsx:27` avisan del error y recargan igual, sin
-cortar. **No se tocaron**, a la espera de decisión. Ver el reporte de la sesión.
+`Equipo.tsx` y `Asociados.tsx` avisaban del error y recargaban igual. **Alineadas
+el 2026-08-09** (commit `c233778`): las tres cortan con `return` antes del
+`load()`. Sus listas son más cortas y la ventana de fallo parcial es menor, pero
+existe igual, y tres listas con dos comportamientos ante el mismo error es lo que
+confunde al siguiente que las lea.
+
+**Queda una cuarta, y NO se tocó:** `TarjetasEquipo.tsx:230`. Es otro mecanismo
+—flechas que INTERCAMBIAN el `orden` de dos filas, no un renumerado de la lista
+entera— y su fallo parcial es más feo: si uno de los dos PATCH pasa y el otro no,
+quedan **dos tarjetas con el mismo `orden`**. Ahí el `load()` tras el aviso tiene
+un argumento a favor que las otras tres no tienen: el estado local queda
+seguro mal, y recargar al menos muestra el desempate real en vez de una pantalla
+limpia que miente. Es decisión aparte, no un olvido.
