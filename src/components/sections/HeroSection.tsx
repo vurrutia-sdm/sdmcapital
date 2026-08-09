@@ -192,6 +192,10 @@ export default function HeroSection() {
   // y «10 países» de una época anterior, y eso se pintaba en cada carga. No
   // están para calzar con la base — para eso está la semilla de index.html —
   // sino para no mentir cuando la base no está.
+  // El kicker vuelve a salir de la base. Los renglones se separan con \n en el
+  // valor: era lo único que impedía tenerlo acá, porque necesita el corte en un
+  // punto exacto y meter un <br> dentro de un texto plano no correspondía.
+  const kicker    = get('hero_kicker',      'Inversión inmobiliaria\nChile & Paraguay')
   const titulo1   = get('hero_titulo_1',   'Tu socio confiable')
   const titulo2   = get('hero_titulo_2',   'en bienes')
   const titulo3   = get('hero_titulo_3',   'raíces')
@@ -257,16 +261,16 @@ export default function HeroSection() {
       {/* Contenido encima de todo */}
       <div className="relative h-full flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-14" style={{ zIndex: 4 }}>
 
-        {/* Kicker — texto fijo, NO sale de `contenido_sitio`. Quedó así en la
-            limpieza de «Chile y Paraguay» porque necesita el salto de línea en
-            un punto exacto. La clave `hero_kicker` sigue existiendo en la base y
-            editable desde el admin, pero ya no pinta nada: hasta hace un momento
-            se leía en un `const` que nadie usaba. */}
+        {/* Kicker — un renglón por línea del valor. Se filtran las líneas
+            vacías y se recortan los espacios: la clave viene de un campo de
+            texto del admin y un espacio al final o un renglón de más no pueden
+            mover el diseño. */}
         <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green)' }}>
           <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
           <span>
-            Inversión inmobiliaria<br />
-            Chile &amp; Paraguay
+            {kicker.split('\n').map(l => l.trim()).filter(Boolean).map((linea, i) => (
+              <span key={i} style={{ display: 'block' }}>{linea}</span>
+            ))}
           </span>
         </div>
 
