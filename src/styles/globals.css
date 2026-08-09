@@ -185,6 +185,48 @@
     --sdm-tracking-tight: -0.03125rem;
     --sdm-tracking-normal: 0;
     --sdm-tracking-wide: 0.125rem;
+
+    /* ─── RADIO ────────────────────────────────────────────────────────────
+       TRES VALORES, POR LO QUE ES EL ELEMENTO Y NO POR SU TAMAÑO.
+
+         control     lo que se pulsa o se escribe: botones, campos, insignias
+         contenedor  lo que agrupa: tarjetas, paneles, cajas
+         flotante    lo que se despega del fondo: modales, desplegables
+
+       El radio mayor del flotante no es decoración: es lo que lo separa
+       visualmente de la superficie que tapa.
+
+       LO QUE NO ENTRA EN LA ESCALA: los círculos (`50%`, 21 usos) y las
+       píldoras (radio 20, y los 12 que van sobre elementos de ~20px de alto).
+       Ahí el radio no redondea una esquina: define la FORMA del elemento. Un
+       token de 8px aplicado a una píldora la rompe. Para eso está
+       `rounded-full`, que sigue existiendo.
+
+       LA COLA NO ESTÁ MIGRADA, Y ES DELIBERADO. Quedan 155 radios sueltos que
+       no coinciden con ningún token. Migrarlos es el mismo intercambio que ya
+       se descartó con medición para el estilo inline, y a diferencia del
+       contraste esto no incumple ninguna norma. Se corrigen cuando se toque
+       cada componente.
+
+       Medido el 2026-08-09 sobre 268 apariciones — lo que falta, y por qué no
+       es ruido:
+         · Captación usa 6px en 17 contenedores, y 12/14 en burbujas de chat y
+           botones: es un lenguaje propio del panel, no descuido.
+         · SearchBar usa 8px en 9 sitios, de los cuales solo 2 son flotantes de
+           verdad; los otros 7 son controles que deberían ir a 2px.
+         · NINGÚN MODAL USA HOY 8px: tres van a 6, uno a 4 y dos tienen las
+           esquinas rectas. `--sdm-radio-flotante` describe hacia dónde van, no
+           dónde están.
+
+       NOMBRES: la propiedad es `--sdm-radio-*` y la utilidad `rounded-sdm-*`.
+       No es la simetría exacta del resto de la escala —`text-sdm-sm` ↔
+       `--sdm-text-sm`— porque `rounded-` ya significa radio: repetirlo daría
+       `rounded-sdm-radio-control`. El prefijo `sdm-` sí se conserva en los dos
+       lados, que es lo que la regla protege: `control` y `contenedor` no son
+       claves nativas de Tailwind hoy, pero podrían serlo mañana. */
+    --sdm-radio-control:    2px;
+    --sdm-radio-contenedor: 4px;
+    --sdm-radio-flotante:   8px;
   }
 
   * { box-sizing: border-box; }
@@ -288,7 +330,7 @@
   @keyframes admin-loading-in { from { opacity: 0; } to { opacity: 1; } }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-colors duration-200;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-sdm-control transition-colors duration-200;
     background: var(--navy-dark);
   }
   /* La contraparte de `.btn-primary` para fondo oscuro, no una excepción:
@@ -298,7 +340,7 @@
      Hace falta porque sobre un panel `--navy-dark` el propio `.btn-primary` es
      invisible: el botón y el fondo son el mismo color (1.00:1). */
   .btn-inverse {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase cursor-pointer rounded-[2px] transition-colors duration-200;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase cursor-pointer rounded-sdm-control transition-colors duration-200;
     background: #FFFFFF;
     color: var(--navy-dark);
   }
@@ -308,7 +350,7 @@
      oscuros rinde bien (5.37:1 sobre --navy-dark). El problema es solo blanco
      ENCIMA de verde. */
   .btn-green {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-colors duration-200;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-sdm-control transition-colors duration-200;
     background: var(--green-dark);
   }
   /* EL BORDE ES LO ÚNICO QUE DELIMITA ESTE BOTÓN.
@@ -321,7 +363,7 @@
      una foto y no un color plano: donde la imagen aclare, el contraste baja.
      0.40 deja margen para eso sin llegar a competir con el hover. */
   .btn-outline {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-normal tracking-[1.5px] uppercase cursor-pointer rounded-[2px] transition-all duration-200 border;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-normal tracking-[1.5px] uppercase cursor-pointer rounded-sdm-control transition-all duration-200 border;
     color: rgba(255,255,255,0.65);
     border-color: rgba(255,255,255,0.40);
   }
@@ -557,7 +599,7 @@
   .prose-sdm s { text-decoration: line-through; }
   .prose-sdm img {
     max-width: 100%;
-    border-radius: 4px;
+    border-radius: var(--sdm-radio-contenedor);
     margin: 24px 0;
     display: block;
   }

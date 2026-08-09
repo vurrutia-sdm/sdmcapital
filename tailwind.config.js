@@ -88,6 +88,16 @@ export default {
         'sdm-xl':   '1.25rem',
         'sdm-2xl':  '1.5rem',
       },
+      // Espejo de la escala de radio de globals.css, con `var()` por la misma
+      // razón que los cuatro colores: el valor vive en un solo sitio.
+      // `extend` no borra los radios nativos de Tailwind — `rounded-full` sigue
+      // existiendo, y es lo correcto para círculos y píldoras, que no entran en
+      // la escala porque ahí el radio define la forma y no redondea una esquina.
+      borderRadius: {
+        'sdm-control':    'var(--sdm-radio-control)',
+        'sdm-contenedor': 'var(--sdm-radio-contenedor)',
+        'sdm-flotante':   'var(--sdm-radio-flotante)',
+      },
       letterSpacing: {
         'sdm-tight':  '-0.03125rem',
         'sdm-normal': '0',
