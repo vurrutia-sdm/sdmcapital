@@ -128,6 +128,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 6: cierre de tamaño táctil y del último carrusel | Los 6 puntos que fallaban 2.5.8 pasan a 18px de separación; el resto cumple por excepción. El slider de El Barranco recibe pausa bilingüe | Cerrada — commits `c0250e9` y `91ba9b1` |
 | 2026-08-08 | Accesibilidad — tanda 6: los menores | 70 iconos decorativos ocultos, estado en los 3 controles de dos estados, `.sr-only` nueva en **`globals.css`** y los 13 tokens tipográficos a `rem` en **`globals.css` y `tailwind.config.js`, ZONA COMPARTIDA**. **El reordenamiento por teclado NO se hizo** | Cerrada — commits `b306c5a`, `49fef29`, `ea2ea11` y `248e418` |
 | 2026-08-08 | Contenido — cierre de la inconsistencia internacional | 12 textos de «el mundo» pasan a «Chile y Paraguay» —**`src/lib/i18n.ts` y `functions/blog/[slug].js`, ZONA COMPARTIDA y dominio Sofía**— y se borra el material muerto de los seis destinos | Cerrada — commits `48d38dd` y `2fb2712` |
+| 2026-08-09 | Captación — cierre de los nueve pendientes | **Invasión de dominio autorizada: `Captacion.tsx`. Se cierran los nueve hallazgos que quedaron pendientes de las auditorías de UX copy, color y accesibilidad. No se toca la lógica del bot ni sus escrituras a Supabase** | En curso |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05

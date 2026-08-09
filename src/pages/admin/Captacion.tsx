@@ -460,10 +460,7 @@ function ModoToggleBanner({ lead, onModoChange }: {
     const next = isManual ? 'auto' : 'manual'
     const { error } = await supabase.from('leads').update({ modo: next }).eq('id', lead.id)
     setTogglingModo(false)
-    if (error) {
-      alert('No se pudo cambiar el modo: ' + error.message)
-      return
-    }
+    if (avisarError('No se pudo cambiar el modo de atención', error)) return
     onModoChange()
   }
 
@@ -1097,7 +1094,18 @@ export default function Captacion() {
       plazo:       draft.plazo       || null,
     }).eq('id', editingLead.id)
     if (error) {
-      setEditError('Error al guardar: ' + error.message)
+      // NO pasa por `avisarError`, y es la única escritura del panel que no lo
+      // hace. `avisarError` levanta un `alert()`, y acá el modal ya está
+      // abierto con lo que se escribió: el aviso saldría ENCIMA del formulario
+      // y habría que descartarlo antes de poder corregir el campo. El banner
+      // de abajo dice lo mismo sin interrumpir y sin tapar nada.
+      //
+      // Lo que sí se conserva de `avisarError` es la parte que sirve para
+      // depurar: el objeto completo a la consola. El `error.message` de
+      // Postgres NO se muestra —viene en inglés y habla de columnas y
+      // restricciones, no de lo que la persona estaba haciendo—.
+      console.error('[No se pudo guardar el lead]', error)
+      setEditError('No se pudo guardar el lead. No se cambió nada; revisa los datos y vuelve a intentarlo.')
       setEditSaving(false)
       return
     }
@@ -1111,10 +1119,11 @@ export default function Captacion() {
     if (!confirm('¿Eliminar este lead? Esto también elimina sus visitas asociadas. Esta acción no se puede deshacer.')) return
     setDeletingId(lead.id)
     const { error } = await supabase.from('leads').delete().eq('id', lead.id)
-    if (error) {
-      alert('Error al eliminar: ' + error.message)
-    }
+    // `setDeletingId(null)` va ANTES del corte: la fila se pinta al 50 % de
+    // opacidad mientras se borra, y si el corte se lleva esta línea la fila se
+    // queda apagada para siempre aunque el lead siga ahí.
     setDeletingId(null)
+    if (avisarError('No se pudo eliminar el lead', error)) return
     if (expandedId === lead.id) setExpandedId(null)
     loadLeads()
     loadVisitas()
