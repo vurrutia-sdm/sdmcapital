@@ -214,6 +214,38 @@ const STATUS_DE_VISITA = new Set(['visita_pendiente', 'visita_confirmada'])
 
 type UltimaVisita = { estado: string; created_at: string | null }
 
+// ── El aviso de cancelar, según lo que se esté cancelando ────────────────────
+//
+// SE RAMIFICA POR EL ESTADO DE LA VISITA, no por un parámetro que haya que
+// acordarse de pasar desde cada botón: la visita ya sabe cuál es su estado, así
+// que los dos textos no se pueden desincronizar.
+//
+// Cancelar una CONFIRMADA no es lo mismo que cancelar una pendiente. Una
+// pendiente es una solicitud que todavía no se le prometió a nadie. Una
+// confirmada tiene hora acordada y un asesor asignado, y el cliente la está
+// esperando. Como el sistema no avisa a nadie —el Worker nunca lee
+// `visitas.estado`—, ese trabajo queda entero en manos de quien aprieta el
+// botón, y el aviso da el nombre y la hora para no tener que ir a buscarlos
+// después de haber cancelado.
+//
+// Función aparte y pura para poder verificar los dos textos sin tocar la base.
+function avisoCancelar(v: VisitaConLead): string {
+  const quien = v.lead?.nombre?.trim() || v.lead?.wa_phone?.trim() || 'este lead'
+  const cuando = (v.horario_confirmado || v.horario_propuesto || '').trim()
+  const conQuien = (v.asignado_a || '').trim()
+
+  if (v.estado !== 'confirmada') {
+    return `¿Cancelar la visita de ${quien}?\n\n` +
+      'Queda marcada como cancelada y desaparece de esta lista. El registro no se borra.\n\n' +
+      'Al cliente no le llega ningún aviso: si ya habías coordinado con él, avísale tú por WhatsApp.'
+  }
+  return `¿Cancelar la visita CONFIRMADA de ${quien}?\n\n` +
+    (cuando ? `Estaba agendada para «${cuando}»${conQuien ? ` con ${conQuien}` : ''}.\n\n` : '') +
+    'El cliente la está esperando y NO recibe ningún aviso automático: tienes que ' +
+    `avisarle tú por WhatsApp${conQuien ? `, y avisarle también a ${conQuien}` : ''}.\n\n` +
+    'Queda marcada como cancelada y sale de esta sección. El registro no se borra.'
+}
+
 function estadoLead(lead: Lead, ultima: UltimaVisita | undefined) {
   const crudo = lead.status || ''
   const propio = STATUS_LABEL[crudo] || fmt(lead.status)
@@ -942,9 +974,10 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
 // exige rociar `disabled` por todas partes y confiar en no olvidar ninguno.
 // Acá simplemente no hay controles que apagar: lo que era editable se pinta
 // como texto, y el único elemento enfocable es la acción que sí funciona.
-function VisitaConfirmadaCard({ visita, onRealizada, saving }: {
+function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving }: {
   visita: VisitaConLead
   onRealizada: () => void
+  onCancel: () => void
   saving: boolean
 }) {
   const lead = visita.lead
@@ -972,7 +1005,13 @@ function VisitaConfirmadaCard({ visita, onRealizada, saving }: {
         </div>
       )}
 
-      <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 16 }}>
+      {/* DOS ACCIONES CON CONSECUENCIAS OPUESTAS EN LA MISMA TARJETA.
+          Apiladas y con 24 px de separación, no lado a lado con el hueco de 10
+          que usa la tarjeta de pendientes: acá una cierra bien el ciclo y la
+          otra rompe un compromiso ya tomado con el cliente, y un error de
+          puntería entre las dos no se puede deshacer desde el panel.
+          Se distinguen además por peso —sólida contra contorno— y por color. */}
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 24 }}>
         {/* `minHeight: 44` explícito: con `padding 11px` y texto de 13 px el
             botón medía ~41 px y se quedaba corto del objetivo táctil. */}
         <button className="text-sdm-sm tracking-sdm-wide" type="button" onClick={onRealizada} disabled={saving}
@@ -980,6 +1019,12 @@ function VisitaConfirmadaCard({ visita, onRealizada, saving }: {
             background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontWeight: 700,
             cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
           <CalendarCheck size={15} aria-hidden="true" /> {saving ? 'Guardando…' : 'Marcar como realizada'}
+        </button>
+        <button className="text-sdm-sm" type="button" onClick={onCancel} disabled={saving}
+          style={{ width: '100%', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: '#fff', color: COLORS.red, border: `1px solid ${COLORS.red}`, borderRadius: 4, padding: '11px 18px', fontWeight: 600,
+            cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
+          <X size={15} aria-hidden="true" /> Cancelar la visita
         </button>
       </div>
     </div>
@@ -1383,12 +1428,8 @@ export default function Captacion() {
     //      última visita — ver `estadoLead`.
     //
     // Si algún día el worker empieza a reaccionar al estado, este texto miente.
-    const quien = v.lead?.nombre?.trim() || v.lead?.wa_phone?.trim() || 'este lead'
-    if (!confirm(
-      `¿Cancelar la visita de ${quien}?\n\n` +
-      'Queda marcada como cancelada y desaparece de esta lista. El registro no se borra.\n\n' +
-      'Al cliente no le llega ningún aviso: si ya habías coordinado con él, avísale tú por WhatsApp.'
-    )) return
+    //
+    if (!confirm(avisoCancelar(v))) return
     setSavingId(v.id)
     const { error } = await supabase.from('visitas').update({ estado: 'cancelada' }).eq('id', v.id)
     setSavingId(null)
@@ -1585,6 +1626,7 @@ export default function Captacion() {
                     key={v.id}
                     visita={v}
                     onRealizada={() => marcarRealizada(v)}
+                    onCancel={() => cancelarVisita(v)}
                     saving={savingId === v.id}
                   />
                 ))}

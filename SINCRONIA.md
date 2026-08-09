@@ -6509,10 +6509,8 @@ Movían contadores y los dejaban desfasados hasta el refresco de 25 s.
 
 ### Pendiente que deja
 
-**Una visita confirmada no se puede cancelar desde el panel.** La acción
-`cancelarVisita` funciona sobre cualquier visita, pero el botón solo existe en
-la tarjeta de las pendientes. Si una visita confirmada se cae, hoy no hay forma
-de reflejarlo. No entraba en este encargo.
+~~**Una visita confirmada no se puede cancelar desde el panel.**~~
+**CERRADO el 2026-08-09.** Ver «Captación — cancelar una visita confirmada».
 
 ### MÉTODO: un 200 no prueba que el asset esté propagado
 
@@ -6539,3 +6537,67 @@ curl -sI "https://sdmcapital.cl/assets/index-<hash>.css" | grep -i '^content-typ
 
 Y si un navegador ya pidió el asset durante esa ventana, hay que reiniciarlo
 —`browse stop`— antes de creerle: la hoja rota se queda en caché.
+
+---
+
+## Captación — cancelar una visita confirmada — 2026-08-09
+
+Cierra el pendiente que dejó la sección nueva. `cancelarVisita` siempre funcionó
+sobre cualquier visita, pero el botón solo existía en la tarjeta de las
+pendientes: si una visita ya confirmada se caía —el cliente avisa, se enferma,
+cambia de opinión— no había forma de reflejarlo. Y son justamente las que más
+importan, porque ya son un compromiso.
+
+### El aviso se ramifica por el estado, no por un parámetro
+
+`avisoCancelar(v)` es una función pura al lado de los otros helpers de
+etiquetas. Se ramifica leyendo `v.estado`, y no recibiendo una bandera desde
+cada botón: la visita ya sabe cuál es su estado, así que los dos textos no se
+pueden desincronizar. Pura, además, para poder verificar los dos sin tocar la
+base.
+
+Cancelar una confirmada no es lo mismo que cancelar una pendiente. Una pendiente
+es una solicitud que todavía no se le prometió a nadie. Una confirmada tiene
+hora acordada y un asesor asignado, y **el cliente la está esperando**. Como el
+sistema no avisa a nadie —el Worker nunca lee `visitas.estado`—, ese trabajo
+queda entero en manos de quien aprieta el botón:
+
+```
+¿Cancelar la visita CONFIRMADA de María José Fernández?
+
+Estaba agendada para «Sábado 14 de junio, 11:00 hrs» con Roberto.
+
+El cliente la está esperando y NO recibe ningún aviso automático: tienes que
+avisarle tú por WhatsApp, y avisarle también a Roberto.
+
+Queda marcada como cancelada y sale de esta sección. El registro no se borra.
+```
+
+El nombre y la hora van dentro a propósito: después de cancelar ya no están en
+pantalla, y quien tenga que escribir el WhatsApp los necesita.
+
+Verificado en los cuatro casos, incluidos los degradados: sin hora escrita se
+omite esa línea entera, y sin asesor se omiten las dos menciones.
+
+### Dos acciones opuestas en la misma tarjeta
+
+Apiladas y con **24 px** de separación medidos, no lado a lado con el hueco de
+10 que usa la tarjeta de pendientes. Una cierra bien el ciclo y la otra rompe un
+compromiso ya tomado, y ninguna de las dos se puede deshacer desde el panel. Se
+distinguen además por peso —sólida contra contorno— y por color.
+
+| acción | tamaño | contraste | |
+|---|---|---|---|
+| «Marcar como realizada» | 438 × **44** px | 15.71:1 | AA |
+| «Cancelar la visita» | 438 × **44** px | 6.30:1 texto · 6.30:1 borde | AA |
+
+Las dos con anillo de foco visible, `avisarError` con `return`, y recarga de
+`loadVisitas`, `loadLeadsQuiet` y `loadMetrics`.
+
+### El ciclo, completo
+
+`pendiente → confirmada → realizada` y `pendiente → confirmada → cancelada`. Una
+cancelada sale de la sección porque la consulta pide `estado=in.(pendiente,
+confirmada)`, y la fila del lead pasa a decir «Visita cancelada» con la nota del
+desfase, porque `leads.status` sigue en `visita_confirmada` y el cruce lo
+declara en vez de esconderlo.
