@@ -6316,3 +6316,28 @@ Métricas cuenta `visitas.estado='realizada'`, pero **nadie escribe ese valor** 
 ni el panel ni el Worker. Los estados que se escriben de verdad son `pendiente`
 (Worker, al calificar), `confirmada` y `cancelada` (panel). O se marcan a mano en
 la base, o esa métrica es siempre cero.
+
+### Barrido completo de contraste del panel, tras estos cambios
+
+Ya que el panel quedó medido entero, queda el inventario. **Tres pares siguen
+fallando**, los tres de la familia de insignias y del ámbar, que nunca fue la
+paleta paralela y no tiene variante oscura en `globals.css`:
+
+| elemento | ratio | tamaño | umbral | |
+|---|---|---|---|---|
+| Insignia **Hot** (`#c0392b` / `#fde2e1`) | 4.44 | 11 px bold | 4.5 | **falla por poco** |
+| Insignia **Warm** (`#c8740a` / `#fdedd6`) | 3.06 | 11 px bold | 4.5 | **falla** |
+| Botón **«Tomar control»** (blanco / `#c8740a`) | 3.52 | 13 px bold | 4.5 | **falla** |
+| Insignia Cold (`#2c5da0` / `#dde7f6`) | 5.29 | 11 px bold | 4.5 | AA |
+| Insignia Sin calificar | 4.81 | 11 px bold | 4.5 | AA |
+| Botón «Devolver a Sofía» (blanco / `--green-dark`) | 4.85 | 13 px bold | 4.5 | AA |
+| Las 6 métricas de colores | 3.52 – 6.60 | 24 px bold | 3.0 | AA |
+
+Las métricas cumplen por ser texto grande: 24 px en negrita pasa el umbral de
+3:1, no el de 4.5.
+
+El problema de fondo es que **no existe un ámbar oscuro en `globals.css`**. `Hot`
+y `Warm` comparten familia con `Cold`, que sí cumple, así que la corrección
+natural es oscurecer los dos tonos de texto —no los fondos— hasta 4.5, y usar
+ese ámbar oscuro también en el botón «Tomar control». Es un cambio en ZONA
+COMPARTIDA y toca la identidad de las insignias: va en su propia tanda.
