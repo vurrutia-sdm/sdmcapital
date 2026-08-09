@@ -375,7 +375,7 @@ export default function SearchBar() {
           ))}
         </div>
 
-        <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 'var(--sdm-radio-control)', fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green-dark)] hover:bg-[var(--navy-dark)]" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 'var(--sdm-radio-control)', fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
           <Search aria-hidden="true" size={14} /> Buscar
         </button>
       </div>

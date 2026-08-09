@@ -444,7 +444,7 @@ export default function PropiedadDetailPage() {
           <div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               {prop.bono_pie && (
-                <span className="text-sdm-xs tracking-sdm-wide" style={{ padding: '5px 14px', borderRadius: 1, background: 'var(--green)', color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ padding: '5px 14px', borderRadius: 1, background: 'var(--green-dark)', color: '#fff', fontWeight: 600, textTransform: 'uppercase' }}>
                   Bono Pie{prop.bono_pie_porcentaje ? ` ${prop.bono_pie_porcentaje}%` : ''}
                 </span>
               )}

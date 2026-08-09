@@ -27,7 +27,7 @@ export default function Mensajes() {
     <div>
       <h2 className="font-serif font-light mb-8 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
         Mensajes de contacto
-        {noLeidos > 0 && <span className="ml-3 font-sans text-[14px] px-3 py-1 rounded-full" style={{ background: 'var(--green)', color: '#fff' }}>{noLeidos} nuevos</span>}
+        {noLeidos > 0 && <span className="ml-3 font-sans text-[14px] px-3 py-1 rounded-full" style={{ background: 'var(--green-dark)', color: '#fff' }}>{noLeidos} nuevos</span>}
       </h2>
       <div className="flex flex-col gap-4">
         {msgs.map(m => (

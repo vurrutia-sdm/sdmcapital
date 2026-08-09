@@ -98,7 +98,7 @@ export default function VendeConNosotrosPage() {
           <p className="font-light mt-6 border-l-2 pl-4 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.9, borderColor: 'var(--green)', maxWidth: 560 }}>
             {heroSubtitulo}
           </p>
-          <a className="text-sdm-xs tracking-sdm-wide" href="#contacto" style={{ display: 'inline-block', marginTop: 40, padding: '13px 28px', background: 'var(--green)', color: '#fff', textDecoration: 'none', fontWeight: 500, textTransform: 'uppercase', borderRadius: 2 }}>Quiero vender mi propiedad</a>
+          <a className="text-sdm-xs tracking-sdm-wide" href="#contacto" style={{ display: 'inline-block', marginTop: 40, padding: '13px 28px', background: 'var(--green-dark)', color: '#fff', textDecoration: 'none', fontWeight: 500, textTransform: 'uppercase', borderRadius: 2 }}>Quiero vender mi propiedad</a>
         </div>
       </div>
 

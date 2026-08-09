@@ -77,7 +77,7 @@ export default function BlogPage() {
                       : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic text-sdm-base" style={{ color: 'var(--muted)' }}>{categoriaPrincipal(post.categoria)}</span></div>
                     }
                     {post.destacado && (
-                      <div className="absolute top-3 left-3 text-[13px] tracking-[2px] uppercase px-2.5 py-1" style={{ background: 'var(--green)', color: '#fff', borderRadius: 1 }}>
+                      <div className="absolute top-3 left-3 text-[13px] tracking-[2px] uppercase px-2.5 py-1" style={{ background: 'var(--green-dark)', color: '#fff', borderRadius: 1 }}>
                         Destacado
                       </div>
                     )}

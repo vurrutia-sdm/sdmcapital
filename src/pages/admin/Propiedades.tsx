@@ -372,7 +372,7 @@ const upload = async (files: FileList) => {
               >
                 <img src={thumbUrl(url)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 {url === imagenPrincipal && (
-                  <div className="text-sdm-xs tracking-sdm-wide" style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green)', color: '#fff', fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', padding: '4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'var(--green-dark)', color: '#fff', fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', padding: '4px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                     <Star size={11} strokeWidth={2} />PORTADA
                   </div>
                 )}
@@ -389,7 +389,7 @@ const upload = async (files: FileList) => {
                   style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(226,75,74,0.9)', border: 'none', borderRadius: 2, color: '#fff', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}
                 ><X aria-hidden="true" size={14} strokeWidth={2} /></button>
               </div>
-              <button className={`text-sdm-xs tracking-sdm-wide ${url === imagenPrincipal ? 'bg-[var(--green)] text-white' : 'bg-[var(--border)] text-[var(--muted)] hover:bg-[var(--sky)] hover:text-[var(--navy-dark)]'}`}
+              <button className={`text-sdm-xs tracking-sdm-wide ${url === imagenPrincipal ? 'bg-[var(--green-dark)] text-white' : 'bg-[var(--border)] text-[var(--muted)] hover:bg-[var(--sky)] hover:text-[var(--navy-dark)]'}`}
                 onClick={() => setPrincipal(url)}
                 style={{ width: '100%', marginTop: 4, padding: '5px 0', fontWeight: 600,
                   border: 'none', borderRadius: 2, cursor: 'pointer',

@@ -485,14 +485,37 @@ No se unifican.
 Si dudas cuál usar: ¿el elemento se pulsa, se escribe o se selecciona? Entonces
 `--border-input`.
 
-### 4.2 `--green-dark` no reemplaza a `--green` globalmente
+### 4.2 `--green` solo sobre oscuro — COMO TEXTO **Y** COMO FONDO
 
-Blanco sobre `#3DAA6E` da **2,93:1** — no llega ni al umbral de texto grande.
-Sobre `#2D8055` da 4,85:1.
+**La regla en una línea: `--green` solo vale cuando lo que hay al lado es
+oscuro. En cualquier otro caso va `--green-dark`.**
 
-Pero `--green` **no se toca**: sigue siendo el color de marca y sobre fondo
-oscuro rinde bien (**5,37:1** sobre `--navy-dark`). El problema es *blanco
-encima de verde*, no el verde.
+| par | ratio | |
+|---|---|---|
+| `--green` sobre blanco | **2,93:1** | ❌ ni llega al umbral de texto grande |
+| blanco sobre `--green` | **2,93:1** | ❌ el mismo par, al revés |
+| `--green` sobre `--navy-dark` | **5,37:1** | ✅ su uso correcto |
+| `--green-dark` sobre blanco | **4,85:1** | ✅ |
+| blanco sobre `--green-dark` | **4,85:1** | ✅ |
+
+`--green` **no se elimina**: sigue siendo el color de marca y sobre fondo
+oscuro rinde bien.
+
+**ESTA REGLA APLICA A LAS DOS CARAS, y hace falta decirlo porque redactada
+como «el problema es blanco encima de verde» se escapó dos veces:**
+
+- **Como color de texto.** Se corrigieron 29 usos el 2026-08-09, incluida la
+  regla `.section-label` que pintaba los rótulos de sección de todo el sitio.
+- **Como color de fondo con texto blanco encima.** Otros 8 usos, encontrados
+  ese mismo día *después* de dar el eje por cerrado, porque el barrido anterior
+  buscó `color:` y estos eran `background:`. Estaban en el botón «Buscar» del
+  home, la insignia de categoría del blog, dos insignias de la ficha, los
+  botones de Rental y Vende, el contador de Mensajes y dos controles del admin
+  de propiedades.
+
+Al buscar infracciones de este eje hay que mirar **`color`, `background`,
+`background-color`, `bg-[var(--green)]` y `text-[var(--green)]`**. Mirar solo
+una de las dos familias da el eje por limpio cuando no lo está.
 
 ### 4.3 Los colores de estado se verifican con ΔE2000, no solo con ratio
 
