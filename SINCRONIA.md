@@ -53,6 +53,30 @@ Si wrangler avisa `Your working directory is a git repo and has uncommitted
 changes`, ese aviso no es cosmético: está diciendo que estás desplegando algo que
 no está versionado.
 
+#### El mecanismo concreto por el que esto falla: `git stash pop`
+
+Pasó el 2026-08-09 y salió a producción antes de detectarse.
+
+Un `git stash pop` **no pregunta cuál**: toma el de arriba de la pila. Si tu
+`git stash push` no guardó nada —porque los archivos que nombraste no tenían
+cambios—, el `pop` posterior desapila **el stash de otra sesión**, o uno viejo
+tuyo, y su contenido aterriza en el árbol de trabajo.
+
+Lo que hace este caso peligroso es que **ningún commit lo delata**: el trabajo
+reintroducido queda como cambios sin commitear, y si además revierte algo ya
+arreglado —en aquel caso el `<h1>` de «Propiedad no encontrada»— el `git diff`
+se lee como una eliminación deliberada, no como un accidente.
+
+Precauciones:
+
+- `git stash list` antes de cualquier `pop`, y `git stash pop stash@{n}` con
+  el índice explícito en vez del `pop` a ciegas.
+- Los stashes de comparación antes/después son basura en cuanto se usan:
+  `git stash drop` al terminar. Un stash que sobrevive a su sesión es una
+  trampa armada para la siguiente.
+- **`git status` justo antes del deploy, no después.** Es la única barrera que
+  detecta esto, porque el árbol de trabajo es lo que se despliega.
+
 ### 2. Correr `git status` al iniciar sesión
 
 Antes de editar cualquier archivo:
