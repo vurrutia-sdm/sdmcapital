@@ -56,6 +56,37 @@ function SinArriendos() {
   )
 }
 
+// Vacío de «Proyectos Nuevos» cuando se pide arriendo dentro de esa vitrina.
+//
+// Con el filtro que excluye arriendos de esta ruta, la combinación da CERO
+// siempre. El vacío genérico —«Ninguna propiedad coincide con estos filtros»—
+// sería cierto y desorientador a la vez: el visitante concluiría que no hay
+// arriendos, cuando sí los hay y son tres.
+//
+// El texto dice DÓNDE ESTÁN, no solo que aquí no están, y lleva el enlace con el
+// filtro ya puesto para no obligar a rehacer la búsqueda.
+function ArriendosEnElCatalogo() {
+  return (
+    <div className="px-4 lg:px-12 pb-20">
+      <div
+        className="text-center mx-auto"
+        style={{ maxWidth: 620, marginTop: 32, padding: '56px 32px', background: 'var(--off)', border: '1px solid var(--border)' }}
+      >
+        <h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
+          Los arriendos están en el <em>catálogo general</em>
+        </h2>
+        <p className="text-sdm-base" style={{ color: 'var(--muted)', lineHeight: 1.8, marginTop: 18 }}>
+          Proyectos Nuevos reúne las unidades en venta. Sí tenemos propiedades en
+          arriendo —departamentos nuevos incluidos—, pero se listan aparte.
+        </p>
+        <Link to="/propiedades?estado=en_arriendo" className="btn-primary" style={{ marginTop: 28 }}>
+          Ver propiedades en arriendo
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 const TIPOS   = [{ value: '', label: 'Todos los tipos' },{ value: 'casa', label: 'Casa' },{ value: 'departamento', label: 'Departamento' },{ value: 'oficina', label: 'Oficina' },{ value: 'parcela', label: 'Parcela' },{ value: 'comercial', label: 'Comercial' },{ value: 'hotel', label: 'Hotel / Inversión' }]
 const REGIONES = [{ value: '', label: 'Todas las regiones' },{ value: 'R. Metropolitana', label: 'R. Metropolitana' },{ value: 'Valparaíso', label: 'Valparaíso' },{ value: 'Coquimbo', label: 'Coquimbo' },{ value: 'Biobío', label: 'Biobío' },{ value: 'Los Lagos', label: 'Los Lagos' }]
 const ESTADOS  = [{ value: '', label: 'Todos' },{ value: 'en_venta', label: 'En venta' },{ value: 'en_arriendo', label: 'En arriendo' },{ value: 'vendida', label: 'Vendida' },{ value: 'reservada', label: 'Reservada' },{ value: 'arrendada', label: 'Arrendada' }]
@@ -220,6 +251,24 @@ export default function PropiedadesPage() {
 
     let q = supabase.from('propiedades').select('*').or('activo.is.null,activo.eq.true')
     if (categoria)                      q = q.eq('categoria', categoria)
+    // «Proyectos Nuevos» es una VITRINA COMERCIAL de unidades en venta —bono pie,
+    // entrega inmediata, etapa de construcción—, no una categoría del inventario.
+    // Un arriendo no pertenece ahí aunque el inmueble sea nuevo: apareció uno
+    // entre proyectos con argumentos de venta y no tenía sentido.
+    //
+    // `arrendada` además de `en_arriendo` por el mismo motivo: un inmueble ya
+    // arrendado tampoco se está ofreciendo en venta. Hoy no hay ninguno en ese
+    // estado, pero el filtro cubre el eje entero y no solo el caso que se vio.
+    //
+    // `vendida` y `reservada` SÍ se quedan, con su insignia como en el catálogo
+    // general: son unidades que sí se ofrecieron ahí, y sacarlas haría
+    // desaparecer proyectos enteros a medida que se colocan.
+    //
+    // `/propiedades-usadas` NO lleva un filtro equivalente, y es deliberado: es
+    // una categoría del inventario, no una vitrina. Una casa usada en arriendo
+    // sigue siendo una casa usada, y excluirlas dejaría 5 propiedades
+    // alcanzables solo desde el filtro de estado.
+    if (categoria === 'proyecto_nuevo') q = q.not('estado', 'in', '(en_arriendo,arrendada)')
     if (filtrosActuales.tipo)           q = q.eq('tipo', filtrosActuales.tipo)
     if (filtrosActuales.estado)         q = q.eq('estado', filtrosActuales.estado)
     if (filtrosActuales.region)         q = q.eq('region', filtrosActuales.region)
@@ -255,6 +304,11 @@ export default function PropiedadesPage() {
   // (/propiedades-usadas, /proyectos-nuevos) y recorta la consulta igual que un
   // filtro.
   const soloArriendo = filtros.estado === 'en_arriendo' && activeFiltros.length === 1 && !categoria
+  // Pedir arriendo DENTRO de Proyectos Nuevos: con el filtro de la consulta esa
+  // combinación da cero siempre, así que el vacío tiene que explicar dónde
+  // buscarlos en vez de dejar creer que no hay.
+  const arriendoEnProyectos = categoria === 'proyecto_nuevo'
+    && (filtros.estado === 'en_arriendo' || filtros.estado === 'arrendada')
 
   return (
     <div className="min-h-screen">
@@ -368,6 +422,7 @@ export default function PropiedadesPage() {
           <div style={{ width: 32, height: 32, border: '2px solid var(--border)', borderTopColor: 'var(--navy)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       ) : displayProps.length === 0 ? (
+        arriendoEnProyectos ? <ArriendosEnElCatalogo /> :
         soloArriendo ? <SinArriendos /> : (
           <div className="text-center py-24">
             <p className="text-sdm-xl" style={{ color: 'var(--muted)', fontWeight: 300 }}>Ninguna propiedad coincide con estos filtros. Prueba quitando alguno o ampliando la comuna.</p>
