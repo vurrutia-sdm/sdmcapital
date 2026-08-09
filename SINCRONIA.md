@@ -5738,3 +5738,65 @@ el orden de esa lista **es** la selección de destacadas del inicio. No escribe
 `orden`. Es anterior a este arreglo y puede ser deliberado —lo que se administra
 ahí son las seis destacadas, no un orden de catálogo— pero conviene saberlo
 antes de reportarlo como bug.
+
+---
+
+## CERRADO: `hero_kicker` se queda como está
+
+Decisión de Víctor, 2026-08-08. **No es un pendiente y no vuelve a los
+reportes.**
+
+La clave contiene `"Inversión inmobiliaria · Chile "` —un solo renglón, con
+espacio al final y sin Paraguay— y el hero la renderiza tal cual desde que se
+reconectó. Queda así a propósito.
+
+Si alguien lo ve y le extraña: el componente parte el valor por `\n` y pinta un
+`<span>` por renglón, así que para volver a los dos renglones bastaría con
+guardar en el admin
+
+```
+Inversión inmobiliaria
+Chile & Paraguay
+```
+
+pero **no hace falta hacerlo**. Está decidido.
+
+---
+
+## El botón «Ver publicada» en el formulario de edición
+
+Confirmado: **sí aparece con la propiedad pausada**, y sale deshabilitado con el
+motivo. En el formulario no hay casilla de por medio —la de «mostrar pausadas»
+solo filtra la lista— así que editando una pausada el botón está a la vista.
+
+| | Lista | Formulario |
+|---|---|---|
+| Propiedad activa | enlace | enlace |
+| Propiedad pausada | deshabilitado, **solo si la casilla «mostrar pausadas» está marcada** | deshabilitado, siempre visible |
+| Propiedad nueva | no aplica | no se dibuja: todavía no hay slug |
+
+Medido en el formulario de una pausada: `<button>` sin `href`,
+`aria-disabled="true"`, `tabIndex 0` —recibe foco, así que la explicación llega
+al teclado— y el nombre accesible «Ver ficha publicada de X: no disponible
+porque la propiedad está pausada».
+
+### PENDIENTE: el botón mira el borrador, no lo publicado
+
+El formulario tiene su propio selector Activa/Pausada. Al cambiarlo **sin
+guardar**, el botón cambia con él:
+
+- pausada → «Activa» sin guardar: el botón se vuelve **enlace**, pero la base
+  sigue diciendo `activo = false` y la ficha pública responde «Propiedad no
+  encontrada». Es exactamente lo que el botón deshabilitado existía para evitar.
+- activa → «Inactiva» sin guardar: se deshabilita aunque la ficha siga en pie.
+  Falso negativo, menos dañino.
+
+La causa: el formulario le pasa `editing`, que es el borrador. El botón abre la
+versión **publicada**, así que tiene que mirar la fila guardada:
+
+```tsx
+<VerPublicada prop={items.find(x => x.id === editing.id) ?? editing} conTexto />
+```
+
+El respaldo a `editing` cubre la propiedad nueva, que no está en `items` y
+tampoco tiene slug, así que sigue sin dibujarse.
