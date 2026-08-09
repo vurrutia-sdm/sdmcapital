@@ -1056,7 +1056,26 @@ export default function Captacion() {
   }
 
   const cancelarVisita = async (v: VisitaConLead) => {
-    if (!confirm('¿Cancelar esta visita?')) return
+    // La consecuencia está verificada contra el código, no supuesta:
+    //
+    //   1. Lo único que se escribe es `visitas.estado = 'cancelada'`. No hay
+    //      DELETE: el registro se conserva.
+    //   2. La tarjeta desaparece porque `loadVisitas` filtra `estado=pendiente`,
+    //      no porque se borre nada.
+    //   3. NO se le avisa al cliente. El worker de Sofía
+    //      (`sdm-captacion-worker-project/index.js`) solo hace POST a `visitas`
+    //      cuando el lead califica; no lee `estado` en ningún momento, así que
+    //      cancelar acá no dispara ningún WhatsApp.
+    //   4. `leads.status` NO se toca — al confirmar sí se pone
+    //      'visita_confirmada'. La asimetría está anotada en SINCRONIA.md.
+    //
+    // Si algún día el worker empieza a reaccionar al estado, este texto miente.
+    const quien = v.lead?.nombre?.trim() || v.lead?.wa_phone?.trim() || 'este lead'
+    if (!confirm(
+      `¿Cancelar la visita de ${quien}?\n\n` +
+      'Queda marcada como cancelada y desaparece de esta lista. El registro no se borra.\n\n' +
+      'Al cliente no le llega ningún aviso: si ya habías coordinado con él, avísale tú por WhatsApp.'
+    )) return
     setSavingId(v.id)
     const { error } = await supabase.from('visitas').update({ estado: 'cancelada' }).eq('id', v.id)
     setSavingId(null)
