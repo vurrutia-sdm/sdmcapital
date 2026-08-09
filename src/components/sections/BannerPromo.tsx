@@ -16,11 +16,27 @@ import { useContenido } from '@/hooks/useContenido'
 const COLORES_LOGO = ['var(--sky)', 'var(--green)', 'var(--navy-deeper)']
 
 export default function BannerPromo() {
-  const { get, loading } = useContenido()
+  const { get, listo } = useContenido()
 
-  // Mientras carga el contenido no se dibuja nada: evita que la pieza aparezca
-  // y desaparezca si en la base está apagada.
-  if (loading) return null
+  // `listo` y no `loading`: con semilla, el primer render YA sabe si el banner
+  // va y con qué contenido, así que la pieza se pinta de una en vez de aparecer
+  // ~300 ms tarde empujando todo lo que tiene debajo.
+  //
+  // El gate anterior esperaba a la consulta «para que la pieza no aparezca y
+  // desaparezca si en la base está apagada». Ese riesgo sigue existiendo, pero
+  // solo en un caso: alguien apaga el banner en el admin y nadie despliega. La
+  // semilla se regenera en cada build —`prebuild` corre
+  // `sync-contenido-seed.mjs` y siembra la tabla entera—, así que fuera de esa
+  // ventana semilla y base coinciden.
+  //
+  // Se aceptó a sabiendas, y el precedente es `ServiciosPage`: ya decide qué
+  // servicios ocultar leyendo la semilla, sin ningún gate, sobre el pliegue y
+  // con un servicio entero en juego. Mantener la excepción solo acá era una
+  // inconsistencia, no una protección.
+  //
+  // LA VENTANA SE CIERRA POR PROCESO, NO POR CÓDIGO: apagar el banner desde el
+  // admin exige desplegar. Está avisado junto al interruptor, en Contenido.
+  if (!listo) return null
   if (get('banner_activo', 'false') !== 'true') return null
 
   const kicker    = get('banner_kicker', 'Oportunidad comercial')

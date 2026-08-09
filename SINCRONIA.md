@@ -5386,6 +5386,30 @@ Sigue siendo mejor que el estado anterior, donde el flash era constante, pero es
 un comportamiento que depende de cuándo fue el último build y conviene tenerlo
 presente al mirar el sitio después de editar.
 
+#### REGLA: OCULTAR ALGO DESDE EL ADMIN EXIGE DESPLEGAR
+
+Para los textos, la ventana solo significa ver lo anterior un instante. **Para
+los interruptores que OCULTAN una pieza del sitio significa otra cosa: la pieza
+apagada sigue asomando ~300 ms a cada visitante hasta el siguiente despliegue.**
+
+Hoy son dos:
+
+| interruptor | qué oculta | dónde |
+|---|---|---|
+| `banner_activo` | el banner promocional del inicio | Contenido → Inicio |
+| `servicio_*_visible` | una tarjeta de servicio entera | Contenido → Servicios |
+
+**Si se apaga porque la oferta terminó o el servicio ya no se presta, hay que
+desplegar.** Guardar en el admin no basta.
+
+Está avisado en el propio panel, junto a los dos interruptores, con el
+componente `AvisoDespliegue` de `Contenido.tsx`. El texto dice qué hacer —«pide
+que se despliegue el sitio»— y no explica la semilla: a quien administra el
+sitio no le sirve entender el mecanismo.
+
+Es la misma familia que el pendiente de las tres claves de testimonios, con la
+diferencia de que aquello era una tarea puntual y esto es una regla permanente.
+
 ### Dos cosas que aparecieron midiendo, y que la semilla no arreglaba
 
 > **Ya están cerradas.** Ver «Una consulta por página, y las claves sueltas
@@ -6707,3 +6731,62 @@ quedan **dos tarjetas con el mismo `orden`**. Ahí el `load()` tras el aviso tie
 un argumento a favor que las otras tres no tienen: el estado local queda
 seguro mal, y recargar al menos muestra el desempate real en vez de una pantalla
 limpia que miente. Es decisión aparte, no un olvido.
+
+---
+
+## BannerPromo se pinta desde la semilla — 2026-08-09
+
+`BannerPromo` esperaba a la consulta (`if (loading) return null`) para decidir si
+dibujarse, aunque desde la semilla del 8 de agosto el dato ya está en el primer
+render. Aparecía **~300 ms tarde**, empujando todo lo que tiene debajo.
+
+Pasa a `listo`, que con semilla es `true` desde el primer render.
+
+### Lo que decidió el caso: `ServiciosPage` ya aceptaba ese riesgo
+
+El gate existía «para que la pieza no aparezca y desaparezca si en la base está
+apagada». El riesgo es real, pero **`ServiciosPage.tsx:38` ya filtra por
+`servicio_*_visible` leyendo la semilla, sin ningún gate, sobre el pliegue y con
+una tarjeta de servicio entera en juego** — y `servicio_banco_visible` está en
+`'false'`, o sea que el mecanismo está en uso. Mantener la excepción solo en
+BannerPromo era una inconsistencia, no una protección.
+
+### La tercera vía se descartó, y por qué
+
+Reservar el espacio y decidir el contenido al llegar la consulta cambia «banner
+que se retracta» por «caja vacía que se colapsa»: el alto no es fijo —322 px en
+escritorio, 519 px en móvil, y depende del largo del título— así que reservar
+mal crea su propio salto, y en el caso malo la caja se colapsa igual. Además,
+para saber *si* reservar hay que consultar la semilla, con lo cual ya se está
+confiando en ella.
+
+### Medido
+
+Antes, en producción (3 muestras): FCP 140–352 ms · LCP = FCP, elemento
+`<div class="absolute inset-0">` (el hero) · CLS 0.0002–0.0036 · **banner a
+316–660 ms**.
+
+Después, sobre el build (3 muestras): FCP 48–56 ms · **LCP = FCP, el mismo
+elemento** · CLS 0.0003 · **banner presente desde el primer frame**.
+
+**Mover el primer pintado NO desplazó el elemento LCP**, que era el riesgo a
+descartar. CLS tampoco se mueve — el banner está bajo el pliegue en las cuatro
+ventanas medidas (a 145 px de scroll en escritorio, 333 px en móvil), así que su
+salto nunca puntuó.
+
+Los dos casos simulables, con el `index.html` del build parcheado en su ruta
+real y 300 ms de latencia simulada:
+
+| caso | resultado |
+|---|---|
+| semilla `true` / base `true` | banner en el DOM a los 21–37 ms, **antes del FCP**. No desaparece |
+| semilla `true` / base `false` | aparece a los 24 ms y **desaparece a los 574 ms — parpadeo de 549 ms** |
+
+El segundo es el costo aceptado, y es lo que cierra la regla de proceso.
+
+> **Trampa del método.** El primer intento midió el caso B como «el banner no
+> apareció nunca»: el observador se instalaba después de que la consulta ya lo
+> había retirado. Y el segundo dio los dos casos vacíos porque servía la
+> simulación desde `/__caso-b.html`, ruta que **React Router resuelve como 404**,
+> no como el home. Para simular hay que parchear el `index.html` que se sirve en
+> `/`, y el recorder tiene que instalarse ANTES de que monte React.
