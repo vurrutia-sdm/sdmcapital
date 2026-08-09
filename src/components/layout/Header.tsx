@@ -35,16 +35,17 @@ export default function Header() {
   // salir sigue abriendo y cerrando, y ahora además abre el clic, Enter y
   // Espacio, que un <button> trae sin código.
   //
-  // `color: 'inherit'` reproduce exactamente lo que se veía: los <Link> de estos
-  // dos NO llevaban `navLinkClass`, a diferencia del resto de la navegación, así
-  // que heredaban `--ink` y salían más oscuros que sus vecinos. Un <button> no
-  // hereda el color —el navegador le pone `buttontext`—, así que hay que
-  // pedírselo. La inconsistencia se conserva a propósito: normalizarla sería un
-  // cambio de diseño, y esta tanda es de teclado.
+  // Estos dos NO llevaban `navLinkClass` a diferencia del resto de la
+  // navegación: heredaban `--ink` y salían más oscuros que sus vecinos. La tanda
+  // de teclado conservó la diferencia a propósito —era de diseño, no de
+  // teclado— y se arregla ahora: los siete enlaces usan la misma clase, así que
+  // comparten color, hover y estado activo sin excepciones.
+  //
+  // Sin `color` en el objeto de estilo: lo pone `navLinkClass`, y un inline
+  // ganaría sobre la clase y volvería a dejar el hover sin efecto.
   const estiloDisparador = (active: boolean) => ({
     ...navLinkStyle(active), display: 'flex', alignItems: 'center', gap: 4,
     background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-    color: 'inherit',
   })
 
   const isActive = (path: string) =>
@@ -103,6 +104,7 @@ export default function Header() {
             <button type="button"
               aria-expanded={propiedadesOpen}
               onClick={() => setPropiedadesOpen(v => !v)}
+              className={navLinkClass(isActive('/propiedades-usadas'))}
               style={estiloDisparador(isActive('/propiedades-usadas'))}>
               Propiedades Usadas
               <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -130,6 +132,7 @@ export default function Header() {
             <button type="button"
               aria-expanded={servicesOpen}
               onClick={() => setServicesOpen(v => !v)}
+              className={navLinkClass(isActive('/servicios'))}
               style={estiloDisparador(isActive('/servicios'))}>
               Servicios
               <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
