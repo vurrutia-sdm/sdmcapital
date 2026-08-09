@@ -353,7 +353,14 @@ export default function PropiedadesPage() {
             ].map(f => (
               <label key={f.key} style={{ display: 'block' }}>
                 <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>{f.label}</span>
-                <select className="text-sdm-base" value={(filtros as Record<string,unknown>)[f.key] as string || ''}
+                {/* `.input-line` Y NO EL ESTILO INLINE DE ANTES.
+                    El borde iba en `--border`, que da 1.18:1 contra el blanco.
+                    Ese token existe para separaciones decorativas; el borde de un
+                    CONTROL cae bajo WCAG 1.4.11 y necesita 3:1. `.input-line` usa
+                    `--border-input` (4.06:1), que es el token que existe justo
+                    para esto, y de paso trae el foco visible y la altura
+                    emparejada entre <select> e <input>. */}
+                <select className="input-line" value={(filtros as Record<string,unknown>)[f.key] as string || ''}
                   onChange={e => {
                     const nuevos = new URLSearchParams(searchParams)
                     if (e.target.value) nuevos.set(f.key, e.target.value)
@@ -361,7 +368,7 @@ export default function PropiedadesPage() {
                     if (f.key === 'region') nuevos.delete('comuna')
                     setSearchParams(nuevos, { replace: true })
                   }}
-                  style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: 'var(--ink)', background: 'transparent', cursor: 'pointer' }}>
+                  style={{ cursor: 'pointer' }}>
                   {f.opts.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </label>
@@ -369,7 +376,7 @@ export default function PropiedadesPage() {
             {/* Comuna filter */}
             <label style={{ display: 'block' }}>
               <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Comuna</span>
-              <select className="text-sdm-base"
+              <select className="input-line"
                 value={filtros.comuna || ''}
                 onChange={e => {
                   const nuevos = new URLSearchParams(searchParams)
@@ -378,7 +385,7 @@ export default function PropiedadesPage() {
                   setSearchParams(nuevos, { replace: true })
                 }}
                 disabled={!filtros.region}
-                style={{ width: '100%', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontFamily: 'inherit', color: filtros.region ? 'var(--ink)' : 'var(--muted)', background: 'transparent', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
+                style={{ color: filtros.region ? 'var(--ink)' : 'var(--muted)', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
               >
                 <option value="">{filtros.region ? 'Todas las comunas' : 'Primero elige región'}</option>
                 {filtros.region && getComunas(filtros.region).map(c => (
