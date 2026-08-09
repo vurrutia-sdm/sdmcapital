@@ -20,7 +20,13 @@ export default {
           pale: '#EDF4F9',
         },
         ink: '#1a1a1a',
-        muted: '#7a8a96',
+        // #7a8a96 daba 3,56:1 sobre blanco y NO cumple AA para texto normal.
+        // Es el valor que la auditoría ya había rechazado: se corrigió en
+        // globals.css y quedó vivo acá, así que `var(--muted)` pintaba el que
+        // cumple y `text-muted` el que no. Mismo nombre, dos colores.
+        // #5F7183 da 5,03:1. Los cuatro nombres que viven en los dos archivos
+        // —muted, border, ink, off— tienen que valer lo mismo en ambos.
+        muted: '#5F7183',
         border: '#e8edf2',
         off: '#F9FAFB',
       },
