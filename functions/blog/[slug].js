@@ -14,6 +14,7 @@
 // Antes la descripción estaba copiada a mano acá con un comentario pidiendo que
 // no divergiera de `src/components/SEO.tsx`.
 import { SITE_NAME, BASE_URL, DEFAULT_OG_IMAGE, DEFAULT_DESCRIPTION } from '../../src/lib/seo-compartido.js'
+import { BUSCADOR_UA_REGEX, reescribirCabecera } from '../../src/lib/og-estatico.js'
 
 // Anon key pública (la misma que va embebida en el bundle del cliente) usada
 // como fallback si no se configuran variables de entorno en Cloudflare Pages.
@@ -77,7 +78,7 @@ export async function onRequestGet(context) {
   const { request, params, env, next } = context
   const userAgent = request.headers.get('user-agent') || ''
 
-  if (!BOT_UA_REGEX.test(userAgent)) {
+  if (!BOT_UA_REGEX.test(userAgent) && !BUSCADOR_UA_REGEX.test(userAgent)) {
     return next()
   }
 
@@ -114,6 +115,18 @@ export async function onRequestGet(context) {
     if (!post) return next()
 
     const pageUrl = `${BASE_URL}/blog/${post.slug || slug}`
+
+    // El buscador recibe el index.html REAL con la cabecera reescrita, no el
+    // documento mínimo: ese lleva un `meta refresh` a su propia URL y diez
+    // palabras de cuerpo. Ver la nota de los dos filtros en `og-estatico.js`.
+    if (BUSCADOR_UA_REGEX.test(userAgent)) {
+      return reescribirCabecera(await next(), {
+        title: post.titulo || 'Artículo',
+        description: post.resumen || DEFAULT_DESCRIPTION,
+        image: post.imagen_portada,
+        url: pageUrl,
+      })
+    }
 
     return new Response(renderHtml(post, pageUrl), {
       headers: {

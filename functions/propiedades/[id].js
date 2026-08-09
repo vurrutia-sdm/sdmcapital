@@ -4,6 +4,7 @@
 
 // Un solo sitio para lo que el cliente y las Functions dicen igual.
 import { SITE_NAME, BASE_URL, DEFAULT_OG_IMAGE } from '../../src/lib/seo-compartido.js'
+import { BUSCADOR_UA_REGEX, reescribirCabecera } from '../../src/lib/og-estatico.js'
 
 // Anon key pública (la misma que va embebida en el bundle del cliente) usada
 // como fallback si no se configuran variables de entorno en Cloudflare Pages.
@@ -88,7 +89,7 @@ export async function onRequestGet(context) {
   const { request, params, env, next } = context
   const userAgent = request.headers.get('user-agent') || ''
 
-  if (!BOT_UA_REGEX.test(userAgent)) {
+  if (!BOT_UA_REGEX.test(userAgent) && !BUSCADOR_UA_REGEX.test(userAgent)) {
     return next()
   }
 
@@ -120,6 +121,18 @@ export async function onRequestGet(context) {
 
     // Links viejos con UUID → apuntar OG/canonical/refresh al slug actual
     const pageUrl = `${BASE_URL}/propiedades/${prop.slug || slugOrId}`
+
+    // El buscador recibe el index.html REAL con la cabecera reescrita, no el
+    // documento mínimo: ese lleva un `meta refresh` a su propia URL y diez
+    // palabras de cuerpo. Ver la nota de los dos filtros en `og-estatico.js`.
+    if (BUSCADOR_UA_REGEX.test(userAgent)) {
+      return reescribirCabecera(await next(), {
+        title: prop.titulo || 'Propiedad',
+        description: buildDescription(prop),
+        image: prop.imagen_principal,
+        url: pageUrl,
+      })
+    }
 
     return new Response(renderHtml(prop, pageUrl), {
       headers: {

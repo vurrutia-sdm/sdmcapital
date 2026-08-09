@@ -20,8 +20,61 @@
 
 import { SITE_NAME, DEFAULT_OG_IMAGE } from './seo-compartido.js'
 
+// DOS FILTROS, PORQUE SON DOS PROBLEMAS DISTINTOS.
+//
+// BOT_UA_REGEX — crawlers SOCIALES. Solo leen la cabecera para dibujar la
+// tarjeta de un enlace compartido; el cuerpo les da igual. Reciben
+// `renderOgHtml()`, un documento mínimo con los meta correctos.
+//
+// BUSCADOR_UA_REGEX — BUSCADORES. Estos NO pueden recibir ese documento: lleva
+// un `<meta http-equiv="refresh">` a su propia URL y diez palabras de cuerpo.
+// Servírselo sería darles una página que se redirige a sí misma, sin contenido,
+// sin `<div id="root">` y sin scripts — o sea, peor que hoy, porque hoy al menos
+// reciben el SPA y lo renderizan en su segunda pasada.
+//
+// Lo que reciben es el index.html REAL con la cabecera reescrita: se quedan con
+// todo el HTML de la aplicación y además leen en la primera pasada el título, la
+// descripción y el canonical de la ruta, en vez del genérico del sitio.
+//
+// Googlebot Desktop y Smartphone tienen user-agent distinto —uno pone
+// `compatible; Googlebot/2.1` dentro del paréntesis, el otro lo añade al final
+// tras `Mobile Safari`— pero los dos contienen la cadena `Googlebot`, así que un
+// solo patrón cubre los dos. `Google-InspectionTool` es el de «Inspeccionar URL»
+// de Search Console: sin él, la herramienta le enseñaría algo distinto de lo que
+// ve Googlebot, que es justo lo que no queremos.
 export const BOT_UA_REGEX =
   /facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot|iMessage|curl/i
+
+export const BUSCADOR_UA_REGEX =
+  /Googlebot|Google-InspectionTool|Storebot-Google|bingbot|BingPreview|DuckDuckBot|Applebot|Yandex/i
+
+// Reescribe la cabecera del documento REAL en vez de fabricar uno nuevo.
+//
+// `HTMLRewriter` es la API de streaming de Cloudflare: transforma la respuesta
+// que ya venía de `next()` sin cargarla entera en memoria y sin tocar el cuerpo.
+// El resultado es el mismo index.html —mismos scripts, mismo `#root`, mismo
+// JSON-LD— con cuatro etiquetas cambiadas.
+//
+// `og:url` y `canonical` reciben el mismo valor a propósito: son el mismo dato
+// dicho a dos consumidores.
+export function reescribirCabecera(respuesta, { title, description, image, url }) {
+  const t = `${title} | ${SITE_NAME}`
+  const d = recortar(description)
+  const img = image || DEFAULT_OG_IMAGE
+
+  return new HTMLRewriter()
+    .on('title', { element: (e) => e.setInnerContent(t) })
+    .on('meta[name="description"]', { element: (e) => e.setAttribute('content', d) })
+    .on('link[rel="canonical"]', { element: (e) => e.setAttribute('href', url) })
+    .on('meta[property="og:title"]', { element: (e) => e.setAttribute('content', t) })
+    .on('meta[property="og:description"]', { element: (e) => e.setAttribute('content', d) })
+    .on('meta[property="og:image"]', { element: (e) => e.setAttribute('content', img) })
+    .on('meta[property="og:url"]', { element: (e) => e.setAttribute('content', url) })
+    .on('meta[name="twitter:title"]', { element: (e) => e.setAttribute('content', t) })
+    .on('meta[name="twitter:description"]', { element: (e) => e.setAttribute('content', d) })
+    .on('meta[name="twitter:image"]', { element: (e) => e.setAttribute('content', img) })
+    .transform(respuesta)
+}
 
 export function escapeHtml(value) {
   return String(value)
