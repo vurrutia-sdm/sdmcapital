@@ -83,7 +83,7 @@ export default function ContactSection() {
                 <p className="text-sdm-base" style={{ color: 'var(--error)', marginBottom: 16 }}>Error al enviar. Intenta de nuevo.</p>
               )}
               <div className="flex justify-center">
-                <button type="submit" disabled={status === 'sending'} className="btn-primary disabled:opacity-60 text-sdm-sm" style={{ padding: '13px 48px' }}>
+                <button type="submit" disabled={status === 'sending'} className="btn-primary text-sdm-sm" style={{ padding: '13px 48px' }}>
                   {status === 'sending' ? 'Enviando…' : 'Enviar →'}
                 </button>
               </div>

@@ -210,7 +210,7 @@ export default function VendeConNosotrosPage() {
               )}
 
               <div className="flex justify-center">
-                <button type="submit" disabled={status === 'sending'} className="btn-primary disabled:opacity-60 text-sdm-sm" style={{ padding: '13px 36px' }}>
+                <button type="submit" disabled={status === 'sending'} className="btn-primary text-sdm-sm" style={{ padding: '13px 36px' }}>
                   {status === 'sending' ? 'Enviando…' : 'Quiero vender mi propiedad →'}
                 </button>
               </div>

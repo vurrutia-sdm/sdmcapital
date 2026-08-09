@@ -335,7 +335,7 @@ export default function SolicitudCreditoForm({
           <p className="text-sdm-base" style={{ color: 'var(--error)' }}>{errorMsg || 'Error al enviar. Intenta de nuevo.'}</p>
         )}
 
-        <button type="submit" disabled={!canSubmit} className="btn-primary disabled:opacity-50 justify-center">
+        <button type="submit" disabled={!canSubmit} className="btn-primary justify-center">
           {status === 'sending' ? (
             <span className="flex items-center gap-2"><Loader2 aria-hidden="true" size={15} className="animate-spin" /> Enviando…</span>
           ) : 'Enviar solicitud'}
