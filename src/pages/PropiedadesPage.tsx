@@ -139,6 +139,36 @@ function etiquetaFiltro(key: string, val: unknown): string {
   return ETIQUETAS_FILTRO[s] ?? s
 }
 
+// TÍTULO Y DESCRIPCIÓN PROPIOS POR RUTA.
+//
+// Las tres compartían los mismos, y desde que el canonical dejó de colapsarlas
+// compiten entre sí en Google con el mismo texto. Los tres `<h1>` ya se
+// diferencian —«Propiedades», «Propiedades Usadas», «Proyectos Nuevos»—; los
+// metadatos los siguen.
+//
+// Cada descripción dice qué encuentra el visitante AHÍ y no en las otras dos:
+// el catálogo completo abarca las dos categorías y el arriendo, las usadas son
+// segunda mano lista para habitar, y los proyectos nuevos tienen el argumento
+// que ninguna de las otras dos puede usar — bono pie y entrega inmediata, que
+// hoy tienen 23 y 24 de sus 27 unidades.
+//
+// Sin cifras dentro del texto a propósito: «54 propiedades» envejece con el
+// primer alta y nadie se acuerda de volver acá.
+const META: Record<string, { title: string; description: string }> = {
+  '': {
+    title: 'Propiedades en Venta y Arriendo en Chile',
+    description: 'Casas, departamentos, parcelas y oficinas en venta y arriendo en todo Chile. Filtra por comuna, tipo, precio y bono pie en el catálogo de SDM Capital.',
+  },
+  usada: {
+    title: 'Propiedades Usadas: Casas y Departamentos',
+    description: 'Casas y departamentos de segunda mano en Chile, listos para habitar. Revisa superficie, dormitorios y comuna de cada propiedad usada de SDM Capital.',
+  },
+  proyecto_nuevo: {
+    title: 'Proyectos Nuevos: Bono Pie y Entrega Inmediata',
+    description: 'Departamentos nuevos en Chile con bono pie y entrega inmediata. Compara etapa de obra, precio en UF y comuna en los proyectos de SDM Capital.',
+  },
+}
+
 function applyCatalogOrder(props: Propiedad[], mode: string): Propiedad[] {
   const copy = [...props]
   if (mode === 'precio_alto') { const c = copy.filter(p => p.a_consultar); const r = copy.filter(p => !p.a_consultar).sort((a,b) => (b.precio_uf||0)-(a.precio_uf||0)); return [...c,...r] }
@@ -443,7 +473,7 @@ export default function PropiedadesPage() {
           filtros del catálogo —?estado=, ?tipo=, ?bono_pie=— SÍ deben
           canonicalizarse a la ruta limpia. Siete filtros combinables generan
           miles de URLs que son la misma página con otro recorte. */}
-      <SEO title="Propiedades en Venta y Arriendo" description="Encuentra casas, departamentos, parcelas y propiedades comerciales en Chile." url={location.pathname} />
+      <SEO title={META[categoria].title} description={META[categoria].description} url={location.pathname} />
 
       {/* Header */}
       <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[#e8edf2]">

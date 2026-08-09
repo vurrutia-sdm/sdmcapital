@@ -39,13 +39,18 @@ export default function ServiciosPage() {
 
   return (
     <div>
-      {/* El canonical incluye el slug cuando lo hay: /servicios/:slug es una
-          página con su propio contenido, y con `url="/servicios"` fijo las
-          cuatro hijas se canonicalizaban a su índice. */}
+      {/* CANONICAL A `/servicios` TAMBIÉN EN LAS CUATRO HIJAS, Y ES CORRECTO.
+          `/servicios/:slug` NO es una página propia: renderiza exactamente este
+          componente con los mismos cuatro bloques y solo hace `scrollIntoView`
+          al ancla. Medido en producción: las cinco rutas devuelven 1.287
+          caracteres de texto, el mismo hash y el mismo <h1>.
+          Con canonical a sí mismas, Google indexaría cinco URLs con contenido
+          idéntico. Que compartan título y descripción tampoco es un defecto:
+          describen la misma página. */}
       <SEO
         title="Servicios"
         description="Inversión inmobiliaria en Chile e internacional, financiamiento hipotecario y bancarización."
-        url={slug ? `/servicios/${slug}` : '/servicios'}
+        url="/servicios"
       />
       <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 18 }}>Lo que hacemos</div>
