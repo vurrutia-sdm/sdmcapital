@@ -131,6 +131,7 @@ línea o se marca como cerrada.
 | 2026-08-09 | Captación — cierre de los nueve pendientes | **Invasión de dominio autorizada: `Captacion.tsx`. Se cierran los nueve hallazgos que quedaron pendientes de las auditorías de UX copy, color y accesibilidad. No se toca la lógica del bot ni sus escrituras a Supabase** | Cerrada — commits `77d216c`, `166bca2`, `d0ba68e`, `92030bf` y `d236092`. **Ya no queda ningún módulo con excepciones de auditoría.** Deja 5 pendientes nuevos, el primero es blanco sobre `--green` a 2.93:1 |
 | 2026-08-09 | Captación — insignias de lead a token | **CAMBIO EN ZONA COMPARTIDA: nacen seis tokens `--lead-*` en `src/styles/globals.css`** (tres de texto y tres de fondo) para la escala Hot/Warm/Cold, que vivía como literales en `Captacion.tsx` y fallaba contraste en dos de los tres. Solo los consume `Captacion.tsx`; no toca ninguna clase existente | Cerrada — commit `54d9cdc`. **Declarar siempre la matriz de daltonismo al medir ΔE**: la de acá es ~2 puntos más generosa que la de agosto |
 | 2026-08-09 | Captación — cerrar el ciclo de la visita | Sección «Visitas confirmadas» y acción «Marcar como realizada». Solo `src/pages/admin/Captacion.tsx` | Cerrada — el ciclo pendiente → confirmada → realizada por fin tiene las tres etapas visibles |
+| 2026-08-09 | Deuda menor — cierre | **INVASIÓN DE DOMINIO sobre `src/pages/`, `src/components/` y `functions/`** (sesión web pública y sesión Sofía): 4 Pages Functions nuevas, header, SEO, chevron de fichas y unificación de `FLabel`. No toca `globals.css` | En curso |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -6790,3 +6791,96 @@ El segundo es el costo aceptado, y es lo que cierra la regla de proceso.
 > simulación desde `/__caso-b.html`, ruta que **React Router resuelve como 404**,
 > no como el home. Para simular hay que parchear el `index.html` que se sirve en
 > `/`, y el recorder tiene que instalarse ANTES de que monte React.
+
+---
+
+## Cierre de la deuda menor — 2026-08-09
+
+**INVASIÓN DE DOMINIO** sobre `src/pages/`, `src/components/` y `functions/`
+—sesión web pública y sesión Sofía—. No toca `globals.css`.
+
+| Commit | Punto |
+|---|---|
+| `e56a134` | La preposición del aviso de despliegue |
+| `6f7a1a1` | Los dos enlaces del header sin `navLinkClass` |
+| `cf040c3` | `DEFAULT_DESCRIPTION` unificada |
+| `fb9224d` | Pages Functions para /blog, /asociados, /quienes-somos y /servicios |
+| `d46e9fe` | El chevron de las fichas, 1.62 → 5.03:1 |
+| `7af26aa` | Los cinco `FLabel` unificados con `Field` |
+
+### Las Functions SÍ pueden importar del árbol del cliente
+
+Era la duda que decidía el punto 3. **Se puede:** los dos lados corren en
+runtimes distintos —el bundle de Vite y el Worker de Cloudflare— pero los dos se
+compilan con esbuild, así que un módulo hoja sin dependencias se importa desde
+ambos. Verificado con `wrangler pages functions build` antes de escribir nada
+más: compila y la constante viaja dentro del Worker.
+
+Nacen dos módulos compartidos, los dos en `.js` y sin tipos para que las
+Functions tengan lo menos posible que resolver:
+
+- `src/lib/seo-compartido.js` — `SITE_NAME`, `BASE_URL`, `DEFAULT_OG_IMAGE`,
+  `DEFAULT_DESCRIPTION`.
+- `src/lib/og-estatico.js` — el render de los meta, el escape de HTML, el
+  recorte a 200 caracteres y la lectura de `contenido_sitio`.
+
+**Ninguno de los dos debe importar React ni nada del navegador.**
+
+> **Una regresión que solo apareció probando.** Al sustituir el bloque de
+> constantes de `functions/blog/[slug].js` por el import quedó `BASE_URL` sin
+> importar. No lo delata ni `tsc` ni `wrangler pages functions build` —un
+> identificador libre es un error de EJECUCIÓN—, y el `try/catch` de la Function
+> lo convertía en un `next()` silencioso: /blog/:slug volvía a servir el título
+> genérico. Se detectó con `wrangler pages dev` sobre el build real. **Compilar
+> no basta para estas Functions: hay que pedirlas con un user-agent de bot.**
+
+### Los títulos de las Functions no salen de `contenido_sitio`
+
+Las descripciones sí —`blog_subtitulo`, `asociados_intro`, `qs_subtitulo`,
+`servicios_intro`— pero los títulos no, aunque haya claves parecidas:
+`blog_titulo` vale «Blog SDM Capital» y es el encabezado de la página, no un meta
+title. Interpolarlo daría «Blog SDM Capital | SDM Capital».
+
+### Cuánto movió unificar `FLabel`
+
+Se queda la separación de `Field` y no la de `FLabel`: gobierna 152 campos contra
+37. Medido en el navegador, por campo: **66.5 → 68.5px de alto (+2.0px)** y
+rótulo de **peso 500 → 400**; mismo tamaño y mismo color.
+
+| pantalla | campos | filas | crece |
+|---|---|---|---|
+| `FichaClienteNueva` | 14 | 8 | **+16px** |
+| `FichaClienteEditar` | 14 | 8 | **+16px** |
+| `FichaClienteDetalle` | 3 | 3 | +6px |
+| `FichaClientesLista` | 3 | 3 | +6px |
+| `Agentes` | 3 | 3 | +6px |
+
+Las rejillas son de dos columnas, así que el alto crece una vez por fila y no una
+por campo. Verificado: 40 campos en las cinco pantallas, **0 sin nombre
+accesible**.
+
+### PENDIENTE PARA VÍCTOR: borrar seis claves huérfanas
+
+`dest_espana_img`, `dest_miami_img`, `dest_nueva_york_img`, `dest_orlando_img`,
+`dest_punta_cana_img` y `dest_uruguay_img` no las referencia nadie en `src/`,
+`functions/` ni `scripts/`. Siguen en `contenido_sitio` y por lo tanto en la
+semilla de cada build.
+
+**La clave anon no puede borrarlas, y el panel Contenido tampoco**: solo hace
+upsert del conjunto fijo de claves que conoce, no tiene forma de borrar una
+suelta. Hay que correr esto en el **SQL Editor del dashboard de Supabase**:
+
+```sql
+delete from contenido_sitio
+where clave in (
+  'dest_espana_img', 'dest_miami_img', 'dest_nueva_york_img',
+  'dest_orlando_img', 'dest_punta_cana_img', 'dest_uruguay_img'
+);
+-- 6 filas. Las imágenes en R2 se quedan: no las borra esto ni hay que borrarlas.
+```
+
+> **Aviso de método.** Al comprobar si la clave anon podía borrar, el `DELETE`
+> devolvió **204 y no borró nada**: PostgREST responde 204 cuando RLS filtra
+> todas las filas candidatas. **Un 204 en un DELETE no prueba que se haya
+> borrado** — hay que contar antes y después. Se contó: siguen las 6 y el total
+> sigue en 148.
