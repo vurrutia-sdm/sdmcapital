@@ -106,13 +106,28 @@ const WORKER_URL = (import.meta.env.VITE_CAPTACION_WORKER_URL as string) || 'htt
 const MAX_MENSAJE_LEN = 4096
 
 // ── Visual helpers ────────────────────────────────────────────────────────────
+// La paleta paralela de este panel muere acá: el mapa pasa a apuntar a los
+// tokens oficiales de `globals.css`.
+//
+// SE PUEDE USAR `var()` PORQUE NADIE CONCATENA EL ALFA. Se revisó a los
+// consumidores antes de tocarlo: es la trampa que tenía `ESTADO_COLORS`, donde
+// un `COLORS.red + '22'` habría producido `var(--error)22` —CSS inválido que el
+// navegador descarta en silencio, dejando el elemento sin fondo y sin error—.
+// Acá no hay ni una concatenación: los seis valores se usan enteros, dentro de
+// objetos `style` o interpolados en un `1px solid ${...}`, y en los dos sitios
+// `var()` resuelve igual que un hex.
+//
+// La ÚNICA excepción eran los dos iconos de `lucide-react` que recibían
+// `color={COLORS.muted}`: esa prop termina en el atributo `stroke` del SVG, y
+// ahí `var()` es terreno resbaloso. Se cambiaron a `style={{ color }}`, que es
+// CSS de verdad; lucide ya dibuja con `currentColor` por defecto.
 const COLORS = {
-  navy: '#0d2240',
-  muted: '#7a8fa6',
-  border: '#dce4ec',
-  bg: '#f5f7fa',
-  green: '#4db870',
-  red: '#E24B4A',
+  navy: 'var(--navy-dark)',
+  muted: 'var(--muted)',
+  border: 'var(--border)',
+  bg: 'var(--off)',
+  green: 'var(--green)',
+  red: 'var(--error)',
 }
 
 const SCORE_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
@@ -120,7 +135,11 @@ const SCORE_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
   warm: { bg: '#fdedd6', fg: '#c8740a', label: 'Warm' },
   cold: { bg: '#dde7f6', fg: '#2c5da0', label: 'Cold' },
 }
-const SCORE_NULL = { bg: '#eef1f4', fg: '#7a8fa6', label: 'Sin calificar' }
+// «Sin calificar» no es una insignia de color propio como Hot/Warm/Cold: es la
+// ausencia de calificación, así que va con los neutros del sistema. Sobre el
+// `#eef1f4` que tenía antes, `--muted` daba 4.44:1 y se quedaba corto para un
+// texto de 11 px; sobre `--off` da 4.81:1.
+const SCORE_NULL = { bg: COLORS.bg, fg: COLORS.muted, label: 'Sin calificar' }
 
 function ScoreBadge({ score }: { score: string | null }) {
   const s = (score && SCORE_STYLE[score]) || SCORE_NULL
@@ -193,7 +212,7 @@ function NotifToggle({ value, onChange, saving }: {
       background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6,
       padding: '12px 18px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12,
     }}>
-      <Bell size={15} color={COLORS.muted} />
+      <Bell size={15} style={{ color: COLORS.muted }} />
       <span className="text-sdm-sm" style={{ color: COLORS.muted, fontWeight: 600 }}>Notificaciones por correo:</span>
       <div style={{ display: 'flex', gap: 6 }}>
         {opts.map(opt => (
@@ -240,7 +259,10 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(13,34,64,0.55)',
+      // Espejo de `--navy-dark` (#0F2535) al 55 %. Queda como literal porque
+      // `rgba()` no admite un `var()` dentro: si el token cambia, esta línea
+      // hay que moverla a mano.
+      position: 'fixed', inset: 0, background: 'rgba(15,37,53,0.55)',
       zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
     }}>
       <div style={{
@@ -361,7 +383,10 @@ const ROL_STYLE: Record<string, { align: 'flex-start' | 'flex-end'; bg: string; 
   sofia:   { align: 'flex-end',   bg: COLORS.navy,   fg: '#fff',      border: 'none',                       label: null },
   humano:  { align: 'flex-end',   bg: COLORS.green,  fg: '#fff',      border: 'none',                       label: 'Equipo' },
 }
-const ROL_FALLBACK = { align: 'flex-start' as const, bg: '#eef1f4', fg: COLORS.muted, border: 'none', label: null }
+// Mismo caso que `SCORE_NULL`: un `rol` que no es cliente/sofia/humano no tiene
+// color propio, va con los neutros. `--muted` sobre `#eef1f4` daba 4.44:1;
+// sobre `--off`, 4.81:1.
+const ROL_FALLBACK = { align: 'flex-start' as const, bg: COLORS.bg, fg: COLORS.muted, border: 'none', label: null }
 
 function MensajeBubble({ m }: { m: Mensaje }) {
   const style = (m.rol && ROL_STYLE[m.rol]) || ROL_FALLBACK
@@ -828,7 +853,7 @@ function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoC
             <Trash2 size={13} />
           </button>
         </div>
-        {expanded ? <ChevronUp size={18} color={COLORS.muted} /> : <ChevronDown size={18} color={COLORS.muted} />}
+        {expanded ? <ChevronUp size={18} style={{ color: COLORS.muted }} /> : <ChevronDown size={18} style={{ color: COLORS.muted }} />}
       </div>
 
       {expanded && (
