@@ -512,6 +512,9 @@ function slugify(titulo: string, comuna?: string, dormitorios?: number) {
     .replace(/^-+|-+$/g, '')
 }
 
+// Para nombrar en la etiqueta la columna que está apagando el arrastre.
+const ENCABEZADO_ORDEN: Record<string, string> = { tipo: 'Tipo', estado: 'Estado', precio_uf: 'Precio' }
+
 export default function Propiedades() {
   const [items, setItems]         = useState<Propiedad[]>([])
   const [guardado, avisarGuardado] = useGuardado()
@@ -524,9 +527,17 @@ export default function Propiedades() {
   const load = () => supabase.from('propiedades').select('*').order('created_at', { ascending: true }).then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
+  // Tres estados y no dos: ascendente → descendente → SIN ORDENAR.
+  //
+  // Antes alternaba asc/desc para siempre y no había forma de volver a la lista
+  // sin ordenar salvo recargar la página. Daba igual mientras el orden por
+  // columna fuera solo una vista; ahora que apaga el arrastre —y con él la
+  // única forma de fijar el orden del catálogo—, quedarse atrapado en una
+  // columna ordenada sería dejar la pantalla sin su función principal.
   const toggleSort = (field: typeof sortField) => {
-    if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
-    else { setSortField(field); setSortDir('asc') }
+    if (sortField !== field) { setSortField(field); setSortDir('asc'); return }
+    if (sortDir === 'asc') { setSortDir('desc'); return }
+    setSortField(null); setSortDir('asc')
   }
 
   const toggleActivo = async (p: Propiedad) => {
@@ -558,6 +569,33 @@ export default function Propiedades() {
       if (aVal > bVal) return sortDir === 'asc' ? 1 : -1
       return 0
     })
+
+  // ── EL ÍNDICE QUE VE EL HOOK NO ES EL ÍNDICE DE LA FILA QUE VES ─────────────
+  //
+  // `useDragSort` guarda su estado sobre `dragged` —las 65 crudas— pero la tabla
+  // pinta `displayItems`, que va filtrada y puede ir ordenada por una columna.
+  // Hasta ahora `filaProps(i)` recibía el índice de `displayItems` y el hook lo
+  // usaba para hacer `splice` sobre `dragged`: con una sola propiedad pausada
+  // oculta, arrastrar movía la fila equivocada.
+  //
+  // Coincidían de casualidad —0 pausadas y `sortField` en `null`—, y el daño era
+  // invisible porque lo único que se escribía era un `destacada` que el Inicio
+  // no lee. En cuanto se escriba `orden`, el mismo error corrompe el catálogo.
+  //
+  // La traducción arregla el caso del FILTRO y es mejor que desactivar: se le
+  // pasa al hook el índice de la fila dentro de SU array, así el `splice` cae
+  // donde corresponde. Las filas ocultas no están en el DOM, así que tampoco
+  // pueden ser destino; se quedan quietas y la que se arrastra aterriza justo
+  // donde el usuario la soltó.
+  const indiceEnDragged = new Map(dragged.map((p, i) => [p.id, i]))
+
+  // La traducción NO alcanza para el ORDEN POR COLUMNA, y por eso ahí sí se
+  // desactiva. El problema no es el índice sino que no hay nada que mirar:
+  // `displayItems` se reordena por la columna DESPUÉS del arrastre, así que la
+  // fila vuelve a su sitio en pantalla y el usuario no ve ningún movimiento —
+  // mientras el `orden` sí se escribiría. Un arrastre sin respuesta visual que
+  // igual persiste es peor que un arrastre que no arranca.
+  const arrastreActivo = sortField === null
 
   const del = async (id: string) => {
     const nombre = items.find(p => p.id === id)?.titulo?.trim() || 'esta propiedad'
@@ -632,7 +670,13 @@ export default function Propiedades() {
       </div>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
-          <MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6</strong> aparecen en el Inicio.
+          {arrastreActivo ? (
+            <><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6</strong> aparecen en el Inicio.</>
+          ) : (
+            /* Con el arrastre apagado la etiqueta no puede seguir prometiéndolo:
+               dice qué lo apagó y cómo volver a encenderlo. */
+            <>Para reordenar, quita el orden por columna: pulsa <strong>{ENCABEZADO_ORDEN[sortField!]}</strong> hasta dejarla sin flecha.</>
+          )}
         </p>
         <label className="flex items-center gap-2 text-sdm-sm" style={{ color: 'var(--muted)', cursor: 'pointer' }}>
           <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} />
@@ -934,20 +978,28 @@ export default function Propiedades() {
             </tr>
           </thead>
           <tbody className="block lg:table-row-group">
-            {displayItems.map((p, i) => (
+            {displayItems.map((p, i) => {
+              // El índice del hook, no el de la fila pintada. Ver el comentario
+              // largo junto a `indiceEnDragged`.
+              const idx = indiceEnDragged.get(p.id) ?? i
+              return (
               <tr
                 key={p.id}
-                {...filaProps(i)}
+                {...(arrastreActivo ? filaProps(idx) : {})}
                 className="flex flex-wrap items-center gap-y-0.5 rounded-sm border border-[#e8edf2] p-3 mb-2 lg:table-row lg:rounded-none lg:border-0 lg:p-0 lg:mb-0"
-                style={{ borderBottom: '1px solid var(--border)', cursor: 'grab', opacity: arrastrando === i ? 0.45 : p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
+                style={{ borderBottom: '1px solid var(--border)', cursor: arrastreActivo ? 'grab' : 'default', opacity: arrastrando === idx ? 0.45 : p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
               >
                 {/* Debajo de lg la manija es una franja propia arriba de la
                     tarjeta: la fila es flex-wrap y la celda del titulo lleva
-                    w-full, asi que cualquier order la empuja a su propia linea. */}
+                    w-full, asi que cualquier order la empuja a su propia linea.
+                    Con el arrastre desactivado la manija no se dibuja: un asa
+                    que no agarra nada es peor que ninguna. */}
                 <td className="order-first lg:table-cell lg:py-3 lg:pr-2" style={{ color: 'var(--muted)' }}>
-                  <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: '8px 10px', margin: '-8px -10px' }}>
-                    <GripVertical size={16} strokeWidth={2} />
-                  </span>
+                  {arrastreActivo && (
+                    <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: '8px 10px', margin: '-8px -10px' }}>
+                      <GripVertical size={16} strokeWidth={2} />
+                    </span>
+                  )}
                 </td>
                 {/* El numero de orden a secas es ruido en movil: no se puede
                     reordenar desde el telefono. Solo se muestra la linea de las
@@ -1007,7 +1059,7 @@ export default function Propiedades() {
                   </div>
                 </td>
               </tr>
-            ))}
+            )})}
             {displayItems.length === 0 && <tr className="block lg:table-row"><td colSpan={9} className="block py-12 text-center text-sdm-base lg:table-cell" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Sin propiedades. Crea la primera.</td></tr>}
           </tbody>
         </table>
