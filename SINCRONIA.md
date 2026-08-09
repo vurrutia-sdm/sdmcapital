@@ -6601,3 +6601,98 @@ cancelada sale de la sección porque la consulta pide `estado=in.(pendiente,
 confirmada)`, y la fila del lead pasa a decir «Visita cancelada» con la nota del
 desfase, porque `leads.status` sigue en `visita_confirmada` y el cruce lo
 declara en vez de esconderlo.
+
+---
+
+## Propiedades — el orden de la lista por fin persiste — 2026-08-09
+
+Cierra el pendiente anotado en «Nota al margen: el orden de la lista de
+propiedades no se persiste». Siete commits.
+
+| Commit | Qué |
+|---|---|
+| `6d43e79` | El arrastre deja de mover la fila equivocada |
+| `f98e15e` | El PATCH escribe `orden` |
+| `38b37b5` | `load()` ordena por `orden` |
+| `2256eb2` | Fuera `destacada: i < 6` |
+| `7018fcb` | La etiqueta dice lo que la pantalla hace |
+| `101e915` | `avisarError` corta antes del `load()` |
+| `7c314e7` | El ciclo de orden por columna no se atasca |
+
+### El desfase de índices: se TRADUCE, no se desactiva
+
+`useDragSort` guarda su estado sobre las 65 filas crudas; la tabla pinta
+`displayItems`, filtrada y ordenable. `filaProps(i)` recibía el índice de la
+lista pintada y el hook lo usaba para hacer `splice` sobre la suya.
+
+Se evaluaron las dos salidas y **la traducción gana para el caso del filtro**:
+se le pasa al hook el índice de la fila dentro de SU array. Las filas ocultas no
+están en el DOM, así que tampoco pueden ser destino, y la que se arrastra
+aterriza donde el usuario la soltó.
+
+**Para el orden por columna la traducción no alcanza**, y ahí sí se desactiva.
+El problema no es el índice sino que no hay nada que mirar: `displayItems` se
+reordena por la columna después del arrastre, la fila vuelve a su sitio en
+pantalla y el usuario no ve ningún movimiento — mientras el `orden` sí se
+escribiría. Un arrastre sin respuesta visual que igual persiste es peor que uno
+que no arranca.
+
+Consecuencia: **«Mostrar pausadas» ya no impide arrastrar.** El único motivo que
+apaga el arrastre es la columna ordenada, así que la etiqueta solo necesita un
+mensaje.
+
+`toggleSort` alternaba asc/desc para siempre y no había forma de volver a la
+lista sin ordenar salvo recargar. Daba igual mientras fuera una vista; con el
+arrastre apagado, quedarse atrapado dejaba la pantalla sin su función. Pasa a
+tres pasos, y los dos valores viven en un solo `useState` para que el ciclo
+cierre aunque lleguen dos clics en el mismo tick.
+
+### El aviso del modo aparece solo cuando es verdad
+
+El orden manual únicamente se aplica con `catalogo_orden` en `'manual'`, y en
+producción está en `'precio_alto'`. La etiqueta lo dice, nombrando el modo
+puesto, y **la línea desaparece sola** el día que se ponga en Manual. Decirlo
+siempre habría sido mentir a futuro.
+
+El enlace a Contenido viaja como callback desde `AdminPage`: las pestañas del
+admin son estado de React, no rutas. Sin el callback degrada a texto en vez de
+dejar un enlace muerto.
+
+### VERIFICADO MIRANDO LO QUE SE GUARDA, NO LO QUE SE VE
+
+Con un banco temporal que intercepta `fetch`, sobre el componente real y
+supabase-js real. Ocho filas: cuatro con `orden`, cuatro en NULL y una pausada
+oculta — el espejo del 33/32 de producción.
+
+Se arrastró la quinta fila al primer puesto, con la pausada oculta de por medio:
+
+```
+en pantalla:  5 · 1 · 2 · 3 · 4 · 7 · 8
+se guarda:    id-5→1  id-1→2  id-2→3  id-3→4  id-4→5  id-6→6  id-7→7  id-8→8
+```
+
+**El orden guardado coincide con la pantalla**, y la fila oculta conserva su
+posición relativa. Un único campo escrito —`orden`—, ninguna fila queda en NULL,
+y cero `destacada`.
+
+> **Trampa del método, para la próxima.** Los primeros dos intentos dieron
+> resultados falsos por disparar los eventos en el mismo tick: React no alcanza a
+> renderizar, `ultimo.current` del hook queda con el array previo y los clics de
+> cabecera leen el `sortDir` viejo. Con un ratón real cada evento es una tarea
+> aparte. **Hay que separar los eventos sintéticos en ticks distintos o se está
+> midiendo el bug del banco, no el del código.** El segundo intento falso fue el
+> que destapó la fragilidad de `toggleSort`, así que no fue tiempo perdido.
+
+### Lo público no cambia
+
+- El Inicio toma sus destacadas de `home_destacadas_ids`, y **los seis IDs
+  existen**, así que el respaldo por bandera nunca corre. Comprobado: solo 3 de
+  esos 6 tienen `destacada = true`, o sea que los dos mecanismos ya iban por
+  caminos separados. Quitar la escritura no puede cambiar el Inicio.
+- `catalogo_orden = 'precio_alto'`, y `applyCatalogOrder` descarta `orden` salvo
+  en modo manual. Escribir `orden` no mueve el catálogo público hoy.
+
+### Pendiente: el mismo defecto en Equipo y Asociados
+
+`Equipo.tsx:27` y `Asociados.tsx:27` avisan del error y recargan igual, sin
+cortar. **No se tocaron**, a la espera de decisión. Ver el reporte de la sesión.
