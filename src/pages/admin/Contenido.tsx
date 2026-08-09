@@ -44,12 +44,15 @@ import { Field, FieldGroup, Inp, Txa, Sel } from '@/components/admin/campos'
 // EL TEXTO NO EXPLICA NADA DE ESTO A PROPÓSITO. A quien administra el sitio no
 // le sirve entender la semilla; le sirve saber que tiene que pedir un
 // despliegue. Se dice qué hacer, no cómo funciona.
+// `donde` llega CON su preposición —«del inicio», «de la página de Servicios»—
+// y no suelto: con la preposición fija en la plantilla salía «se retira de el
+// inicio». El castellano contrae, así que la preposición es parte del dato.
 function AvisoDespliegue({ donde }: { donde: string }) {
   return (
     <p className="text-sdm-sm" style={{ color: 'var(--muted)', lineHeight: 1.7, margin: '10px 2px 0', display: 'flex', gap: 8 }}>
       <Info size={15} strokeWidth={2} aria-hidden="true" style={{ flexShrink: 0, marginTop: 3 }} />
       <span>
-        Al ocultarlo se retira de {donde}, pero hasta el próximo despliegue seguirá
+        Al ocultarlo se retira {donde}, pero hasta el próximo despliegue seguirá
         asomando un instante a quien entre justo en ese momento. Si necesitas que
         desaparezca del todo, <strong>pide que se despliegue el sitio</strong>.
       </span>
@@ -451,7 +454,7 @@ export default function Contenido() {
                   </button>
                   <span className="text-sdm-sm" style={{ fontWeight: 500, color: activo ? '#16a34a' : '#dc2626', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{activo ? <><Check size={14} strokeWidth={2} />Visible en el inicio</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
                 </div>
-                <AvisoDespliegue donde="el inicio" />
+                <AvisoDespliegue donde="del inicio" />
               </Full>
               <Full><Field label="Kicker (etiqueta superior)"><Inp value={d.banner_kicker} onChange={set('banner_kicker')} /></Field></Full>
               <Full><Field label="Título"><Inp value={d.banner_titulo} onChange={set('banner_titulo')} /></Field></Full>
@@ -545,7 +548,7 @@ export default function Contenido() {
                     gate, así que este desfase ya existía antes de tocar el banner —
                     solo que nadie lo había escrito. Y ahí la tarjeta que asoma está
                     sobre el pliegue. */}
-                <AvisoDespliegue donde="la página de Servicios" />
+                <AvisoDespliegue donde="de la página de Servicios" />
               </Full>
               <Field label="Título"><Inp value={(d as Record<string,string>)[`servicio_${key}_titulo`] || ''} onChange={set(`servicio_${key}_titulo`)} /></Field>
               <Full><Field label="Descripción"><Txa value={(d as Record<string,string>)[`servicio_${key}_desc`] || ''} onChange={set(`servicio_${key}_desc`)} rows={3} /></Field></Full>
