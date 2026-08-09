@@ -861,7 +861,12 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
               }}
                 options={[{value:'usada',label:'Propiedad Usada'},{value:'proyecto_nuevo',label:'Proyecto Nuevo'}]} />
             </Field>
-            <Field label="Estado de venta">
+            {/* «Estado» a secas y no «Estado de venta»: el selector incluye
+                «En arriendo» y «Arrendada», así que el rótulo contradecía sus
+                propias opciones y hacía parecer que arriendo y venta eran el
+                mismo eje. No colisiona con «Estado de publicación», que va
+                calificado justo al lado. */}
+            <Field label="Estado">
               <Sel value={editing.estado || 'en_venta'} onChange={v => setEditing(p => ({ ...p, estado: v as Propiedad['estado'] }))}
                 options={[{value:'en_venta',label:'En venta'},{value:'en_arriendo',label:'En arriendo'},{value:'vendida',label:'Vendida'},{value:'reservada',label:'Reservada'},{value:'arrendada',label:'Arrendada'}]} />
             </Field>
