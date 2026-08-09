@@ -3,6 +3,20 @@ import { imagenParaPDF } from '@/lib/imagenes'
 import type { Cotizacion } from '@/types'
 
 // ─── Paleta ──────────────────────────────────────────────────────────────────
+//
+// LITERALES A PROPÓSITO: @react-pdf/renderer rasteriza fuera del DOM y no
+// resuelve `var(--…)`, así que esta paleta no puede apuntar a las custom
+// properties como sí hace `tailwind.config.js`.
+//
+// ES UNA COPIA MANUAL DE `globals.css`: SI ALLÁ CAMBIA UN TOKEN, HAY QUE
+// CAMBIARLO ACÁ TAMBIÉN. No hay nada que lo garantice, y ya falló una vez —
+// `muted` se corrigió en globals.css y esta copia se quedó con el valor viejo.
+//
+// Correspondencias, verificadas el 2026-08-09:
+//   navy  → --navy-dark    navyMid  → --navy       green → --green
+//   sky   → --sky          skyPale  → --sky-pale   ink   → --ink
+//   muted → --muted        skyLight → --sky-light  red   → --error
+// `white` es el único sin token equivalente.
 const C = {
   navy:     '#0F2535',
   navyMid:  '#1C3D5C',
@@ -10,12 +24,18 @@ const C = {
   sky:      '#A8C4DC',
   skyPale:  '#EDF4F9',
   skyLight: '#D4E6F1',
-  muted:    '#7a8a96',
+  // Espejo de `--muted`. Valía #7a8a96, que es el valor que la auditoría web
+  // rechazó y aquí se quedó atrás: son 12 usos de texto secundario a 6,5–8 pt
+  // —rótulos de campo, dirección, amenidades, nota del valor UF, vigencia— y a
+  // ese tamaño ningún criterio de texto grande aplica. Daba 3,56:1 sobre blanco
+  // y 3,20:1 sobre `skyPale`, en un documento impreso que se le manda a un
+  // cliente. Con #5F7183 dan 5,03:1 y 4,53:1.
+  // También es el fondo de la insignia «Borrador», con texto blanco encima: ahí
+  // pasa de 3,56:1 a 5,03:1. Ningún uso de este color va sobre fondo oscuro, así
+  // que oscurecerlo mejora los tres contextos y no empeora ninguno.
+  muted:    '#5F7183',
   ink:      '#1a1a1a',
   white:    '#FFFFFF',
-  // Literal a propósito, igual que el resto de esta paleta: @react-pdf/renderer
-  // rasteriza fuera del DOM y no resuelve `var(--…)`. Espejo de `--error` de
-  // globals.css — si allá cambia, acá hay que copiarlo a mano.
   red:      '#A8384B',
 }
 
