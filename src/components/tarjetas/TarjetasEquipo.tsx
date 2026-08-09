@@ -300,7 +300,7 @@ export function TarjetasEquipo() {
                   {t.nombre}
                 </div>
                 {t.cargo && (
-                  <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--green)', marginTop: 2 }}>
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--green-dark)', marginTop: 2 }}>
                     {t.cargo}
                   </div>
                 )}

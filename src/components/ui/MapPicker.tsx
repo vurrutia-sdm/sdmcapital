@@ -143,7 +143,7 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
         <button className="text-sdm-sm"
           type="button"
           onClick={() => setShowMap(true)}
-          style={{ color: 'var(--green)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}
+          style={{ color: 'var(--green-dark)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}
         >
           + Mostrar mapa para ajustar pin
         </button>

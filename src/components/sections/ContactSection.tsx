@@ -56,7 +56,7 @@ export default function ContactSection() {
         {/* Formulario centrado */}
         <div className="bg-white rounded-sm p-10 lg:p-14 mb-12">
           {status === 'ok' ? (
-            <div className="py-12 text-center text-sdm-xl" style={{ color: 'var(--green)' }}>
+            <div className="py-12 text-center text-sdm-xl" style={{ color: 'var(--green-dark)' }}>
               ✓ Mensaje enviado. Te contactaremos pronto.
             </div>
           ) : (

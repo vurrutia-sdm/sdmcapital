@@ -74,7 +74,7 @@ export default function ServiciosPage() {
                 {tags.length > 0 ? (
                   <div className="flex flex-wrap gap-2 mb-8">
                     {tags.map((tag, ti) => tag.url
-                      ? <a key={ti} href={tag.url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border" style={{ borderColor: 'var(--green)', color: 'var(--green)', borderRadius: 1, textDecoration: 'none' }}>{tag.label} ↗</a>
+                      ? <a key={ti} href={tag.url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border" style={{ borderColor: 'var(--green-dark)', color: 'var(--green-dark)', borderRadius: 1, textDecoration: 'none' }}>{tag.label} ↗</a>
                       : <span key={ti} className="px-3 py-1.5 text-[13px] tracking-[1.5px] uppercase border" style={{ borderColor: 'var(--border)', color: 'var(--muted)', borderRadius: 1 }}>{tag.label}</span>
                     )}
                   </div>

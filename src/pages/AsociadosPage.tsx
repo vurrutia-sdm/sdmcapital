@@ -159,7 +159,7 @@ export default function AsociadosPage() {
                   {lang === 'en' ? (a.descripcion || a.descripcion) : a.descripcion}
                 </p>
               )}
-              <span className="mt-3 text-[13px] tracking-[2px] uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ color: 'var(--green)' }}>
+              <span className="mt-3 text-[13px] tracking-[2px] uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ color: 'var(--green-dark)' }}>
                 Visitar ↗
               </span>
             </a>

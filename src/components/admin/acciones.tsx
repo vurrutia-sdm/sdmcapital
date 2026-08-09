@@ -30,7 +30,7 @@ export function Badge({ label, color }: { label: string; color: string }) {
 export function Guardado({ visible }: { visible: boolean }) {
   if (!visible) return null
   return (
-    <span className="text-sdm-base" style={{ color: 'var(--green)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+    <span className="text-sdm-base" style={{ color: 'var(--green-dark)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
       <Check size={14} strokeWidth={2} />Guardado correctamente
     </span>
   )

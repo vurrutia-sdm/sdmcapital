@@ -411,7 +411,7 @@ export default function PropiedadDetailPage() {
             </h1>
 
             <div className="flex items-center gap-2 mb-4 text-sdm-base" style={{ color: 'var(--muted)' }}>
-              <MapPin size={14} style={{ color: 'var(--green)', flexShrink: 0 }} />
+              <MapPin size={14} style={{ color: 'var(--green-dark)', flexShrink: 0 }} />
               {prop.comuna}, {prop.region}
             </div>
 

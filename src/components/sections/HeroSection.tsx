@@ -50,7 +50,7 @@ function AnimatedStat({ n, unit, label, habilitado }: { n: number; unit: string;
   return (
     <div ref={ref} className="border-t pt-3" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
       <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: '#fff' }}>
-        {count}<span className="text-sdm-display-sm" style={{ color: 'var(--green)' }}>{unit}</span>
+        {count}<span className="text-sdm-display-sm" style={{ color: 'var(--green-dark)' }}>{unit}</span>
       </div>
       <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>
         {label}
@@ -265,7 +265,7 @@ export default function HeroSection() {
             vacías y se recortan los espacios: la clave viene de un campo de
             texto del admin y un espacio al final o un renglón de más no pueden
             mover el diseño. */}
-        <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green)' }}>
+        <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green-dark)' }}>
           <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
           <span>
             {kicker.split('\n').map(l => l.trim()).filter(Boolean).map((linea, i) => (

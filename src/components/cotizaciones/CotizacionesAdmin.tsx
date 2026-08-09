@@ -516,7 +516,7 @@ function CotizacionWizard({
                 )}
                 <button
                   onClick={() => setManualProp(true)}
-                  className="border border-[var(--border-input)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
+                  className="border border-[var(--border-input)] text-[var(--navy-dark)] hover:border-[var(--green-dark)] hover:text-[var(--green-dark)]"
                   style={BTN_MODO}
                 >
                   <PencilLine aria-hidden="true" size={13} />
@@ -531,7 +531,7 @@ function CotizacionWizard({
                 {!draft.propiedad_id && (
                   <button
                     onClick={() => { setManualProp(false); setPropSearch('') }}
-                    className="border border-[var(--border-input)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
+                    className="border border-[var(--border-input)] text-[var(--navy-dark)] hover:border-[var(--green-dark)] hover:text-[var(--green-dark)]"
                     style={BTN_MODO}
                   >
                     <Search aria-hidden="true" size={13} />
@@ -539,7 +539,7 @@ function CotizacionWizard({
                   </button>
                 )}
                 {draft.propiedad_id && (
-                  <div className="text-sdm-sm" style={{ color: 'var(--green)', marginBottom: -8 }}>
+                  <div className="text-sdm-sm" style={{ color: 'var(--green-dark)', marginBottom: -8 }}>
                     <Check size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-2px' }} /> Propiedad vinculada al catálogo — puedes editar los datos del snapshot
                   </div>
                 )}
@@ -694,7 +694,7 @@ function CotizacionWizard({
               {uf && draft.valor_uf !== uf && (
                 <button className="text-sdm-xs"
                   onClick={() => upd({ valor_uf: uf })}
-                  style={{ color: 'var(--green)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginBottom: 10 }}
+                  style={{ color: 'var(--green-dark)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginBottom: 10 }}
                 >
                   Usar valor actual ({uf.toLocaleString('es-CL', { maximumFractionDigits: 2 })})
                 </button>
@@ -759,7 +759,7 @@ function CotizacionWizard({
                     <div style={{ flex: 1, background: 'var(--sky)' }} />
                   </div>
                   <div className="flex justify-between mt-2">
-                    <span className="text-sdm-xs" style={{ color: 'var(--green)', fontWeight: 600 }}>Pie {draft.pie_pct ?? 0}%  ·  {fmtN(pieUF, 2)} UF</span>
+                    <span className="text-sdm-xs" style={{ color: 'var(--green-dark)', fontWeight: 600 }}>Pie {draft.pie_pct ?? 0}%  ·  {fmtN(pieUF, 2)} UF</span>
                     <span className="text-sdm-xs" style={{ color: 'var(--navy)', fontWeight: 600 }}>Crédito {100 - (draft.pie_pct ?? 0)}%  ·  {fmtN(creditoUF, 2)} UF</span>
                   </div>
                 </div>

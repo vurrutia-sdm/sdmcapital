@@ -111,7 +111,7 @@ export default function VendeConNosotrosPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {PILARES.map(p => (
             <div key={p.num}>
-              <div className="font-serif text-sdm-base tracking-sdm-wide" style={{ color: 'var(--green)', fontWeight: 500, marginBottom: 12 }}>{p.num}</div>
+              <div className="font-serif text-sdm-base tracking-sdm-wide" style={{ color: 'var(--green-dark)', fontWeight: 500, marginBottom: 12 }}>{p.num}</div>
               <h3 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{p.titulo}</h3>
               <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8 }}>{p.desc}</p>
             </div>
@@ -141,7 +141,7 @@ export default function VendeConNosotrosPage() {
               transition: 'background 0.2s',
             }}
             >
-              <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: 'var(--green)', marginBottom: 20 }}>{paso.n}</div>
+              <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: 'var(--green-dark)', marginBottom: 20 }}>{paso.n}</div>
               <div style={{ width: 32, height: 3, background: 'var(--green)', marginBottom: 16 }} />
               <p className="text-sdm-base" style={{ fontWeight: 300, color: '#ffffff', lineHeight: 1.8 }}>{paso.texto}</p>
             </div>
@@ -160,7 +160,7 @@ export default function VendeConNosotrosPage() {
           </div>
 
           {status === 'ok' ? (
-            <div className="py-12 text-center text-sdm-xl" style={{ color: 'var(--green)' }}>
+            <div className="py-12 text-center text-sdm-xl" style={{ color: 'var(--green-dark)' }}>
               ✓ ¡Gracias! Recibimos tu información y te contactaremos pronto.
             </div>
           ) : (

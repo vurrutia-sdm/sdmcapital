@@ -217,7 +217,7 @@ function MapView({ props }: { props: Propiedad[] }) {
           )}
           <div style={{ padding: 16 }}>
             <div className="text-sdm-sm" style={{ fontWeight: 500, color: 'var(--navy-dark)', marginBottom: 4 }}>{selected.titulo}</div>
-            <div className="text-sdm-sm" style={{ color: 'var(--green)', fontWeight: 600, marginBottom: 12 }}>
+            <div className="text-sdm-sm" style={{ color: 'var(--green-dark)', fontWeight: 600, marginBottom: 12 }}>
               {selected.a_consultar ? 'A consultar' : selected.precio_uf ? `UF ${selected.precio_uf.toLocaleString('es-CL')}` : '—'}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>

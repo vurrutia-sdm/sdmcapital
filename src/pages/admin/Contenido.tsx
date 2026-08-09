@@ -243,7 +243,7 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
               <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: '-10px -4px -10px -10px', flexShrink: 0 }}>
                 <GripVertical size={14} strokeWidth={2} style={{ color: 'var(--muted)' }} />
               </span>
-              <span className="text-sdm-sm" style={{ fontWeight: 700, color: 'var(--green)', minWidth: 20 }}>{i + 1}</span>
+              <span className="text-sdm-sm" style={{ fontWeight: 700, color: 'var(--green-dark)', minWidth: 20 }}>{i + 1}</span>
               {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="text-sdm-sm" style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.titulo}</div>
@@ -259,7 +259,7 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
           <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Disponibles — clic para agregar</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 400, overflowY: 'auto', padding: 4 }}>
             {available.map(p => (
-              <button type="button" className="bg-[var(--off)] border border-transparent hover:border-[var(--green)] hover:bg-[#f0faf4]" key={p.id} onClick={() => add(p)}
+              <button type="button" className="bg-[var(--off)] border border-transparent hover:border-[var(--green-dark)] hover:bg-[#f0faf4]" key={p.id} onClick={() => add(p)}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 4, cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left', fontFamily: 'inherit', width: '100%' }}>
                 {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 40, height: 32, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
                 <div style={{ minWidth: 0 }}>

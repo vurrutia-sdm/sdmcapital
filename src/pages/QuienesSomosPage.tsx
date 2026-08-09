@@ -173,7 +173,7 @@ export default function QuienesSomosPage() {
                 </div>
                 <div className="p-6 lg:p-8">
                   <h3 className="font-serif font-light mb-1 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.1 }}>{m.nombre}</h3>
-                  <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)', marginBottom: 12 }}>{cargo}</div>
+                  <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 12 }}>{cargo}</div>
                   {bio && (
                     <div style={{ marginBottom: 20 }}>
                       {bio.split('\n').filter(Boolean).map((parrafo, i) => (
