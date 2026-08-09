@@ -200,6 +200,30 @@ export default function HomePage() {
 
   const finImg = get('financiamiento_imagen', '')
 
+  // TRES DESTACADAS EN MÓVIL, SEIS EN ESCRITORIO.
+  //
+  // El `.slice` sigue siendo intencional —el Inicio muestra una selección, no
+  // todo el catálogo—; lo que cambia es que el número dependa del ancho. Debajo
+  // de 768px la grilla ya cae a UNA columna por `mobile.css`, así que seis
+  // fichas eran una torre de scroll antes de llegar a lo que sigue.
+  //
+  // 768px es el mismo corte que usa `mobile.css`, no un número nuevo.
+  //
+  // NO ALTERA `home_destacadas_ids`: `props` ya viene en el orden de esa clave
+  // —`ids.map(id => data.find(...))` en el efecto de arriba—, así que cortar por
+  // los 3 primeros da los 3 primeros de la lista que eligió el admin, no una
+  // selección arbitraria.
+  const [cuantasDestacadas, setCuantasDestacadas] = useState(
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches ? 3 : 6
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    const alCambiar = () => setCuantasDestacadas(mq.matches ? 3 : 6)
+    alCambiar()
+    mq.addEventListener('change', alCambiar)
+    return () => mq.removeEventListener('change', alCambiar)
+  }, [])
+
 
   return (
     <div>
@@ -232,15 +256,23 @@ export default function HomePage() {
             </p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <Link to="/propiedades" className="btn-text mt-4 inline-flex area-44 area-44--arriba">
+            {/* `.btn-primary` y no `.btn-text`: es la acción principal del
+                bloque y en versalitas con un filete fino no se leía como algo
+                pulsable. Se usa el vocabulario que ya existe en vez de inventar
+                un tratamiento nuevo.
+                Navy sobre el blanco de la sección: 15.71:1. Y queda distinto del
+                «Ver todos los artículos →» del bloque de blog, que sigue siendo
+                un enlace subrayado porque ahí la acción principal es entrar al
+                artículo, no ir al índice. */}
+            <Link to="/propiedades" className="btn-primary mt-4 min-h-[44px]">
               {get('props_ver_todas', t.sections.propiedades.verTodas)}
             </Link>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)' }}>
-          {cargandoProps && Array.from({ length: 6 }, (_, i) => <EsqueletoPropiedad key={`esq-${i}`} />)}
-          {!cargandoProps && props.slice(0, 6).map((p, i, arr) => {
+          {cargandoProps && Array.from({ length: cuantasDestacadas }, (_, i) => <EsqueletoPropiedad key={`esq-${i}`} />)}
+          {!cargandoProps && props.slice(0, cuantasDestacadas).map((p, i, arr) => {
             const remainder = arr.length % 3
             const isLast = i === arr.length - 1
             return (
