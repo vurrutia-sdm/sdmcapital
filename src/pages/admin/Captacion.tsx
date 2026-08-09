@@ -156,6 +156,29 @@ function fmt(v: string | null | undefined, fallback = '—') {
   return String(v)
 }
 
+// EL ESTILO DEL RÓTULO VA EN UN <span>, NUNCA EN EL <label>.
+//
+// Los `<label>` de este panel ahora ENVUELVEN a su control —es lo que les da
+// nombre accesible sin tener que inventar un `id` por campo—, y en cuanto
+// envuelven, `textTransform` y `letterSpacing` se heredan hacia adentro. Con
+// esas dos propiedades puestas en el `<label>`, todo lo que se teclea sale en
+// mayúsculas y espaciado: el `value` del estado queda bien y la pantalla
+// miente. Es CSS válido, así que `tsc` no lo delata y el build pasa en verde.
+function Rotulo({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{children}</span>
+  )
+}
+
+// Sin `outline: none`. El anillo global de `globals.css`
+// —`*:focus-visible { outline: 2px solid var(--green-dark) }`— da 4.85:1 sobre
+// blanco y cumple de sobra el 3:1 que pide 1.4.11; apagarlo dejaba a estos
+// campos como los únicos del admin sin ninguna señal de foco.
+const CAMPO: React.CSSProperties = {
+  fontFamily: 'inherit', color: COLORS.navy, background: '#fff',
+  border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px',
+}
+
 // El valor ENVUELVE, no se recorta.
 //
 // `DRow` pinta teléfono, presupuesto, plazo, disponibilidad y comuna: datos,
@@ -272,32 +295,32 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
         <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>Editar lead</div>
 
         {textFields.map(f => (
-          <div key={f.key} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{f.label}</label>
+          <label key={f.key} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <Rotulo>{f.label}</Rotulo>
             <input className="text-sdm-base"
               type="text"
               value={draft[f.key]}
               onChange={e => upd(f.key, e.target.value)}
-              style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}
+              style={CAMPO}
             />
-          </div>
+          </label>
         ))}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Score</label>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <Rotulo>Score</Rotulo>
           <select className="text-sdm-base" value={draft.score} onChange={e => upd('score', e.target.value)}
-            style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}>
+            style={CAMPO}>
             <option value="">Sin calificar</option>
             <option value="hot">Hot</option>
             <option value="warm">Warm</option>
             <option value="cold">Cold</option>
           </select>
-        </div>
+        </label>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Estado</label>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <Rotulo>Estado</Rotulo>
           <select className="text-sdm-base" value={draft.status} onChange={e => upd('status', e.target.value)}
-            style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}>
+            style={CAMPO}>
             <option value="">—</option>
             <option value="nuevo">Nuevo</option>
             <option value="calificando">Calificando</option>
@@ -307,7 +330,7 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
             <option value="cerrado">Cerrado</option>
             <option value="perdido">Perdido</option>
           </select>
-        </div>
+        </label>
 
         {error && (
           <div className="text-sdm-sm" style={{ color: COLORS.red, background: '#fde2e1', borderRadius: 4, padding: '10px 14px' }}>
@@ -578,15 +601,24 @@ function ManualSendBox({ lead, onSent }: {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: '#fff', border: `1px solid ${COLORS.border}`, borderTop: `2px solid ${COLORS.green}`, borderRadius: 6, padding: 12 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-        <textarea className="text-sdm-sm"
-          value={mensaje}
-          onChange={e => setMensaje(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar() } }}
-          placeholder="Escribe el mensaje para el cliente…"
-          maxLength={MAX_MENSAJE_LEN}
-          rows={2}
-          style={{ flex: 1, fontFamily: 'inherit', color: COLORS.navy, background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none', resize: 'vertical' }}
-        />
+        {/* Este era el único de los cinco campos sin rótulo visible, y el
+            diseño sí admite uno: la caja ya tenía una línea de ayuda debajo,
+            así que sumar el rótulo arriba no rompe nada y evita el
+            `aria-label`. El `placeholder` no servía de nombre: desaparece en
+            cuanto se escribe la primera letra, justo cuando alguien que navega
+            con lector podría querer confirmar en qué campo está. */}
+        <label style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <Rotulo>Mensaje para el cliente</Rotulo>
+          <textarea className="text-sdm-sm"
+            value={mensaje}
+            onChange={e => setMensaje(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar() } }}
+            placeholder="Escribe el mensaje para el cliente…"
+            maxLength={MAX_MENSAJE_LEN}
+            rows={2}
+            style={{ ...CAMPO, width: '100%', background: COLORS.bg, resize: 'vertical' }}
+          />
+        </label>
         <button className="text-sdm-sm" type="button" onClick={enviar} disabled={sending || !mensaje.trim()}
           style={{ padding: '12px 24px', fontWeight: 700, borderRadius: 4, fontFamily: 'inherit',
             border: 'none', color: '#fff', background: COLORS.navy, flexShrink: 0,
@@ -777,14 +809,19 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>Horario confirmado</label>
-          <input className="text-sdm-base"
-            type="text"
-            value={edit.horario}
-            onChange={e => onChange({ ...edit, horario: e.target.value })}
-            placeholder="Ej: Sábado 14 de junio, 11:00 hrs"
-            style={{ fontFamily: 'inherit', color: COLORS.navy, background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: '9px 12px', outline: 'none' }}
-          />
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <Rotulo>Horario confirmado</Rotulo>
+            <input className="text-sdm-base"
+              type="text"
+              value={edit.horario}
+              onChange={e => onChange({ ...edit, horario: e.target.value })}
+              placeholder="Ej: Sábado 14 de junio, 11:00 hrs"
+              style={CAMPO}
+            />
+          </label>
+          {/* La línea del horario propuesto queda FUERA del `<label>`: metida
+              adentro se sumaría al nombre accesible del campo, que pasaría a
+              anunciarse como «Horario confirmado Propuesto por el lead: …». */}
           {visita.horario_propuesto && (
             <span className="text-sdm-sm" style={{ color: COLORS.muted }}>Propuesto por el lead: «{visita.horario_propuesto}»</span>
           )}
