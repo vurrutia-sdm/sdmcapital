@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react'
-import { Pause, Play } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
@@ -40,148 +40,94 @@ function EsqueletoPropiedad() {
 }
 
 
-const TESTIMONIALS = [
-  { num: '01', quote: '"SDM Capital hizo posible el sueño de mi familia de adquirir nuestra primera vivienda en Santiago. Asesoramiento personalizado y soluciones de financiamiento a medida."', sig: 'María Sánchez · Santiago, Chile' },
-  { num: '02', quote: '"Como inversionista internacional, SDM Capital simplificó todo el proceso. Me ayudó a identificar oportunidades sólidas y mi cartera ha crecido significativamente."', sig: 'Carlos González · Miami, Florida, EE. UU.' },
-  { num: '03', quote: '"Su conocimiento del mercado y atención personalizada hicieron que el proceso de compra en Viña del Mar fuera completamente libre de estrés."', sig: 'Isabel Ríos · Viña del Mar, Chile' },
-]
+// Acá vivían tres testimonios inventados —María Sánchez, Carlos González,
+// Isabel Ríos— que se usaban como default cuando la clave estaba vacía. Es la
+// misma regla que ya cerró SAMPLE_PROPS: nada de datos de muestra en
+// producción. Sin default, una ranura vacía se descarta y si no queda ninguna
+// la sección no se dibuja.
 
-// ─── CARRUSEL DE TESTIMONIOS ──────────────────────────────────────────────────
-function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string; t: ReturnType<typeof useLang>['t'] }) {
+// ─── TESTIMONIOS ──────────────────────────────────────────────────────────────
+//
+// Era un carrusel de cinco con rotación automática, flechas, contador 01/05 y
+// puntos. Quedaron DOS, así que la rotación se fue entera y con ella todos sus
+// controles: sin movimiento no hay nada que pausar, y 2.2.2 deja de aplicar.
+//
+// Se quitaron los tres firmados por «Equipo SDM» porque no eran testimonios
+// sino casos narrados por la empresa, y duplicaban el bloque de blog que está
+// justo debajo — uno de ellos era literalmente el teaser de un artículo, con
+// enlace a ese artículo. Las claves 3 a 8 siguen disponibles en el admin para
+// testimonios reales futuros; el filtro por `texto` las ignora mientras estén
+// vacías.
+function Testimonios({ get, t }: { get: (k: string, d: string) => string; t: ReturnType<typeof useLang>['t'] }) {
   const items = [1,2,3,4,5,6,7,8].map(n => ({
-    texto: get(`testimonial_${n}_texto`, n <= 3 ? (TESTIMONIALS[n-1]?.quote || '') : ''),
-    autor: get(`testimonial_${n}_autor`, n <= 3 ? (TESTIMONIALS[n-1]?.sig || '') : ''),
+    texto: get(`testimonial_${n}_texto`, ''),
+    autor: get(`testimonial_${n}_autor`, ''),
     url:   get(`testimonial_${n}_url`, ''),
   })).filter(i => i.texto)
 
-  const [current, setCurrent] = useState(0)
-  // Mismo criterio que el carrusel del hero: rota indefinidamente, así que
-  // 2.2.2 exige poder detenerlo. Nace pausado con `prefers-reduced-motion`.
-  const [pausado, setPausado] = useState(false)
-  const [animating, setAnimating] = useState(false)
-  const [direction, setDirection] = useState<'up' | 'down'>('up')
-  const timer = useRef<ReturnType<typeof setInterval>>()
-
-  const goTo = (idx: number, dir: 'up' | 'down' = 'up') => {
-    if (animating || items.length <= 1) return
-    setDirection(dir)
-    setAnimating(true)
-    setTimeout(() => {
-      setCurrent(idx)
-      setAnimating(false)
-    }, 400)
-  }
-
-  const next = () => goTo((current + 1) % items.length, 'up')
-  const prev = () => goTo((current - 1 + items.length) % items.length, 'down')
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const aplicar = () => setPausado(mq.matches)
-    aplicar()
-    mq.addEventListener('change', aplicar)
-    return () => mq.removeEventListener('change', aplicar)
-  }, [])
-
-  useEffect(() => {
-    if (items.length <= 1 || pausado) return
-    timer.current = setInterval(next, 5000)
-    return () => clearInterval(timer.current)
-  }, [current, items.length, pausado])
-
   if (items.length === 0) return null
 
-  const item = items[current]
-
   return (
-    <section style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)', paddingTop: 80, paddingBottom: 80 }}>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-24">
+    <section style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)', paddingTop: 56, paddingBottom: 56 }}>
+      {/* El título sube al centro, donde están los de las demás secciones del
+          home. Sigue siendo <h2>: mismo nivel que antes, así que la jerarquía
+          de la tanda 4 no se mueve. */}
+      <div className="text-center mb-8">
+        <div className="section-label" style={{ marginBottom: 12, justifyContent: 'center' }}>{t.sections.testimonios.label}</div>
+        <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1 }}>
+          {get('testimonios_titulo', 'Palabras de nuestros clientes')}
+        </h2>
+      </div>
 
-        {/* Columna izquierda — título fijo */}
-        <div style={{ textAlign: 'center' }} className="lg:text-left">
-          <div className="section-label" style={{ marginBottom: 18, justifyContent: 'center' }}>{t.sections.testimonios.label}</div>
-          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1 }}>
-            {get('testimonios_titulo', 'Palabras de nuestros clientes')}
-          </h2>
-          <div style={{ width: 40, height: 1, background: 'var(--green)', margin: '24px auto 14px' }} />
-          <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9 }}>
-            {get('testimonios_subtitulo', t.sections.testimonios.sub)}
-          </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto" style={{ maxWidth: 980 }}>
+        {items.map((item, i) => {
+          // El autor viene como «Nombre · Ciudad, País» en una sola cadena. Se
+          // parte por el primer `·` para poder tratarlos distinto. Ojo: en la
+          // base hay un doble espacio antes del separador, de ahí el trim.
+          const corte = item.autor.indexOf('·')
+          const nombre = (corte >= 0 ? item.autor.slice(0, corte) : item.autor).trim()
+          const lugar  = corte >= 0 ? item.autor.slice(corte + 1).trim() : ''
+          // El rótulo del enlace sale del dominio: si mañana un testimonio
+          // apunta a otro sitio, lo dice en vez de mentir.
+          let donde = 'Ver la publicación'
+          try { const h = new URL(item.url).hostname.replace(/^www\./, '')
+            donde = h.includes('instagram') ? 'Ver en Instagram' : h.includes('linkedin') ? 'Ver en LinkedIn' : h.includes('sdmcapital') ? 'Leer el artículo' : `Ver en ${h}` } catch { /* sin url */ }
 
-          {/* Controles */}
-          {items.length > 1 && (
-            <div className="flex items-center gap-4 mt-10" style={{ justifyContent: 'center' }}>
-              {/* El control de 2.2.2: las flechas cambian de testimonio pero no
-                  detienen la rotación. */}
-              <button
-                type="button"
-                onClick={() => setPausado(p => !p)}
-                aria-label={pausado ? 'Reanudar el cambio automático de testimonios' : 'Pausar el cambio automático de testimonios'}
-                className="area-44 bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white"
-                style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
-              >
-                {pausado ? <Play aria-hidden="true" size={14} fill="currentColor" /> : <Pause aria-hidden="true" size={14} fill="currentColor" />}
-              </button>
-              <button className="area-44 text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={prev}
-                style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
-              >↑</button>
-              <button className="area-44 text-sdm-xl bg-white text-[var(--navy-dark)] border border-[var(--border)] hover:bg-[var(--navy-dark)] hover:text-white hover:border-[var(--navy-dark)]" onClick={next}
-                style={{ width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
-              >↓</button>
-              <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>
-                {String(current + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
-              </span>
-            </div>
-          )}
-        </div>
+          return (
+            <div key={i} className="bg-[var(--off)]" style={{ border: '1px solid var(--border)', borderRadius: 3, padding: '24px 28px 26px', display: 'flex', gap: 16 }}>
+              {/* Ornamento, no texto: `aria-hidden` porque no hay nada que
+                  leer. Va en --green-dark (4,64:1 sobre --off) y no en --sky,
+                  que sobre este fondo da 1,73:1 y sería invisible.
 
-        {/* Columna derecha — testimonio animado */}
-        <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div
-            style={{
-              overflow: 'hidden',
-              opacity: animating ? 0 : 1,
-              transform: animating
-                ? `translateY(${direction === 'up' ? '-20px' : '20px'})`
-                : 'translateY(0)',
-              transition: 'opacity 0.4s ease, transform 0.4s ease',
-              textAlign: 'center',
-            }}
-          >
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 28, marginBottom: 4 }}>
-              <p className="font-serif italic font-light" style={{ fontSize: 'clamp(18px,2.5vw,24px)', color: 'var(--ink)', lineHeight: 1.7, marginBottom: 20 }}>
-                "{item.texto}"
-              </p>
-              <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: item.url ? 12 : 0 }}>
-                {item.autor}
+                  A la IZQUIERDA del texto y no encima: apilado se comía una
+                  fila entera de 56px por tarjeta y la sección no bajaba de los
+                  490px que había que mejorar. */}
+              <span aria-hidden="true" className="font-serif" style={{ color: 'var(--green-dark)', fontSize: 44, lineHeight: 0.85, flexShrink: 0 }}>&rdquo;</span>
+
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--ink)', lineHeight: 1.75, marginBottom: 18, flex: 1 }}>
+                  {item.texto}
+                </p>
+
+                <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)' }}>
+                  {nombre}
+                </div>
+                {lugar && (
+                  <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{lugar}</div>
+                )}
+
+                {item.url && (
+                  <a className="text-sdm-sm tracking-sdm-wide inline-flex items-center gap-1.5 hover:text-[var(--navy-dark)]"
+                    href={item.url} target="_blank" rel="noopener noreferrer"
+                    aria-label={`${donde}: testimonio de ${nombre} (se abre en una pestaña nueva)`}
+                    style={{ marginTop: 10, fontWeight: 600, textTransform: 'uppercase', color: 'var(--green-dark)', textDecoration: 'none', minHeight: 32, alignSelf: 'flex-start' }}>
+                    {donde}<ExternalLink aria-hidden="true" size={13} strokeWidth={2} />
+                  </a>
+                )}
               </div>
-              {item.url && (
-                <a className="text-sdm-sm tracking-sdm-wide area-44" href={item.url} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12, fontWeight: 600, textTransform: 'uppercase', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green)', paddingBottom: 2 }}
-                >
-                  Conoce la historia →
-                </a>
-              )}
             </div>
-
-            {/* Dots */}
-            {items.length > 1 && (
-              /* 18px de separación y no 8: 2.5.8 (AA de WCAG 2.2) exime a un objetivo
-                  menor de 24x24 solo si un círculo de 24px centrado en él no toca el
-                  círculo ni la caja de un vecino. Con 8px el paso entre centros era
-                  16px y los círculos se cortaban; con 18px queda en 26px y se
-                  separan. Los puntos se siguen viendo de 8px: lo que cambia es el
-                  aire entre ellos, no su tamaño. */
-              <div className="flex mt-8" style={{ justifyContent: 'center', gap: 18 }}>
-                {items.map((_, i) => (
-                  <button key={i} onClick={() => goTo(i)}
-                    style={{ width: i === current ? 24 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'all 0.3s', background: i === current ? 'var(--green)' : 'var(--border)', padding: 0 }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+          )
+        })}
       </div>
     </section>
   )
@@ -355,8 +301,8 @@ export default function HomePage() {
 
       {/* 6. Internacional — temporalmente oculta */}
 
-      {/* 7. Testimonios — Carrusel */}
-      <TestimoniosCarrusel get={get} t={t} />
+      {/* 7. Testimonios */}
+      <Testimonios get={get} t={t} />
 
       {/* 8. Blog preview */}
       <BlogPreviewSection />
