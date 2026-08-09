@@ -195,9 +195,20 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
         {/* Info de proyecto nuevo — etapa y fecha de entrega */}
         {propiedad.categoria === 'proyecto_nuevo' && (propiedad.etapa_construccion || propiedad.fecha_entrega) && (
           <div className="mt-2.5 pt-2.5 border-t text-sdm-sm" style={{ borderColor: 'var(--border)', fontWeight: 300, color: 'var(--muted)' }}>
+            {/* «Entrega inmediata · Entrega: 2026» se leía tal cual en el
+                catálogo: dos campos que se contradicen.
+                Si la etapa ES inmediata, la fecha se calla — una entrega
+                inmediata no tiene fecha futura, y si la hay es un dato mal
+                cargado que no debe llegar al visitante.
+                Con cualquier otra etapa los dos conviven bien: «Próxima entrega
+                · Entrega: 2028» informa de la fase Y del plazo, que no es lo
+                mismo. Por eso la regla mira la etapa y no suprime la fecha
+                siempre. */}
             {[
               propiedad.etapa_construccion ? ETAPA_LABELS[propiedad.etapa_construccion] : null,
-              propiedad.fecha_entrega ? `Entrega: ${propiedad.fecha_entrega}` : null,
+              propiedad.fecha_entrega && propiedad.etapa_construccion !== 'entrega_inmediata'
+                ? `Entrega: ${propiedad.fecha_entrega}`
+                : null,
             ].filter(Boolean).join(' · ')}
           </div>
         )}

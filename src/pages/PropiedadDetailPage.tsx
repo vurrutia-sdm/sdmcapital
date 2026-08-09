@@ -590,7 +590,11 @@ export default function PropiedadDetailPage() {
             {prop.categoria === 'proyecto_nuevo' && (() => {
               const items: { label: string; value: string }[] = []
               if (prop.etapa_construccion && ETAPA_LABELS[prop.etapa_construccion]) items.push({ label: 'Etapa', value: ETAPA_LABELS[prop.etapa_construccion] })
-              if (prop.fecha_entrega) items.push({ label: 'Fecha estimada de entrega', value: prop.fecha_entrega })
+              // Misma regla que la tarjeta: si la etapa es «Entrega inmediata»,
+              // la fecha no se muestra. Acá salían como dos filas seguidas —
+              // «Etapa: Entrega inmediata» y «Fecha estimada de entrega: 2026»—
+              // que se contradicen igual que en el catálogo.
+              if (prop.fecha_entrega && prop.etapa_construccion !== 'entrega_inmediata') items.push({ label: 'Fecha estimada de entrega', value: prop.fecha_entrega })
               if (prop.avance_obra !== undefined && prop.avance_obra !== null) items.push({ label: 'Avance de obra', value: `${prop.avance_obra}%` })
               const subsidios = prop.subsidios || []
               if (!items.length && !subsidios.length) return null
