@@ -121,12 +121,25 @@ const MAX_MENSAJE_LEN = 4096
 // `color={COLORS.muted}`: esa prop termina en el atributo `stroke` del SVG, y
 // ahí `var()` es terreno resbaloso. Se cambiaron a `style={{ color }}`, que es
 // CSS de verdad; lucide ya dibuja con `currentColor` por defecto.
+//
+// DOS VERDES, Y NO SON INTERCAMBIABLES. Es la misma regla que ya sigue
+// `.btn-green` en `globals.css`:
+//
+//   green      color de marca. SOLO decorativo — bordes de acento, filetes.
+//              Nada de texto encima ni debajo. Blanco sobre `--green` da
+//              2.93:1, que no llega ni al umbral de texto grande.
+//   greenDark  todo lo que tiene que cumplir contraste: fondos de botón con
+//              texto blanco, texto verde sobre claro. 4.85:1 sobre blanco.
+//
+// Si agregas un uso nuevo, la pregunta es «¿hay texto en este par?». Si la
+// respuesta es sí, va `greenDark`.
 const COLORS = {
   navy: 'var(--navy-dark)',
   muted: 'var(--muted)',
   border: 'var(--border)',
   bg: 'var(--off)',
   green: 'var(--green)',
+  greenDark: 'var(--green-dark)',
   red: 'var(--error)',
 }
 
@@ -404,7 +417,7 @@ function DetailTabs({ active, onChange }: { active: DetailTab; onChange: (t: Det
 const ROL_STYLE: Record<string, { align: 'flex-start' | 'flex-end'; bg: string; fg: string; border: string; label: string | null }> = {
   cliente: { align: 'flex-start', bg: '#fff',        fg: COLORS.navy, border: `1px solid ${COLORS.border}`, label: null },
   sofia:   { align: 'flex-end',   bg: COLORS.navy,   fg: '#fff',      border: 'none',                       label: null },
-  humano:  { align: 'flex-end',   bg: COLORS.green,  fg: '#fff',      border: 'none',                       label: 'Equipo' },
+  humano:  { align: 'flex-end',   bg: COLORS.greenDark, fg: '#fff',   border: 'none',                       label: 'Equipo' },
 }
 // Mismo caso que `SCORE_NULL`: un `rol` que no es cliente/sofia/humano no tiene
 // color propio, va con los neutros. `--muted` sobre `#eef1f4` daba 4.44:1;
@@ -417,7 +430,7 @@ function MensajeBubble({ m }: { m: Mensaje }) {
     <div style={{ display: 'flex', justifyContent: style.align }}>
       <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: 4, alignItems: style.align }}>
         {style.label && (
-          <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: COLORS.green }}>{style.label}</span>
+          <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 700, textTransform: 'uppercase', color: COLORS.greenDark }}>{style.label}</span>
         )}
         <div className="text-sdm-sm" style={{ padding: '9px 13px', borderRadius: 12, lineHeight: 1.55,
           background: style.bg, color: style.fg, border: style.border,
@@ -536,7 +549,13 @@ function ModoToggleBanner({ lead, onModoChange }: {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <span className="text-sdm-2xl" style={{ lineHeight: 1 }}>{isManual ? '✋' : '🤖'}</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <span className="text-sdm-base" style={{ fontWeight: 700, color: isManual ? '#c8740a' : COLORS.green }}>
+          {/* `greenDark` y no `green`: es texto sobre el fondo claro del banner.
+              Sube de 2.58:1 a 4.28:1 — mejor, pero todavía por debajo del 4.5
+              que pide un texto de 15 px en negrita. Su gemelo ámbar (#c8740a
+              sobre #fdedd6) está en 3.06:1 y falla igual. Los dos se arreglan
+              juntos cambiando el fondo del banner o el color del titular; va
+              anotado en SINCRONIA.md porque es decisión de diseño. */}
+          <span className="text-sdm-base" style={{ fontWeight: 700, color: isManual ? '#c8740a' : COLORS.greenDark }}>
             {isManual ? 'Control manual — Sofía en pausa' : 'Sofía está respondiendo'}
           </span>
           <span className="text-sdm-sm" style={{ color: COLORS.muted }}>
@@ -549,7 +568,7 @@ function ModoToggleBanner({ lead, onModoChange }: {
       <button className="text-sdm-sm tracking-sdm-normal" type="button" onClick={toggleModo} disabled={togglingModo}
         style={{ padding: '12px 22px', fontWeight: 700, borderRadius: 6, fontFamily: 'inherit', border: 'none', color: '#fff', whiteSpace: 'nowrap',
           cursor: togglingModo ? 'default' : 'pointer',
-          background: isManual ? COLORS.green : '#c8740a',
+          background: isManual ? COLORS.greenDark : '#c8740a',
           opacity: togglingModo ? 0.6 : 1,
           boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
         {togglingModo ? 'Guardando…' : isManual ? '🤖 Devolver a Sofía' : '✋ Tomar control'}
@@ -640,7 +659,7 @@ function ManualSendBox({ lead, onSent }: {
 // ── Sección 0: Métricas (resumen) ────────────────────────────────────────────
 const VISITA_ESTADO_STYLE = {
   pendientes: '#c8740a',
-  confirmadas: COLORS.green,
+  confirmadas: COLORS.greenDark,
   realizadas: '#2c5da0',
 }
 
@@ -829,7 +848,7 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
 
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
           <button className="text-sdm-sm tracking-sdm-wide" type="button" onClick={onConfirm} disabled={saving}
-            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: COLORS.green, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontWeight: 700, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
+            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: COLORS.greenDark, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontWeight: 700, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
             <Check size={15} /> {saving ? 'Guardando…' : 'Confirmar visita'}
           </button>
           <button className="text-sdm-sm" type="button" onClick={onCancel} disabled={saving}

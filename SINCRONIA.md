@@ -6147,12 +6147,8 @@ es grande: tres leads llenan una pantalla de teléfono.
 
 ### Pendientes que deja
 
-1. **Blanco sobre `--green` da 2.93:1 y no cumple AA.** Afecta al botón
-   «Confirmar visita» y a la burbuja del equipo; `--green` sobre blanco, al
-   rótulo «Equipo». Fallaba igual antes con `#4DB870` (2.50:1), así que no es
-   una regresión, pero ahora es lo único que falla en el panel. El arreglo es
-   `--green-dark`, que da **4.85:1** en los dos sentidos. No entraba en este
-   encargo: cambia el color de un botón principal y es decisión de diseño.
+1. ~~**Blanco sobre `--green` da 2.93:1 y no cumple AA.**~~
+   **CERRADO el 2026-08-09.** Ver «Captación — los dos verdes» más abajo.
 2. **La fila de lead a 375 px mide 321 px** con datos largos. Si molesta, la
    salida es mostrar menos columnas en el resumen y dejar el resto al detalle.
 3. **`leads.status` no se toca al cancelar una visita**, pero sí al confirmarla.
@@ -6163,3 +6159,60 @@ es grande: tres leads llenan una pantalla de teléfono.
    `#dde7f6`/`#2c5da0`— y los colores del banner de modo siguen siendo literales
    propios. No son la paleta paralela que se estaba eliminando: son una familia
    semántica aparte, sin equivalente en `globals.css`.
+
+---
+
+## Captación — los dos verdes — 2026-08-09
+
+Cierra el pendiente 1 del cierre anterior. Mismo criterio que ya seguía
+`.btn-green` en `globals.css`, del que Captación había quedado fuera por el
+dominio y no por decisión: **`--green` es el color de marca y solo vale para lo
+decorativo; lo que tiene texto en el par usa `--green-dark`.**
+
+El mapa `COLORS` pasa a tener las dos entradas, con la regla escrita al lado:
+si agregas un uso nuevo, la pregunta es «¿hay texto en este par?».
+
+### Los seis sitios que llevaban texto
+
+| sitio | par | antes | después | |
+|---|---|---|---|---|
+| Botón «Confirmar visita» | blanco sobre verde | 2.93 | **4.85** | AA |
+| Burbuja del equipo | blanco sobre verde | 2.93 | **4.85** | AA |
+| Rótulo «Equipo» | verde sobre blanco | 2.93 | **4.85** | AA |
+| Métrica «Confirmadas» | verde sobre blanco | 2.93 | **4.85** | AA |
+| Botón «Devolver a Sofía» | blanco sobre verde | 2.93 | **4.85** | AA |
+| Titular «Sofía está respondiendo» | verde sobre `#e3f5ea` | 2.58 | 4.28 | **corto** |
+
+Los tres eran seis. Al buscar los usos aparecieron tres más de los que decía el
+pendiente: la métrica «Confirmadas», el botón «Devolver a Sofía» y el titular
+del banner de modo.
+
+### Los tres decorativos NO se tocaron
+
+Siguen en `--green`: el filete superior del cuadro de mensaje manual (2 px) y
+los dos bordes izquierdos de la caja de brief (3 px). No hay texto en esos
+pares, así que 1.4.11 no aplica y el color de marca se queda donde se ve.
+
+### El titular del banner de modo queda corto, y su gemelo también
+
+`--green-dark` sobre `#e3f5ea` da **4.28:1**. Es texto de 15 px en negrita, o
+sea que el umbral es 4.5 y no 3. Mejora respecto de 2.58 pero no llega.
+
+Y no es solo el verde: el gemelo ámbar del mismo banner —`#c8740a` sobre
+`#fdedd6`, «Control manual — Sofía en pausa»— está en **3.06:1** y falla igual.
+Nunca estuvo en ningún pendiente porque las auditorías miraban el verde.
+
+Los dos se arreglan juntos, y hay dos salidas:
+
+- **fondo del banner a blanco** — `--green-dark` sube a 4.85 y el ámbar a 3.47,
+  que sigue corto;
+- **titular a `--navy-dark`** — 13.86:1 sobre el verde claro; el color queda en
+  el fondo, el emoji y el botón, que ya distinguen los dos estados de sobra.
+
+La segunda cumple en ambos lados. Es cambio de diseño, así que no se aplicó.
+
+### Verificado en el navegador
+
+Con el mismo banco temporal del cierre anterior, borrado al terminar. Los seis
+sitios resuelven a `rgb(45, 128, 85)` = `#2D8055` = `--green-dark`, y los tres
+decorativos siguen en `--green`. Cero errores de consola.
