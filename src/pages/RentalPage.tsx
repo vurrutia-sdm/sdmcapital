@@ -115,7 +115,7 @@ export default function RentalPage() {
         <div className="section-label" style={{ marginBottom: 20 }}>Para Arrendatarios</div>
         <h2 className="font-serif font-light mb-6 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>{arrTitulo}</h2>
         <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>{arrSubtitulo}</p>
-        <Link className="text-sdm-xs tracking-sdm-wide bg-[var(--navy-dark)] hover:bg-[var(--green)]" to="/propiedades?estado=en_arriendo"
+        <Link className="text-sdm-xs tracking-sdm-wide bg-[var(--navy-dark)] hover:bg-[var(--green-dark)]" to="/propiedades?estado=en_arriendo"
           style={{ display: 'inline-block', padding: '13px 28px', color: '#fff', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
         >Ver propiedades en arriendo</Link>
       </section>

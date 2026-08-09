@@ -53,7 +53,7 @@ export default function BannerPromo() {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '13px 30px',
-    background: 'var(--green)',
+    background: 'var(--green-dark)',
     color: '#fff',
     fontSize: 'var(--sdm-text-sm)',
     fontWeight: 500,
