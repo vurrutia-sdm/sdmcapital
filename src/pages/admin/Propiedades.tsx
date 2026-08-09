@@ -19,14 +19,16 @@
 // `/api/subir` — una Pages Function. En localhost no funcionan: vite.config.ts
 // no proxea `/api`. Esa parte se prueba en producción.
 
-import { useState, useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ArrowUpDown, Briefcase, Camera, Check, ExternalLink, File, GripVertical, MapPin, MousePointer2, Paperclip, Pause, Plus, Star, X, Youtube } from 'lucide-react'
+import { useState, useEffect, useRef, useId } from 'react'
+import { ArrowDown, ArrowUp, CheckCircle2, ArrowUpDown, Briefcase, Camera, Check, ExternalLink, File, GripVertical, MapPin, MousePointer2, Paperclip, Pause, Plus, Star, X, Youtube } from 'lucide-react'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { subirImagen, subirArchivo } from '@/lib/subirImagen'
 import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
+import { useDialogoModal } from '@/hooks/useDialogoModal'
+import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { useContenido } from '@/hooks/useContenido'
 import type { Propiedad, DossierItem, UnidadPropiedad } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
@@ -538,9 +540,63 @@ const MODO_CATALOGO: Record<string, string> = {
   aleatorio:   'al azar en cada visita',
 }
 
+
+// Confirmación de guardado, SOLO para propiedades.
+//
+// Los otros trece paneles siguen con la píldora «Guardado correctamente», que se
+// va sola a los 2500 ms. Acá se pidió un diálogo que haya que aceptar: una
+// propiedad es la ficha que sale publicada, y confirmar que se guardó vale más
+// que no interrumpir.
+//
+// Diálogo propio y no `alert()`: el nativo no se puede estilar, no respeta el
+// sistema y en algunos navegadores bloquea el hilo. Usa el mismo par de hooks
+// que los cinco modales del sitio — `useDialogoModal` da Escape, foco atrapado y
+// foco devuelto al disparador; `useBloquearScroll` evita que el fondo se mueva y
+// devuelve la posición al cerrar.
+function DialogoGuardado({ onClose }: { onClose: () => void }) {
+  const caja = useRef<HTMLDivElement>(null)
+  const tituloId = useId()
+  useDialogoModal(true, caja, onClose)
+  useBloquearScroll(true)
+
+  return (
+    <div role="dialog" aria-modal="true" aria-labelledby={tituloId}
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(15,37,53,0.72)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div ref={caja} tabIndex={-1} onClick={e => e.stopPropagation()}
+        style={{ background: '#fff', borderRadius: 4, padding: '36px 32px', maxWidth: 380, width: '100%', textAlign: 'center', boxShadow: '0 12px 40px rgba(15,37,53,0.22)' }}>
+        <CheckCircle2 aria-hidden="true" size={44} strokeWidth={1.5} style={{ color: 'var(--green-dark)', margin: '0 auto 16px' }} />
+        <h2 id={tituloId} className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: 8 }}>
+          Excelente
+        </h2>
+        <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 28, lineHeight: 1.6 }}>
+          Propiedad guardada con éxito.
+        </p>
+        {/* `autoFocus` para que Enter cierre sin buscar nada, y 44px de alto. */}
+        <button autoFocus onClick={onClose} className="btn-primary"
+          style={{ minHeight: 44, minWidth: 120, justifyContent: 'center' }}>
+          OK
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () => void } = {}) {
   const [items, setItems]         = useState<Propiedad[]>([])
   const [guardado, avisarGuardado] = useGuardado()
+  const [guardadaOk, setGuardadaOk] = useState(false)
+  // A DÓNDE VA EL FOCO AL CERRAR EL DIÁLOGO.
+  //
+  // `useDialogoModal` lo devuelve al elemento que lo abrió, pero acá ese
+  // elemento ya no existe: `save()` hace `setEditing(null)` y el formulario
+  // entero —con su botón «Guardar»— se desmonta antes de que el diálogo aparezca.
+  // Sin esto el foco terminaba en el <body> y quien navega con teclado perdía
+  // el sitio por completo.
+  //
+  // Se manda a «Nueva propiedad», que es la acción siguiente natural y está
+  // justo encima de la lista que se acaba de actualizar.
+  const botonNueva = useRef<HTMLButtonElement>(null)
   const [editing, setEditing]     = useState<Partial<Propiedad> | null>(null)
   const [saving, setSaving]       = useState(false)
   // UN SOLO ESTADO PARA LAS DOS MITADES DEL ORDEN, y no dos `useState`.
@@ -728,7 +784,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
     setSaving(false)
     if (avisarError('No se pudo guardar la propiedad', error)) return
 
-    avisarGuardado()
+    setGuardadaOk(true)
     setEditing(null)
     load()
   }
@@ -739,7 +795,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
     <div>
       <div className="flex flex-col items-start gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
         <div className="flex items-center gap-4"><h2 className="font-serif font-light text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>Propiedades</h2><Guardado visible={guardado} /></div>
-        <button className="btn-green" onClick={() => setEditing(blank())}><Plus aria-hidden="true" size={15} strokeWidth={2} /> Nueva propiedad</button>
+        <button ref={botonNueva} className="btn-green" onClick={() => setEditing(blank())}><Plus aria-hidden="true" size={15} strokeWidth={2} /> Nueva propiedad</button>
       </div>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
@@ -1149,6 +1205,10 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
           </tbody>
         </table>
       </div>
+
+      {/* Solo aparece cuando el guardado SALIÓ BIEN: si falla, `save()` corta en
+          `avisarError` y nunca llega a levantarlo. */}
+      {guardadaOk && <DialogoGuardado onClose={() => { setGuardadaOk(false); botonNueva.current?.focus() }} />}
     </div>
   )
 }
