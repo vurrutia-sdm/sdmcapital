@@ -81,6 +81,9 @@ type MetricsData = {
   arriendo: number
   conversion: number
   topComunas: { comuna: string; count: number }[]
+  // Cuántas comunas distintas hubo en el mes. `topComunas` solo trae las 5 más
+  // buscadas, y sin este total la lista no puede decir de cuántas salieron.
+  comunasTotal: number
 }
 
 type ScoreFilter = 'todos' | 'hot' | 'warm' | 'cold'
@@ -134,11 +137,22 @@ function fmt(v: string | null | undefined, fallback = '—') {
   return String(v)
 }
 
+// El valor ENVUELVE, no se recorta.
+//
+// `DRow` pinta teléfono, presupuesto, plazo, disponibilidad y comuna: datos,
+// no títulos. Con `textOverflow: ellipsis` un teléfono quedaba en «+56 9 3747…»
+// —inservible, y sin ninguna señal de que faltaba algo, porque los puntos
+// suspensivos se leen como parte del dato tanto como cualquier otra cosa—.
+//
+// La columna mide ~132 px en el detalle de un lead y ~150 px en una tarjeta de
+// visita; un teléfono chileno ocupa ~114 px y cualquier presupuesto escrito por
+// el cliente («entre 3.000 y 4.500 UF») se pasa. Envolver cuesta una línea de
+// alto en un panel desplegado que va sobrado de espacio vertical.
 function DRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
       <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{label}</span>
-      <span className="text-sdm-base" style={{ color: COLORS.navy, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
+      <span className="text-sdm-base" style={{ color: COLORS.navy, overflowWrap: 'anywhere' }}>{value}</span>
     </div>
   )
 }
@@ -607,7 +621,7 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
     leadsHoy: 0, leadsSemana: 0, leadsMes: 0, leadsTotal: 0,
     hot: 0, warm: 0, cold: 0,
     visitasPendientes: 0, visitasConfirmadas: 0, visitasRealizadas: 0,
-    compra: 0, arriendo: 0, conversion: 0, topComunas: [],
+    compra: 0, arriendo: 0, conversion: 0, topComunas: [], comunasTotal: 0,
   }
 
   return (
@@ -661,15 +675,26 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
         ) : m.topComunas.length === 0 ? (
           <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Sin datos de comunas para este mes.</span>
         ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {m.topComunas.map((c, i) => (
-              <div key={c.comuna} style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.bg, borderRadius: 14, padding: '6px 14px' }}>
-                <span className="text-sdm-sm" style={{ fontWeight: 700, color: COLORS.navy }}>{i + 1}.</span>
-                <span className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{c.comuna}</span>
-                <span className="text-sdm-sm" style={{ color: COLORS.muted, fontWeight: 600 }}>({c.count})</span>
+          <>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              {m.topComunas.map((c, i) => (
+                <div key={c.comuna} style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.bg, borderRadius: 14, padding: '6px 14px' }}>
+                  <span className="text-sdm-sm" style={{ fontWeight: 700, color: COLORS.navy }}>{i + 1}.</span>
+                  <span className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{c.comuna}</span>
+                  <span className="text-sdm-sm" style={{ color: COLORS.muted, fontWeight: 600 }}>({c.count})</span>
+                </div>
+              ))}
+            </div>
+            {/* El recorte a 5 se dice. La caja no tiene scroll propio —es un
+                flex-wrap de fichas—, así que sin esta línea las comunas 6 en
+                adelante desaparecían sin dejar rastro y el ranking se leía
+                como la lista completa del mes. */}
+            {m.comunasTotal > m.topComunas.length && (
+              <div className="text-sdm-sm" style={{ color: COLORS.muted, marginTop: 12 }}>
+                Mostrando las {m.topComunas.length} más buscadas de {m.comunasTotal} comunas.
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </section>
@@ -772,12 +797,18 @@ function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoC
     <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, overflow: 'hidden', opacity: deleting ? 0.5 : 1, transition: 'opacity 0.2s' }}>
       <div onClick={onToggle} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer' }}>
         <ScoreBadge score={lead.score} />
+        {/* Estas seis columnas ENVUELVEN en vez de recortarse. Medido: a 1100 px
+            de ancho —el máximo del panel— cada una mide ~124 px, y a 768 px
+            bajan a ~108 px. Ahí entran «Ñuñoa» y «3 a 6 meses», pero no un
+            presupuesto tal como lo escribe el cliente ni un nombre completo.
+            La fila crece a dos líneas cuando hace falta; antes el dato se
+            cortaba y no había forma de recuperarlo sin abrir el detalle. */}
         <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
-          <div className="text-sdm-base" style={{ fontWeight: 700, color: COLORS.navy, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.nombre, 'Sin nombre')}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.comuna)}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.intencion)}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.presupuesto)}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmt(lead.plazo)}</div>
+          <div className="text-sdm-base" style={{ fontWeight: 700, color: COLORS.navy, overflowWrap: 'anywhere' }}>{fmt(lead.nombre, 'Sin nombre')}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.comuna)}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.intencion)}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.presupuesto)}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.plazo)}</div>
           <div className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{fmt(lead.status)}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
@@ -1007,6 +1038,7 @@ export default function Captacion() {
       compra, arriendo,
       conversion,
       topComunas,
+      comunasTotal: Object.keys(comunaCounts).length,
     })
     setLoadingMetrics(false)
   }, [])
