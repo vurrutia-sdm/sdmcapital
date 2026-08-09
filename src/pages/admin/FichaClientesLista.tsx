@@ -6,6 +6,7 @@ import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
+import { Field } from '@/components/admin/campos'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -45,14 +46,6 @@ const inp: React.CSSProperties = {
 // build avise.
 //
 // No hace falta `display: block`: el contenedor ya trae `display: flex`.
-function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</span>
-      {children}
-    </label>
-  )
-}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function FichaClientesLista() {
@@ -217,15 +210,15 @@ export default function FichaClientesLista() {
           <div ref={cajaModal} tabIndex={-1} style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
             <h2 id={tituloModalId} className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <FLabel label="Nombre *">
+              <Field label="Nombre *">
                 <input autoFocus value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} style={inp} placeholder="Nombre completo" onKeyDown={e => e.key === 'Enter' && saveCliente()} />
-              </FLabel>
-              <FLabel label="Teléfono">
+              </Field>
+              <Field label="Teléfono">
                 <input value={form.telefono} onChange={e => setForm(f => ({ ...f, telefono: e.target.value }))} style={inp} placeholder="+56 9 1234 5678" />
-              </FLabel>
-              <FLabel label="Correo">
+              </Field>
+              <Field label="Correo">
                 <input type="email" value={form.correo} onChange={e => setForm(f => ({ ...f, correo: e.target.value }))} style={inp} placeholder="cliente@email.com" />
-              </FLabel>
+              </Field>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
               <button className="text-sdm-base" onClick={saveCliente} disabled={saving || !form.nombre.trim()}

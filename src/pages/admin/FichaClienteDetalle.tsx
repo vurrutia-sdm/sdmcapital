@@ -6,6 +6,7 @@ import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
+import { Field } from '@/components/admin/campos'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -57,14 +58,6 @@ const inp: React.CSSProperties = {
 // build avise.
 //
 // No hace falta `display: block`: el contenedor ya trae `display: flex`.
-function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</span>
-      {children}
-    </label>
-  )
-}
 
 function storagePathFromUrl(url: string): string | null {
   const marker = '/fichas-fotos/'
@@ -287,15 +280,15 @@ export default function FichaClienteDetalle() {
           <div ref={cajaModal} tabIndex={-1} style={{ background: '#fff', borderRadius: 6, padding: '32px 36px', width: '100%', maxWidth: 440, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
             <h2 id={tituloModalId} className="text-sdm-xl" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 28, fontFamily: 'inherit' }}>Editar cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <FLabel label="Nombre *">
+              <Field label="Nombre *">
                 <input autoFocus value={editForm.nombre} onChange={e => setEditForm(f => ({ ...f, nombre: e.target.value }))} style={inp} />
-              </FLabel>
-              <FLabel label="Teléfono">
+              </Field>
+              <Field label="Teléfono">
                 <input value={editForm.telefono} onChange={e => setEditForm(f => ({ ...f, telefono: e.target.value }))} style={inp} />
-              </FLabel>
-              <FLabel label="Correo">
+              </Field>
+              <Field label="Correo">
                 <input type="email" value={editForm.correo} onChange={e => setEditForm(f => ({ ...f, correo: e.target.value }))} style={inp} />
-              </FLabel>
+              </Field>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
               <button className="text-sdm-base" onClick={saveEdit} disabled={saving || !editForm.nombre.trim()}

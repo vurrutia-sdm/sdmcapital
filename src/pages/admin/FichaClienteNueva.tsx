@@ -4,6 +4,7 @@ import { ArrowLeft, GripVertical, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { subirImagen } from '@/lib/subirImagen'
 import { usePointerSort } from '@/components/admin/useDragSort'
+import { Field } from '@/components/admin/campos'
 
 type Agente = { id: string; nombre: string; telefono: string | null; correo: string | null }
 
@@ -56,14 +57,6 @@ const sel: React.CSSProperties = { ...inp, cursor: 'pointer' }
 // build avise.
 //
 // No hace falta `display: block`: el contenedor ya trae `display: flex`.
-function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</span>
-      {children}
-    </label>
-  )
-}
 
 function SCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -201,43 +194,43 @@ export default function FichaClienteNueva() {
         {/* Propiedad */}
         <SCard title="Datos de la propiedad">
           <div className="grid grid-cols-1 gap-y-5 gap-x-6 md:grid-cols-2">
-            <FLabel label="Tipo de propiedad">
+            <Field label="Tipo de propiedad">
               <select value={form.tipo} onChange={set('tipo')} style={sel}>
                 {['Departamento','Casa','Oficina','Local comercial','Terreno'].map(o => <option key={o}>{o}</option>)}
               </select>
-            </FLabel>
-            <FLabel label="Operación">
+            </Field>
+            <Field label="Operación">
               <select value={form.operacion} onChange={set('operacion')} style={sel}>
                 {['Venta','Arriendo','Arriendo con opción de compra'].map(o => <option key={o}>{o}</option>)}
               </select>
-            </FLabel>
+            </Field>
             <div style={{ gridColumn: '1 / -1' }}>
-              <FLabel label="Dirección / Sector">
+              <Field label="Dirección / Sector">
                 <input value={form.direccion} onChange={set('direccion')} style={inp} placeholder="Ej: Las Condes, Santiago" />
-              </FLabel>
+              </Field>
             </div>
-            <FLabel label="Precio en UF">
+            <Field label="Precio en UF">
               <input type="number" value={form.precioUF} onChange={set('precioUF')} style={inp} placeholder="Ej: 4500" />
-            </FLabel>
-            <FLabel label="Superficie útil m²">
+            </Field>
+            <Field label="Superficie útil m²">
               <input type="number" value={form.supUtil} onChange={set('supUtil')} style={inp} placeholder="Ej: 75" />
-            </FLabel>
-            <FLabel label="Superficie total m²">
+            </Field>
+            <Field label="Superficie total m²">
               <input type="number" value={form.supTotal} onChange={set('supTotal')} style={inp} placeholder="Ej: 90" />
-            </FLabel>
-            <FLabel label="Dormitorios">
+            </Field>
+            <Field label="Dormitorios">
               <input type="number" value={form.dormitorios} onChange={set('dormitorios')} style={inp} placeholder="Ej: 3" />
-            </FLabel>
-            <FLabel label="Baños">
+            </Field>
+            <Field label="Baños">
               <input type="number" value={form.banos} onChange={set('banos')} style={inp} placeholder="Ej: 2" />
-            </FLabel>
-            <FLabel label="Estacionamientos">
+            </Field>
+            <Field label="Estacionamientos">
               <input type="number" value={form.estacionamientos} onChange={set('estacionamientos')} style={inp} placeholder="Ej: 1" />
-            </FLabel>
+            </Field>
             <div style={{ gridColumn: '1 / -1' }}>
-              <FLabel label="Descripción">
+              <Field label="Descripción">
                 <textarea value={form.descripcion} onChange={set('descripcion')} rows={6} style={{ ...inp, resize: 'none', lineHeight: 1.75 }} placeholder="Describe la propiedad para la ficha del cliente…" />
-              </FLabel>
+              </Field>
             </div>
           </div>
         </SCard>
@@ -245,7 +238,7 @@ export default function FichaClienteNueva() {
         {/* Contacto SDM */}
         <SCard title="Contacto SDM Capital">
           <div style={{ marginBottom: 20 }}>
-            <FLabel label="Seleccionar asesor guardado">
+            <Field label="Seleccionar asesor guardado">
               <select value={agenteId} onChange={e => {
                 const id = e.target.value
                 setAgenteId(id)
@@ -255,22 +248,22 @@ export default function FichaClienteNueva() {
                 <option value="">— Seleccionar asesor —</option>
                 {agentes.map(a => <option key={a.id} value={a.id}>{a.nombre}</option>)}
               </select>
-            </FLabel>
+            </Field>
             <a className="text-sdm-sm" href="/admin/agentes" target="_blank" rel="noopener noreferrer"
               style={{ color: 'var(--green-dark)', textDecoration: 'none', marginTop: 6, display: 'inline-block' }}>
               Gestionar agentes →
             </a>
           </div>
           <div className="grid grid-cols-1 gap-y-5 gap-x-6 md:grid-cols-2 lg:grid-cols-3">
-            <FLabel label="Nombre">
+            <Field label="Nombre">
               <input value={form.asesorNombre} onChange={set('asesorNombre')} style={inp} placeholder="Juan Pérez" />
-            </FLabel>
-            <FLabel label="Teléfono">
+            </Field>
+            <Field label="Teléfono">
               <input value={form.asesorTelefono} onChange={set('asesorTelefono')} style={inp} placeholder="+56 9 8765 4321" />
-            </FLabel>
-            <FLabel label="Correo">
+            </Field>
+            <Field label="Correo">
               <input type="email" value={form.asesorCorreo} onChange={set('asesorCorreo')} style={inp} placeholder="asesor@sdmcapital.cl" />
-            </FLabel>
+            </Field>
           </div>
         </SCard>
 

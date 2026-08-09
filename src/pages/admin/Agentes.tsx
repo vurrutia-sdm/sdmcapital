@@ -6,6 +6,7 @@ import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
+import { Field } from '@/components/admin/campos'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -47,14 +48,6 @@ const inp: React.CSSProperties = {
 // build avise.
 //
 // No hace falta `display: block`: el contenedor ya trae `display: flex`.
-function FLabel({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 500 }}>{label}</span>
-      {children}
-    </label>
-  )
-}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Agentes() {
@@ -235,15 +228,15 @@ export default function Agentes() {
               {modal.editing ? 'Editar agente' : 'Nuevo agente'}
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <FLabel label="Nombre *">
+              <Field label="Nombre *">
                 <input autoFocus value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} style={inp} placeholder="Nombre completo" onKeyDown={e => e.key === 'Enter' && save()} />
-              </FLabel>
-              <FLabel label="Teléfono">
+              </Field>
+              <Field label="Teléfono">
                 <input value={form.telefono} onChange={e => setForm(f => ({ ...f, telefono: e.target.value }))} style={inp} placeholder="+56 9 1234 5678" />
-              </FLabel>
-              <FLabel label="Correo">
+              </Field>
+              <Field label="Correo">
                 <input type="email" value={form.correo} onChange={e => setForm(f => ({ ...f, correo: e.target.value }))} style={inp} placeholder="agente@sdmcapital.cl" />
-              </FLabel>
+              </Field>
               <label className="text-sdm-base" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--navy-dark)' }}>
                 <input type="checkbox" checked={form.activo} onChange={e => setForm(f => ({ ...f, activo: e.target.checked }))}
                   style={{ accentColor: 'var(--green-dark)', width: 15, height: 15 }} />
