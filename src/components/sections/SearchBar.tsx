@@ -196,7 +196,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
             </button>
             <button className="text-sdm-xs tracking-sdm-wide"
               onClick={() => region && setStep('comuna')}
-              style={{ flex: 1, padding: '10px 0', fontWeight: step === 'comuna' ? 600 : 400, textTransform: 'uppercase', border: 'none', background: 'none', cursor: region ? 'pointer' : 'not-allowed', fontFamily: 'inherit', color: step === 'comuna' ? 'var(--navy-dark)' : region ? 'var(--muted)' : 'var(--border)', borderBottom: step === 'comuna' ? '2px solid var(--navy-dark)' : '2px solid transparent', opacity: region ? 1 : 0.4 }}
+              style={{ flex: 1, padding: '10px 0', fontWeight: step === 'comuna' ? 600 : 400, textTransform: 'uppercase', border: 'none', background: 'none', cursor: region ? 'pointer' : 'not-allowed', fontFamily: 'inherit', color: step === 'comuna' ? 'var(--navy-dark)' : region ? 'var(--muted)' : 'var(--border)', borderBottom: step === 'comuna' ? '2px solid var(--navy-dark)' : '2px solid transparent', opacity: region ? 1 : 0.5 }}
             >
               Comuna
             </button>
@@ -333,7 +333,7 @@ export default function SearchBar() {
         <label className="mb-3" style={{ display: 'block', background: region ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)', opacity: region ? 1 : 0.5 }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Comuna</span>
           <select className="text-sdm-sm area-44" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
-            style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed' }}>
+            style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed', opacity: region ? 1 : 0.5 }}>
             <option value="" style={{ color: 'var(--ink)', background: '#fff' }}>{region ? 'Todas las comunas' : 'Primero elige región'}</option>
             {region && getComunas(region).map(c => <option key={c} value={c} style={{ color: 'var(--ink)', background: '#fff' }}>{c}</option>)}
           </select>

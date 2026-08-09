@@ -600,7 +600,7 @@ function CotizacionWizard({
                           onChange={e => upd({ prop_comuna: e.target.value })}
                           disabled={!draft.prop_region}
                           className="input-line"
-                          style={{ cursor: draft.prop_region ? 'pointer' : 'not-allowed' }}
+                          style={{ cursor: draft.prop_region ? 'pointer' : 'not-allowed', opacity: draft.prop_region ? 1 : 0.5 }}
                         >
                           <option value="">
                             {draft.prop_region ? 'Seleccionar comuna…' : 'Primero elige una región'}

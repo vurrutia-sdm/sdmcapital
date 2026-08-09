@@ -506,7 +506,7 @@ export default function PropiedadesPage() {
                   setSearchParams(nuevos, { replace: true })
                 }}
                 disabled={!filtros.region}
-                style={{ color: filtros.region ? 'var(--ink)' : 'var(--muted)', cursor: filtros.region ? 'pointer' : 'not-allowed' }}
+                style={{ color: filtros.region ? 'var(--ink)' : 'var(--muted)', cursor: filtros.region ? 'pointer' : 'not-allowed', opacity: filtros.region ? 1 : 0.5 }}
               >
                 <option value="">{filtros.region ? 'Todas las comunas' : 'Primero elige región'}</option>
                 {filtros.region && getComunas(filtros.region).map(c => (

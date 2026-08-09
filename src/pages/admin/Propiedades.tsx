@@ -897,7 +897,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
                 onChange={e => setEditing(p => ({ ...p, comuna: e.target.value }))}
                 disabled={!editing.region}
                 className="input-line w-full text-sdm-base"
-                style={{ fontFamily: 'inherit', color: editing.region ? 'var(--ink)' : 'var(--muted)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border-input)', padding: '6px 0', cursor: editing.region ? 'pointer' : 'not-allowed' }}
+                style={{ fontFamily: 'inherit', color: editing.region ? 'var(--ink)' : 'var(--muted)', background: '#fff', border: 'none', borderBottom: '1px solid var(--border-input)', padding: '6px 0', cursor: editing.region ? 'pointer' : 'not-allowed' , opacity: editing.region ? 1 : 0.5 }}
               >
                 <option value="">{editing.region ? 'Seleccionar comuna...' : 'Primero elige una región'}</option>
                 {getComunas(editing.region || '').map(c => <option key={c} value={c}>{c}</option>)}

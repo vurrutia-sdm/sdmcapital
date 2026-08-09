@@ -222,7 +222,7 @@ export default function FichaClientesLista() {
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
               <button className="text-sdm-base" onClick={saveCliente} disabled={saving || !form.nombre.trim()}
-                style={{ flex: 1, background: saving || !form.nombre.trim() ? '#a0b4c4' : 'var(--green-dark)', color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, background: 'var(--green-dark)', opacity: saving || !form.nombre.trim() ? 0.5 : 1, color: '#fff', border: 'none', borderRadius: 2, padding: '11px 0', fontWeight: 600, cursor: saving || !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Guardando…' : 'Crear cliente'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowModal(false)}
