@@ -91,8 +91,16 @@ export default function ContactSection() {
           )}
         </div>
 
-        {/* Info de contacto — fila horizontal abajo */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4">
+        {/* Info de contacto — fila horizontal abajo.
+            Dos elementos, no cuatro: al subir Teléfono y Email al footer, la
+            grilla de `md:grid-cols-4` dejaba los dos restantes pegados a la
+            izquierda con la mitad derecha vacía. Con dos columnas y ancho
+            acotado quedan centrados en el espacio disponible.
+
+            Se mantienen DOS columnas también en móvil: apilarlos de a uno
+            subía la sección de 1038 a 1150px a 390, y con solo dos elementos
+            caben de sobra. */}
+        <div className="grid grid-cols-2 gap-6 mt-4 mx-auto" style={{ maxWidth: 620 }}>
           {CONTACT_INFO.map(item => (
             <div key={item.label} className="text-center">
               <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--sky)', marginBottom: 10, fontFamily: 'Inter, system-ui, sans-serif' }}>
