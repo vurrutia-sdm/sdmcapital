@@ -11,18 +11,33 @@ import SEO from '@/components/SEO'
 import ContactSection from '@/components/sections/ContactSection'
 import BlogPreviewSection from '@/components/sections/BlogPreviewSection'
 import PropertyCard from '@/components/ui/PropertyCard'
+import Esqueleto from '@/components/ui/Esqueleto'
 import SolicitudCreditoModal from '@/components/credito/SolicitudCreditoModal'
 import type { Propiedad } from '@/types'
 
-// ─── Sample data for empty DB ──────────────────────────────────────────────
-const SAMPLE_PROPS: Propiedad[] = [
-  { id:'1', titulo:'Casa aislada 3D 2B · Casas del Oeste, Cerrillos', descripcion:'', tipo:'casa', estado:'en_venta', precio_uf:3499, a_consultar:false, dormitorios:3, banos:2, superficie_total:126, region:'R. Metropolitana', comuna:'Cerrillos', pais:'Chile', imagenes:[], destacada:true, internacional:false, created_at:'', updated_at:'' },
-  { id:'2', titulo:'Casa 2D 2B a pasos Metro Plaza Quilicura', descripcion:'', tipo:'casa', estado:'en_venta', precio_uf:3137, a_consultar:false, dormitorios:2, banos:2, superficie_total:80, region:'R. Metropolitana', comuna:'Quilicura', pais:'Chile', imagenes:[], destacada:true, internacional:false, created_at:'', updated_at:'' },
-  { id:'3', titulo:'Hotel + Restaurante · Alto potencial turístico', descripcion:'', tipo:'hotel', estado:'en_venta', a_consultar:true, region:'Los Lagos', comuna:'Futaleufú', pais:'Chile', imagenes:[], destacada:false, internacional:false, created_at:'', updated_at:'' },
-  { id:'4', titulo:'Casa seminueva 2D 1B · Valles del Sauce II', descripcion:'', tipo:'casa', estado:'en_venta', precio_uf:2099, a_consultar:false, dormitorios:2, banos:1, superficie_total:51, region:'Coquimbo', comuna:'Coquimbo', pais:'Chile', imagenes:[], destacada:false, internacional:false, created_at:'', updated_at:'' },
-  { id:'5', titulo:'Hermosa casa 3D 2B · Condominio Viñas de Tobalaba', descripcion:'', tipo:'casa', estado:'en_venta', precio_uf:8600, a_consultar:false, dormitorios:3, banos:2, region:'R. Metropolitana', comuna:'Peñalolén', pais:'Chile', imagenes:[], destacada:true, internacional:false, created_at:'', updated_at:'' },
-  { id:'6', titulo:'Casa 3D 3B con piscina · Condominio Valle Grande', descripcion:'', tipo:'casa', estado:'en_venta', precio_uf:4273, a_consultar:false, dormitorios:3, banos:3, region:'R. Metropolitana', comuna:'Lampa', pais:'Chile', imagenes:[], destacada:false, internacional:false, created_at:'', updated_at:'' },
-]
+// Acá vivía SAMPLE_PROPS: seis propiedades inventadas que se pintaban hasta que
+// llegaba la consulta. Ver la nota de Esqueleto.tsx y SINCRONIA.md.
+
+// Mismas proporciones que PropertyCard —foto 4/3 y el cuerpo con p-5 lg:p-6—
+// para que la grilla no cambie de alto cuando llegan las de verdad.
+function EsqueletoPropiedad() {
+  return (
+    <div style={{ background: '#fff' }}>
+      <Esqueleto aspecto="4/3" radio={0} />
+      <div className="p-5 lg:p-6">
+        <Esqueleto alto={26} ancho="45%" style={{ marginBottom: 10 }} />
+        <Esqueleto alto={18} style={{ marginBottom: 6 }} />
+        <Esqueleto alto={18} ancho="70%" style={{ marginBottom: 14 }} />
+        <Esqueleto alto={16} ancho="55%" style={{ marginBottom: 16 }} />
+        <div className="flex gap-4 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
+          <Esqueleto alto={38} ancho={54} />
+          <Esqueleto alto={38} ancho={54} />
+          <Esqueleto alto={38} ancho={54} />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 
 const TESTIMONIALS = [
@@ -175,7 +190,8 @@ function TestimoniosCarrusel({ get, t }: { get: (k: string, d: string) => string
 export default function HomePage() {
   const { t } = useLang()
   const { get } = useContenido()
-  const [props, setProps] = useState<Propiedad[]>(SAMPLE_PROPS)
+  const [props, setProps] = useState<Propiedad[]>([])
+  const [cargandoProps, setCargandoProps] = useState(true)
   const [creditoOpen, setCreditoOpen] = useState(false)
 
   // Los IDs de las destacadas salen de `useContenido`, no de una consulta
@@ -192,7 +208,19 @@ export default function HomePage() {
     // manual, y también el respaldo si los IDs guardados ya no existen.
     const porBandera = () => {
       supabase.from('propiedades').select('*').eq('destacada', true).neq('activo', false).limit(6)
-        .then(({ data }) => { if (!ignorar && data && data.length > 0) setProps(data) })
+        .then(({ data }) => {
+          if (ignorar) return
+          // Sin datos no se pinta nada. Antes quedaban las seis de muestra en
+          // pantalla, para siempre si la consulta fallaba.
+          if (data && data.length > 0) setProps(data)
+          setCargandoProps(false)
+        },
+        // Red de seguridad: se comprobó que ante un fallo de red supabase
+        // RESUELVE con `{ error }` en vez de rechazar, así que esta rama casi
+        // nunca corre. Queda para que un rechazo raro no deje la grilla con los
+        // seis esqueletos puestos, que sería otra forma de mentir sobre lo que
+        // está pasando.
+        () => { if (!ignorar) setCargandoProps(false) })
     }
 
     let ids: string[] = []
@@ -214,10 +242,12 @@ export default function HomePage() {
         if (data && data.length > 0) {
           // Respetar el orden de los IDs guardados
           setProps(ids.map(id => data.find(p => p.id === id)).filter(Boolean) as Propiedad[])
+          setCargandoProps(false)
         } else {
           porBandera()
         }
-      })
+      },
+      () => { if (!ignorar) setCargandoProps(false) })
 
     return () => { ignorar = true }
   }, [destacadasIds])
@@ -263,7 +293,8 @@ export default function HomePage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)' }}>
-          {props.slice(0, 6).map((p, i, arr) => {
+          {cargandoProps && Array.from({ length: 6 }, (_, i) => <EsqueletoPropiedad key={`esq-${i}`} />)}
+          {!cargandoProps && props.slice(0, 6).map((p, i, arr) => {
             const remainder = arr.length % 3
             const isLast = i === arr.length - 1
             return (

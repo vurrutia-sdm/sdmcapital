@@ -4,13 +4,13 @@ import { supabase } from '@/lib/supabase'
 import { useLang } from '@/hooks/useLang'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
+import Esqueleto from '@/components/ui/Esqueleto'
 import type { MiembroEquipo } from '@/types'
 
-const SAMPLE_EQUIPO: MiembroEquipo[] = [
-  { id:'1', nombre:'Sebastián Díaz', cargo:'Director General', cargo_en:'CEO', bio:'Más de 15 años de experiencia en inversión inmobiliaria en Chile y mercados internacionales.', bio_en:'Over 15 years of experience in real estate investment in Chile and international markets.', orden:1, activo:true },
-  { id:'2', nombre:'Marcela Rodríguez', cargo:'Directora Comercial', cargo_en:'Commercial Director', bio:'Experta en desarrollo de negocios y relaciones con clientes.', bio_en:'Expert in business development and client relations.', orden:2, activo:true },
-  { id:'3', nombre:'Andrés Morales', cargo:'Jefe de Inversiones', cargo_en:'Head of Investments', bio:'Especialista en análisis de mercado y valoración de activos inmobiliarios.', bio_en:'Specialist in market analysis and real estate asset valuation.', orden:3, activo:true },
-]
+// Acá vivía SAMPLE_EQUIPO: tres personas inventadas —«Sebastián Díaz, Director
+// General», «Marcela Rodríguez, Directora Comercial», «Andrés Morales, Jefe de
+// Inversiones»— con biografías, presentadas como el equipo de SDM hasta que
+// llegaba la consulta, y para siempre si fallaba. Ver SINCRONIA.md.
 
 const VALORES = [
   { n:'01', titulo:'Transparencia', desc:'Operamos con total transparencia en cada transacción. Sin costos ocultos, sin pagos adelantados.' },
@@ -25,11 +25,26 @@ const PM = '16px' // padding lateral mobile — usamos CSS variable trick
 export default function QuienesSomosPage() {
   const { lang } = useLang()
   const { get } = useContenido()
-  const [equipo, setEquipo] = useState<MiembroEquipo[]>(SAMPLE_EQUIPO)
+  const [equipo, setEquipo] = useState<MiembroEquipo[]>([])
+  const [estadoEquipo, setEstadoEquipo] = useState<'cargando' | 'listo' | 'error'>('cargando')
 
   useEffect(() => {
+    let ignorar = false
     supabase.from('equipo').select('*').eq('activo', true).order('orden')
-      .then(({ data }) => { if (data && data.length > 0) setEquipo(data) })
+      .then(({ data, error }) => {
+        if (ignorar) return
+        // Se recoge el `{ error }`: «todavía no hay equipo» y «no se pudo
+        // cargar» son cosas distintas y no pueden verse igual.
+        if (error) { setEstadoEquipo('error'); return }
+        setEquipo(data || [])
+        setEstadoEquipo('listo')
+      },
+      // Red de seguridad: se comprobó que ante un fallo de red supabase
+      // RESUELVE con `{ error }` en vez de rechazar, así que este segundo
+      // argumento no es el camino normal. Queda porque si algún día rechaza, el
+      // precio es quedarse con los 18 esqueletos puestos para siempre.
+      () => { if (!ignorar) setEstadoEquipo('error') })
+    return () => { ignorar = true }
   }, [])
 
   const historiaImg = get('quienes_imagen_historia', '')
@@ -108,7 +123,33 @@ export default function QuienesSomosPage() {
         <h2 className="font-serif font-light mb-16 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
           Las personas <em>detrás</em>
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(equipo.length, 3)}, 1fr)`, gap: 1, background: 'var(--border)' }}>
+        {estadoEquipo === 'error' && (
+          <p className="text-sdm-base" style={{ color: 'var(--muted)', padding: '32px 0' }}>
+            No pudimos cargar el equipo. Recarga la página para volver a intentarlo.
+          </p>
+        )}
+        {estadoEquipo === 'cargando' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)' }}>
+            {Array.from({ length: 3 }, (_, i) => (
+              // La foto tiene alto fijo, así que ese trozo calza exacto; el
+              // cuerpo depende del largo de la biografía y no se puede saber
+              // antes de tenerla, así que se aproxima con tres renglones.
+              <div key={`esq-${i}`} className="bg-white">
+                <Esqueleto alto="clamp(240px, 40vw, 400px)" radio={0} />
+                <div className="p-6 lg:p-8">
+                  <Esqueleto alto={28} ancho="60%" style={{ marginBottom: 10 }} />
+                  <Esqueleto alto={14} ancho="40%" style={{ marginBottom: 18 }} />
+                  <Esqueleto alto={16} style={{ marginBottom: 8 }} />
+                  <Esqueleto alto={16} style={{ marginBottom: 8 }} />
+                  <Esqueleto alto={16} ancho="75%" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* `repeat(0, 1fr)` no es CSS válido: con la lista vacía la grilla ni se
+            monta, pero el mínimo de 1 evita depender de eso. */}
+        <div style={{ display: equipo.length ? 'grid' : 'none', gridTemplateColumns: `repeat(${Math.max(Math.min(equipo.length, 3), 1)}, 1fr)`, gap: 1, background: 'var(--border)' }}>
           {equipo.map(m => {
             const cargo = m.cargo
             const bio   = m.bio

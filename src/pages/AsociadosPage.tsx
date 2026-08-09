@@ -3,24 +3,43 @@ import SEO from '@/components/SEO'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import ContactSection from '@/components/sections/ContactSection'
+import Esqueleto from '@/components/ui/Esqueleto'
 import type { Asociado } from '@/types'
 
-const SAMPLE_ASOCIADOS: Asociado[] = [
-  { id:'1', nombre:'Portal Inmobiliario', logo:'', url:'https://portalinmobiliario.com', descripcion:'El mayor portal de propiedades de Chile.', orden:1, activo:true },
-  { id:'2', nombre:'Banco BCI',           logo:'', url:'https://bci.cl',                descripcion:'Financiamiento hipotecario de primer nivel.', orden:2, activo:true },
-  { id:'3', nombre:'Banco Santander',     logo:'', url:'https://santander.cl',          descripcion:'Soluciones crediticias para personas y empresas.', orden:3, activo:true },
-  { id:'4', nombre:'Notaría Santiago',    logo:'', url:'#',                             descripcion:'Tramitación notarial rápida y segura.', orden:4, activo:true },
-  { id:'5', nombre:'CBRE Chile',          logo:'', url:'https://cbre.com',              descripcion:'Consultoría inmobiliaria internacional.', orden:5, activo:true },
-  { id:'6', nombre:'Century 21 Chile',    logo:'', url:'https://century21.cl',          descripcion:'Red inmobiliaria global con presencia local.', orden:6, activo:true },
-]
+// Acá vivía SAMPLE_ASOCIADOS: seis fichas inventadas que nombraban a Portal
+// Inmobiliario, BCI, Santander, CBRE y Century 21 como socios de SDM, con
+// enlace a sus sitios reales. Se pintaban hasta que llegaba la consulta, y para
+// siempre si fallaba. Afirmar una relación comercial que no existe es bastante
+// peor que dejar el bloque vacío. Ver SINCRONIA.md.
 
 export default function AsociadosPage() {
   const { lang } = useLang()
-  const [asociados, setAsociados] = useState<Asociado[]>(SAMPLE_ASOCIADOS)
+  const [asociados, setAsociados] = useState<Asociado[]>([])
+  const [estado, setEstado] = useState<'cargando' | 'listo' | 'error'>('cargando')
 
   useEffect(() => {
+    let ignorar = false
     supabase.from('asociados').select('*').eq('activo', true).order('orden')
-      .then(({ data }) => { if (data && data.length > 0) setAsociados(data) })
+      .then(({ data, error }) => {
+        if (ignorar) return
+        // El `{ error }` se recoge de verdad: es lo que distingue «todavía no
+        // hay socios» de «no se pudo cargar», y son dos cosas distintas.
+        //
+        // Ojo con el tiempo: supabase reintenta con espera creciente —medido a
+        // los 116, 1119, 3121 y 7124 ms— así que ante una caída de red el
+        // mensaje tarda unos 7 segundos en aparecer. Hasta entonces se ven los
+        // esqueletos, que es lo correcto: todavía está intentando.
+        if (error) { setEstado('error'); return }
+        setAsociados(data || [])
+        setEstado('listo')
+      },
+      // Red de seguridad, no el camino normal: se comprobó que ante un fallo
+      // de red supabase RESUELVE con `{ error: 'TypeError: Failed to fetch' }`,
+      // no rechaza. El segundo argumento queda por si algún día rechaza, porque
+      // el precio de que no esté es que la sección se quede con los esqueletos
+      // puestos para siempre.
+      () => { if (!ignorar) setEstado('error') })
+    return () => { ignorar = true }
   }, [])
 
   return (
@@ -92,9 +111,21 @@ export default function AsociadosPage() {
         <div className="section-label" style={{ marginBottom: 20 }}>
           Socios comerciales
         </div>
+        {estado === 'error' && (
+          <p className="text-sdm-base" style={{ color: 'var(--muted)', textAlign: 'center', padding: '48px 0' }}>
+            No pudimos cargar los socios. Recarga la página para volver a intentarlo.
+          </p>
+        )}
         {/* Centrado automático: justify-center evita celdas vacías grises */}
         <div className="flex flex-wrap justify-center gap-px" style={{ background: 'var(--border)' }}>
-          {asociados.map(a => (
+          {estado === 'cargando' && Array.from({ length: 4 }, (_, i) => (
+            // Mismo alto y ancho que la tarjeta real, para que el bloque no salte.
+            <div key={`esq-${i}`} className="bg-white flex items-center justify-center p-10"
+              style={{ minHeight: 180, width: 'calc(25% - 1px)', minWidth: 220 }}>
+              <Esqueleto alto={56} ancho="70%" />
+            </div>
+          ))}
+          {estado === 'listo' && asociados.map(a => (
             <a
               key={a.id}
               href={a.url}
