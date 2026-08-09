@@ -135,6 +135,10 @@ const MAX_MENSAJE_LEN = 4096
 // respuesta es sí, va `greenDark`.
 const COLORS = {
   navy: 'var(--navy-dark)',
+  // Azul intermedio. Existe para el texto secundario de los banners de modo,
+  // donde `--muted` se queda corto contra los fondos teñidos (4.43 y 4.37) pero
+  // `--navy-dark` iguala al titular y se come la jerarquía. Acá da 9.89 y 9.76.
+  navyMedio: 'var(--navy)',
   muted: 'var(--muted)',
   border: 'var(--border)',
   bg: 'var(--off)',
@@ -167,6 +171,56 @@ function ScoreBadge({ score }: { score: string | null }) {
 function fmt(v: string | null | undefined, fallback = '—') {
   if (v === null || v === undefined || v === '') return fallback
   return String(v)
+}
+
+// ── El estado que se muestra sale del cruce con `visitas` ─────────────────────
+//
+// `leads.status` LO ESCRIBE EL WORKER DE SOFÍA. El panel no se suma como
+// segundo escritor: antes de agregar cualquier `update({ status })` hay que
+// leer `index.js:1750`, donde el Worker lee ese mismo campo.
+//
+// El problema que resuelve esto: al cancelar una visita solo se escribe
+// `visitas.estado='cancelada'`, así que un lead que tenía `visita_pendiente` se
+// queda con esa etiqueta para siempre y el panel afirma que hay una visita por
+// coordinar que ya no existe. La corrección es de LECTURA: se cruza con la
+// última visita del lead y se muestra la verdad, sin tocar `leads`.
+
+const STATUS_LABEL: Record<string, string> = {
+  nuevo: 'Nuevo',
+  calificando: 'Calificando',
+  derivado: 'Derivado',
+  visita_pendiente: 'Visita pendiente',
+  visita_confirmada: 'Visita confirmada',
+  cerrado: 'Cerrado',
+  perdido: 'Perdido',
+}
+
+const VISITA_LABEL: Record<string, string> = {
+  pendiente: 'Visita pendiente',
+  confirmada: 'Visita confirmada',
+  cancelada: 'Visita cancelada',
+  realizada: 'Visita realizada',
+}
+
+// Los dos únicos `status` que hablan de una visita, y por lo tanto los únicos
+// que la visita puede contradecir. Un lead `cerrado` o `perdido` es una
+// afirmación más fuerte que el estado de su visita y NO se pisa.
+const STATUS_DE_VISITA = new Set(['visita_pendiente', 'visita_confirmada'])
+
+type UltimaVisita = { estado: string; created_at: string | null }
+
+function estadoLead(lead: Lead, ultima: UltimaVisita | undefined) {
+  const crudo = lead.status || ''
+  const propio = STATUS_LABEL[crudo] || fmt(lead.status)
+  if (!ultima || !STATUS_DE_VISITA.has(crudo)) return { texto: propio, contradice: false }
+
+  const deVisita = VISITA_LABEL[ultima.estado]
+  if (!deVisita) return { texto: propio, contradice: false }
+
+  const coincide =
+    (crudo === 'visita_pendiente'  && ultima.estado === 'pendiente') ||
+    (crudo === 'visita_confirmada' && ultima.estado === 'confirmada')
+  return { texto: deVisita, contradice: !coincide }
 }
 
 // EL ESTILO DEL RÓTULO VA EN UN <span>, NUNCA EN EL <label>.
@@ -549,16 +603,24 @@ function ModoToggleBanner({ lead, onModoChange }: {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <span className="text-sdm-2xl" style={{ lineHeight: 1 }}>{isManual ? '✋' : '🤖'}</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {/* `greenDark` y no `green`: es texto sobre el fondo claro del banner.
-              Sube de 2.58:1 a 4.28:1 — mejor, pero todavía por debajo del 4.5
-              que pide un texto de 15 px en negrita. Su gemelo ámbar (#c8740a
-              sobre #fdedd6) está en 3.06:1 y falla igual. Los dos se arreglan
-              juntos cambiando el fondo del banner o el color del titular; va
-              anotado en SINCRONIA.md porque es decisión de diseño. */}
-          <span className="text-sdm-base" style={{ fontWeight: 700, color: isManual ? '#c8740a' : COLORS.greenDark }}>
+          {/* EL COLOR DEL BANNER LO LLEVA EL FONDO, NO EL TEXTO.
+              El titular iba en el color del modo —verde en automático, ámbar
+              en manual— y ninguno de los dos cumplía sobre su propio fondo:
+              2.58:1 el verde y 3.06:1 el ámbar, con umbral de 4.5 porque son
+              15 px en negrita. Pasar el verde a `--green-dark` solo lo subía a
+              4.28. El ámbar no tiene variante oscura, así que no había un
+              arreglo simétrico por el lado del color de texto.
+              En `--navy-dark` dan 13.86:1 y 13.67:1. El fondo y el emoji
+              siguen distinguiendo los dos modos de un vistazo, que es lo que
+              de verdad hacía el trabajo.
+              El secundario iba en `--muted`, que sobre blanco da 5.03 pero
+              sobre estos fondos cae a 4.43 y 4.37 — también corto, y no estaba
+              en ninguna auditoría. En `--navy` da 9.89 y 9.76, y sigue
+              leyéndose como secundario contra el titular por peso y tamaño. */}
+          <span className="text-sdm-base" style={{ fontWeight: 700, color: COLORS.navy }}>
             {isManual ? 'Control manual — Sofía en pausa' : 'Sofía está respondiendo'}
           </span>
-          <span className="text-sdm-sm" style={{ color: COLORS.muted }}>
+          <span className="text-sdm-sm" style={{ color: COLORS.navyMedio }}>
             {isManual
               ? 'Sofía no responderá hasta que devuelvas el control. Escribe abajo para hablar con el cliente.'
               : 'Toma el control para escribirle directamente al cliente y pausar a Sofía.'}
@@ -862,8 +924,9 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
 }
 
 // ── Sección 2: Leads recientes ───────────────────────────────────────────────
-function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoChange }: {
+function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, deleting, onModoChange }: {
   lead: Lead
+  ultimaVisita: UltimaVisita | undefined
   expanded: boolean
   onToggle: () => void
   onEdit: () => void
@@ -873,6 +936,7 @@ function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoC
 }) {
   const [detailTab, setDetailTab] = useState<DetailTab>('detalles')
   const [refreshSignal, setRefreshSignal] = useState(0)
+  const estado = estadoLead(lead, ultimaVisita)
 
   return (
     <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, overflow: 'hidden', opacity: deleting ? 0.5 : 1, transition: 'opacity 0.2s' }}>
@@ -890,7 +954,11 @@ function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoC
           <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.intencion)}</div>
           <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.presupuesto)}</div>
           <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.plazo)}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{fmt(lead.status)}</div>
+          {/* El estado sale de `estadoLead`, no de `lead.status` a secas: si la
+              última visita lo contradice, manda la visita. Sin `capitalize`
+              porque las etiquetas ya vienen escritas — con él, `visita_pendiente`
+              se pintaba como «Visita_pendiente», guion bajo incluido. */}
+          <div className="text-sdm-sm" style={{ color: COLORS.navy }}>{estado.texto}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           <button
@@ -929,7 +997,20 @@ function LeadRow({ lead, expanded, onToggle, onEdit, onDelete, deleting, onModoC
                 <DRow label="Crédito" value={fmt(lead.necesita_credito)} />
                 <DRow label="Disponibilidad" value={fmt(lead.disponibilidad)} />
                 <DRow label="Handoff" value={fmt(lead.handoff)} />
-                <DRow label="Status" value={fmt(lead.status)} />
+                {/* Cuando la visita contradice al lead, se dice de dónde sale
+                    cada cosa en vez de esconder una de las dos. El campo de la
+                    base sigue siendo el que es, y quien mira el panel se entera
+                    de que van desacompasados. */}
+                <DRow label="Status" value={
+                  estado.contradice
+                    ? <>{estado.texto}<br /><span className="text-sdm-xs" style={{ color: COLORS.muted }}>el lead sigue marcado como «{fmt(lead.status)}»</span></>
+                    : estado.texto
+                } />
+                <DRow label="Última visita" value={
+                  ultimaVisita
+                    ? `${VISITA_LABEL[ultimaVisita.estado] || ultimaVisita.estado} · ${timeAgo(ultimaVisita.created_at)}`
+                    : 'Sin visitas'
+                } />
                 <DRow label="Último mensaje" value={timeAgo(lead.last_message_at || lead.created_at)} />
               </div>
 
@@ -990,6 +1071,8 @@ export default function Captacion() {
 
   // Leads
   const [leads, setLeads] = useState<Lead[]>([])
+  // Última visita por lead, para corregir el `status` sin escribir en `leads`.
+  const [ultimasVisitas, setUltimasVisitas] = useState<Record<string, UltimaVisita>>({})
   const [loadingLeads, setLoadingLeads] = useState(true)
   const [filter, setFilter] = useState<ScoreFilter>('todos')
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -1046,7 +1129,44 @@ export default function Captacion() {
       .select('*')
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .limit(100)
-    setLeads((data as Lead[]) || [])
+    const filas = (data as Lead[]) || []
+    setLeads(filas)
+
+    // Segunda consulta: la ÚLTIMA visita de cada lead en pantalla.
+    //
+    // Hace falta una consulta aparte porque `loadVisitas` solo trae las
+    // `pendiente` —son las que se coordinan— y justamente las canceladas son
+    // las que aquí interesan.
+    //
+    // `.in()` y no un `select` suelto de toda la tabla: acota a los 100 leads
+    // que se están mostrando, así que la consulta no crece con el histórico.
+    //
+    // EL ORDEN ES LA MITAD DEL ASUNTO. Viene `created_at` descendente y el mapa
+    // se llena con el PRIMERO que aparece de cada `lead_id`, o sea el más
+    // reciente. Un lead con una visita cancelada y otra confirmada después
+    // tiene que verse como confirmado, no como cancelado; sin este orden, o
+    // con un `if` que sobrescriba, saldría lo contrario.
+    const ids = filas.map(l => l.id)
+    if (!ids.length) { setUltimasVisitas({}); return }
+
+    const { data: vs, error } = await supabase
+      .from('visitas')
+      .select('lead_id, estado, created_at')
+      .in('lead_id', ids)
+      .order('created_at', { ascending: false })
+
+    // Sin `avisarError`: esto es una lectura de apoyo y corre cada 25 s con el
+    // refresco automático. Un fallo acá no puede levantar un alert() encima de
+    // quien está trabajando. Si falla, el mapa se queda como estaba y el panel
+    // muestra `lead.status` a secas, que es el comportamiento anterior.
+    if (error) { console.error('[No se pudo leer las visitas de los leads]', error); return }
+
+    const mapa: Record<string, UltimaVisita> = {}
+    for (const v of (vs as { lead_id: string | null; estado: string; created_at: string | null }[]) || []) {
+      if (!v.lead_id || mapa[v.lead_id]) continue
+      mapa[v.lead_id] = { estado: v.estado, created_at: v.created_at }
+    }
+    setUltimasVisitas(mapa)
   }, [])
 
   const loadLeads = useCallback(async () => {
@@ -1179,8 +1299,10 @@ export default function Captacion() {
     //      (`sdm-captacion-worker-project/index.js`) solo hace POST a `visitas`
     //      cuando el lead califica; no lee `estado` en ningún momento, así que
     //      cancelar acá no dispara ningún WhatsApp.
-    //   4. `leads.status` NO se toca — al confirmar sí se pone
-    //      'visita_confirmada'. La asimetría está anotada en SINCRONIA.md.
+    //   4. `leads.status` NO se toca, a propósito: ese campo lo escribe el
+    //      Worker de Sofía y el panel no se suma como segundo escritor. La
+    //      etiqueta que quedaría desfasada se corrige AL LEER, cruzando con la
+    //      última visita — ver `estadoLead`.
     //
     // Si algún día el worker empieza a reaccionar al estado, este texto miente.
     const quien = v.lead?.nombre?.trim() || v.lead?.wa_phone?.trim() || 'este lead'
@@ -1194,6 +1316,10 @@ export default function Captacion() {
     setSavingId(null)
     if (avisarError('No se pudo cancelar la visita', error)) return
     loadVisitas()
+    // También los leads: el estado que muestra la fila sale del cruce con la
+    // última visita, así que sin esto la lista seguiría diciendo «Visita
+    // pendiente» hasta el refresco automático de los 25 s.
+    loadLeadsQuiet()
   }
 
   // ── Acciones: notificaciones ─────────────────────────────────────────────────
@@ -1360,6 +1486,7 @@ export default function Captacion() {
                   <LeadRow
                     key={l.id}
                     lead={l}
+                    ultimaVisita={ultimasVisitas[l.id]}
                     expanded={expandedId === l.id}
                     onToggle={() => setExpandedId(prev => prev === l.id ? null : l.id)}
                     onEdit={() => { setEditError(null); setEditingLead(l) }}

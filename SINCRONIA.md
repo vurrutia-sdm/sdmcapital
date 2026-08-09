@@ -6151,8 +6151,11 @@ es grande: tres leads llenan una pantalla de teléfono.
    **CERRADO el 2026-08-09.** Ver «Captación — los dos verdes» más abajo.
 2. **La fila de lead a 375 px mide 321 px** con datos largos. Si molesta, la
    salida es mostrar menos columnas en el resumen y dejar el resto al detalle.
-3. **`leads.status` no se toca al cancelar una visita**, pero sí al confirmarla.
-   Un lead cancelado se queda en `visita_pendiente` para siempre.
+3. ~~**`leads.status` no se toca al cancelar una visita**, pero sí al confirmarla.
+   Un lead cancelado se queda en `visita_pendiente` para siempre.~~
+   **CERRADO el 2026-08-09**, sin escribir en `leads`: se corrige al leer,
+   cruzando con la última visita. Ver «Captación — los banners y el estado real
+   del lead».
 4. **El `<div>` clicable de la fila de lead** sigue sin ser un `<button>`. Venía
    de la tanda 3 de accesibilidad y no entraba acá.
 5. Las paletas de insignia —`#fde2e1`/`#c0392b`, `#fdedd6`/`#c8740a`,
@@ -6216,3 +6219,100 @@ La segunda cumple en ambos lados. Es cambio de diseño, así que no se aplicó.
 Con el mismo banco temporal del cierre anterior, borrado al terminar. Los seis
 sitios resuelven a `rgb(45, 128, 85)` = `#2D8055` = `--green-dark`, y los tres
 decorativos siguen en `--green`. Cero errores de consola.
+
+---
+
+## Captación — los banners y el estado real del lead — 2026-08-09
+
+### 1. El color de los banners de modo lo lleva el fondo, no el texto
+
+El titular de cada banner iba en el color de su modo, y **ninguno de los dos
+cumplía sobre su propio fondo**. El ámbar no había aparecido en ninguna
+auditoría porque todas miraban el verde.
+
+| banner | elemento | antes | después | |
+|---|---|---|---|---|
+| Automático (`#e3f5ea`) | titular, 15 px bold | 2.58 (`--green`) | **13.86** (`--navy-dark`) | AA |
+| Automático | secundario, 13 px | 4.43 (`--muted`) | **9.89** (`--navy`) | AA |
+| Manual (`#fdedd6`) | titular, 15 px bold | 3.06 (`#c8740a`) | **13.67** (`--navy-dark`) | AA |
+| Manual | secundario, 13 px | 4.37 (`--muted`) | **9.76** (`--navy`) | AA |
+
+**El texto secundario también fallaba, en los dos.** `--muted` sobre blanco da
+5.03 y cumple; sobre estos fondos teñidos cae a 4.43 y 4.37. No estaba en
+ningún pendiente. No podía ir a `--navy-dark` sin igualar al titular y comerse
+la jerarquía, así que usa `--navy` (9.89 / 9.76) y la jerarquía la sostienen el
+peso y el tamaño.
+
+Los fondos NO se tocaron: son lo que distingue los dos modos de un vistazo.
+
+### 2. `leads.status` LO ESCRIBE EL WORKER. El admin no es segundo escritor.
+
+**Antes de agregar cualquier `update({ status })` desde el panel, leer
+`index.js:1750` del worker:**
+
+```js
+else if (!readyEfectivo && lead.status === "nuevo") patch.status = "calificando";
+```
+
+Es la única lectura que el Worker hace de ese campo, verificada a fondo:
+`marcarLeadReady` (línea 1123) es un `PATCH ...&ready=eq.false` —el candado
+atómico va contra `ready`, no contra `status`— y `calcularReady`,
+`calcularScore` y `calcularHandoff` no lo leen.
+
+Aun siendo una sola lectura, el panel **no** se suma como escritor. Dos razones:
+sumar un escritor más sobre un campo ajeno aumenta la superficie de conflicto, y
+no hay forma de comprobar si existe un `CHECK` que rechace un valor nuevo — la
+tabla `leads` no está en `supabase/migrations/` ni aparece en el esquema que
+expone PostgREST, y sin Docker la CLI no puede leer el DDL.
+
+### 3. El estado desfasado se corrige AL LEER
+
+Un lead cuya visita se cancelaba se quedaba en `visita_pendiente` para siempre:
+cancelar solo escribe `visitas.estado`. Ahora el panel cruza con la última
+visita del lead y muestra la verdad, sin escribir nada en `leads`.
+
+**La misma insignia con otro texto, no una insignia aparte.** Dos etiquetas
+contradictorias en la misma fila obligan a quien mira a decidir cuál vale.
+
+**Hace falta una consulta más.** `loadVisitas` solo trae las `pendiente` —son
+las que se coordinan— y justamente las canceladas son las que aquí interesan.
+La consulta nueva va en `loadLeadsQuiet`, acotada con `.in()` a los 100 leads en
+pantalla, así que no crece con el histórico.
+
+**El orden es la mitad del asunto.** Viene `created_at` descendente y el mapa se
+llena con el PRIMERO de cada `lead_id`, o sea el más reciente. Un lead con una
+visita cancelada y otra confirmada después se ve como confirmado.
+
+Qué manda sobre qué:
+
+- solo se corrigen `visita_pendiente` y `visita_confirmada`, que son los dos
+  `status` que hablan de una visita;
+- `cerrado`, `perdido`, `nuevo`, `calificando` y `derivado` **no se pisan**: son
+  afirmaciones más fuertes que el estado de una visita;
+- cuando la visita contradice al lead, el detalle lo dice —«el lead sigue
+  marcado como “visita_pendiente”»— en vez de esconder una de las dos;
+- el detalle suma una fila «Última visita» con estado y antigüedad.
+
+Los cinco casos, verificados en el banco temporal:
+
+| caso | fila | detalle |
+|---|---|---|
+| visita cancelada, lead en `visita_pendiente` | «Visita cancelada» | + nota del desfase |
+| cancelada ayer, confirmada hoy | «Visita confirmada» | mira la última |
+| pendiente y pendiente | «Visita pendiente» | sin nota |
+| lead `perdido` con visita cancelada | «Perdido» | no se pisa |
+| sin visitas | «Nuevo» | «Sin visitas» |
+
+De paso se fue el `textTransform: capitalize` de esa celda: pintaba
+`visita_pendiente` como «Visita_pendiente», guion bajo incluido.
+
+La lectura nueva **no** pasa por `avisarError`: corre cada 25 s con el refresco
+automático y un fallo no puede levantar un `alert()` encima de quien trabaja. Va
+a consola, y el panel cae al comportamiento anterior.
+
+### Hallazgo al margen: «Realizadas» siempre marca 0
+
+Métricas cuenta `visitas.estado='realizada'`, pero **nadie escribe ese valor** —
+ni el panel ni el Worker. Los estados que se escriben de verdad son `pendiente`
+(Worker, al calificar), `confirmada` y `cancelada` (panel). O se marcan a mano en
+la base, o esa métrica es siempre cero.
