@@ -20,7 +20,7 @@
 // no proxea `/api`. Esa parte se prueba en producción.
 
 import { useState, useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ArrowUpDown, Briefcase, Camera, Check, File, GripVertical, MapPin, MousePointer2, Paperclip, Pause, Plus, Star, X, Youtube } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Briefcase, Camera, Check, ExternalLink, File, GripVertical, MapPin, MousePointer2, Paperclip, Pause, Plus, Star, X, Youtube } from 'lucide-react'
 import { REGIONES, getComunas } from '@/data/comunas-chile'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
@@ -421,6 +421,88 @@ const upload = async (files: FileList) => {
 }
 
 // ─── PROPIEDADES ──────────────────────────────────────────────────────────────
+// ─── Ver la ficha publicada ───────────────────────────────────────────────────
+//
+// Enlaza SIEMPRE por slug, nunca por id: el sitio redirige de UUID a slug, así
+// que enlazar por id agrega un salto que no hace falta.
+//
+// TRES ESTADOS, y los tres importan:
+//
+//   · sin slug   → no se dibuja nada. El slug se calcula al GUARDAR
+//     (`editing.slug || slugify(...)` en `save`), así que una propiedad que se
+//     está creando todavía no lo tiene y el enlace apuntaría a la nada.
+//
+//   · pausada    → botón deshabilitado, con el motivo escrito. La ficha pública
+//     NO existe para un visitante: el RLS restringe el SELECT anónimo a
+//     `activo IS TRUE`. Comprobado con la clave anon: 0 filas con activo=false
+//     y la consulta directa devuelve []. Llevar a «Propiedad no encontrada»
+//     sería peor que no ofrecer el botón.
+//
+//     Se deshabilita y NO se oculta porque ocultarlo deja a quien vio el botón
+//     en las otras filas preguntándose adónde se fue. `aria-disabled` en vez de
+//     `disabled`: un botón `disabled` no recibe foco, y entonces la explicación
+//     de por qué no se puede queda fuera del alcance del teclado — que es justo
+//     a quien más le hace falta.
+//
+//   · publicada  → enlace normal a /propiedades/<slug>.
+//
+// El nombre accesible lleva el título de la propiedad y avisa de la pestaña
+// nueva: en la lista hay uno de estos por fila y «Ver» a secas no distingue
+// ninguno de otro.
+function VerPublicada({ prop, conTexto = false }: { prop: Partial<Propiedad>; conTexto?: boolean }) {
+  if (!prop.slug) return null
+
+  const titulo = prop.titulo || 'esta propiedad'
+  const icono = <ExternalLink aria-hidden="true" size={15} strokeWidth={2} />
+  // Sus vecinos —Editar, Eliminar— son texto y traen caja de sobra; este en la
+  // lista es solo el icono y se quedaba en 15×15. `min-w` le da cuerpo sin
+  // mover nada: 44 en móvil y 24 en escritorio, que es el mínimo de 2.5.8.
+  //
+  // No se usa `.area-44` a propósito: su `::after` mide 44 centrados, y con los
+  // 12px de separación que hay en lg se metería ~2,5px por debajo de «Editar».
+  // El área invisible robaría clics del botón vecino, que es exactamente el
+  // problema que ya documentó `.area-44--arriba`.
+  const clases = conTexto
+    ? 'text-sdm-sm min-h-[44px] px-1 inline-flex items-center gap-1.5 lg:min-h-0 lg:px-0'
+    : 'text-sdm-sm min-h-[44px] min-w-[44px] px-1 inline-flex items-center justify-center gap-1.5 lg:min-h-[24px] lg:min-w-[24px] lg:px-0'
+  const base = {
+    background: 'none', border: 'none', fontFamily: 'inherit',
+    fontWeight: 500, whiteSpace: 'nowrap' as const, textDecoration: 'none',
+  }
+
+  if (prop.activo === false) {
+    return (
+      <button
+        type="button"
+        className={clases}
+        aria-disabled="true"
+        title="Esta propiedad está pausada, así que no aparece en el sitio. Actívala para poder verla publicada."
+        aria-label={`Ver ficha publicada de ${titulo}: no disponible porque la propiedad está pausada`}
+        onClick={e => { e.preventDefault(); e.stopPropagation() }}
+        onMouseDown={e => e.stopPropagation()}
+        style={{ ...base, color: 'var(--muted)', cursor: 'not-allowed' }}
+      >
+        {icono}{conTexto && 'Ver publicada'}
+      </button>
+    )
+  }
+
+  return (
+    <a
+      href={`/propiedades/${prop.slug}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={clases}
+      aria-label={`Ver ficha publicada de ${titulo} (se abre en una pestaña nueva)`}
+      onClick={e => e.stopPropagation()}
+      onMouseDown={e => e.stopPropagation()}
+      style={{ ...base, color: 'var(--navy)', cursor: 'pointer' }}
+    >
+      {icono}{conTexto && 'Ver publicada'}
+    </a>
+  )
+}
+
 function slugify(titulo: string, comuna?: string, dormitorios?: number) {
   const base = `${titulo}-${comuna || ''}${dormitorios ? `-${dormitorios}d` : ''}`
   return base
@@ -560,7 +642,15 @@ export default function Propiedades() {
 
       {editing && (
         <div id="prop-edit-form" className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
-          <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar propiedad' : 'Nueva propiedad'}</h3>
+          {/* El enlace va junto al título del formulario: editando es cuando
+              más se quiere comprobar cómo quedó. En una propiedad nueva no se
+              dibuja —todavía no hay slug— y en una pausada sale deshabilitado
+              con el motivo. Abre la versión GUARDADA, no lo que haya sin
+              guardar en el formulario. */}
+          <div className="flex items-center justify-between gap-6 mb-6 flex-wrap">
+            <h3 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar propiedad' : 'Nueva propiedad'}</h3>
+            <VerPublicada prop={editing} conTexto />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Título"><Inp value={editing.titulo || ''} onChange={v => setEditing(p => ({ ...p, titulo: v }))} /></Field>
             <Field label="Tipo">
@@ -897,6 +987,11 @@ export default function Propiedades() {
                     accidente. En lg vuelven a los dos botones de texto de siempre. */}
                 <td className="order-8 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
                   <div className="flex items-center justify-end gap-6 lg:justify-start lg:gap-3">
+                    {/* El `data-orden-quieto` lo pone este mismo <td>, así que
+                        el enlace no inicia arrastre — el hook lo busca con
+                        `closest()`. El `stopPropagation` del mousedown va
+                        igual, por consistencia con sus dos vecinos. */}
+                    <VerPublicada prop={p} />
                     <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); startEdit(p) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500, whiteSpace: 'nowrap' }}>Editar</button>
                     <button className="text-sdm-sm min-h-[44px] px-1 lg:min-h-0 lg:px-0" onClick={e => { e.stopPropagation(); del(p.id) }} onMouseDown={e => e.stopPropagation()} style={{ color: 'var(--error)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Eliminar</button>
                   </div>
