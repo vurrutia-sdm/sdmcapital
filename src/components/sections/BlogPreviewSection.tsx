@@ -70,12 +70,12 @@ export default function BlogPreviewSection() {
           </div>
           <div style={{ padding: '32px 36px 40px', flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
-              {categoriaPrincipal(main.categoria) && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{categoriaPrincipal(main.categoria)}</span>}
+              {categoriaPrincipal(main.categoria) && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green-dark)' }}>{categoriaPrincipal(main.categoria)}</span>}
               <span className="text-sdm-sm" style={{ color: 'var(--border)' }}>·</span>
               <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(main)}</span>
             </div>
-            <h3 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(22px,3vw,30px)', color: 'var(--navy-dark)', lineHeight: 1.2, marginBottom: 16, flex: 1 }}>{getTitle(main)}</h3>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 2 }}>Leer artículo →</div>
+            <h3 className="font-serif font-normal tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-text-2xl),3vw,var(--sdm-display-sm))', color: 'var(--navy-dark)', lineHeight: 1.2, marginBottom: 16, flex: 1 }}>{getTitle(main)}</h3>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 2 }}>Leer artículo →</div>
           </div>
         </Link>
 
@@ -94,12 +94,12 @@ export default function BlogPreviewSection() {
               </div>
               <div style={{ padding: '20px 24px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 10 }}>
-                  {categoriaPrincipal(post.categoria) && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{categoriaPrincipal(post.categoria)}</span>}
+                  {categoriaPrincipal(post.categoria) && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green-dark)' }}>{categoriaPrincipal(post.categoria)}</span>}
                   <span className="text-sdm-sm" style={{ color: 'var(--border)' }}>·</span>
                   <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(post)}</span>
                 </div>
-                <h3 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(16px,2vw,19px)', color: 'var(--navy-dark)', lineHeight: 1.25, flex: 1, marginBottom: 16 }}>{getTitle(post)}</h3>
-                <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 1 }}>Leer →</div>
+                <h3 className="font-serif font-normal tracking-sdm-tight text-sdm-xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25, flex: 1, marginBottom: 16 }}>{getTitle(post)}</h3>
+                <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 1 }}>Leer →</div>
               </div>
             </Link>
           ))}

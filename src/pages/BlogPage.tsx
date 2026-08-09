@@ -91,12 +91,12 @@ export default function BlogPage() {
                         bloque en vez de alineada con su primera línea.
                         `items-start` la ancla arriba cuando sí caben en fila. */}
                     <div className="flex flex-col items-start gap-1 mb-3 sm:flex-row sm:items-start sm:gap-3">
-                      {categoriaPrincipal(post.categoria) && <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{categoriaPrincipal(post.categoria)}</span>}
+                      {categoriaPrincipal(post.categoria) && <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green-dark)', textTransform: 'uppercase' }}>{categoriaPrincipal(post.categoria)}</span>}
                       <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>{fecha}</span>
                     </div>
-                    <h2 className="font-serif font-light mb-2 text-sdm-xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>{titulo}</h2>
+                    <h2 className="font-serif font-normal mb-2 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>{titulo}</h2>
                     <p className="font-light text-sdm-base" style={{ color: 'var(--muted)', lineHeight: 1.7 }}>{resumen}</p>
-                    <div className="mt-4 text-[13px] tracking-[2px] uppercase border-b pb-0.5 inline-flex items-center gap-1" style={{ color: 'var(--navy)', borderColor: 'var(--navy)' }}>
+                    <div className="mt-4 text-[13px] tracking-[2px] uppercase border-b pb-0.5 inline-flex items-center gap-1" style={{ color: 'var(--muted)', borderColor: 'var(--muted)' }}>
                       Leer artículo →
                     </div>
                   </div>

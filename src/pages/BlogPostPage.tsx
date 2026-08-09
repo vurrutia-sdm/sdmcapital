@@ -72,7 +72,7 @@ export default function BlogPostPage() {
           <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'rgba(255,255,255,0.3)' }}>{fecha}</span>
         </div>
         <h1
-          className="font-serif font-light tracking-sdm-tight"
+          className="font-serif font-normal tracking-sdm-tight"
           style={{ fontSize: 'clamp(32px,4.5vw,58px)', color: '#fff', lineHeight: 1.1, maxWidth: 780 }}
         >
           {titulo}
