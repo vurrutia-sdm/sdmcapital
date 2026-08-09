@@ -164,7 +164,7 @@ const META: Record<string, { title: string; description: string }> = {
     description: 'Casas y departamentos de segunda mano en Chile, listos para habitar. Revisa superficie, dormitorios y comuna de cada propiedad usada de SDM Capital.',
   },
   proyecto_nuevo: {
-    title: 'Proyectos Nuevos: Bono Pie y Entrega Inmediata',
+    title: 'Proyectos Nuevos: Bono Pie, Entrega Inmediata',
     description: 'Departamentos nuevos en Chile con bono pie y entrega inmediata. Compara etapa de obra, precio en UF y comuna en los proyectos de SDM Capital.',
   },
 }
