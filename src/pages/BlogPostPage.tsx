@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import type { BlogPost } from '@/types'
+import { categoriaPrincipal } from '@/lib/blog'
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -67,7 +68,7 @@ export default function BlogPostPage() {
       {/* Hero */}
       <div className="px-8 lg:px-12 py-16 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="flex items-center gap-4 mb-6">
-          <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{post.categoria}</span>
+          {categoriaPrincipal(post.categoria) && <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{categoriaPrincipal(post.categoria)}</span>}
           <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'rgba(255,255,255,0.3)' }}>{fecha}</span>
         </div>
         <h1

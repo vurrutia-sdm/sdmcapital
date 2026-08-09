@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/hooks/useLang'
 import type { BlogPost } from '@/types'
+import { categoriaPrincipal } from '@/lib/blog'
 
 const sp = { paddingLeft: 'clamp(16px, 5vw, 48px)', paddingRight: 'clamp(16px, 5vw, 48px)' }
 
@@ -69,7 +70,7 @@ export default function BlogPreviewSection() {
           </div>
           <div style={{ padding: '32px 36px 40px', flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
-              {main.categoria && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{main.categoria}</span>}
+              {categoriaPrincipal(main.categoria) && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{categoriaPrincipal(main.categoria)}</span>}
               <span className="text-sdm-sm" style={{ color: 'var(--border)' }}>·</span>
               <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(main)}</span>
             </div>
@@ -93,7 +94,7 @@ export default function BlogPreviewSection() {
               </div>
               <div style={{ padding: '20px 24px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 10 }}>
-                  {post.categoria && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{post.categoria}</span>}
+                  {categoriaPrincipal(post.categoria) && <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)' }}>{categoriaPrincipal(post.categoria)}</span>}
                   <span className="text-sdm-sm" style={{ color: 'var(--border)' }}>·</span>
                   <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(post)}</span>
                 </div>

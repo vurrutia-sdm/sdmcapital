@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import type { BlogPost } from '@/types'
+import { categoriaPrincipal } from '@/lib/blog'
 
 export default function BlogPage() {
   const { lang } = useLang()
@@ -73,7 +74,7 @@ export default function BlogPage() {
                   <div style={{ aspectRatio: '4/3', background: 'var(--off)', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {post.imagen_portada
                       ? <img src={post.imagen_portada} alt={titulo} loading="lazy" decoding="async" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} className="transition-transform duration-500 group-hover:scale-[1.03]" />
-                      : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic text-sdm-base" style={{ color: 'var(--muted)' }}>{post.categoria}</span></div>
+                      : <div className="w-full h-full flex items-center justify-center"><span className="font-serif italic text-sdm-base" style={{ color: 'var(--muted)' }}>{categoriaPrincipal(post.categoria)}</span></div>
                     }
                     {post.destacado && (
                       <div className="absolute top-3 left-3 text-[13px] tracking-[2px] uppercase px-2.5 py-1" style={{ background: 'var(--green)', color: '#fff', borderRadius: 1 }}>
@@ -90,7 +91,7 @@ export default function BlogPage() {
                         bloque en vez de alineada con su primera línea.
                         `items-start` la ancla arriba cuando sí caben en fila. */}
                     <div className="flex flex-col items-start gap-1 mb-3 sm:flex-row sm:items-start sm:gap-3">
-                      <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{post.categoria}</span>
+                      {categoriaPrincipal(post.categoria) && <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{categoriaPrincipal(post.categoria)}</span>}
                       <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>{fecha}</span>
                     </div>
                     <h2 className="font-serif font-light mb-2 text-sdm-xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>{titulo}</h2>
