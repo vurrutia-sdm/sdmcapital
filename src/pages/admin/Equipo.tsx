@@ -25,7 +25,13 @@ export default function Equipo() {
 
   const { items: sorted, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
     const fallo = (await Promise.all(reordered.map((m, i) => supabase.from('equipo').update({ orden: i + 1 }).eq('id', m.id)))).find(r => r.error)
-    avisarError('No se pudo guardar el nuevo orden del equipo', fallo?.error ?? null)
+    // CORTA ANTES DEL `load()`, igual que Propiedades y Asociados. Un PATCH por
+    // fila no es una transacción: si falla a media lista, unas quedan con el
+    // orden nuevo y otras con el viejo, y recargar pinta esa mezcla como si
+    // fuera lo que se pidió, encima del aviso que acaba de decir que algo falló.
+    // Sin recargar, la lista se queda como la dejó el arrastre y se puede
+    // reintentar soltando otra vez.
+    if (avisarError('No se pudo guardar el nuevo orden del equipo', fallo?.error ?? null)) return
     load()
   })
 
