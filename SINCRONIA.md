@@ -7135,3 +7135,74 @@ El orden correcto es:
 
 Hacerlo al revés —poner el filtro sobre los datos de hoy— da una navegación que
 miente sobre lo que agrupa.
+
+---
+
+## DECISIÓN DE VÍCTOR: fuera el reordenamiento por teclado — 2026-08-09
+
+Commit `b5b99a7`. **Esto reabre a sabiendas el incumplimiento de WCAG 2.1.1 que
+se había cerrado el mismo día en `8435408`.** Queda escrito acá para que una
+auditoría futura no lo trate como regresión ni como olvido.
+
+### Qué se quitó
+
+Los botones ▲▼ de **los diez puntos** de reordenamiento —sidebar, lista de
+propiedades, unidades, fotos de propiedad, carrusel del hero, destacadas del
+inicio, equipo, asociados y las dos fichas de cliente— más los que
+`TarjetasEquipo` ya tenía de antes. `ordenTeclado.tsx` se quedó sin consumidores
+y se borró.
+
+### La decisión, y por qué no es un defecto
+
+Bastan el arrastre y el drop. Es una pantalla **interna**, la usa **una sola
+persona**, con ratón. El criterio 2.1.1 sigue sin cumplirse ahí, y eso está
+asumido: no es que nadie lo haya notado, es que se prefirió la interfaz más
+limpia sabiendo el costo.
+
+**Si algún día el admin lo usa más de una persona, o alguien que no puede usar el
+ratón, esto hay que revertirlo.** El commit `8435408` tiene la implementación
+completa y `git revert b5b99a7` la devuelve entera.
+
+### El arrastre no se tocó
+
+`usePointerSort` y `useDragSort.ts` quedaron **byte a byte iguales**, y los diez
+puntos conservan su hook y sus manijas. Solo desapareció el camino paralelo.
+
+### CONSECUENCIA APARTE: `TarjetasEquipo` se queda sin forma de reordenar
+
+Es la única lista que **nunca tuvo arrastre** —sus ▲▼ eran el único mecanismo—.
+Al quitárselos, la única manera de cambiar el orden de una tarjeta es escribir el
+número a mano en el campo «Orden» del formulario de edición.
+
+No es lo mismo que en las otras diez, donde el arrastre sigue ahí. Si se nota en
+uso, la salida barata es darle arrastre como al resto, no devolverle las flechas.
+
+---
+
+## Confirmación al guardar una propiedad — 2026-08-09
+
+Commit `01d25b5`. La píldora «Guardado correctamente» se iba sola a los 2500 ms;
+ahora hay un diálogo que hay que aceptar. **Solo en Propiedades** — los otros
+trece paneles siguen con la píldora.
+
+Diálogo propio y no `alert()`, con el mismo par de hooks que los cinco modales
+del sitio: `useDialogoModal` (Escape, foco atrapado, foco devuelto) y
+`useBloquearScroll`.
+
+### EL FOCO NO PODÍA VOLVER AL DISPARADOR
+
+`useDialogoModal` devuelve el foco a quien abrió el modal, y acá **ese elemento
+ya no existe**: `save()` hace `setEditing(null)` y el formulario entero —con su
+botón «Guardar»— se desmonta antes de que el diálogo aparezca.
+
+Sin resolverlo, al cerrar el foco caía en el `<body>` y quien navega con teclado
+perdía el sitio por completo. Se manda a «Nueva propiedad», que es la acción
+siguiente natural y está justo encima de la lista recién actualizada.
+
+**Es el patrón a copiar** para cualquier diálogo que se levante después de
+desmontar lo que lo disparó: el hook no puede adivinar a dónde ir, hay que
+decírselo.
+
+> **Trampa al verificar.** `useDialogoModal` escucha `keydown` en `document`, no
+> en `window`. Un Escape sintético despachado sobre `window` no cierra nada y se
+> lee como si el hook estuviera roto.
