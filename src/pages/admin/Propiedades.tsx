@@ -543,8 +543,18 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
   const [guardado, avisarGuardado] = useGuardado()
   const [editing, setEditing]     = useState<Partial<Propiedad> | null>(null)
   const [saving, setSaving]       = useState(false)
-  const [sortField, setSortField] = useState<'tipo'|'estado'|'precio_uf'|null>(null)
-  const [sortDir, setSortDir]     = useState<'asc'|'desc'>('asc')
+  // UN SOLO ESTADO PARA LAS DOS MITADES DEL ORDEN, y no dos `useState`.
+  //
+  // El ciclo tiene tres pasos —asc → desc → sin ordenar— y el siguiente depende
+  // de los dos valores a la vez. Con estados separados, `toggleSort` tenía que
+  // leer `sortDir` de la clausura: dos clics dentro del mismo tick veían el
+  // mismo valor viejo y el ciclo se quedaba atascado en «desc», sin poder
+  // volver a la lista sin ordenar. Con uno solo, el actualizador funcional ve
+  // siempre el estado real y el ciclo cierra pase lo que pase.
+  type Orden = { field: 'tipo'|'estado'|'precio_uf'; dir: 'asc'|'desc' }
+  const [sort, setSort] = useState<Orden | null>(null)
+  const sortField = sort?.field ?? null
+  const sortDir   = sort?.dir ?? 'asc'
   const [showInactive, setShowInactive] = useState(false)
   // Para poder avisar cuando el orden que se está fijando no se está aplicando.
   const { get: getContenido } = useContenido()
@@ -570,10 +580,12 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
   // columna fuera solo una vista; ahora que apaga el arrastre —y con él la
   // única forma de fijar el orden del catálogo—, quedarse atrapado en una
   // columna ordenada sería dejar la pantalla sin su función principal.
-  const toggleSort = (field: typeof sortField) => {
-    if (sortField !== field) { setSortField(field); setSortDir('asc'); return }
-    if (sortDir === 'asc') { setSortDir('desc'); return }
-    setSortField(null); setSortDir('asc')
+  const toggleSort = (field: NonNullable<typeof sortField>) => {
+    setSort(prev => {
+      if (prev?.field !== field) return { field, dir: 'asc' }
+      if (prev.dir === 'asc') return { field, dir: 'desc' }
+      return null
+    })
   }
 
   const toggleActivo = async (p: Propiedad) => {
