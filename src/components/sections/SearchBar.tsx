@@ -83,7 +83,7 @@ function DropSelect({ label, options, value, onChange }: {
           background: value ? 'var(--navy-dark)' : '#fff',
           color: value ? '#fff' : 'var(--ink)',
           border: `1px solid ${value ? 'var(--navy-dark)' : 'var(--border)'}`,
-          borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit', fontWeight: value ? 500 : 300, transition: 'all 0.18s', whiteSpace: 'nowrap' }}
+          borderRadius: 'var(--sdm-radio-control)', cursor: 'pointer', fontFamily: 'inherit', fontWeight: value ? 500 : 300, transition: 'all 0.18s', whiteSpace: 'nowrap' }}
       >
         <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', opacity: 0.6, marginRight: 2 }}>{label}</span>
         {selected.label}
@@ -159,7 +159,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
           display: 'flex', alignItems: 'center', gap: 10,
           background: '#fff',
           border: `1.5px solid ${open ? 'var(--navy-dark)' : 'var(--border)'}`,
-          borderRadius: 8, padding: '0 16px', transition: 'border-color 0.2s', cursor: 'pointer',
+          borderRadius: 'var(--sdm-radio-control)', padding: '0 16px', transition: 'border-color 0.2s', cursor: 'pointer',
           height: 46, position: 'relative',
         }}
       >
@@ -283,7 +283,7 @@ export default function SearchBar() {
           />
 
           <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', color: '#fff', border: 'none', borderRadius: 'var(--sdm-radio-control)', fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
           >
             <Search aria-hidden="true" size={14} /> Buscar
           </button>
@@ -321,7 +321,7 @@ export default function SearchBar() {
             visible, solo que sin asociar. `display: block` es obligatorio en
             los dos — un <label> y un <span> son inline por defecto, y estos
             div llevaban padding, borde y marginBottom de bloque. */}
-        <label className="mb-2" style={{ display: 'block', background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)' }}>
+        <label className="mb-2" style={{ display: 'block', background: 'rgba(255,255,255,0.12)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)' }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Región</span>
           <select className="text-sdm-sm area-44" value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
             style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
@@ -330,7 +330,7 @@ export default function SearchBar() {
         </label>
 
         {/* Comuna mobile */}
-        <label className="mb-3" style={{ display: 'block', background: region ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)', opacity: region ? 1 : 0.5 }}>
+        <label className="mb-3" style={{ display: 'block', background: region ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px', border: '1px solid rgba(255,255,255,0.15)', opacity: region ? 1 : 0.5 }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Comuna</span>
           <select className="text-sdm-sm area-44" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
             style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed' }}>
@@ -341,7 +341,7 @@ export default function SearchBar() {
 
         <div className="flex gap-2 mb-3">
           {[{ label: 'Tipo', options: TIPOS, value: tipo, onChange: setTipo }, { label: 'Precio', options: PRECIOS, value: precio, onChange: setPrecio }].map(f => (
-            <label key={f.label} style={{ display: 'block', flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <label key={f.label} style={{ display: 'block', flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px', border: '1px solid rgba(255,255,255,0.12)' }}>
               <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>{f.label}</span>
               <select className="text-sdm-sm area-44" value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#fff', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
                 {f.options.map(o => <option key={o.value} value={o.value} style={{ color: 'var(--ink)', background: '#fff' }}>{o.label}</option>)}
@@ -350,7 +350,7 @@ export default function SearchBar() {
           ))}
         </div>
 
-        <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button className="text-sdm-sm tracking-sdm-wide bg-[var(--green)] hover:bg-[var(--navy-dark)]" onClick={handleSearch} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 'var(--sdm-radio-control)', fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
           <Search aria-hidden="true" size={14} /> Buscar
         </button>
       </div>

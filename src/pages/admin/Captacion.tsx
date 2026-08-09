@@ -336,7 +336,7 @@ function NotifToggle({ value, onChange, saving }: {
   ]
   return (
     <div style={{
-      background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6,
+      background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)',
       padding: '12px 18px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12,
     }}>
       <Bell size={15} style={{ color: COLORS.muted }} />
@@ -463,7 +463,7 @@ function ChatLog({ conversation }: { conversation: ChatMsg[] | null }) {
     return <div className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic', padding: '8px 0' }}>Sin conversación registrada.</div>
   }
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 380, overflowY: 'auto', padding: 14, background: COLORS.bg, borderRadius: 6 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 380, overflowY: 'auto', padding: 14, background: COLORS.bg, borderRadius: 'var(--sdm-radio-contenedor)' }}>
       {conversation.map((m, i) => {
         const isAssistant = m.role === 'assistant'
         return (
@@ -596,7 +596,7 @@ function ConversacionThread({ leadId, waPhone, active, refreshSignal }: { leadId
 
   if (error) {
     return (
-      <div className="text-sdm-sm" style={{ color: COLORS.red, background: '#fde2e1', borderRadius: 6, padding: '12px 14px' }}>
+      <div className="text-sdm-sm" style={{ color: COLORS.red, background: '#fde2e1', borderRadius: 'var(--sdm-radio-contenedor)', padding: '12px 14px' }}>
         No se pudo cargar la conversación: {error}
       </div>
     )
@@ -607,7 +607,7 @@ function ConversacionThread({ leadId, waPhone, active, refreshSignal }: { leadId
   }
 
   return (
-    <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 460, overflowY: 'auto', padding: 14, background: COLORS.bg, borderRadius: 6 }}>
+    <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 460, overflowY: 'auto', padding: 14, background: COLORS.bg, borderRadius: 'var(--sdm-radio-contenedor)' }}>
       {mensajes.map(m => <MensajeBubble key={m.id} m={m} />)}
     </div>
   )
@@ -665,7 +665,7 @@ function ModoToggleBanner({ lead, onModoChange }: {
         </div>
       </div>
       <button className="text-sdm-sm tracking-sdm-normal" type="button" onClick={toggleModo} disabled={togglingModo}
-        style={{ padding: '12px 22px', fontWeight: 700, borderRadius: 6, fontFamily: 'inherit', border: 'none', color: '#fff', whiteSpace: 'nowrap',
+        style={{ padding: '12px 22px', fontWeight: 700, borderRadius: 'var(--sdm-radio-control)', fontFamily: 'inherit', border: 'none', color: '#fff', whiteSpace: 'nowrap',
           cursor: togglingModo ? 'default' : 'pointer',
           // `--lead-warm` como FONDO con texto blanco encima: 5.18:1. Acá el
           // ámbar significa precaución —vas a pausar a Sofía—, no prioridad
@@ -721,7 +721,7 @@ function ManualSendBox({ lead, onSent }: {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: '#fff', border: `1px solid ${COLORS.border}`, borderTop: `2px solid ${COLORS.green}`, borderRadius: 6, padding: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: '#fff', border: `1px solid ${COLORS.border}`, borderTop: `2px solid ${COLORS.green}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 12 }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
         {/* Este era el único de los cinco campos sin rótulo visible, y el
             diseño sí admite uno: la caja ya tenía una línea de ayuda debajo,
@@ -777,7 +777,7 @@ function Stat({ label, value, color }: { label: string; value: number; color?: s
 
 function MetricCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20, display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
       <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{title}</div>
       {children}
     </div>
@@ -845,7 +845,7 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
         </MetricCard>
       </div>
 
-      <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20 }}>
+      <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20 }}>
         <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 12 }}>
           Comunas más buscadas (este mes)
         </div>
@@ -891,7 +891,7 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
 }) {
   const lead = visita.lead
   return (
-    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <div>
           <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
@@ -908,7 +908,7 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
       </div>
 
       {lead?.brief && (
-        <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
+        <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 'var(--sdm-radio-contenedor)', padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
           {lead.brief}
         </div>
       )}
@@ -982,7 +982,7 @@ function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving }: {
 }) {
   const lead = visita.lead
   return (
-    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <div>
           <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
@@ -1000,7 +1000,7 @@ function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving }: {
       </div>
 
       {lead?.brief && (
-        <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
+        <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 'var(--sdm-radio-contenedor)', padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
           {lead.brief}
         </div>
       )}
@@ -1047,7 +1047,7 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
   const estado = estadoLead(lead, ultimaVisita)
 
   return (
-    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, overflow: 'hidden', opacity: deleting ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', overflow: 'hidden', opacity: deleting ? 0.5 : 1, transition: 'opacity 0.2s' }}>
       <div onClick={onToggle} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer' }}>
         <ScoreBadge score={lead.score} />
         {/* Estas seis columnas ENVUELVEN en vez de recortarse. Medido: a 1100 px
@@ -1125,7 +1125,7 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
               {lead.brief && (
                 <div>
                   <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>Brief para el equipo</div>
-                  <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
+                  <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 'var(--sdm-radio-contenedor)', padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
                     {lead.brief}
                   </div>
                 </div>
@@ -1586,7 +1586,7 @@ export default function Captacion() {
             {loadingVisitas && visitas.length === 0 ? (
               <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando visitas…</div>
             ) : visitas.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)' }}>
                 No hay visitas pendientes por confirmar.
               </div>
             ) : (
@@ -1616,7 +1616,7 @@ export default function Captacion() {
             {loadingVisitas && confirmadas.length === 0 ? (
               <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando visitas…</div>
             ) : confirmadas.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)' }}>
                 No hay visitas confirmadas por realizar.
               </div>
             ) : (
@@ -1655,7 +1655,7 @@ export default function Captacion() {
             {loadingLeads && leads.length === 0 ? (
               <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando leads…</div>
             ) : filteredLeads.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)' }}>
                 No hay leads para este filtro.
               </div>
             ) : (
