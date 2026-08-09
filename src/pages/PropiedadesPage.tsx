@@ -113,6 +113,18 @@ const ETIQUETAS_FILTRO: Record<string, string> = {
   proyecto_nuevo: 'Proyecto Nuevo',
 }
 
+// El chip tiene que decir LO QUE SE ELIGIÓ, no el valor crudo.
+//
+// `ETIQUETAS_FILTRO` mapea valores sueltos —«en_venta» → «En Venta»— y alcanza
+// mientras cada valor sea único en todo el panel. Deja de alcanzar en cuanto un
+// filtro guarda un número: el chip de un tope de precio diría «3500» a secas, y
+// sin la clave no hay forma de saber que eso son UF y que es un techo.
+function etiquetaFiltro(key: string, val: unknown): string {
+  const s = String(val)
+  if (key === 'precio_max_uf') return `Hasta UF ${Number(s).toLocaleString('es-CL')}`
+  return ETIQUETAS_FILTRO[s] ?? s
+}
+
 function applyCatalogOrder(props: Propiedad[], mode: string): Propiedad[] {
   const copy = [...props]
   if (mode === 'precio_alto') { const c = copy.filter(p => p.a_consultar); const r = copy.filter(p => !p.a_consultar).sort((a,b) => (b.precio_uf||0)-(a.precio_uf||0)); return [...c,...r] }
@@ -244,6 +256,14 @@ export default function PropiedadesPage() {
       region:        searchParams.get('region') || '',
       comuna:        searchParams.get('comuna') || '',
       internacional: searchParams.get('internacional') === 'true',
+      // UNA SOLA CLAVE PARA EL TOPE DE PRECIO: `precio_max_uf`.
+      // El panel escribía `precio_max`, el tipo declaraba `precio_max_uf`, y la
+      // consulta no leía ninguna de las dos. Elegir una sola cosa era un tope
+      // que no recortaba nada: 79 propiedades antes y 79 después, con el select
+      // volviendo solo a «Sin límite» porque su valor nunca llegaba al estado.
+      // El nombre lleva la unidad a propósito, porque el catálogo tiene tres
+      // monedas y el tope solo sabe comparar una.
+      precio_max_uf: Number(searchParams.get('precio_max_uf')) || undefined,
     }
 
     setFiltros(filtrosActuales)
@@ -274,6 +294,36 @@ export default function PropiedadesPage() {
     if (filtrosActuales.region)         q = q.eq('region', filtrosActuales.region)
     if (filtrosActuales.comuna)         q = q.ilike('comuna', `%${filtrosActuales.comuna}%`)
     if (filtrosActuales.internacional)  q = q.eq('internacional', true)
+    // EL TOPE COMPARA CONTRA `precio_uf` Y SOLO CONTRA ESO, ASÍ QUE LAS QUE NO
+    // TIENEN UF DESAPARECEN CUANDO HAY TOPE. Es deliberado.
+    //
+    // De las 79 activas, 70 tienen precio en UF, 3 son «a consultar» y 6 están
+    // solo en pesos. De esas 6, cinco son ARRIENDOS: su precio es una renta
+    // mensual —$350.000, $420.000, $700.000—, no un valor de venta. Convertirlas
+    // a UF con el valor del día las metería en «Hasta UF 2.000» a razón de unas
+    // 9 UF, delante de departamentos de venta. No es un problema de conversión
+    // de unidad sino de magnitud: son cosas distintas.
+    //
+    // La sexta está en $200.000.000 y sí es una venta, pero convertirla exigiría
+    // traer el valor de la UF del día en cada carga del catálogo, y el precio
+    // mostrado en la tarjeta seguiría siendo el de pesos: el filtro diría una
+    // cosa y la tarjeta otra. Lo correcto es cargarle el precio en UF en el
+    // admin, no adivinarlo acá.
+    //
+    // `lte` sobre una columna nula ya excluye esas filas —en SQL `NULL <= 2000`
+    // no es verdadero—, así que ese caso sale del propio operador.
+    //
+    // EL `gt(0)` NO SOBRA. Dos propiedades tienen `precio_uf = 0` con su precio
+    // real en pesos, y un cero no es «gratis» sino «no se cargó el valor en UF».
+    // Sin la guarda pasaban TODOS los topes, incluido «Hasta UF 2.000», y una de
+    // ellas es una casa de $200.000.000 —unas 5.100 UF—. La tarjeta además
+    // muestra los pesos, porque `0` es falso en JS y cae al precio en CLP: el
+    // filtro prometía un techo de UF 2.000 y debajo se leía «$ 200.000.000».
+    // Con el cero fuera, esas dos se comportan igual que las que no tienen UF.
+    //
+    // Sin tope las once siguen apareciendo: la guarda solo actúa cuando hay
+    // techo, que es cuando comparar importa.
+    if (filtrosActuales.precio_max_uf)  q = q.gt('precio_uf', 0).lte('precio_uf', filtrosActuales.precio_max_uf)
 
     q.neq('activo', false).order('orden', { ascending: true, nullsFirst: false })
       .then(({ data, error }) => {
@@ -349,7 +399,7 @@ export default function PropiedadesPage() {
               { label: 'Tipo',     key: 'tipo',   opts: TIPOS },
               { label: 'Estado',   key: 'estado', opts: ESTADOS },
               { label: 'Región', key: 'region', opts: REGIONES },
-              { label: 'Precio',   key: 'precio_max', opts: PRECIOS },
+              { label: 'Precio',   key: 'precio_max_uf', opts: PRECIOS },
             ].map(f => (
               <label key={f.key} style={{ display: 'block' }}>
                 <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>{f.label}</span>
@@ -404,11 +454,11 @@ export default function PropiedadesPage() {
               // accesible dice lo que hace, no solo qué filtro es: leído solo,
               // «En Venta» no comunica que pulsarlo lo elimina.
               <button key={key} type="button"
-                aria-label={`Quitar el filtro ${ETIQUETAS_FILTRO[String(val)] ?? String(val)}`}
+                aria-label={`Quitar el filtro ${etiquetaFiltro(key, val)}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer text-sdm-sm bg-white border border-[var(--border)] hover:bg-[var(--off)] hover:border-[var(--muted)]"
                 style={{ fontWeight: 400, color: 'var(--ink)', fontFamily: 'inherit', transition: 'border-color 0.2s, background 0.2s' }}
                 onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}>
-                {ETIQUETAS_FILTRO[String(val)] ?? String(val)}
+                {etiquetaFiltro(key, val)}
                 <X aria-hidden="true" size={11} style={{ color: 'var(--muted)' }} />
               </button>
             ))}
