@@ -5800,3 +5800,14 @@ versión **publicada**, así que tiene que mirar la fila guardada:
 
 El respaldo a `editing` cubre la propiedad nueva, que no está en `items` y
 tampoco tiene slug, así que sigue sin dibujarse.
+
+---
+
+## EN CURSO: simplificación del footer — sesión web pública
+
+**Anuncio de dominio.** Se va a tocar `src/components/layout/Footer.tsx`, y
+posiblemente `src/components/sections/ContactSection.tsx` según lo que se
+decida. Los dos son de la sesión web pública. El footer está en `Layout`, así
+que **cualquier cambio se ve en todas las rutas públicas**.
+
+Por ahora solo hay propuesta; no se ha implementado nada.
