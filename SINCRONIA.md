@@ -5908,3 +5908,15 @@ pie van inline dentro de un `<p>`, exentos por ser texto corrido.
 Las columnas del footer se rotulan con `<div>`, no con encabezados —así era
 antes— así que quitar «Servicios» no podía crear un salto de nivel. Verificado
 igual en una ruta con `ContactSection` y otra sin: 0 saltos en las dos.
+
+---
+
+## EN CURSO: rediseño del bloque de testimonios — sesión web pública
+
+**Anuncio de dominio, con una corrección.** El encargo lo situaba en
+`src/components/sections/`. **No está ahí**: `TestimoniosCarrusel` vive dentro de
+`src/pages/HomePage.tsx` (línea 50), y solo se monta ahí. En
+`src/components/sections/` hay cinco componentes y ninguno es este.
+
+Se va a tocar `src/pages/HomePage.tsx`. Por ahora solo hay levantamiento; no se
+ha propuesto ni implementado nada.
