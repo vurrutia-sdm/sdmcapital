@@ -5918,5 +5918,86 @@ igual en una ruta con `ContactSection` y otra sin: 0 saltos en las dos.
 `src/pages/HomePage.tsx` (línea 50), y solo se monta ahí. En
 `src/components/sections/` hay cinco componentes y ninguno es este.
 
-Se va a tocar `src/pages/HomePage.tsx`. Por ahora solo hay levantamiento; no se
-ha propuesto ni implementado nada.
+Se tocó `src/pages/HomePage.tsx`.
+
+### Por qué se fueron tres de los cinco
+
+Los firmados por «Equipo SDM» **no eran testimonios**: eran casos narrados por
+la empresa en primera persona del plural —«Agradecemos a Matías…», «Conectamos
+la venta de Don Elías…»— y **duplicaban el bloque de blog que está justo
+debajo**, que hace lo mismo con foto, fecha, categoría y el artículo entero.
+
+Uno de ellos era literalmente el **teaser de un artículo del blog, con enlace a
+ese artículo**: «Te contamos cómo acompañamos a una de nuestras clientas…» →
+`/blog/detras-de-una-compraventa-exitosa…`.
+
+Encima el diseño anterior los envolvía en comillas dobles literales, o sea le
+atribuía a la empresa una cita de sí misma.
+
+Quedan los dos reales: Macarena y Gerardo.
+
+**Las claves 3 a 8 siguen disponibles** en el admin para testimonios reales
+futuros. No se recortó el `[1..8].map()` de `Contenido.tsx`: los campos vacíos
+no se renderizan en la web —el componente filtra por `texto`— y quitarlos sería
+cerrar la vía de sumar uno sin tocar código.
+
+### De carrusel a dos tarjetas
+
+Con dos elementos el carrusel no tenía sentido. Se fue **toda** la mecánica:
+`setInterval` de 5s, `goTo/next/prev`, los estados `current`, `pausado`,
+`animating` y `direction`, el `useRef` del temporizador, los dos `useEffect`, el
+botón de pausa, las flechas ↑↓, el contador 01/05 y los cinco puntos. También
+los imports de `Pause` y `Play`, y `useRef`. **Sin movimiento no hay nada que
+detener, así que 2.2.2 deja de aplicar.**
+
+De paso se borró `TESTIMONIALS`, tres personas inventadas —María Sánchez, Carlos
+González, Isabel Ríos— que se usaban como default cuando la clave estaba vacía.
+Es la misma regla que ya cerró `SAMPLE_PROPS`: **nada de datos de muestra en
+producción**. Ahora una ranura vacía se descarta y, si no queda ninguna, la
+sección entera no se dibuja.
+
+#### Medidas
+
+| | Antes | Después |
+|---|---|---|
+| @1440 | 490 px | **476 px** |
+| @390 | 744 px | 821 px |
+
+En móvil **sube**, y es inevitable: dos tarjetas apiladas ocupan más que una
+cita rotando. Se descartó un «ver más» porque dos citas cortas no justifican un
+control.
+
+Para bajar de los 490 en escritorio hizo falta poner el ornamento **a la
+izquierda** del texto en vez de encima: apilado se comía una fila de 56px por
+tarjeta y la sección se quedaba en 644 px.
+
+#### Contraste, sobre `--off`
+
+| Elemento | Color | Ratio |
+|---|---|---|
+| Ornamento ❞ | `--green-dark` | **4,64:1** |
+| Cita | `--ink` | 16,65:1 |
+| Nombre | `--navy-dark` | 15,04:1 |
+| Ubicación | `--muted` | 4,81:1 |
+| Enlace | `--green-dark` | **4,64:1** |
+
+**`--sky` sobre `--off` da 1,73:1**: el ornamento habría sido invisible. Y
+`--green` da 2,80:1, que para un enlace **no llega al 4,5** — por eso los dos
+usan `--green-dark`.
+
+El autor viene como «Nombre · Ciudad, País» en una sola cadena y se parte por el
+primer `·`. Ojo: en la base hay un **doble espacio** antes del separador, así que
+hay que recortar.
+
+### PENDIENTE PARA DESPLEGAR: vaciar tres claves
+
+**Este cambio NO está desplegado.** Con la base como está hoy, la sección
+renderiza las **cinco** tarjetas y mide **1469 px** a 1440 — el triple de los 490
+que había que mejorar, y empuja el blog fuera de la vista.
+
+Antes de cualquier deploy hay que vaciar, desde Textos del sitio → Testimonios,
+el **Texto, el Autor y la URL** de los bloques **Testimonio 3, 4 y 5**. Con eso
+la sección baja a 476 px.
+
+> Si alguien despliega sin hacerlo, no se rompe nada: se ven cinco tarjetas en
+> vez de dos. Pero es exactamente lo contrario de lo que se pidió.
