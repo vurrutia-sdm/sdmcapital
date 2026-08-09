@@ -180,6 +180,7 @@ function MapView({ props }: { props: Propiedad[] }) {
 export default function PropiedadesPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
+  const { get } = useContenido()
   const categoria =
     location.pathname === '/propiedades-usadas' ? 'usada' :
     location.pathname === '/proyectos-nuevos'   ? 'proyecto_nuevo' :
@@ -190,18 +191,18 @@ export default function PropiedadesPage() {
     'Propiedades'
   const [props, setProps] = useState<Propiedad[]>([])
   const [loading, setLoading] = useState(true)
-  const [ordenCatalogo, setOrdenCatalogo] = useState('manual')
+  // El orden del catálogo sale de `useContenido`, no de una consulta propia. Con
+  // una consulta suelta la clave llegaba a los ~300ms y la grilla se reordenaba
+  // delante del visitante; leyéndola de acá viene sembrada en index.html y el
+  // primer render ya está bien. Sigue actualizándose sola si la consulta en vivo
+  // trae otro valor, porque `get` lee del estado del hook.
+  const ordenCatalogo = get('catalogo_orden', 'manual')
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
   const [comunaInput, setComunaInput] = useState(searchParams.get('comuna') || '')
   const [filtros, setFiltros] = useState<FiltrosPropiedades>({
     tipo: '', estado: '', region: '', comuna: '', internacional: false,
   })
   const [panelOpen, setPanelOpen] = useState(false)
-
-  useEffect(() => {
-    supabase.from('contenido_sitio').select('valor').eq('clave', 'catalogo_orden').single()
-      .then(({ data }) => { if (data?.valor) setOrdenCatalogo(data.valor) })
-  }, [])
 
   useEffect(() => {
     let ignore = false

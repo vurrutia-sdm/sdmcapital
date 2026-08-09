@@ -178,27 +178,49 @@ export default function HomePage() {
   const [props, setProps] = useState<Propiedad[]>(SAMPLE_PROPS)
   const [creditoOpen, setCreditoOpen] = useState(false)
 
+  // Los IDs de las destacadas salen de `useContenido`, no de una consulta
+  // propia: así vienen sembrados en index.html y la selección ya es la correcta
+  // en el primer render, en vez de resolverse a los ~300ms. El efecto depende
+  // del valor, así que si la consulta en vivo trae otro —semilla vieja, o el
+  // admin acaba de guardar— se vuelve a pedir con los IDs buenos.
+  const destacadasIds = get('home_destacadas_ids', '')
+
   useEffect(() => {
-    // Intentar cargar por IDs manuales guardados en contenido_sitio
-    supabase.from('contenido_sitio').select('valor').eq('clave', 'home_destacadas_ids').single()
-      .then(async ({ data }) => {
-        if (data?.valor) {
-          const ids: string[] = JSON.parse(data.valor)
-          if (ids.length > 0) {
-            const { data: props } = await supabase.from('propiedades').select('*').in('id', ids).neq('activo', false)
-            if (props && props.length > 0) {
-              // Respetar el orden de los IDs guardados
-              const ordered = ids.map(id => props.find(p => p.id === id)).filter(Boolean) as Propiedad[]
-              setProps(ordered)
-              return
-            }
-          }
+    let ignorar = false
+
+    // Las que tienen destacada=true. Es el camino cuando no hay selección
+    // manual, y también el respaldo si los IDs guardados ya no existen.
+    const porBandera = () => {
+      supabase.from('propiedades').select('*').eq('destacada', true).neq('activo', false).limit(6)
+        .then(({ data }) => { if (!ignorar && data && data.length > 0) setProps(data) })
+    }
+
+    let ids: string[] = []
+    try {
+      const guardado: unknown = destacadasIds ? JSON.parse(destacadasIds) : []
+      if (Array.isArray(guardado)) ids = guardado.filter((x): x is string => typeof x === 'string')
+    } catch {
+      // Un valor mal formado en la base no puede dejar el home sin destacadas:
+      // antes este JSON.parse iba suelto y una comilla de más tiraba el efecto
+      // entero, sin destacadas y sin respaldo.
+      ids = []
+    }
+
+    if (ids.length === 0) { porBandera(); return () => { ignorar = true } }
+
+    supabase.from('propiedades').select('*').in('id', ids).neq('activo', false)
+      .then(({ data }) => {
+        if (ignorar) return
+        if (data && data.length > 0) {
+          // Respetar el orden de los IDs guardados
+          setProps(ids.map(id => data.find(p => p.id === id)).filter(Boolean) as Propiedad[])
+        } else {
+          porBandera()
         }
-        // Fallback: cargar las que tienen destacada=true
-        supabase.from('propiedades').select('*').eq('destacada', true).neq('activo', false).limit(6)
-          .then(({ data }) => { if (data && data.length > 0) setProps(data) })
       })
-  }, [])
+
+    return () => { ignorar = true }
+  }, [destacadasIds])
 
   const finImg = get('financiamiento_imagen', '')
 
