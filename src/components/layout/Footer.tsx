@@ -132,10 +132,19 @@ export default function Footer() {
             {[
               { to: '/',                   label: 'Inicio' },
               { to: '/quienes-somos',      label: 'Quiénes Somos' },
+              { to: '/servicios',          label: 'Servicios' },
               { to: '/propiedades',        label: 'Propiedades' },
               { to: '/rental',             label: 'SDM Rental' },
               { to: '/vende-con-nosotros', label: 'Vende con nosotros' },
               { to: '/blog',               label: 'Blog' },
+              /* `/servicios` y `/evaluacion-gratuita` no recibían NI UN enlace en todo
+                 el sitio. El de servicios solo existía dentro del desplegable del
+                 header, que se monta al abrirlo y por tanto no está en el DOM para un
+                 crawler; el de la evaluación no existía en ninguna parte, solo se
+                 llegaba abriendo un modal.
+                 Van al pie porque son secciones principales, y el pie es donde el
+                 visitante busca el índice del sitio cuando no lo encuentra en el menú. */
+              { to: '/evaluacion-gratuita', label: 'Evaluación gratuita' },
             ].map(l => (
               <Link className="text-sdm-base hover:text-[var(--navy-dark)]" key={l.to} to={l.to} style={enlace}>{l.label}</Link>
             ))}

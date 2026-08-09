@@ -605,6 +605,34 @@ export default function PropiedadesPage() {
           </div>
         )}
 
+        {/* LAS TRES CATEGORÍAS, ENLAZADAS ENTRE SÍ.
+            `/propiedades-usadas` no recibía NI UN enlace visible para un
+            crawler: su única entrada era «Solo usadas» dentro del desplegable
+            del header, que se monta al abrirlo y por tanto no está en el DOM.
+            Medido: 0 enlaces entrantes en ocho páginas renderizadas.
+
+            Y para el visitante resuelve algo real: hoy, estando en el catálogo,
+            no hay forma de pasar a las usadas o a los proyectos sin volver al
+            menú. El que está activo no es enlace, para no enlazar a la página
+            en la que ya estás. */}
+        <nav aria-label="Categorías del catálogo" className="flex flex-wrap gap-x-5 gap-y-2 mt-5">
+          {[
+            { to: '/propiedades',        label: 'Todas' },
+            { to: '/propiedades-usadas', label: 'Usadas' },
+            { to: '/proyectos-nuevos',   label: 'Proyectos nuevos' },
+          ].map(c => c.to === location.pathname ? (
+            <span key={c.to} className="text-sdm-sm tracking-sdm-wide" aria-current="page"
+              style={{ textTransform: 'uppercase', fontWeight: 500, color: 'var(--navy-dark)', borderBottom: '1px solid var(--navy-dark)', paddingBottom: 2 }}>
+              {c.label}
+            </span>
+          ) : (
+            <Link key={c.to} to={c.to} className="text-sdm-sm tracking-sdm-wide hover:text-[var(--navy-dark)]"
+              style={{ textTransform: 'uppercase', fontWeight: 400, color: 'var(--muted)', textDecoration: 'none', paddingBottom: 2 }}>
+              {c.label}
+            </Link>
+          ))}
+        </nav>
+
         {/* Active filters */}
         {activeFiltros.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
