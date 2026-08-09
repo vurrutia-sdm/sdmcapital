@@ -16,7 +16,15 @@ const VALORES = [
   { n:'01', titulo:'Transparencia', desc:'Operamos con total transparencia en cada transacción. Sin costos ocultos, sin pagos adelantados.' },
   { n:'02', titulo:'Experiencia',   desc:'Más de 15 años en el mercado nos respaldan. Conocemos el mercado chileno e internacional en profundidad.' },
   { n:'03', titulo:'Compromiso',    desc:'Cada cliente es único. Nos comprometemos a encontrar la mejor solución para cada persona y empresa.' },
-  { n:'04', titulo:'Red Global',    desc:'Presencia en más de 10 países. Acceso a oportunidades inmobiliarias que otros no pueden ofrecer.' },
+  // Decía «Red Global — Presencia en más de 10 países», que contradecía de
+  // frente al contador del hero («2+ PAÍSES») y a la decisión de que la
+  // operación es Chile y Paraguay. El ítem conserva su función —es el que dice
+  // DÓNDE se opera, no un rasgo de carácter— porque el 02 también es un dato
+  // con número y el bloque siempre mezcló las dos cosas.
+  //
+  // Del texto de apoyo se cayó además «que otros no pueden ofrecer»: es una
+  // afirmación que nadie puede comprobar, de la misma familia que la falsa.
+  { n:'04', titulo:'Alcance regional', desc:'Operamos en Chile y Paraguay. Acceso a oportunidades inmobiliarias en ambos mercados.' },
 ]
 
 const P = '48px' // padding lateral desktop

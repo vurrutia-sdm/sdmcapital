@@ -81,8 +81,14 @@ export default function AsociadosPage() {
           </div>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
+            {/* Decía «Red global» sobre un párrafo que acota la red a Chile y
+                Paraguay: sobraba por su propia cuenta. Una red de socios sí
+                puede ser más amplia que la operación —son cosas distintas—,
+                pero este texto no dice eso. «Regional» va en paralelo con el
+                valor 04 de /quienes-somos; «Red de socios» habría repetido la
+                etiqueta de sección de esta misma página. */}
             <h2 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>
-              Red <em>global</em>
+              Red <em>regional</em>
             </h2>
             <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
