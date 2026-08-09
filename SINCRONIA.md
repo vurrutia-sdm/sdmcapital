@@ -128,7 +128,7 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 6: cierre de tamaño táctil y del último carrusel | Los 6 puntos que fallaban 2.5.8 pasan a 18px de separación; el resto cumple por excepción. El slider de El Barranco recibe pausa bilingüe | Cerrada — commits `c0250e9` y `91ba9b1` |
 | 2026-08-08 | Accesibilidad — tanda 6: los menores | 70 iconos decorativos ocultos, estado en los 3 controles de dos estados, `.sr-only` nueva en **`globals.css`** y los 13 tokens tipográficos a `rem` en **`globals.css` y `tailwind.config.js`, ZONA COMPARTIDA**. **El reordenamiento por teclado NO se hizo** | Cerrada — commits `b306c5a`, `49fef29`, `ea2ea11` y `248e418` |
 | 2026-08-08 | Contenido — cierre de la inconsistencia internacional | 12 textos de «el mundo» pasan a «Chile y Paraguay» —**`src/lib/i18n.ts` y `functions/blog/[slug].js`, ZONA COMPARTIDA y dominio Sofía**— y se borra el material muerto de los seis destinos | Cerrada — commits `48d38dd` y `2fb2712` |
-| 2026-08-09 | Captación — cierre de los nueve pendientes | **Invasión de dominio autorizada: `Captacion.tsx`. Se cierran los nueve hallazgos que quedaron pendientes de las auditorías de UX copy, color y accesibilidad. No se toca la lógica del bot ni sus escrituras a Supabase** | En curso |
+| 2026-08-09 | Captación — cierre de los nueve pendientes | **Invasión de dominio autorizada: `Captacion.tsx`. Se cierran los nueve hallazgos que quedaron pendientes de las auditorías de UX copy, color y accesibilidad. No se toca la lógica del bot ni sus escrituras a Supabase** | Cerrada — commits `77d216c`, `166bca2`, `d0ba68e`, `92030bf` y `d236092`. **Ya no queda ningún módulo con excepciones de auditoría.** Deja 5 pendientes nuevos, el primero es blanco sobre `--green` a 2.93:1 |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -1837,9 +1837,11 @@ corrección centralizada no alcanza a quien no está centralizado.
 reset global. Define sus variables con ámbito propio en `.sdm-pcard, .sdm-sheet`.
 Es autocontención deliberada, no desconocimiento.
 
-**`Captacion.tsx` queda con 5 usos pendientes** —`#0D2240`, `#7A8FA6`, `#F5F7FA`
+~~**`Captacion.tsx` queda con 5 usos pendientes** —`#0D2240`, `#7A8FA6`, `#F5F7FA`
 y `#4DB870` en su objeto `COLORS`— por ser dominio de la sesión Sofía. Necesita
-autorización.
+autorización.~~
+**CERRADO el 2026-08-09** con autorización de Víctor. Los seis valores del mapa
+apuntan a `var()`; se revisó antes que ningún consumidor concatenara alfa.
 
 #### Lo que se revisó antes de tocar
 
@@ -2482,10 +2484,14 @@ UUID→slug.
 
 #### Pendientes
 
-- **`Captacion.tsx`** (dominio Sofía): `.slice(0, 5)` en la conversación de un
+- ~~**`Captacion.tsx`** (dominio Sofía): `.slice(0, 5)` en la conversación de un
   lead —línea 994— y los cinco `textOverflow: ellipsis` de las tarjetas de lead
   —141 y 779-783— sobre nombre, teléfono, comuna, presupuesto y plazo. Esos
-  **no** son títulos: son datos que se cortan sin aviso.
+  **no** son títulos: son datos que se cortan sin aviso.~~
+  **CERRADO el 2026-08-09**, con una corrección: el `.slice(0, 5)` de la 994 no
+  era la conversación, era `topComunas` en Métricas. La conversación no tiene
+  ningún `.slice` — ya traía scroll propio. Ver «Captación — cierre de los nueve
+  pendientes».
 - **`Propiedades.tsx:279`**, `Array.from(files).slice(0, 20 - imagenes.length)`.
   No estaba en el encargo y no es un recorte de render sino de **subida**: si
   seleccionas 25 fotos con 0 cargadas, cinco se descartan sin decir nada. Mismo
@@ -2650,9 +2656,10 @@ mano.
 
 #### Pendientes de esta tanda
 
-- **`Captacion.tsx`** (dominio Sofía): sus dos `alert()` crudos —línea 464,
+- ~~**`Captacion.tsx`** (dominio Sofía): sus dos `alert()` crudos —línea 464,
   «No se pudo cambiar el modo», y 1115, «Error al eliminar»— y su confirmación
-  «¿Cancelar esta visita?» siguen sin tocar.
+  «¿Cancelar esta visita?» siguen sin tocar.~~
+  **CERRADO el 2026-08-09.** Ver «Captación — cierre de los nueve pendientes».
 - **`TarjetasEquipo.tsx:189`**, `alert('El nombre es obligatorio.')`: es una
   validación de formulario, no un error de Supabase, así que no entraba en la
   migración a `avisarError`. Sigue siendo el único mensaje de validación propio
@@ -3552,9 +3559,12 @@ Dos literales sobreviven a propósito, los dos comentados como espejo de
 
 #### Pendiente
 
-`Captacion.tsx:112` conserva su `red: '#E24B4A'` — dominio de la sesión Sofía.
+~~`Captacion.tsx:112` conserva su `red: '#E24B4A'` — dominio de la sesión Sofía.
 Cuando esa sesión lo toque, el valor a poner es `#A8384B`, y conviene revisar si
-ese mapa también concatena alfa.
+ese mapa también concatena alfa.~~
+
+**CERRADO el 2026-08-09.** Se revisó: ese mapa **no** concatena alfa en ningún
+consumidor, así que quedó como `var(--error)` y no como hex espejo.
 
 ---
 
@@ -4203,6 +4213,8 @@ campos en src/: 289
   con nombre accesible: 284
   SIN nombre: 5   ← los 5 de Captacion.tsx, dominio de Sofía
 ```
+
+**Los 5 se cerraron el 2026-08-09.** El contador queda en 289 / 289.
 
 ---
 
@@ -5038,8 +5050,10 @@ imágenes de propiedad, unidades y el sidebar solo se reordenan con ratón o ded
 > paneles y en siete no— es peor que ninguna: el usuario no puede saber dónde
 > funciona. Va en su propia tanda.
 
-**2. `Captacion.tsx`** — dominio de la sesión Sofía. Conserva 5 campos sin
-etiqueta, 5 `outline: none` y un `<div>` clicable.
+**2. `Captacion.tsx`** — ~~dominio de la sesión Sofía. Conserva 5 campos sin
+etiqueta, 5 `outline: none` y un `<div>` clicable.~~
+**Los 5 campos y los 5 `outline: none` se cerraron el 2026-08-09.** El `<div>`
+clicable de la fila de lead **sigue pendiente**: no entraba en ese encargo.
 
 **3. Los rótulos en mayúsculas** — excepción consciente, no pendiente. Ver la
 tanda 2: el texto ya está en minúsculas y Chrome aplica el `text-transform` al
@@ -6002,3 +6016,150 @@ la sección baja a 476 px.
 
 > Si alguien despliega sin hacerlo, no se rompe nada: se ven cinco tarjetas en
 > vez de dos. Pero es exactamente lo contrario de lo que se pidió.
+
+---
+
+## Captación — cierre de los nueve pendientes — 2026-08-09
+
+**Invasión de dominio autorizada por Víctor sobre `Captacion.tsx`.** No se tocó
+la lógica del bot ni sus escrituras a Supabase: los cinco commits son errores,
+copy, recortes, color y accesibilidad. Con esto **ya no queda ningún módulo con
+excepciones de auditoría**.
+
+| Commit | Qué |
+|---|---|
+| `77d216c` | Los dos `alert()` crudos a `avisarError`, con corte de flujo |
+| `166bca2` | «¿Cancelar esta visita?» nombra la visita y dice la consecuencia |
+| `d0ba68e` | Los recortes silenciosos: el `.slice` y los seis `ellipsis` |
+| `92030bf` | La paleta paralela a los tokens oficiales |
+| `d236092` | Cinco campos con nombre accesible, cinco `outline: none` fuera |
+
+### La auditoría se había equivocado con el `.slice(0, 5)`
+
+Quedó anotado como «`.slice(0, 5)` en la conversación de un lead —línea 994—».
+**No lo era.** La 994 es `topComunas`, el ranking de «Comunas más buscadas» de la
+sección Métricas. La conversación —`ChatLog`— no tiene ningún `.slice`:
+renderiza el arreglo entero dentro de una caja con `maxHeight: 380` y
+`overflowY: auto`, o sea que ya tenía scroll propio y nunca recortó nada.
+
+El ranking sí recortaba: su caja es un flex-wrap de fichas, sin scroll. Ahora
+dice «Mostrando las 5 más buscadas de N comunas» cuando hay más de cinco, y
+`MetricsData` suma `comunasTotal` para poder decirlo.
+
+Los `ellipsis` tampoco eran cinco sino **seis**, y no cubrían lo anotado: los de
+`LeadRow` son nombre, comuna, **intención**, presupuesto y plazo —no teléfono—;
+el teléfono se recortaba en el sexto, el `DRow` genérico de la línea 141.
+
+### Qué pasa de verdad al cancelar una visita
+
+Verificado antes de escribir el texto, porque ya se había escrito una
+consecuencia falsa en otro panel:
+
+1. Lo único que se escribe es `visitas.estado = 'cancelada'`. **No hay DELETE.**
+2. La tarjeta desaparece porque `loadVisitas` filtra `estado=pendiente`.
+3. **Al cliente no le llega nada.** El worker
+   (`sdm-captacion-worker-project/index.js`) solo hace POST a `visitas` cuando
+   el lead califica; no lee `estado` en ningún punto.
+4. `leads.status` **no** se toca al cancelar, aunque al confirmar sí se pone
+   `visita_confirmada`. Asimetría real, ver Pendientes.
+
+### El banner del modal de edición NO pasa por `avisarError`
+
+Es la única escritura del panel que no lo hace, y es deliberado: `avisarError`
+levanta un `alert()`, y ahí el modal ya está abierto con lo que se escribió — el
+aviso saldría **encima** del formulario y habría que descartarlo antes de poder
+corregir el campo. El banner inline dice lo mismo sin interrumpir. Lo que sí se
+conserva es el `console.error` con el objeto completo, que es la parte de
+`avisarError` que sirve para depurar. Lo que se fue es el `error.message` de
+Postgres, en inglés y hablando de columnas.
+
+### El mapa de colores no concatenaba alfa
+
+Era la condición de parada del encargo. Se revisó a **todos** los consumidores
+antes de tocar el mapa: cero concatenaciones. Los seis valores se usan enteros,
+en objetos `style` o interpolados en un `1px solid ${...}`, así que van como
+`var()` y no como hex espejo.
+
+La única excepción eran los dos iconos de `lucide-react` con
+`color={COLORS.muted}`: esa prop termina en el atributo `stroke` del SVG, donde
+`var()` no es de fiar. Pasaron a `style={{ color }}` — lucide dibuja con
+`currentColor` por defecto. Medido en el navegador: el icono resuelve a
+`rgb(95, 113, 131)`, que es `--muted`.
+
+### Ratios de contraste medidos
+
+| par | antes | después | |
+|---|---|---|---|
+| `--muted` / blanco | 3.33 | **5.03** | AA |
+| `--muted` / `--off` | 3.10 | **4.81** | AA |
+| `--error` / blanco | 3.93 | **6.30** | AA |
+| `--error` / `#fde2e1` | 3.21 | **5.14** | AA |
+| `--navy-dark` / blanco | 15.91 | 15.71 | AA |
+| blanco / `--navy-dark` | 15.91 | 15.71 | AA |
+| `--muted` / `--off` en `SCORE_NULL` | 2.94 | **4.81** | AA |
+
+`SCORE_NULL` y `ROL_FALLBACK` dejaron su `#eef1f4` de paso: son ausencia de
+calificación y rol desconocido, o sea neutros del sistema, y sobre ese gris
+`--muted` daba 4.44:1 — corto para un texto de 11 px.
+
+### EL ESTILO DEL RÓTULO VA EN UN `<span>`, NUNCA EN EL `<label>`
+
+Los `<label>` ahora envuelven a su control, y en cuanto envuelven,
+`textTransform` y `letterSpacing` **se heredan hacia adentro**. Dejados en el
+`<label>`, todo lo tecleado sale en mayúsculas y espaciado: el `value` del estado
+queda bien y solo miente la pantalla. Es CSS válido, así que `tsc` no lo delata y
+el build pasa en verde. Por eso existe el componente `Rotulo`.
+
+Verificado en el navegador: **0 de 8 campos** heredan `text-transform` o
+`letter-spacing`.
+
+### Cómo se verificó, sin sesión de admin
+
+El panel exige sesión de Supabase. Se montó un banco de pruebas temporal
+—`banco.html` + `src/__banco.tsx`, más una copia del archivo en `ca9eba3`— que
+renderiza los componentes de presentación reales con datos falsos, para comparar
+antes/después. Se borró todo al terminar; `git status` quedó limpio y
+`Captacion.tsx` byte a byte igual al commit.
+
+Medido a 1280 / 768 / 375 px:
+
+| | antes | después |
+|---|---|---|
+| campos sin nombre accesible | 8 de 8 | **0 de 8** |
+| `outline` al enfocar | `none 0px` | `solid 2px rgb(45,128,85)`, offset 2px |
+| campos con transform heredado | — | **0 de 8** |
+| overflow horizontal | no | no |
+| errores de consola | 0 | 0 |
+
+### Lo que costó envolver en vez de recortar
+
+Alto de la fila colapsada de lead:
+
+| ancho | antes | después (datos cortos) | después (datos largos) |
+|---|---|---|---|
+| 1280 px | 58 px | 67 px | **96 px** |
+| 768 px | 80 px | 97 px | **145 px** |
+| 375 px | 198 px | 237 px | **321 px** |
+
+Se eligió «caben enteros» sobre «reorganizar la tarjeta», que era la disyuntiva
+del encargo. El dato completo vale más que la densidad, pero el número de 375 px
+es grande: tres leads llenan una pantalla de teléfono.
+
+### Pendientes que deja
+
+1. **Blanco sobre `--green` da 2.93:1 y no cumple AA.** Afecta al botón
+   «Confirmar visita» y a la burbuja del equipo; `--green` sobre blanco, al
+   rótulo «Equipo». Fallaba igual antes con `#4DB870` (2.50:1), así que no es
+   una regresión, pero ahora es lo único que falla en el panel. El arreglo es
+   `--green-dark`, que da **4.85:1** en los dos sentidos. No entraba en este
+   encargo: cambia el color de un botón principal y es decisión de diseño.
+2. **La fila de lead a 375 px mide 321 px** con datos largos. Si molesta, la
+   salida es mostrar menos columnas en el resumen y dejar el resto al detalle.
+3. **`leads.status` no se toca al cancelar una visita**, pero sí al confirmarla.
+   Un lead cancelado se queda en `visita_pendiente` para siempre.
+4. **El `<div>` clicable de la fila de lead** sigue sin ser un `<button>`. Venía
+   de la tanda 3 de accesibilidad y no entraba acá.
+5. Las paletas de insignia —`#fde2e1`/`#c0392b`, `#fdedd6`/`#c8740a`,
+   `#dde7f6`/`#2c5da0`— y los colores del banner de modo siguen siendo literales
+   propios. No son la paleta paralela que se estaba eliminando: son una familia
+   semántica aparte, sin equivalente en `globals.css`.
