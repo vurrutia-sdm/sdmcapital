@@ -263,7 +263,12 @@ export default function FichaClienteDetalle() {
                           style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1 }}>
                           <Trash2 aria-hidden="true" size={14} />
                         </button>
-                        <ChevronRight size={16} style={{ color: '#c0cdd8' }} />
+                        {/* `--muted` y no el gris de antes: el chevron dice «esta fila lleva a
+                            otra pantalla», o sea es un componente de interfaz y no
+                            decoración, así que 1.4.11 le pide 3:1. `#c0cdd8` daba
+                            1.62:1. Es además el color que usan los demás iconos
+                            secundarios del admin. */}
+                        <ChevronRight size={16} style={{ color: 'var(--muted)' }} />
                       </div>
                     </div>
                   )

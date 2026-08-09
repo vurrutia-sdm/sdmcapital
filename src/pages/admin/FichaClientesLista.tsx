@@ -199,7 +199,8 @@ export default function FichaClientesLista() {
                       style={{ position: 'relative', zIndex: 2, background: 'none', border: 'none', cursor: isDel ? 'not-allowed' : 'pointer', color: 'var(--error)', padding: 4, display: 'flex', alignItems: 'center', opacity: isDel ? 0.5 : 1, flexShrink: 0 }}>
                       <Trash2 aria-hidden="true" size={15} />
                     </button>
-                    <ChevronRight size={16} style={{ color: '#c0cdd8', flexShrink: 0 }} />
+                    {/* Ver la nota de FichaClienteDetalle: 1.62:1 → 5.03:1. */}
+                    <ChevronRight size={16} style={{ color: 'var(--muted)', flexShrink: 0 }} />
                   </div>
                 </div>
               )
