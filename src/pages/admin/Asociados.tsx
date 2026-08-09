@@ -13,7 +13,6 @@ import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
 import { SaveBtn, Guardado, useGuardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { useDragSort } from '@/components/admin/useDragSort'
-import { ControlesOrden, moverEnLista } from '@/components/admin/ordenTeclado'
 
 export default function Asociados() {
   const [items, setItems]     = useState<Asociado[]>([])
@@ -24,8 +23,7 @@ export default function Asociados() {
   const load = () => supabase.from('asociados').select('*').order('orden').then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
-  // UN SOLO CAMINO DE GUARDADO para el arrastre y para el teclado. Ver Equipo.
-  const guardarOrden = async (reordered: Asociado[]) => {
+  const { items: sorted, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
     const fallo = (await Promise.all(reordered.map((a, i) => supabase.from('asociados').update({ orden: i + 1 }).eq('id', a.id)))).find(r => r.error)
     // CORTA ANTES DEL `load()`, igual que Propiedades y Equipo. Un PATCH por
     // fila no es una transacción: si falla a media lista, unas quedan con el
@@ -35,10 +33,7 @@ export default function Asociados() {
     // reintentar soltando otra vez.
     if (avisarError('No se pudo guardar el nuevo orden de los asociados', fallo?.error ?? null)) return
     load()
-  }
-
-  const { items: sorted, setItems: setSorted, arrastrando, filaProps, manijaProps } = useDragSort(items, guardarOrden)
-  const moverAsociado = moverEnLista(sorted, setSorted, guardarOrden)
+  })
 
   const save = async () => {
     if (!editing) return
@@ -105,14 +100,9 @@ export default function Asociados() {
           <div key={a.id} {...filaProps(i)}
             className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab flex flex-col items-center text-center"
             style={{ opacity: arrastrando === i ? 0.45 : 1 }}>
-            <div className="flex items-center gap-2" style={{ margin: '0 0 4px' }}>
-              <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: '-10px -4px -10px -10px' }}>
-                <GripVertical size={16} strokeWidth={2} style={{ color: 'var(--muted)' }} />
-              </span>
-              <ControlesOrden zona="asociados" clave={a.id} nombre={a.nombre || 'este asociado'}
-                puedeSubir={i > 0} puedeBajar={i < sorted.length - 1}
-                onMover={dir => moverAsociado(i, dir)} />
-            </div>
+            <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: '-10px -10px -2px' }}>
+              <GripVertical size={16} strokeWidth={2} style={{ color: 'var(--muted)' }} />
+            </span>
             {a.logo
               ? <img src={a.logo} alt={a.nombre} style={{ height: 44, objectFit: 'contain', maxWidth: '100%', marginBottom: 10 }} />
               : <div style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}><span className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{a.nombre}</span></div>

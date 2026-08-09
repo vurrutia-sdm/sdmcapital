@@ -139,7 +139,6 @@ export function TarjetasEquipo() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [saving,   setSaving]   = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
-  const [moving,   setMoving]   = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -216,20 +215,6 @@ export function TarjetasEquipo() {
     await load()
   }
 
-  const move = async (idx: number, dir: -1 | 1) => {
-    const target = idx + dir
-    if (target < 0 || target >= tarjetas.length) return
-    const a = tarjetas[idx]
-    const b = tarjetas[target]
-    setMoving(a.id)
-    const fallo = (await Promise.all([
-      supabase.from('tarjetas_equipo').update({ orden: b.orden }).eq('id', a.id),
-      supabase.from('tarjetas_equipo').update({ orden: a.orden }).eq('id', b.id),
-    ])).find(r => r.error)
-    setMoving(null)
-    avisarError('No se pudo reordenar las tarjetas', fallo?.error ?? null)
-    await load()
-  }
 
   // ── Vista formulario ────────────────────────────────────────────────────────
   if (editing !== null) {
@@ -293,22 +278,6 @@ export function TarjetasEquipo() {
                 </div>
               </div>
 
-              {/* Reordenar. En movil va a la derecha de la miniatura, en su misma
-                  linea; en lg vuelve a su columna entre el texto y las acciones. */}
-              <div className="order-2 ml-auto flex gap-1 lg:order-none lg:ml-0 lg:flex-col">
-                <button className="text-sdm-sm min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
-                  onClick={() => move(i, -1)}
-                  disabled={i === 0 || moving === t.id}
-                  title="Subir"
-                  style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: i === 0 ? 'default' : 'pointer', color: i === 0 ? 'var(--border)' : 'var(--navy-dark)', padding: '2px 8px' }}
-                >▲</button>
-                <button className="text-sdm-sm min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
-                  onClick={() => move(i, 1)}
-                  disabled={i === tarjetas.length - 1 || moving === t.id}
-                  title="Bajar"
-                  style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: i === tarjetas.length - 1 ? 'default' : 'pointer', color: i === tarjetas.length - 1 ? 'var(--border)' : 'var(--navy-dark)', padding: '2px 8px' }}
-                >▼</button>
-              </div>
 
               {/* Acciones. Debajo de lg: fila propia con borde superior, con
                   Imprimir / PDF junto a Editar y Eliminar en vez de flotando

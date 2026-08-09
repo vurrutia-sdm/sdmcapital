@@ -35,7 +35,6 @@ import { SaveBtn, Badge, Guardado, useGuardado } from '@/components/admin/accion
 import { RichTextEditor } from '@/components/admin/RichTextEditor'
 import type { Dispatch, SetStateAction } from 'react'
 import { useDragSort, usePointerSort } from '@/components/admin/useDragSort'
-import { ControlesOrden, moverEnLista } from '@/components/admin/ordenTeclado'
 
 // ─── PROYECTOS NUEVOS — opciones ───────────────────────────────────────────────
 const FECHA_ENTREGA_OPTIONS = [
@@ -167,7 +166,6 @@ function UnidadesEditor({ items, onChanged }: { items: UnidadPropiedad[]; onChan
     onChanged(next)
   }
   const { arrastrando, filaProps, manijaProps } = usePointerSort(items, aplicarOrden, () => {})
-  const moverUnidad = moverEnLista(items, aplicarOrden, () => {})
 
   const editar = (i: number, cambio: Partial<UnidadPropiedad>) =>
     onChanged(items.map((u, j) => j === i ? { ...u, ...cambio } : u))
@@ -200,9 +198,6 @@ function UnidadesEditor({ items, onChanged }: { items: UnidadPropiedad[]; onChan
                   style={{ ...manijaProps.style, color: 'var(--muted)', padding: '10px 8px', margin: '-10px -4px -10px -8px', flexShrink: 0 }}>
                   <GripVertical size={16} strokeWidth={2} />
                 </span>
-                <div className="order-first"><ControlesOrden zona="unidades" clave={String(i)} nombre={u.piso ? `Piso ${u.piso}` : `Unidad ${i + 1}`}
-                  puedeSubir={i > 0} puedeBajar={i < items.length - 1}
-                  onMover={dir => moverUnidad(i, dir)} /></div>
 
                 <label className="order-2 w-full lg:w-[140px] lg:flex-shrink-0">
                   <span className="lg:hidden text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Piso</span>
@@ -347,8 +342,6 @@ const upload = async (files: FileList) => {
     onChange(next, imagenPrincipal || next[0] || '')
   }
 
-  const moverImagen = moverEnLista(imagenes, aplicarOrden, () => {})
-
   // Sin trabajo al soltar: cada paso del reordenamiento en vivo ya paso por
   // onChange, que es como esta lista llega al formulario.
   const { arrastrando, filaProps, manijaProps } = usePointerSort(imagenes, aplicarOrden, () => {})
@@ -381,11 +374,6 @@ const upload = async (files: FileList) => {
                     <Star size={11} strokeWidth={2} />PORTADA
                   </div>
                 )}
-                <div style={{ position: 'absolute', bottom: 4, right: 4 }}>
-                  <ControlesOrden zona="fotos-propiedad" clave={String(i)} nombre={`Foto ${i + 1}`}
-                    puedeSubir={i > 0} puedeBajar={i < imagenes.length - 1}
-                    onMover={dir => moverImagen(i, dir)} />
-                </div>
                 <div {...manijaProps} style={{ ...manijaProps.style, position: 'absolute', bottom: 0, left: 0, background: 'rgba(0,0,0,0.45)', borderRadius: '0 3px 0 2px', padding: '8px 10px', display: 'flex' }}>
                   <svg width="7" height="10" viewBox="0 0 7 10" fill="white" opacity="0.7">
                     <circle cx="1.5" cy="1.5" r="1.2"/><circle cx="5.5" cy="1.5" r="1.2"/>
@@ -612,8 +600,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
     }
   }
 
-  // UN SOLO CAMINO DE GUARDADO para el arrastre y para el teclado.
-  const guardarOrdenPropiedades = async (reordered: Propiedad[]) => {
+  const { items: dragged, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
     // SOLO `orden`. Este PATCH escribía además `destacada: i < 6`, y eso se fue.
     //
     // El Inicio no lee `destacada` salvo como respaldo: toma los IDs de la clave
@@ -643,14 +630,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
     // intentarlo soltando otra vez en vez de rearmar el orden desde cero.
     if (avisarError('No se pudo guardar el nuevo orden de las propiedades', fallo?.error ?? null)) return
     load()
-  }
-
-  const { items: dragged, setItems: setDragged, arrastrando, filaProps, manijaProps } = useDragSort(items, guardarOrdenPropiedades)
-
-  // El teclado guarda por el MISMO camino que el arrastre: `useDragSort` expone
-  // su setter y su callback, así que los ▲▼ hacen el mismo `splice` y entregan
-  // el array al mismo sitio que escribe `orden` en Supabase.
-  const moverPropiedad = moverEnLista(dragged, setDragged, guardarOrdenPropiedades)
+  })
 
   const displayItems = [...dragged]
     .filter(p => showInactive ? true : p.activo !== false)
@@ -1099,20 +1079,10 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
                     Con el arrastre desactivado la manija no se dibuja: un asa
                     que no agarra nada es peor que ninguna. */}
                 <td className="order-first lg:table-cell lg:py-3 lg:pr-2" style={{ color: 'var(--muted)' }}>
-                  {/* MISMA GUARDA QUE EL ARRASTRE. Los ▲▼ hacen el mismo
-                      `splice` sobre el array del hook, así que con una columna
-                      ordenada reintroducirían el desfase de índices exactamente
-                      igual: si no se puede arrastrar, tampoco se puede mover
-                      con teclado, y la etiqueta ya explica por qué. */}
                   {arrastreActivo && (
-                    <div className="flex items-center gap-1">
-                      <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: '8px 10px', margin: '-8px -6px -8px -10px' }}>
-                        <GripVertical size={16} strokeWidth={2} />
-                      </span>
-                      <ControlesOrden zona="propiedades" clave={p.id} nombre={p.titulo || 'esta propiedad'}
-                        puedeSubir={idx > 0} puedeBajar={idx < dragged.length - 1}
-                        onMover={dir => moverPropiedad(idx, dir)} apilado />
-                    </div>
+                    <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: '8px 10px', margin: '-8px -10px' }}>
+                      <GripVertical size={16} strokeWidth={2} />
+                    </span>
                   )}
                 </td>
                 {/* El numero de orden a secas es ruido en movil: no se puede

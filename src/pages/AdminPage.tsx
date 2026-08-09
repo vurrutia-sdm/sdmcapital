@@ -4,7 +4,6 @@ import { Building2, ClipboardList, CreditCard, ExternalLink, FileText, HeartHand
 import type { LucideIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { usePointerSort } from '@/components/admin/useDragSort'
-import { ControlesOrden, moverEnLista } from '@/components/admin/ordenTeclado'
 import Mensajes from '@/pages/admin/Mensajes'
 import Blog from '@/pages/admin/Blog'
 import Equipo from '@/pages/admin/Equipo'
@@ -106,12 +105,8 @@ export default function AdminPage() {
   // El sidebar no usa `useDragSort` sino solo su mecánica: su orden vive en
   // localStorage y en este estado local, no llega por props, así que la
   // sincronización que hace `useDragSort` acá sobraría y pelearía.
-  const guardarOrdenTabs = (next: typeof tabs) =>
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next.map(t => t.key)))
-  const { arrastrando, filaProps, manijaProps } = usePointerSort(tabs, setTabs, guardarOrdenTabs)
-  // El teclado guarda por el mismo camino: mismo `splice`, mismo `setTabs` y el
-  // mismo `localStorage.setItem` que el arrastre.
-  const moverTab = moverEnLista(tabs, setTabs, guardarOrdenTabs)
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(tabs, setTabs, next =>
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next.map(t => t.key))))
 
   // Alto real del header, medido justo antes de abrir el cajón. Ver el comentario
   // del efecto: mientras el cajón está abierto el header deja de ser `sticky` y
@@ -228,12 +223,12 @@ export default function AdminPage() {
             Arrastra para ordenar
           </div>
           {tabs.map((t, i) => (
-            // Los ▲▼ van FUERA del <button> de la pestaña: un botón dentro de
-            // otro botón es HTML inválido y los lectores lo resuelven como
-            // quieren. El envoltorio lleva `filaProps` para que el arrastre
-            // siga agarrando toda la fila igual que antes.
-            <div key={t.key} className="flex items-center" {...filaProps(i)}>
-            <button type="button"
+            // <button> y no <div>: cambia de pestaña, así que trae foco, Enter
+            // y Espacio sin código. `filaProps` solo esparce data-*,
+            // onPointerDown y onClickCapture, que funcionan igual acá.
+            // `aria-current` marca la pestaña activa, que hasta ahora solo se
+            // distinguía por el color y el borde izquierdo.
+            <button key={t.key} type="button" {...filaProps(i)}
               aria-current={tab === t.key ? 'page' : undefined}
               onClick={() => { setTab(t.key); setMenuAbierto(false) }} className="flex items-center gap-3 transition-all duration-150 text-sdm-sm"
               style={{ width: '100%', textAlign: 'left', border: 'none', fontFamily: 'inherit', padding: '11px 16px', fontWeight: tab === t.key ? 600 : 300, color: tab === t.key ? 'var(--navy-dark)' : 'var(--muted)', background: tab === t.key ? 'var(--sky-pale)' : 'transparent', borderLeft: tab === t.key ? '3px solid var(--green)' : '3px solid transparent', cursor: 'grab', userSelect: 'none', opacity: arrastrando === i ? 0.45 : 1 }}>
@@ -246,10 +241,6 @@ export default function AdminPage() {
               <t.icon size={16} strokeWidth={1.75} style={{ flexShrink: 0 }} />
               {t.label}
             </button>
-            <ControlesOrden zona="sidebar" clave={t.key} nombre={t.label}
-              puedeSubir={i > 0} puedeBajar={i < tabs.length - 1}
-              onMover={dir => moverTab(i, dir)} />
-            </div>
           ))}
           {/* ── Herramientas ── */}
           <div style={{ borderTop: '1px solid var(--border)', marginTop: 12, paddingTop: 12 }}>

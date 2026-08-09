@@ -21,7 +21,6 @@ import type { Dispatch, SetStateAction } from 'react'
 import { BarChart3, Briefcase, Check, GripVertical, Info, Pause, X, Building, Camera, Eye, EyeOff, FileText, FolderTree, HeartHandshake, Home, Image, MapPin, MessageCircle, Smartphone, Users, Wallet } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { usePointerSort } from '@/components/admin/useDragSort'
-import { ControlesOrden, moverEnLista } from '@/components/admin/ordenTeclado'
 import { avisarError } from '@/lib/errores'
 import { subirImagen } from '@/lib/subirImagen'
 import { invalidateContenidoCache } from '@/hooks/useContenido'
@@ -105,9 +104,6 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
   // Sin trabajo al soltar: el reordenamiento en vivo ya dejó el orden escrito
   // en `d`, y a Supabase se sube cuando se guarda el panel.
   const { arrastrando, filaProps, manijaProps } = usePointerSort(urls, aplicarOrden, () => {})
-  // Sin trabajo al soltar: `aplicarOrden` ya escribe. El teclado usa el mismo
-  // setter, así que guarda por donde guarda el arrastre.
-  const moverFoto = moverEnLista(urls, aplicarOrden, () => {})
 
   const compressImage = (file: File): Promise<Blob> =>
     new Promise((resolve) => {
@@ -156,11 +152,6 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
                 <>
                   <img src={url} alt={`Foto ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: d[HERO_POS_KEYS[i]] || 'center center', display: 'block' }} />
                   <div className="text-sdm-xs" style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontWeight: 700, width: 20, height: 20, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
-                  <div style={{ position: 'absolute', bottom: 6, left: 6 }}>
-                    <ControlesOrden zona="hero" clave={String(i)} nombre={`Foto ${i + 1} del carrusel`}
-                      puedeSubir={i > 0} puedeBajar={i < filled.length - 1}
-                      onMover={dir => moverFoto(i, dir)} />
-                  </div>
                   <div {...manijaProps} style={{ ...manijaProps.style, position: 'absolute', top: 6, right: 28, background: 'rgba(0,0,0,0.5)', borderRadius: 3, padding: '2px 4px' }}>
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="white" opacity="0.8"><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/></svg>
                   </div>
@@ -232,9 +223,8 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
     onChange(JSON.stringify(next.map(x => x.id)))
   }
 
-  const guardarSeleccion = (next: Propiedad[]) => onChange(JSON.stringify(next.map(x => x.id)))
-  const { arrastrando, filaProps, manijaProps } = usePointerSort(selected, setSelected, guardarSeleccion)
-  const moverDestacada = moverEnLista(selected, setSelected, guardarSeleccion)
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(selected, setSelected,
+    next => onChange(JSON.stringify(next.map(x => x.id))))
 
   const thumb = (p: Propiedad) => thumbUrl(p.imagen_principal || p.imagenes?.[0] || '')
   const precio = (p: Propiedad) => p.a_consultar ? 'A consultar' : p.precio_uf ? `UF ${p.precio_uf.toLocaleString('es-CL')}` : '—'
@@ -253,9 +243,6 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
               <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: '-10px -4px -10px -10px', flexShrink: 0 }}>
                 <GripVertical size={14} strokeWidth={2} style={{ color: 'var(--muted)' }} />
               </span>
-              <ControlesOrden zona="destacadas" clave={p.id} nombre={p.titulo || 'esta propiedad'}
-                puedeSubir={i > 0} puedeBajar={i < selected.length - 1}
-                onMover={dir => moverDestacada(i, dir)} />
               <span className="text-sdm-sm" style={{ fontWeight: 700, color: 'var(--green)', minWidth: 20 }}>{i + 1}</span>
               {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
               <div style={{ flex: 1, minWidth: 0 }}>
