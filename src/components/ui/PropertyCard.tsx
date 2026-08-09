@@ -41,6 +41,15 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
   // Imágenes cuadradas (foto + texto SDM) deben verse completas; fotos normales mantienen el recorte cover
   const [isSquareImg, setIsSquareImg] = useState(false)
 
+  // Solo los specs que EXISTEN. `0` y `null` cuentan como ausentes: cero
+  // dormitorios no es un dato que valga la pena mostrar en una ficha, y es lo
+  // que traen las propiedades que no los cargaron.
+  const specs = [
+    { valor: propiedad.dormitorios,      etiqueta: p.dormitorios },
+    { valor: propiedad.banos,            etiqueta: p.banos },
+    { valor: propiedad.superficie_total, etiqueta: p.superficie },
+  ].filter((s): s is { valor: number; etiqueta: string } => typeof s.valor === 'number' && s.valor > 0)
+
   // Badge de estado (vendida/reservada/arrendada) y badge secundario (precio rebajado o bono pie) — pueden coexistir
   const estadoBadge = ESTADO_BADGES[propiedad.estado] || null
   // Las dos van en --oportunidad, no en el rojo de «Vendida». Son ventajas
@@ -151,32 +160,25 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
           <span style={{ width: 12, height: 1, background: 'var(--muted)', display: 'inline-block' }} />
           {propiedad.comuna} · {propiedad.region}
         </div>
-        <div className="flex gap-4 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
-          {propiedad.dormitorios !== undefined && (
-            <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
-              <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
-                {propiedad.dormitorios || '—'}
-              </strong>
-              {p.dormitorios}
-            </div>
-          )}
-          {propiedad.banos !== undefined && (
-            <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
-              <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
-                {propiedad.banos || '—'}
-              </strong>
-              {p.banos}
-            </div>
-          )}
-          {propiedad.superficie_total !== undefined && (
-            <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
-              <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
-                {propiedad.superficie_total || '—'}
-              </strong>
-              {p.superficie}
-            </div>
-          )}
-        </div>
+        {/* SIN DATO NO HAY GUION, Y SIN NINGÚN DATO NO HAY FILA.
+            La guarda era `!== undefined`, y los campos vacíos llegan como `null`
+            o `0`, que la pasan: se dibujaban tres guiones con el mismo peso
+            visual que tres números. Un guion no dice si el dato no existe, no
+            aplica o es cero — mejor no ocupar el sitio.
+            Son 15 de las 71 activas, casi todas proyectos nuevos donde el número
+            de un departamento no representa al edificio. */}
+        {specs.length > 0 && (
+          <div className="flex gap-4 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
+            {specs.map(({ valor, etiqueta }) => (
+              <div key={etiqueta} className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
+                <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
+                  {valor}
+                </strong>
+                {etiqueta}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Info de proyecto nuevo — etapa y fecha de entrega */}
         {propiedad.categoria === 'proyecto_nuevo' && (propiedad.etapa_construccion || propiedad.fecha_entrega) && (
