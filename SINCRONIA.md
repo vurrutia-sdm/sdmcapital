@@ -129,6 +129,8 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 6: los menores | 70 iconos decorativos ocultos, estado en los 3 controles de dos estados, `.sr-only` nueva en **`globals.css`** y los 13 tokens tipográficos a `rem` en **`globals.css` y `tailwind.config.js`, ZONA COMPARTIDA**. **El reordenamiento por teclado NO se hizo** | Cerrada — commits `b306c5a`, `49fef29`, `ea2ea11` y `248e418` |
 | 2026-08-08 | Contenido — cierre de la inconsistencia internacional | 12 textos de «el mundo» pasan a «Chile y Paraguay» —**`src/lib/i18n.ts` y `functions/blog/[slug].js`, ZONA COMPARTIDA y dominio Sofía**— y se borra el material muerto de los seis destinos | Cerrada — commits `48d38dd` y `2fb2712` |
 | 2026-08-09 | Captación — cierre de los nueve pendientes | **Invasión de dominio autorizada: `Captacion.tsx`. Se cierran los nueve hallazgos que quedaron pendientes de las auditorías de UX copy, color y accesibilidad. No se toca la lógica del bot ni sus escrituras a Supabase** | Cerrada — commits `77d216c`, `166bca2`, `d0ba68e`, `92030bf` y `d236092`. **Ya no queda ningún módulo con excepciones de auditoría.** Deja 5 pendientes nuevos, el primero es blanco sobre `--green` a 2.93:1 |
+| 2026-08-09 | Captación — insignias de lead a token | **CAMBIO EN ZONA COMPARTIDA: nacen seis tokens `--lead-*` en `src/styles/globals.css`** (tres de texto y tres de fondo) para la escala Hot/Warm/Cold, que vivía como literales en `Captacion.tsx` y fallaba contraste en dos de los tres. Solo los consume `Captacion.tsx`; no toca ninguna clase existente | En curso |
+| 2026-08-09 | Captación — cerrar el ciclo de la visita | Sección «Visitas confirmadas» y acción «Marcar como realizada». Solo `src/pages/admin/Captacion.tsx` | En curso |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -6341,3 +6343,99 @@ y `Warm` comparten familia con `Cold`, que sí cumple, así que la corrección
 natural es oscurecer los dos tonos de texto —no los fondos— hasta 4.5, y usar
 ese ámbar oscuro también en el botón «Tomar control». Es un cambio en ZONA
 COMPARTIDA y toca la identidad de las insignias: va en su propia tanda.
+
+---
+
+## Captación — la escala Hot/Warm/Cold pasa a token — 2026-08-09
+
+**CAMBIO EN ZONA COMPARTIDA:** seis tokens nuevos en `src/styles/globals.css`.
+No tocan ninguna clase existente y su único consumidor es `Captacion.tsx`.
+
+```
+--lead-hot        #9A0410   sobre su fondo  7.15:1   (antes 4.44, fallaba)
+--lead-warm       #A95704   sobre su fondo  4.51:1   (antes 3.06, fallaba)
+--lead-cold       #2C5DA0   sobre su fondo  5.29:1   (sin cambio de valor)
+--lead-hot-fondo  #FDE2E1
+--lead-warm-fondo #FDEDD6
+--lead-cold-fondo #DDE7F6
+```
+
+**El fondo también es token.** A diferencia de `--estado-*` —blanco sobre color
+sólido—, estas insignias son texto de color sobre fondo teñido. Con el texto en
+`globals.css` y el fondo como literal en `Captacion.tsx`, la relación de
+contraste quedaba partida en dos archivos y no había forma de verificarla.
+
+### AVISO DE MÉTODO: la matriz de daltonismo importa, y hay que declararla
+
+La simulación que se usó acá es **Viénot, Brettel & Mollon (1999)** sobre RGB
+lineal. Da resultados **~2 puntos más generosos** que la usada en la revisión de
+agosto: en el par Vendida/Oportunidad bajo protanopia, esta matriz da **12.2**
+donde aquella anotó **10.2**.
+
+**Cualquier medición futura de ΔE bajo daltonismo tiene que decir con qué matriz
+se hizo, o los números no son comparables con los de la otra tanda.** Los de
+esta sección son todos con Viénot 1999.
+
+El instrumental se validó antes de usarlo: reproduce exacto los contrastes ya
+documentados (Vendida 5.44, Reservada 7.22) y los controles clásicos de ΔE2000
+(blanco/negro 100, rojo/verde 86.6).
+
+### En Hot/Warm, contraste y distinguibilidad tiran en direcciones OPUESTAS
+
+Es el mismo muro que tuvo «Reservada», y conviene tenerlo escrito porque no es
+intuitivo:
+
+- `#C8740A` **no se puede salvar aclarando el fondo**. Para llegar a 4.5
+  necesitaría un fondo de luminancia **1.291** y el máximo físico es 1.0; ni
+  sobre blanco puro pasa de 3.52. Oscurecer el texto no era una opción de
+  diseño, era la única salida.
+- Pero **al oscurecerlo colapsa contra el rojo de Hot bajo protanopia**: ΔE2000
+  de 6.4. Desglosado, `#7E3E07` y `#BD3728` se convierten en `#514600` y
+  `#5F5525` — el mismo a\* (−2.8 los dos), solo los separa algo de claridad.
+  Rojo contra naranja es justo el par que esas condiciones funden.
+
+O sea: el ámbar claro de antes **se distinguía (ΔE 11.4) pero no se leía
+(3.06)**. Arreglar la lectura rompía la distinción. Por eso se movieron los dos
+colores y no solo el ámbar, aunque Hot «solo» fallara por 0.06.
+
+La curva de intercambio que se midió:
+
+| margen exigido | Hot | Warm | peor par |
+|---|---|---|---|
+| ΔE > 10 | `#9C2416` | `#A95704` | 10.2 — **peor que hoy** |
+| **ΔE > 12** | **`#9A0410`** | **`#A95704`** | **12.0** ← elegida |
+| ΔE > 14 | `#6F203E` | `#B24D00` | 14.0 — Hot deja de ser rojo |
+| ΔE > 16 | — | — | sin solución |
+
+Peor par del sistema, con los pares que **sí coexisten** en el panel:
+
+| par | normal | protanopia | deuteranopia | peor |
+|---|---|---|---|---|
+| Hot / Warm | 18.7 | 13.2 | 12.0 | **12.0** |
+| Hot / `--error` | 13.7 | 15.3 | 10.6 | 10.6 |
+| Warm / `--error` | 27.5 | 21.2 | 14.0 | 14.0 |
+| Hot / Cold | 42.3 | 43.7 | 49.0 | 42.3 |
+| Warm / Cold | 46.4 | 49.0 | 53.7 | 46.4 |
+
+### `--estado-vendida` contra `--lead-warm` da 3.4 — pero nunca coexisten
+
+`#C0392B` y `#A95704` están a ΔE **3.4**: para cualquiera serían el mismo color.
+Hoy no importa porque viven en pantallas distintas —`--estado-*` en fichas de
+propiedad, `--lead-*` en el panel de Captación— y **no hay ninguna vista que
+muestre las dos familias a la vez**.
+
+**Si algún día se juntan, ese es el par a mirar primero.** Contra
+`--estado-reservada`, en cambio, hay margen de sobra: Warm 33.3 y Hot 28.7.
+
+### Los fondos de las insignias colapsan, y está bien
+
+Hot/Warm ΔE 6.5 bajo deuteranopia, Hot/Cold 9.4 bajo protanopia. **No es un
+fallo:** la insignia dice «Hot», «Warm», «Cold» con todas sus letras, así que el
+color es codificación redundante y 1.4.1 se cumple por el texto. Es también la
+razón por la que 12.0 alcanza y no hace falta perseguir 20.
+
+### Medido en el navegador
+
+Los seis pares dan exactamente los ratios documentados. De paso, las métricas
+«Pendientes» y «Realizadas» dejaron sus literales y pasaron de 3.52 y 6.60 a
+**5.18** y **6.60** sobre blanco: antes cumplían solo por ser texto de 24 px.

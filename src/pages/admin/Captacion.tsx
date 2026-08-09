@@ -147,10 +147,15 @@ const COLORS = {
   red: 'var(--error)',
 }
 
+// Los seis literales de esta escala pasaron a `globals.css` como familia
+// `--lead-*`, con su ratio documentado al lado de cada uno. Warm daba 3.06:1 y
+// Hot 4.44:1; ahora los tres cumplen. El porqué de mover Hot —que fallaba por
+// 0.06— está en el comentario del bloque: al oscurecer Warm para que se lea,
+// colapsa contra el rojo bajo protanopia, y había que mover los dos.
 const SCORE_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
-  hot:  { bg: '#fde2e1', fg: '#c0392b', label: 'Hot' },
-  warm: { bg: '#fdedd6', fg: '#c8740a', label: 'Warm' },
-  cold: { bg: '#dde7f6', fg: '#2c5da0', label: 'Cold' },
+  hot:  { bg: 'var(--lead-hot-fondo)',  fg: 'var(--lead-hot)',  label: 'Hot' },
+  warm: { bg: 'var(--lead-warm-fondo)', fg: 'var(--lead-warm)', label: 'Warm' },
+  cold: { bg: 'var(--lead-cold-fondo)', fg: 'var(--lead-cold)', label: 'Cold' },
 }
 // «Sin calificar» no es una insignia de color propio como Hot/Warm/Cold: es la
 // ausencia de calificación, así que va con los neutros del sistema. Sobre el
@@ -630,7 +635,11 @@ function ModoToggleBanner({ lead, onModoChange }: {
       <button className="text-sdm-sm tracking-sdm-normal" type="button" onClick={toggleModo} disabled={togglingModo}
         style={{ padding: '12px 22px', fontWeight: 700, borderRadius: 6, fontFamily: 'inherit', border: 'none', color: '#fff', whiteSpace: 'nowrap',
           cursor: togglingModo ? 'default' : 'pointer',
-          background: isManual ? COLORS.greenDark : '#c8740a',
+          // `--lead-warm` como FONDO con texto blanco encima: 5.18:1. Acá el
+          // ámbar significa precaución —vas a pausar a Sofía—, no prioridad
+          // media de un lead. Se reutiliza el token en vez de duplicar el
+          // valor bajo otro nombre; antes era `#c8740a` y daba 3.52:1.
+          background: isManual ? COLORS.greenDark : 'var(--lead-warm)',
           opacity: togglingModo ? 0.6 : 1,
           boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
         {togglingModo ? 'Guardando…' : isManual ? '🤖 Devolver a Sofía' : '✋ Tomar control'}
@@ -720,9 +729,9 @@ function ManualSendBox({ lead, onSent }: {
 
 // ── Sección 0: Métricas (resumen) ────────────────────────────────────────────
 const VISITA_ESTADO_STYLE = {
-  pendientes: '#c8740a',
+  pendientes: 'var(--lead-warm)',
   confirmadas: COLORS.greenDark,
-  realizadas: '#2c5da0',
+  realizadas: 'var(--lead-cold)',
 }
 
 function Stat({ label, value, color }: { label: string; value: number; color?: string }) {

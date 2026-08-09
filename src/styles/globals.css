@@ -45,6 +45,44 @@
     --estado-arrendada: #2563EB;  /* 5.17:1 */
     --oportunidad:      #2D8055;  /* = --green-dark, 4.85:1 */
 
+    /* ─── PRIORIDAD DE LEAD ────────────────────────────────────────────────
+       Tercera familia, la del panel de Captación: qué tan caliente está un
+       lead. NO se mezcla con las dos de arriba —esas hablan de propiedades—
+       y de hecho nunca coinciden en pantalla.
+
+       A diferencia de ESTADO y OPORTUNIDAD, estas insignias son texto de
+       color sobre un fondo teñido, no blanco sobre un fondo sólido. Por eso
+       el fondo también es token: con el texto acá y el fondo como literal en
+       `Captacion.tsx`, la relación de contraste quedaba partida en dos
+       archivos y no había forma de verificarla de un vistazo.
+
+       Vivían como seis literales en `Captacion.tsx`. Dos de los tres pares
+       no cumplían: Warm daba 3.06:1 y Hot 4.44:1. */
+    --lead-hot:         #9A0410;  /* sobre --lead-hot-fondo:  7.15:1 */
+    --lead-warm:        #A95704;  /* sobre --lead-warm-fondo: 4.51:1 · blanco encima: 5.18:1 */
+    --lead-cold:        #2C5DA0;  /* sobre --lead-cold-fondo: 5.29:1 */
+    --lead-hot-fondo:   #FDE2E1;
+    --lead-warm-fondo:  #FDEDD6;
+    --lead-cold-fondo:  #DDE7F6;
+
+    /* Por qué Hot se movió si «solo» fallaba por 0.06:
+       Warm NO se podía arreglar sin oscurecerlo —ningún fondo lo salva:
+       #C8740A necesitaría un fondo de luminancia 1.291 y el máximo es 1.0—, y
+       al oscurecerlo colapsa contra el rojo de Hot bajo protanopia: ΔE2000 de
+       6.4, el mismo muro que tuvo «Reservada». Rojo contra naranja es
+       justamente el par que esas condiciones funden.
+
+       Contraste y distinguibilidad tiran en direcciones OPUESTAS en este par:
+       el ámbar claro de antes se distinguía (ΔE 11.4) pero no se leía (3.06).
+       La única salida era mover los dos. El peor par del sistema queda en
+       ΔE 12.0 bajo deuteranopia, por encima del umbral de 10 y mejor que el
+       11.4 que había.
+
+       `--lead-warm` lo usa TAMBIÉN el botón «Tomar control» del banner de
+       modo, como fondo con texto blanco (5.18:1). Ahí el ámbar significa
+       precaución, no prioridad media; se reutiliza el token en vez de
+       duplicar el valor bajo otro nombre. */
+
     /* Por qué «Reservada» es FRÍA y no ámbar:
        En ámbar (#B45309, y antes #D97706) daba ΔE2000 de 2.1 contra «Vendida»
        BAJO DEUTERANOPIA — la forma más común de daltonismo, ~6 % de los
