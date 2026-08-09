@@ -7292,3 +7292,71 @@ Si se quita algún día, hay que quitarlo en las tres a la vez. Y conviene tener
 presente que el campo permite escribir números repetidos o con huecos que el
 siguiente arrastre normaliza en silencio: es un segundo escritor sobre el mismo
 concepto, igual en las tres.
+
+---
+
+## «Proyectos Nuevos» es una vitrina, no una categoría — 2026-08-09
+
+Commit `cab1c37`. Cierra el caso que empezó con el departamento nuevo en arriendo
+de San Joaquín.
+
+### El registro estaba bien; faltaba el filtro de la ruta
+
+`categoria` y `estado` son ejes ortogonales y el modelo admite «nuevo Y en
+arriendo». Lo que fallaba es que `/proyectos-nuevos` filtraba **solo** por
+`categoria='proyecto_nuevo'`, sin mirar el estado, así que un arriendo aparecía
+entre proyectos con bono pie y entrega inmediata.
+
+```js
+if (categoria === 'proyecto_nuevo') q = q.not('estado', 'in', '(en_arriendo,arrendada)')
+```
+
+### LA DISTINCIÓN QUE DECIDE EL CASO, y que conviene no perder
+
+**«Proyectos Nuevos» es una VITRINA COMERCIAL** de unidades en venta: bono pie,
+entrega inmediata, etapa de construcción. Un arriendo no pertenece ahí aunque el
+inmueble sea nuevo.
+
+**«Propiedades Usadas» es una CATEGORÍA DEL INVENTARIO.** Una casa usada en
+arriendo sigue siendo una casa usada, así que **no lleva filtro equivalente**.
+Excluir arriendos ahí dejaría **5 propiedades** —2 `en_arriendo` + 3
+`arrendada`— alcanzables solo desde el filtro de estado, casi el doble de las
+que salen de proyectos nuevos.
+
+Son dos rutas que se parecen y no son lo mismo. Si alguien «unifica» su
+comportamiento por simetría, rompe una de las dos.
+
+### Qué se queda dentro
+
+`vendida` y `reservada` **siguen apareciendo** en la vitrina, con su insignia
+como en el catálogo general: son unidades que sí se ofrecieron ahí, y sacarlas
+haría desaparecer proyectos enteros a medida que se colocan. `--estado-vendida` y
+`--estado-reservada` existen justo para eso.
+
+### El vacío nuevo dice DÓNDE están, no solo que ahí no
+
+Con el filtro, `/proyectos-nuevos?estado=en_arriendo` da **cero siempre**. El
+vacío genérico —«Ninguna propiedad coincide con estos filtros»— sería cierto y
+desorientador a la vez: el visitante concluiría que no hay arriendos cuando sí
+los hay.
+
+`ArriendosEnElCatalogo` lo explica y lleva el enlace con el filtro ya puesto,
+para no obligar a rehacer la búsqueda. Es la misma idea que `SinArriendos`, que
+capta cuando de verdad no hay ninguno; **son dos vacíos distintos y no deben
+fundirse**: uno dice «todavía no tenemos», el otro «no están aquí, están allá».
+
+### Verificado
+
+| ruta | fichas | ¿la de San Joaquín? |
+|---|---|---|
+| `/proyectos-nuevos` | 14 de 15 | **no** |
+| `/propiedades?estado=en_arriendo` | 3 | **sí** |
+| `/propiedades` | 69 | sí |
+| `/propiedades-usadas` | 54 | no (es proyecto nuevo) |
+| `/proyectos-nuevos?estado=en_arriendo` | 0 → vacío nuevo | — |
+| `/proyectos-nuevos?estado=arrendada` | 0 → vacío nuevo | — |
+
+> Los totales subieron respecto del reporte previo —15 proyectos nuevos y 69
+> activas, no 14 y 68— porque se publicó una propiedad entre medio. El filtro
+> saca exactamente una: la de San Joaquín, la única `proyecto_nuevo` que no está
+> `en_venta`.
