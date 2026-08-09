@@ -928,7 +928,13 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
 
           <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14 }}>Características</div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* `items-end`: los rótulos de esta fila envuelven a distinta
+                cantidad de líneas según el ancho —«Superficie construida m²»
+                ocupa tres líneas a 390px donde «Superficie total m²» ocupa dos—
+                y sin esto los inputs quedaban a 16px de distancia. Pegando las
+                celdas abajo comparten línea de base sea cual sea el alto del
+                rótulo. */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-end">
               <Field label="Dormitorios"><Inp type="number" value={editing.dormitorios || ''} onChange={v => setEditing(p => ({ ...p, dormitorios: Number(v) }))} /></Field>
               <Field label="Baños"><Inp type="number" value={editing.banos || ''} onChange={v => setEditing(p => ({ ...p, banos: Number(v) }))} /></Field>
               <Field label="Superficie total m²"><Inp type="number" value={editing.superficie_total || ''} onChange={v => setEditing(p => ({ ...p, superficie_total: Number(v) }))} /></Field>
@@ -1013,7 +1019,20 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
 
           <div className="bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px', marginBottom: 20 }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}><Briefcase size={14} strokeWidth={2} />Comisión y Beneficios</div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* `items-end` EN LA FILA, no alturas fijas en los campos.
+                La celda de la derecha lleva la casilla «Bono Pie» encima de su
+                campo, así que es más alta que la de la izquierda. Con el
+                `stretch` por defecto las dos celdas ocupaban toda la fila pero
+                su contenido quedaba pegado arriba, y los dos inputs terminaban a
+                31px de distancia.
+                Con `items-end` cada celda se pega abajo: el input de cada una
+                queda en el borde inferior de la fila y comparten línea de base.
+                Aguanta que el rótulo envuelva o que la casilla crezca, porque no
+                depende de ninguna altura escrita a mano.
+                Va en ESTA fila y no en `Field`: hacerlo global empujaría los
+                campos cortos al fondo en las filas donde conviven con un
+                `<Txa>`, que hoy están bien alineadas. */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <Field label="Comisión corredora (%)">
                 <Inp type="number" value={editing.comision_porcentaje ?? 2}
                   onChange={v => setEditing(p => ({ ...p, comision_porcentaje: Number(v) }))} placeholder="2" />

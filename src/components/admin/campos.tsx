@@ -23,6 +23,32 @@ import { useState, useEffect, useRef, useId } from 'react'
 //
 // Solo sirve para un control etiquetable. Para `ImageUploader`,
 // `RichTextEditor` y `PropImageManager` va `FieldGroup`, que no usa <label>.
+// CUANDO DOS CAMPOS DE UNA FILA NO ALINEAN, EL ARREGLO VA EN LA FILA.
+//
+// `Field` es una columna flex y en una rejilla se estira a lo alto de la fila,
+// pero su contenido queda pegado ARRIBA. Si una celda es más alta que su vecina
+// —porque lleva una casilla encima, un texto de ayuda, o un rótulo que envuelve
+// a más líneas—, los dos inputs terminan a distinta altura.
+//
+// La solución es `items-end` EN EL CONTENEDOR DE LA REJILLA, no aquí: pega cada
+// celda al borde inferior y los inputs comparten línea de base sea cual sea el
+// alto de lo que llevan encima. No depende de ninguna altura escrita a mano, así
+// que aguanta un rótulo más largo o una ayuda que crezca.
+//
+// NO PONERLO EN `Field` NI POR DEFECTO EN TODAS LAS REJILLAS. En las filas donde
+// un campo corto convive con un `<Txa>`, `items-end` hundiría el corto hasta el
+// fondo de la celda del textarea; hoy esas filas están bien porque el `stretch`
+// por defecto las deja arriba. Se aplica fila por fila, donde hace falta.
+//
+// LA OTRA CAUSA, ESA SÍ GLOBAL, VIVE EN `.input-line` (globals.css). El <select>
+// resolvía su interlínea a `normal` y el <input> a 24px, así que con el mismo
+// marcado medían 41px y 45px. En cualquier fila con los dos, la diferencia de
+// 4px se leía como desalineación. Se arregló ahí, en un solo sitio, fijando la
+// interlínea de los dos. No hace falta repetirlo campo por campo.
+//
+// Barrido de 2026-08-09 sobre los 13 paneles a 1440, 1280 y 390: tres filas
+// necesitaban `items-end` —dos de Propiedades y una de Cotizaciones— y el
+// desfase input/select lo cerró el `line-height` de `.input-line`.
 export function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-2">

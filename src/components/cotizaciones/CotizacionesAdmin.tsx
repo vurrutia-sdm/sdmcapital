@@ -446,7 +446,10 @@ function CotizacionWizard({
             <h3 className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)', marginBottom: 4 }}>
               Datos del cliente
             </h3>
-            <div className="grid grid-cols-2 gap-6">
+            {/* `items-end`: «Nombre completo *» envuelve a dos líneas a 390px
+                y «RUT» no, así que sus inputs quedaban a 17px de distancia.
+                Ver la nota de `Field` en campos.tsx. */}
+            <div className="grid grid-cols-2 gap-6 items-end">
               <Field label="Nombre completo *">
                 <Inp value={draft.cliente_nombre} placeholder="Juan Pérez" onChange={v => upd({ cliente_nombre: v })} />
               </Field>

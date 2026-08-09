@@ -133,6 +133,7 @@ línea o se marca como cerrada.
 | 2026-08-09 | Captación — cerrar el ciclo de la visita | Sección «Visitas confirmadas» y acción «Marcar como realizada». Solo `src/pages/admin/Captacion.tsx` | Cerrada — el ciclo pendiente → confirmada → realizada por fin tiene las tres etapas visibles |
 | 2026-08-09 | Deuda menor — cierre | **INVASIÓN DE DOMINIO sobre `src/pages/`, `src/components/` y `functions/`** (sesión web pública y sesión Sofía): 4 Pages Functions nuevas, header, SEO, chevron de fichas y unificación de `FLabel`. No toca `globals.css` | En curso |
 | 2026-08-09 | Teclado + TipTap | **INVASIÓN DE DOMINIO sobre `src/pages/` y `src/components/`**: reordenamiento por teclado en los 10 puntos de arrastre. Además TipTap 3.23.6 → 3.29.2, que toca `package.json` y `package-lock.json`, **ZONA COMPARTIDA** | Cerrada — commits `8435408`, `c9d563a` y `2a68f95` |
+| 2026-08-09 | Alineación de campos del admin | Barrido de los 13 paneles a 1440/1280/390. Tres filas con `items-end` (dos en Propiedades, una en Cotizaciones) y **un cambio en zona compartida**: `min-height` derivado en `.input-line` de `globals.css`, porque el `<select>` medía 41px contra los 45px del `<input>`. Afecta también al select de `/vende-con-nosotros`, que ahora empareja con sus inputs | Cerrado |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
