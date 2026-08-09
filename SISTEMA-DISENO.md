@@ -309,6 +309,11 @@ dibuja el anillo *fuera* del botón, así que contrasta con el fondo de página:
 blanco 4,85 · `--off` 4,64 · `--sky-pale` 4,37 · `--navy-dark` 3,24 ·
 `--navy-deeper` 3,70. Los cinco por encima del 3:1 de 1.4.11.
 
+**Cargando no es deshabilitado.** Los cuatro `<label>` de subida de imagen
+cambian su texto a «Subiendo…» y atenúan el fondo: eso es un estado de CARGA,
+no de deshabilitado, y no se unifica con él. La diferencia importa: un
+deshabilitado dice «no puedes», un cargando dice «espera».
+
 **`:disabled` es una sola regla al 50 %**, y cubre `[aria-disabled="true"]`
 porque 8 de los 23 elementos con estas clases son `<Link>` o `<a>`, donde el
 atributo `disabled` no existe. WCAG **exime** a los deshabilitados del requisito
@@ -338,7 +343,7 @@ oculto: pulsar «Foto del destino» abriría el diálogo de subida. Usa
 `role="group"` + `aria-labelledby` con un id de `useId()`, porque varios se
 montan más de una vez en la misma página.
 
-**El estilo del rótulo va en el `<span>`, nunca en el `<label>`.** Ver 5.3.
+**El estilo del rótulo va en el `<span>`, nunca en el `<label>`.** Ver 5.4.
 
 `Inp` y `Txa` mantienen el valor en estado local y solo llaman a `onChange` en
 el `onBlur`: evita que el panel entero se re-renderice con cada tecla.
@@ -607,7 +612,23 @@ Si escribes un componente con estados, **no permitas que el consumidor le pase
 `style` para el color**. Un inline en el estado normal gana también en hover,
 focus y active.
 
-### 5.2 Las utilidades de Tailwind ganan por capa a las reglas de componente
+### 5.2 `display: inline-block` no sobrevive dentro de un contenedor flex
+
+Un hijo de un contenedor flex se **blockifica**: `inline-block` pasa a `block`
+y `stretch` lo estira a lo ancho de la celda. En un elemento cuyo borde
+inferior subraya su texto, eso deja una regla desnuda.
+
+Medido en el bloque de blog del home: **638 px de línea para 128 px de texto**
+en la tarjeta grande y 425 para 52 en las pequeñas. Se corrige con
+`alignSelf: 'flex-start'`, que devuelve el elemento a su ancho de contenido.
+
+No confundir con el caso legítimo: cuando la diferencia entre el ancho del
+elemento y el de su texto es **padding** —las etiquetas de `/servicios`, las
+pestañas del buscador, `.btn-outline`— el borde delimita una caja y debe
+ocupar todo el ancho. La señal de que es un defecto es que el borde subraye
+una palabra, no que envuelva una caja.
+
+### 5.3 Las utilidades de Tailwind ganan por capa a las reglas de componente
 
 `disabled:opacity-60` en el marcado vence a `.btn-primary:disabled` de
 `globals.css`, aunque la especificidad sea la misma: las utilidades van en una
@@ -616,7 +637,7 @@ capa posterior.
 Consecuencia práctica: **unificar un estado en la clase no unifica nada** si los
 consumidores conservan su utilidad local. Hay que borrarlas.
 
-### 5.3 Un `<label>` que envuelve hereda al control
+### 5.4 Un `<label>` que envuelve hereda al control
 
 `text-transform` y `letter-spacing` son propiedades **heredadas**, y se aplican
 al texto que el usuario escribe dentro del input. Subirlas al `<label>` deja
@@ -626,13 +647,13 @@ todo lo tecleado en MAYÚSCULAS y con 2 px de separación entre letras, en los
 **No falla el build ni salta en consola: se descubre escribiendo.** Por eso el
 estilo del rótulo va en el `<span>`.
 
-### 5.4 `<img>` y `<a>` son arrastrables por defecto
+### 5.5 `<img>` y `<a>` son arrastrables por defecto
 
 En una lista con reordenamiento por arrastre, el arrastre nativo del navegador
 compite con el de la lista. Es la razón por la que `useDragSort` migró de la API
 HTML5 a Pointer Events.
 
-### 5.5 Los selectores por subcadena de atributo en `mobile.css`
+### 5.6 Los selectores por subcadena de atributo en `mobile.css`
 
 [`mobile.css`](./src/styles/mobile.css) tiene reglas como:
 
@@ -649,7 +670,7 @@ consola.
 
 Si tocas el `style` inline de una sección pública, comprueba `mobile.css`.
 
-### 5.6 `overflow-x: hidden` rompe `position: sticky`
+### 5.7 `overflow-x: hidden` rompe `position: sticky`
 
 `overflow-x: hidden` convierte al elemento en contenedor de scroll, y con `html`
 **y** `body` en `hidden` a la vez cualquier `sticky` del sitio deja de pegarse:
