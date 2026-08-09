@@ -75,7 +75,7 @@ export default function BlogPreviewSection() {
               <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(main)}</span>
             </div>
             <h3 className="font-serif font-normal tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-text-2xl),3vw,var(--sdm-display-sm))', color: 'var(--navy-dark)', lineHeight: 1.2, marginBottom: 16, flex: 1 }}>{getTitle(main)}</h3>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 2 }}>Leer artículo →</div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)', borderBottom: '1px solid currentColor', display: 'inline-block', alignSelf: 'flex-start', paddingBottom: 2 }}>Leer artículo →</div>
           </div>
         </Link>
 
@@ -99,7 +99,7 @@ export default function BlogPreviewSection() {
                   <span className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>{getFecha(post)}</span>
                 </div>
                 <h3 className="font-serif font-normal tracking-sdm-tight text-sdm-xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25, flex: 1, marginBottom: 16 }}>{getTitle(post)}</h3>
-                <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)', borderBottom: '1px solid currentColor', display: 'inline-block', paddingBottom: 1 }}>Leer →</div>
+                <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--muted)', borderBottom: '1px solid currentColor', display: 'inline-block', alignSelf: 'flex-start', paddingBottom: 1 }}>Leer →</div>
               </div>
             </Link>
           ))}
