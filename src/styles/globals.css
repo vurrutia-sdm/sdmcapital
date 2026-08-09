@@ -121,6 +121,32 @@
        un error, el problema reaparece. */
     --error: #A8384B;
 
+    /* ─── ESTADOS DE LOS BOTONES ───────────────────────────────────────────
+       EL HOVER CAMBIA EL COLOR, NO LA OPACIDAD.
+       Bajar la opacidad mezcla el botón con lo que tenga detrás, y eso arrastra
+       el contraste del texto hacia abajo justo cuando el usuario está apuntando.
+       Medido sobre blanco, `.btn-green` con `hover:opacity-90`:
+
+         opacidad 1.00 → #2D8055  4.85:1  cumple AA
+         opacidad 0.90 → #428D66  4.01:1  NO cumple
+         opacidad 0.80 → #579977  3.37:1  NO cumple
+
+       Con un tono más oscuro el contraste SUBE en vez de bajar, que es lo que
+       corresponde: el estado que indica «vas a pulsar esto» no puede ser el
+       menos legible de los tres.
+
+       Los valores que ya existían en la paleta se referencian en vez de
+       copiarse. Acabamos de arreglar un token que valía dos cosas por estar
+       escrito en dos sitios; no se vuelve a abrir esa puerta. */
+    --btn-primary-hover:  var(--navy-deeper);   /* #081828 · blanco encima 17.92:1 */
+    --btn-primary-active: #04101A;              /*           blanco encima 19.19:1 */
+    --btn-green-hover:    #246A46;              /*           blanco encima  6.51:1 */
+    --btn-green-active:   #1D5539;              /*           blanco encima  8.71:1 */
+    --btn-inverse-hover:  var(--sky-pale);      /* #EDF4F9 · navy encima   14.15:1 */
+    --btn-inverse-active: var(--sky-light);     /* #D4E6F1 · navy encima   12.26:1 */
+    --btn-text-hover:     var(--navy-dark);     /* #0F2535 · sobre blanco  15.71:1 */
+    --btn-text-active:    var(--navy-deeper);   /* #081828 · sobre blanco  17.92:1 */
+
     /* ─── ESCALA TIPOGRÁFICA ─────────────────────────────────────────────
        Espejo exacto de `fontSize` y `letterSpacing` en tailwind.config.js.
        Existen para poder escribir `fontSize: 'var(--sdm-text-sm)'` desde
@@ -262,7 +288,7 @@
   @keyframes admin-loading-in { from { opacity: 0; } to { opacity: 1; } }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-opacity duration-200 hover:opacity-90;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-colors duration-200;
     background: var(--navy-dark);
   }
   /* La contraparte de `.btn-primary` para fondo oscuro, no una excepción:
@@ -272,7 +298,7 @@
      Hace falta porque sobre un panel `--navy-dark` el propio `.btn-primary` es
      invisible: el botón y el fondo son el mismo color (1.00:1). */
   .btn-inverse {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase cursor-pointer rounded-[2px] transition-opacity duration-200 hover:opacity-90;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase cursor-pointer rounded-[2px] transition-colors duration-200;
     background: #FFFFFF;
     color: var(--navy-dark);
   }
@@ -282,7 +308,7 @@
      oscuros rinde bien (5.37:1 sobre --navy-dark). El problema es solo blanco
      ENCIMA de verde. */
   .btn-green {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-opacity duration-200 hover:opacity-90;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-[2px] transition-colors duration-200;
     background: var(--green-dark);
   }
   .btn-outline {
@@ -290,11 +316,67 @@
     color: rgba(255,255,255,0.65);
     border-color: rgba(255,255,255,0.25);
   }
-  .btn-outline:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+
+  /* ─── LOS CUATRO ESTADOS, PARA LAS CINCO VARIANTES ──────────────────────
+     Antes solo existían `default` y un hover por opacidad. `:active` no
+     existía en ninguna, y `:disabled` lo resolvía cada sitio por su cuenta:
+     de los 8 lugares que ponen `disabled` sobre un `.btn-*`, tres añadían su
+     propia opacidad —60 %, 50 %, 60 %— y los otros cinco no mostraban nada.
+
+     `:active` importa sobre todo en TÁCTIL. Ahí no hay hover, y hasta ahora
+     nada indicaba que el toque había registrado: el usuario volvía a pulsar.
+
+     `:focus-visible` NO lleva tratamiento propio y es deliberado. La regla
+     global `*:focus-visible { outline: 2px solid var(--green-dark) }` con
+     `outline-offset: 2px` dibuja el anillo POR FUERA del botón, así que
+     contrasta con el fondo de página y no con el botón. Medido contra los
+     cinco fondos donde aparecen: blanco 4.85:1, --off 4.64:1, --sky-pale
+     4.37:1, --navy-dark 3.24:1, --navy-deeper 3.70:1. Los cinco por encima
+     del 3:1 de 1.4.11. Un tratamiento por variante sería repetir lo que ya
+     funciona y arriesgar que una se quede atrás.
+
+     Las guardas `:not(:disabled):not([aria-disabled='true'])` no sobran: sin
+     ellas un botón deshabilitado seguiría reaccionando al ratón. Y el
+     `[aria-disabled]` tampoco: de los 23 elementos que llevan estas clases, 8
+     son <Link> o <a>, donde el atributo `disabled` no existe. */
+
+  .btn-primary:hover:not(:disabled):not([aria-disabled='true'])  { background: var(--btn-primary-hover); }
+  .btn-primary:active:not(:disabled):not([aria-disabled='true']) { background: var(--btn-primary-active); }
+
+  .btn-inverse:hover:not(:disabled):not([aria-disabled='true'])  { background: var(--btn-inverse-hover); }
+  .btn-inverse:active:not(:disabled):not([aria-disabled='true']) { background: var(--btn-inverse-active); }
+
+  .btn-green:hover:not(:disabled):not([aria-disabled='true'])    { background: var(--btn-green-hover); }
+  .btn-green:active:not(:disabled):not([aria-disabled='true'])   { background: var(--btn-green-active); }
+
+  /* `.btn-outline` vive sobre fondo oscuro y ya cambiaba de color, no de
+     opacidad: se conserva tal cual y solo se le añaden los dos estados que le
+     faltaban. El borde en reposo queda como está —`el default no se mueve`—
+     aunque da 2.27:1 contra --navy-dark y no llega al 3:1 de 1.4.11. Queda
+     reportado, no arreglado acá. */
+  .btn-outline:hover:not(:disabled):not([aria-disabled='true'])  { color: #fff; border-color: rgba(255,255,255,0.5); }
+  .btn-outline:active:not(:disabled):not([aria-disabled='true']) { color: #fff; border-color: rgba(255,255,255,0.65); }
+
+  .btn-text:hover:not(:disabled):not([aria-disabled='true'])     { color: var(--btn-text-hover);  border-color: var(--btn-text-hover); }
+  .btn-text:active:not(:disabled):not([aria-disabled='true'])    { color: var(--btn-text-active); border-color: var(--btn-text-active); }
+
+  /* WCAG EXIME A LOS CONTROLES DESHABILITADOS del requisito de contraste, así
+     que acá el criterio no es un ratio sino que se DISTINGA del habilitado.
+     0.5 se eligió por ser el punto medio de las tres opacidades que ya
+     convivían en el código (0.6 / 0.5 / 0.6), para que unificar no cambie el
+     aspecto de ninguno más de lo imprescindible. */
+  .btn-primary:disabled, .btn-primary[aria-disabled='true'],
+  .btn-inverse:disabled, .btn-inverse[aria-disabled='true'],
+  .btn-green:disabled,   .btn-green[aria-disabled='true'],
+  .btn-outline:disabled, .btn-outline[aria-disabled='true'],
+  .btn-text:disabled,    .btn-text[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
 
   .btn-text {
-    @apply inline-flex items-center gap-2 text-[13px] font-normal tracking-[2px] uppercase cursor-pointer border-b pb-0.5 transition-opacity duration-200 hover:opacity-70;
+    @apply inline-flex items-center gap-2 text-[13px] font-normal tracking-[2px] uppercase cursor-pointer border-b pb-0.5 transition-colors duration-200;
     color: var(--navy);
     border-color: var(--navy);
   }
