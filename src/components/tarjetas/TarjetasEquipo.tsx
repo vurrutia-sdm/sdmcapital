@@ -1,6 +1,7 @@
-import { Plus, Printer } from 'lucide-react'
+import { GripVertical, Plus, Printer } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { usePointerSort } from '@/components/admin/useDragSort'
 import { avisarError } from '@/lib/errores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
 import { Field } from '@/components/admin/campos'
@@ -152,6 +153,32 @@ export function TarjetasEquipo() {
 
   useEffect(() => { load() }, [load])
 
+  // ARRASTRE, igual que las otras tres listas del admin.
+  //
+  // Esta era la única sin él: se reordenaba con flechas ▲▼ que intercambiaban el
+  // `orden` de dos filas. Al quitarse las flechas se quedó sin ningún mecanismo
+  // salvo escribir el número a mano.
+  //
+  // El guardado pasa del INTERCAMBIO al RENUMERADO —`orden: i + 1` sobre la
+  // lista entera— por dos motivos: deja las cuatro listas con el mismo
+  // mecanismo, y elimina el fallo parcial del intercambio, donde si uno de los
+  // dos PATCH pasaba y el otro no quedaban dos tarjetas con el MISMO `orden` y
+  // el desempate lo decidía Postgres.
+  //
+  // Se comprobó que nadie más lee `tarjetas_equipo`: ni una página pública ni
+  // una Function. El renumerado no puede romper nada fuera de este panel.
+  const guardarOrden = async (reordered: Tarjeta[]) => {
+    const fallo = (await Promise.all(
+      reordered.map((t, i) => supabase.from('tarjetas_equipo').update({ orden: i + 1 }).eq('id', t.id))
+    )).find(r => r.error)
+    // Corta antes del `load()`, como las otras tres: un PATCH por fila no es una
+    // transacción, y recargar tras un fallo a media lista pinta la mezcla como
+    // si fuera lo que se pidió.
+    if (avisarError('No se pudo guardar el nuevo orden de las tarjetas', fallo?.error ?? null)) return
+    await load()
+  }
+  const { arrastrando, filaProps, manijaProps } = usePointerSort(tarjetas, setTarjetas, guardarOrden)
+
   const openCreate = () => {
     const maxOrden = tarjetas.reduce((m, t) => Math.max(m, t.orden ?? 0), 0)
     setEditingId(null)
@@ -259,9 +286,13 @@ export function TarjetasEquipo() {
           {tarjetas.map((t, i) => (
             <div
               key={t.id}
+              {...filaProps(i)}
               className="bg-white flex flex-wrap items-center gap-x-3 gap-y-2 p-3 lg:flex-nowrap lg:gap-5 lg:p-4"
-              style={{ border: '1px solid var(--border)', borderRadius: 2 }}
+              style={{ border: '1px solid var(--border)', borderRadius: 2, cursor: 'grab', opacity: arrastrando === i ? 0.45 : 1 }}
             >
+              <span {...manijaProps} className="order-first flex items-center" style={{ ...manijaProps.style, color: 'var(--muted)', padding: '10px 8px', margin: '-10px -4px -10px -8px', flexShrink: 0 }}>
+                <GripVertical size={16} strokeWidth={2} />
+              </span>
               <div className="order-1 lg:order-none"><Miniatura tarjeta={t} /></div>
 
               <div className="order-3 w-full min-w-0 lg:order-none lg:w-auto lg:flex-1">
@@ -282,7 +313,7 @@ export function TarjetasEquipo() {
               {/* Acciones. Debajo de lg: fila propia con borde superior, con
                   Imprimir / PDF junto a Editar y Eliminar en vez de flotando
                   encima del texto. 44px de alto tactil y 24px entre botones. */}
-              <div className="order-4 w-full flex items-center justify-end gap-6 mt-1 pt-2 border-t border-[#e8edf2] lg:order-none lg:w-auto lg:flex-col lg:items-end lg:gap-2 lg:mt-0 lg:pt-0 lg:border-t-0" style={{ flexShrink: 0 }}>
+              <div data-orden-quieto="" className="order-4 w-full flex items-center justify-end gap-6 mt-1 pt-2 border-t border-[#e8edf2] lg:order-none lg:w-auto lg:flex-col lg:items-end lg:gap-2 lg:mt-0 lg:pt-0 lg:border-t-0" style={{ flexShrink: 0 }}>
                 <button onClick={() => imprimirTarjeta(t)} className="btn-primary text-sdm-xs min-h-[44px] lg:min-h-0" style={{ padding: '8px 14px' }}>
                   <Printer aria-hidden="true" size={14} strokeWidth={2} /> Imprimir / PDF
                 </button>
