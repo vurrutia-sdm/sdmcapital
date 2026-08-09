@@ -23,6 +23,13 @@ const SERVICES = [
 //
 // LA PETICIÓN NO BLOQUEA EL PINTADO: sale en un `useEffect`, después del primer
 // render, y si falla se queda en guiones. Nunca un cero ni un valor de ayer.
+// El número, no su rótulo, es el dato. Blanco sobre `--navy-dark` da 15,71:1
+// contra los 8,68:1 del rótulo en `--sky`, y el peso medio lo separa sin
+// necesidad de subir el tamaño.
+function Cifra({ children }: { children: React.ReactNode }) {
+  return <span style={{ color: '#fff', fontWeight: 'var(--sdm-peso-medio)', letterSpacing: 'var(--sdm-tracking-normal)' }}>{children}</span>
+}
+
 function BarraIndicadores() {
   const [ind, setInd] = useState<Indicadores>({ uf: null, dolar: null })
 
@@ -41,15 +48,32 @@ function BarraIndicadores() {
     i && i.fecha && i.fecha.slice(0, 10) !== hoyISO ? ` (al ${fechaCorta(i.fecha)})` : ''
 
   return (
+    /* FONDO --navy-dark, Y SE DESCARTÓ --off CON UNA MEDICIÓN.
+       Compartiendo el blanco y el `--muted` del navbar, la barra se leía como
+       una segunda fila de menú. `--off` contra blanco da 1,05:1 —medido— y a
+       esa distancia el ojo no registra dos superficies: habría dejado el mismo
+       problema con una línea más. `--navy-dark` sí separa, y es la superficie
+       que el sistema ya usa para decir «esto es otra banda».
+
+       Y TRATAMIENTO TIPOGRÁFICO PROPIO, que es la mitad del arreglo. Un menú es
+       una fila de textos del mismo peso y color; en cuanto el número pesa más
+       que su rótulo deja de leerse como enlace. Los rótulos van en `--sky` y
+       los números en blanco con `--sdm-peso-medio`.
+
+       Los números salen de `tracking-sdm-wide`: la separación amplia ayuda a
+       leer una palabra en versalitas y estorba en una cifra, donde separa los
+       dígitos de sus propios miles.
+
+       Mismo alto de 26px: no crece. */
     <div
       className="hidden md:flex items-center justify-end gap-4 px-8 lg:px-12 text-sdm-xs tracking-sdm-wide"
-      style={{ height: 26, borderTop: '1px solid var(--border)', color: 'var(--muted)', textTransform: 'uppercase' }}
+      style={{ height: 26, background: 'var(--navy-dark)', color: 'var(--sky)', textTransform: 'uppercase' }}
     >
       <span>{hoyTexto}</span>
-      <span aria-hidden="true" style={{ color: 'var(--border)' }}>·</span>
-      <span>UF {ind.uf ? formatear(ind.uf.valor) : '—'}{sufijo(ind.uf)}</span>
-      <span aria-hidden="true" style={{ color: 'var(--border)' }}>·</span>
-      <span>Dólar {ind.dolar ? formatear(ind.dolar.valor) : '—'}{sufijo(ind.dolar)}</span>
+      <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
+      <span>UF <Cifra>{ind.uf ? formatear(ind.uf.valor) : '—'}</Cifra>{sufijo(ind.uf)}</span>
+      <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
+      <span>Dólar <Cifra>{ind.dolar ? formatear(ind.dolar.valor) : '—'}</Cifra>{sufijo(ind.dolar)}</span>
     </div>
   )
 }
