@@ -503,7 +503,7 @@ function CotizacionWizard({
                         key={p.id}
                         onClick={() => selectProp(p)}
                         className="w-full text-left"
-                        style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'none', cursor: 'pointer' }}
+                        style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '10px 16px', borderBottom: '1px solid var(--border-input)', background: 'none', cursor: 'pointer' }}
                       >
                         <span className="text-sdm-sm" style={{ fontWeight: 500, color: 'var(--navy-dark)' }}>{p.titulo}</span>
                         <span className="text-sdm-xs" style={{ color: 'var(--muted)' }}>
