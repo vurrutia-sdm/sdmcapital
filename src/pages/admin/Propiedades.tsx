@@ -607,7 +607,16 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
     // fila. Es el patrón que ya siguen Equipo y Asociados.
     const updates = reordered.map((p, i) => supabase.from('propiedades').update({ orden: i + 1 }).eq('id', p.id))
     const fallo = (await Promise.all(updates)).find(r => r.error)
-    avisarError('No se pudo guardar el nuevo orden de las propiedades', fallo?.error ?? null)
+    // CORTA ANTES DEL `load()`. Antes avisaba y recargaba igual, y esa recarga
+    // era la peor parte: los 65 PATCH no son una transacción, así que un fallo a
+    // media lista deja unas filas con el orden nuevo y otras con el viejo. Al
+    // recargar, la pantalla mostraba esa mezcla como si fuera el resultado
+    // pedido, encima del aviso que acababa de decir que algo había fallado.
+    //
+    // Sin recargar, la lista se queda como la dejó el arrastre: no es lo que hay
+    // en la base, pero es lo que la persona quiso, y le permite volver a
+    // intentarlo soltando otra vez en vez de rearmar el orden desde cero.
+    if (avisarError('No se pudo guardar el nuevo orden de las propiedades', fallo?.error ?? null)) return
     load()
   })
 
