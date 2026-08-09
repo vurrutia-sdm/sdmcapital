@@ -5520,3 +5520,122 @@ Chile & Paraguay
 Home y catálogo mejoran. Ficha, vende y admin se mueven dentro del ruido: sus
 rangos se solapan casi por completo (la ficha, por ejemplo, va de 368 a 468 ms
 antes y de 372 a 592 después).
+
+---
+
+## NO SE USAN DATOS DE MUESTRA EN PRODUCCIÓN
+
+Tres páginas arrancaban con arreglos de datos inventados y los pintaban hasta
+que llegaba la consulta. **Se borraron los tres.** Si alguien vuelve a
+necesitar relleno para desarrollar, que sea detrás de una bandera y nunca en el
+estado inicial de un componente.
+
+| Página | Arreglo | Qué inventaba |
+|---|---|---|
+| `HomePage` | `SAMPLE_PROPS` | 6 propiedades con enlaces a `/propiedades/1..6`, que no existen |
+| `AsociadosPage` | `SAMPLE_ASOCIADOS` | Portal Inmobiliario, BCI, Santander, CBRE, Century 21 como socios, con enlace a sus sitios reales |
+| `QuienesSomosPage` | `SAMPLE_EQUIPO` | Tres personas inventadas con cargo y biografía, presentadas como el equipo |
+
+### Las tres razones, en orden de gravedad
+
+**1 · Afirmaban relaciones comerciales que no existen.** Las propiedades falsas
+dan un enlace roto —`/propiedades/1` responde «Propiedad no encontrada»—, pero
+nombrar a cinco empresas reales como socias de SDM, y a tres personas que no
+existen como su equipo, es otra categoría de problema.
+
+**2 · Ante un fallo de red se quedaban para siempre.** El patrón era
+`if (data && data.length > 0) setX(data)`. Un error deja `data` en null, así que
+no se llamaba a `setX` y el estado inicial permanecía. No había ninguna rama que
+distinguiera «cargando» de «falló». Verificado bloqueando cada consulta: los
+tres arreglos seguían en pantalla.
+
+**3 · No eran un respaldo, eran relleno de desarrollo.** `SAMPLE_PROPS` viene
+del primer commit del repositorio (`61f0ab8`) con el comentario `Sample data for
+empty DB`, y sus seis registros no tienen `slug`. Un respaldo diseñado para el
+fallo no enlazaría a URLs inexistentes.
+
+### Lo que hay ahora
+
+Estado inicial `[]`, una bandera de tres valores —`cargando` / `listo` /
+`error`— y esqueletos (`src/components/ui/Esqueleto.tsx`) que reservan el
+espacio mientras carga. Con resultado vacío no se pinta nada; con error, un
+mensaje.
+
+Duración de los esqueletos, medida: home 138→450 ms, `/asociados` 99→360 ms,
+`/quienes-somos` 75→324 ms.
+
+**El LCP no sufre** porque el bloque de destacadas está bajo el pliegue: la
+primera ficha empieza en y=1181 px con un viewport de 813 px, y el elemento del
+LCP del home es el div del fondo del hero. Medido: 128 → 116 ms.
+
+### SUPABASE REINTENTA ~7 SEGUNDOS ANTES DE DARSE POR VENCIDO
+
+Al medir el estado de error apareció esto, que conviene tener presente para
+cualquier UI que dependa de una consulta:
+
+```
+petición 1 →  107 ms
+petición 2 → 1114 ms
+petición 3 → 3118 ms
+petición 4 → 7121 ms   ← recién acá resuelve
+```
+
+Con la red caída, el mensaje de error tarda **unos 7 segundos** en aparecer. Es
+correcto —hasta entonces todavía está intentando— pero explica por qué una
+sonda que mira a los 6 segundos concluye que la UI está colgada. Pasó: reporté
+que el mensaje no aparecía y era la sonda la que miraba temprano.
+
+> Y de paso, la parte que sí estaba mal en mi diagnóstico: creí que el builder
+> de supabase **rechazaba** ante un fallo de red. **No: resuelve con
+> `{ error: 'TypeError: Failed to fetch' }`.** Comprobado con una sonda en las
+> dos ramas. El segundo argumento de `then` queda igual, como red de seguridad,
+> pero no es el camino que se recorre.
+
+### La jerarquía de encabezados aguanta con y sin datos
+
+Verificadas las seis combinaciones (tres páginas × con datos / consulta
+bloqueada): **0 saltos de nivel** en todas. En `/quienes-somos` el bloque del
+equipo pierde sus tres `<h3>` y queda `<h2>` seguido de `<h2>`, que no es salto.
+
+`/propiedades/<algo que no existe>` era la única ruta del sitio que se
+renderizaba **sin ningún `<h1>`**: se saltó el contrato de la tanda 4. Ahora
+tiene su `<h1>` y un enlace de salida al catálogo.
+
+---
+
+## «Más de 10 países» y los seis «en Chile y el extranjero»
+
+Restos de la limpieza internacional que mi propia auditoría no encontró. Ahí
+busqué «el mundo» y los seis destinos, y reporté «ningún "el mundo" geográfico
+queda en el código» — cierto de lo que busqué, incompleto como barrido.
+
+**Lo falso**, que estaba vivo en `/quienes-somos`:
+
+> 04 · Red Global — «Presencia en más de 10 países.»
+
+Contradecía el contador del hero, que dice «2+ PAÍSES». Ahora:
+
+> 04 · Alcance regional — «Operamos en Chile y Paraguay. Acceso a oportunidades
+> inmobiliarias en ambos mercados.»
+
+Se eligió «Alcance regional» y no un rasgo de carácter porque **el bloque de
+valores ya mezcla las dos cosas**: el 02 («Más de 15 años en el mercado nos
+respaldan») también es un dato con número. El cuarto ítem siempre fue el que
+decía DÓNDE se opera; el problema era que el dato era falso, no que fuera un
+dato. Del texto de apoyo se cayó además «que otros no pueden ofrecer», que es
+incomprobable.
+
+El `<h2>` «Red global» de `/asociados` pasó a **«Red regional»**: su propio
+párrafo acota la red a Chile y Paraguay. Una red de socios sí puede ser más
+amplia que la operación —son cosas distintas— pero ese texto no dice eso.
+
+**Lo vago**, seis textos con «en Chile y el extranjero» (y sus versiones en
+inglés con «abroad»), todos a «Chile y Paraguay»: dos en `/quienes-somos`, dos
+en `/asociados`, uno en `/servicios` y los defaults de `hero_subtitulo`,
+`financiamiento_body` y `servicios_intro` en el admin. No eran falsos —Paraguay
+es el extranjero— pero reabrían la ambigüedad que se venía cerrando.
+
+**`servicio_banco_desc` se deja como está**: «abrir cuentas bancarias y acceder
+a servicios financieros en el extranjero» describe un servicio, no dónde opera
+SDM. Ahí «el extranjero» es correcto y acotarlo a Paraguay achicaría el
+servicio.
