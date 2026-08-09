@@ -563,14 +563,23 @@ export default function Propiedades() {
   }
 
   const { items: dragged, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
-    // `orden` va en el MISMO PATCH que ya se hacía, así que no cuesta ni un
-    // request más: son los mismos 65, uno por fila, y ahora llevan los dos
-    // campos. Es también el patrón de Equipo y Asociados.
+    // SOLO `orden`. Este PATCH escribía además `destacada: i < 6`, y eso se fue.
     //
-    // De paso deja de haber filas sin `orden`: 32 de las 65 lo tenían en NULL
-    // —las creadas después de que alguien numerara a mano las primeras— y en el
-    // catálogo caían todas al final, ordenadas como quisiera Postgres.
-    const updates = reordered.map((p, i) => supabase.from('propiedades').update({ orden: i + 1, destacada: i < 6 }).eq('id', p.id))
+    // El Inicio no lee `destacada` salvo como respaldo: toma los IDs de la clave
+    // `home_destacadas_ids` de `contenido_sitio`, que se administra en Contenido
+    // → «Propiedades destacadas en el Inicio». Esa clave tiene seis IDs válidos,
+    // así que el respaldo no corre nunca y lo que se escribía acá no cambiaba
+    // nada de lo que ve el visitante.
+    //
+    // Lo que sí hacía era pisar en silencio los seis `destacada` que alguien
+    // había puesto a mano. Se comprobó contra la base: las seis marcadas están
+    // en las posiciones 0, 1, 2, 31, 32 y 52 por antigüedad, o sea que NO son
+    // las primeras seis de ninguna lista — las eligió una persona, y cada
+    // arrastre se las llevaba por delante.
+    //
+    // `orden` va en el mismo PATCH de siempre: los mismos 65 requests, uno por
+    // fila. Es el patrón que ya siguen Equipo y Asociados.
+    const updates = reordered.map((p, i) => supabase.from('propiedades').update({ orden: i + 1 }).eq('id', p.id))
     const fallo = (await Promise.all(updates)).find(r => r.error)
     avisarError('No se pudo guardar el nuevo orden de las propiedades', fallo?.error ?? null)
     load()
