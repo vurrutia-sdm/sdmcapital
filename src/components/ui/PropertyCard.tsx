@@ -171,7 +171,19 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
           <div className="flex gap-4 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
             {specs.map(({ valor, etiqueta }) => (
               <div key={etiqueta} className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)' }}>
-                <strong className="font-serif block text-sdm-lg" style={{ fontWeight: 400, color: 'var(--navy-dark)' }}>
+                {/* SANS Y NO SERIF. En Cormorant Garamond el «1» es casi una I
+                    mayúscula: a 17px y en un dato que se compara entre
+                    propiedades, «1 1 34» se leía «I I 34».
+                    Es el ÚNICO numeral en serif por debajo de 18px del sitio —
+                    los contadores del hero van a 40px y ahí la fuente se lee
+                    bien—, así que el cambio no se propaga a ninguna otra
+                    superficie.
+                    El precio grande de arriba SE QUEDA en serif: a 24px el
+                    tamaño lo hace legible y es parte del carácter del sitio.
+                    Peso 500 y no 400: la sans a este tamaño pesa menos que la
+                    serif, y sin el ajuste el dato perdía presencia frente a su
+                    etiqueta. */}
+                <strong className="font-sans block text-sdm-lg" style={{ fontWeight: 500, color: 'var(--navy-dark)' }}>
                   {valor}
                 </strong>
                 {etiqueta}
