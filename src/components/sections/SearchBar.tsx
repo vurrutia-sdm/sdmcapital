@@ -46,7 +46,18 @@ const REGIONES = [
 
 function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
+    // `aria-pressed` y NO `role="switch"`: un switch es el encendido/apagado de
+    // una sola cosa —el banner promocional de Contenido—, y esto es un botón que
+    // queda hundido, como el «Activa/Pausada» de la lista de propiedades. Sin
+    // esto el lector decía «Comprar, botón» y «Arrendar, botón» sin ninguna
+    // pista de cuál estaba elegido: el estado solo vivía en el color.
+    //
+    // Lo PRECISO sería un `radiogroup`, porque las dos opciones son mutuamente
+    // excluyentes y `aria-pressed` no expresa esa exclusividad. Se descarta
+    // porque un radiogroup exige tabulación itinerante —una sola parada para el
+    // grupo, flechas entre opciones— y eso es reescribir el componente.
     <button className="text-sdm-xs tracking-sdm-wide"
+      aria-pressed={active}
       onClick={onClick}
       style={{ padding: '6px 20px', fontWeight: active ? 600 : 400, textTransform: 'uppercase',
         border: active ? '1px solid var(--navy-dark)' : '1px solid var(--border)',
@@ -69,6 +80,10 @@ function DropSelect({ label, options, value, onChange }: {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const selected = options.find(o => o.value === value) || options[0]
+  // `useId()` porque hay DOS DropSelect en la misma barra —Tipo y Precio— y dos
+  // ids iguales no fallan: se asocian al primero y dejan al segundo apuntando al
+  // panel del otro.
+  const panelId = useId()
 
   useEffect(() => {
     const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
@@ -78,7 +93,17 @@ function DropSelect({ label, options, value, onChange }: {
 
   return (
     <div ref={ref} className="relative">
-      <button className="text-sdm-sm" onClick={() => setOpen(v => !v)}
+      {/* `aria-expanded` dice si el panel está abierto, `aria-haspopup` que este
+          botón abre una lista y `aria-controls` cuál. Sin ellos el lector anunciaba
+          «Tipo · Todos los tipos, botón» y no había forma de saber que se había
+          desplegado nada.
+          `aria-controls` SOLO cuando está abierto: el panel se desmonta al cerrarse,
+          y un IDREF a un elemento inexistente es una referencia rota. */}
+      <button className="text-sdm-sm"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-controls={open ? panelId : undefined}
+        onClick={() => setOpen(v => !v)}
         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
           background: value ? 'var(--navy-dark)' : '#fff',
           color: value ? '#fff' : 'var(--ink)',
@@ -90,7 +115,7 @@ function DropSelect({ label, options, value, onChange }: {
         <ChevronDown aria-hidden="true" size={12} style={{ opacity: 0.6, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, minWidth: 200, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden', maxHeight: 320, overflowY: 'auto' }}>
+        <div id={panelId} style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, minWidth: 200, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden', maxHeight: 320, overflowY: 'auto' }}>
           {options.map(opt => (
             <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false) }}
               className={`text-sdm-base ${opt.value === value ? 'bg-[var(--sky-pale)] text-[var(--navy-dark)]' : 'bg-transparent text-[var(--muted)] hover:bg-[var(--off)]'}`}
