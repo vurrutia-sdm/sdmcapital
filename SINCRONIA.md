@@ -5294,3 +5294,112 @@ que ya pasaba con el preload. Es intencional: así lo que se sembró queda
 commiteado y revisable en el historial. Al deployar, `npm run build` regenera la
 semilla antes de `wrangler pages deploy`, así que lo que sube siempre está al día
 con la base en ese momento.
+
+---
+
+## La semilla se amplía a toda `contenido_sitio`
+
+Antes cubría 18 claves del hero. Ahora **las 148**, o sea la tabla entera.
+
+Se hizo por partes a propósito: primero el hero, para medir si el mecanismo
+valía la pena antes de extenderlo. Valió —flash 249 → 0 ms, LCP 408 → 164 ms—
+así que se amplió.
+
+Sembrar la tabla entera en vez de una lista tiene una ventaja que no es de peso:
+**no hay lista que mantener sincronizada**. Una clave nueva usada desde
+cualquier componente queda sembrada sola. La lista de 18 ya obligaba a acordarse
+de dos lugares.
+
+### Peso
+
+| | Antes | Después |
+|---|---|---|
+| `dist/index.html` sin comprimir | 5.927 B | 16.146 B |
+| `dist/index.html` gzip | 1.971 B | **5.514 B** |
+
++3.543 B comprimidos, al lado de los 67 kB gzip del bundle principal.
+
+### Flash, medido antes y después
+
+La medición fue difícil de hacer bien y conviene saber por qué, porque el
+método obvio da números falsos.
+
+Medir «texto que cambia después del primer pintado» cuenta secciones que montan
+tarde por `IntersectionObserver` y fichas de propiedades que vienen de otra
+tabla: así el home marcaba 5.669 ms de flash, que era mentira. Lo que funciona
+es **cargar la página con `contenido_sitio` bloqueada**: ese render es, por
+definición, lo que el visitante ve antes de que llegue la consulta. Si es igual
+al final, no hay flash posible por más que la consulta tarde.
+
+| Página | Flash antes | Flash después | LCP antes | LCP después |
+|---|---|---|---|---|
+| home | 292 ms | **0** | 144 ms | 128 ms |
+| catálogo | 0 | 0 | 744 ms | 736 ms |
+| ficha de propiedad | 269 ms | **0** | 528 ms | 384 ms |
+| /rental | 269 ms | **0** | 388 ms | 216 ms |
+| /vende-con-nosotros | 0 | 0 | 388 ms | 140 ms |
+| /admin | 0 | 0 | 116 ms | 104 ms |
+
+Ningún LCP empeora. El del catálogo llegó a marcar 764 → 784 ms con 6 muestras;
+con 15 por lado quedó 744 → 736. Era ruido.
+
+**El pie de página era el que más daño hacía**: está en todas las rutas
+públicas y sus teléfonos por defecto no son los de la base, así que en cada
+ficha y en /rental se veían ~270 ms los números viejos. Ese es el flash que
+desaparece.
+
+### Costo en el admin, que no usa nada de esto
+
+`/admin` **no consulta `contenido_sitio` ni una vez**. La semilla ahí es peso
+muerto:
+
+- +3,8 kB comprimidos en el HTML.
+- `JSON.parse` de las 148 claves: **0,067 ms**.
+- LCP 116 → 104 ms, sin penalización medible.
+- La pantalla de acceso carga normal: 2 campos, 1 botón, 16 nodos, 0 errores.
+
+### EL COMPROMISO, ahora para todo el sitio
+
+La semilla es de la hora del build. Si Víctor edita **cualquier** texto desde el
+admin y no hay deploy, el primer pintado muestra lo anterior y la consulta en
+vivo lo corrige — vuelve el flash hasta el siguiente deploy.
+
+Antes esa ventana valía solo para el hero. **Ahora vale para todo el sitio.**
+Sigue siendo mejor que el estado anterior, donde el flash era constante, pero es
+un comportamiento que depende de cuándo fue el último build y conviene tenerlo
+presente al mirar el sitio después de editar.
+
+### Dos cosas que aparecieron midiendo, y que la semilla NO arregla
+
+#### 1 · Hay consultas a `contenido_sitio` que no pasan por `useContenido`
+
+El catálogo pide `contenido_sitio?select=valor&clave=eq.catalogo_orden` y el
+home pide `clave=eq.home_destacadas_ids`, cada uno por su cuenta. Son consultas
+sueltas, así que **la semilla no las cubre**: el orden de las fichas del
+catálogo y la selección de destacadas del home siguen llegando tarde.
+
+Con la consulta bloqueada el catálogo muestra las mismas 54 fichas en otro
+orden. No es un flash de texto, pero la grilla se reordena a los ~300 ms.
+
+Se arreglarían leyendo esas dos claves desde `useContenido` —ya vienen en la
+semilla— en vez de con una consulta propia.
+
+#### 2 · `useContenido` dispara una consulta POR COMPONENTE, no una por página
+
+El caché de módulo solo funciona **después** de que vuelve la primera respuesta.
+Todos los componentes montan antes de eso, así que todos ven `cache === null` y
+todos lanzan su propia consulta. Medido con `PerformanceResourceTiming`:
+
+| Ruta | Consultas idénticas |
+|---|---|
+| home | 6 |
+| /rental | 4 |
+| ficha | 3 |
+| /vende-con-nosotros | 3 |
+| catálogo | 2 |
+
+Con la consulta bloqueada llegó a 20 en el home, porque al fallar nunca se
+llena el caché y cada reintento de render vuelve a pedir.
+
+Se resuelve guardando la promesa en vuelo a nivel de módulo, no solo el
+resultado. No se tocó en esta pasada.
