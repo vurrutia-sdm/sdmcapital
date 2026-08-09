@@ -1,5 +1,16 @@
 import { Link } from 'react-router-dom'
+import { ExternalLink } from 'lucide-react'
 import { useContenido } from '@/hooks/useContenido'
+
+// El footer va sobre navy, así que NINGÚN texto puede usar `--muted`: sobre
+// #0F2535 da 3,13:1 y no llega al 4,5 de 1.4.3. Medido para esta paleta:
+//
+//   #fff                      15,71:1   rótulos de columna
+//   rgba(255,255,255,0.8)     10,44:1   enlaces        (lo que ya usa ContactSection)
+//   rgba(255,255,255,0.6)      6,50:1   eslogan y pie
+//   --sky #A8C4DC              8,68:1   hover
+const TEXTO = 'rgba(255,255,255,0.8)'
+const TENUE = 'rgba(255,255,255,0.6)'
 
 const SOCIALS = [
   {
@@ -33,7 +44,7 @@ const SOCIALS = [
 function SocialIcon({ s, size = 13 }: { s: typeof SOCIALS[0]; size?: number }) {
   if (s.custom) {
     return (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="text-[#7a8a96] group-hover:text-white transition-colors">
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="transition-colors" style={{ color: 'currentColor' }}>
         <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.5"/>
         <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5"/>
         <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
@@ -41,7 +52,7 @@ function SocialIcon({ s, size = 13 }: { s: typeof SOCIALS[0]; size?: number }) {
     )
   }
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="text-[#7a8a96] group-hover:text-white transition-colors">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="transition-colors" style={{ color: 'currentColor' }}>
       <path d={s.path} stroke={s.filled ? undefined : 'currentColor'} fill={s.filled ? 'currentColor' : undefined} strokeWidth={s.filled ? undefined : '1.5'} strokeLinecap="round" strokeLinejoin="round"/>
       {s.circle && <circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="1.5"/>}
     </svg>
@@ -51,12 +62,26 @@ function SocialIcon({ s, size = 13 }: { s: typeof SOCIALS[0]; size?: number }) {
 export default function Footer() {
   const { get } = useContenido()
 
-  return (
-    <footer className="bg-white border-t border-[#e8edf2]">
-      <div className="px-8 lg:px-12 pt-16 pb-8">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-[#e8edf2] mb-6">
+  // Los dos teléfonos, etiquetados: juntos y sin distinguir, el visitante no
+  // sabía a cuál llamar. `telefono_1` ES el de WhatsApp — comprobado contra la
+  // clave `whatsapp`, que normalizada da el mismo número.
+  //
+  // Los defaults estaban CRUZADOS: telefono_1 traía el número que en la base
+  // es telefono_2, y telefono_2 uno que ya no existe. No se veía porque la base
+  // manda, pero al vaciar la clave habrían salido los equivocados.
+  const whatsapp = get('telefono_1', '+56 9 3747 8846')
+  const telefono = get('telefono_2', '+56 9 3103 8954')
+  const email    = get('email', 'contacto@sdmcapital.cl')
+  const waLink   = (get('whatsapp', '') || whatsapp).replace(/\D/g, '')
 
-          {/* Brand */}
+  const enlace = { display: 'block', fontWeight: 300, marginBottom: 8, textDecoration: 'none', color: TEXTO } as const
+
+  return (
+    <footer style={{ background: 'var(--navy-dark)' }}>
+      <div className="px-8 lg:px-12 pt-12 pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-7 mb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.15)' }}>
+
+          {/* Marca, eslogan y redes */}
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="logo-stripes">
@@ -65,98 +90,86 @@ export default function Footer() {
                 <div className="logo-stripe logo-stripe--navy" />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="font-serif text-[20px] font-semibold tracking-[3px]" style={{ color: 'var(--navy-dark)' }}>SDM</span>
-                <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginTop: 2, display: 'block' }}>Capital</span>
+                <span className="font-serif text-[20px] font-semibold tracking-[3px]" style={{ color: '#fff' }}>SDM</span>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: TENUE, marginTop: 2, display: 'block' }}>Capital</span>
               </div>
             </div>
-            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: 'var(--muted)', maxWidth: 220 }}>
+            {/* Sigue saliendo de contenido_sitio: no se convierte en texto fijo. */}
+            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: TENUE, maxWidth: 260, marginBottom: 20 }}>
               {get('footer_tagline', 'Tu socio confiable en bienes raíces.')}
             </p>
-          </div>
-
-          {/* Navegación */}
-          <div>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
-              Navegación
-            </div>
-            {[
-              { to: '/',              label: 'Inicio' },
-              { to: '/quienes-somos', label: 'Quiénes Somos' },
-              { to: '/propiedades',   label: 'Propiedades' },
-              { to: '/blog',          label: 'Blog' },
-              { to: '/rental',        label: 'SDM Rental' },
-              { to: '/vende-con-nosotros', label: 'Vende con nosotros' },
-              { to: 'https://www.flow.cl/uri/gHSdT2jVv', label: 'Reserva tu propiedad', external: true },
-            ].map(l => l.external ? (
-              <a className="text-sdm-base tracking-sdm-wide text-[var(--navy-dark)] hover:text-[var(--green)]" key={l.to} href={l.to} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'block', fontWeight: 300, marginBottom: 10, textDecoration: 'none' }}
-              >{l.label}</a>
-            ) : (
-              <Link className="text-sdm-base text-[var(--muted)] hover:text-[var(--navy-dark)]" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, textDecoration: 'none' }}
-              >{l.label}</Link>
-            ))}
-          </div>
-
-          {/* Servicios */}
-          <div>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
-              Servicios
-            </div>
-            {[
-              { to: '/servicios/financiamiento-personas', label: 'Financiamiento Personas' },
-              { to: '/servicios/financiamiento-empresas', label: 'Financiamiento Empresas' },
-              { to: '/servicios/inversion-internacional', label: 'Inversión Internacional' },
-            ].map(l => (
-              <Link className="text-sdm-base text-[var(--muted)] hover:text-[var(--navy-dark)]" key={l.to} to={l.to} style={{ display: 'block', fontWeight: 300, marginBottom: 10, textDecoration: 'none' }}
-              >{l.label}</Link>
-            ))}
-          </div>
-
-          {/* Síguenos */}
-          <div>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 20 }}>
-              Síguenos
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Solo el icono: el rótulo se va al aria-label. Los círculos miden
+                32px —por encima de los 24 de 2.5.8— y van a 12px, así que los
+                centros quedan a 44. */}
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
               {SOCIALS.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
-                  style={{ textDecoration: 'none', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'nowrap' }}>
-                  <div style={{ width: 32, height: 32, minWidth: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e8edf2', borderRadius: '50%' }}>
-                    <SocialIcon s={s} />
-                  </div>
-                  <span className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
-                    {s.label}
-                  </span>
+                  aria-label={`${s.label} de SDM Capital (se abre en una pestaña nueva)`}
+                  className="hover:text-[var(--sky)]"
+                  style={{ textDecoration: 'none', width: 32, height: 32, minWidth: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '50%', color: TEXTO }}>
+                  <SocialIcon s={s} />
                 </a>
               ))}
             </div>
           </div>
+
+          {/* Navegación */}
+          <div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#fff', marginBottom: 20 }}>
+              Navegación
+            </div>
+            {[
+              { to: '/',                   label: 'Inicio' },
+              { to: '/quienes-somos',      label: 'Quiénes Somos' },
+              { to: '/propiedades',        label: 'Propiedades' },
+              { to: '/rental',             label: 'SDM Rental' },
+              { to: '/vende-con-nosotros', label: 'Vende con nosotros' },
+              { to: '/blog',               label: 'Blog' },
+            ].map(l => (
+              <Link className="text-sdm-base hover:text-[var(--sky)]" key={l.to} to={l.to} style={enlace}>{l.label}</Link>
+            ))}
+            {/* Único enlace que sale del sitio. Antes se distinguía por color y
+                espaciado, que no significaban nada; ahora lleva la marca que sí
+                corresponde y se ve igual que sus vecinos. */}
+            <a className="text-sdm-base hover:text-[var(--sky)] inline-flex items-center gap-1.5"
+              href="https://www.flow.cl/uri/gHSdT2jVv" target="_blank" rel="noopener noreferrer"
+              aria-label="Reserva tu propiedad (se abre en una pestaña nueva)"
+              style={{ ...enlace, display: 'inline-flex' }}>
+              Reserva tu propiedad<ExternalLink aria-hidden="true" size={13} strokeWidth={2} />
+            </a>
+          </div>
+
+          {/* Contacto — sube al footer para que esté en TODAS las rutas. Sin
+              esto, /propiedades, /blog, /vende-con-nosotros y las tres legales
+              no tenían ningún dato de contacto: ContactSection solo se monta en
+              7 de las 13. */}
+          <div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#fff', marginBottom: 20 }}>
+              Contacto
+            </div>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: TENUE, marginBottom: 2 }}>WhatsApp</div>
+            <a className="text-sdm-base hover:text-[var(--sky)]" href={`https://wa.me/${waLink}`} target="_blank" rel="noopener noreferrer"
+              aria-label={`Escribir por WhatsApp al ${whatsapp} (se abre en una pestaña nueva)`}
+              style={{ ...enlace, marginBottom: 14 }}>{whatsapp}</a>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: TENUE, marginBottom: 2 }}>Teléfono</div>
+            <a className="text-sdm-base hover:text-[var(--sky)]" href={`tel:${telefono.replace(/\s/g, '')}`} style={{ ...enlace, marginBottom: 14 }}>{telefono}</a>
+            <a className="text-sdm-base hover:text-[var(--sky)]" href={`mailto:${email}`} style={enlace}>{email}</a>
+          </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--muted)', textAlign: 'center' }}>
-            © 2026 SDM Capital · Todos los derechos reservados · Diseño{' '}
-            <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer"
-              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
-            >HaikuFlow.com</a>
-            {' '}·{' '}
-            <Link to="/politica-de-privacidad"
-              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
-            >Política de Privacidad</Link>
-            {' '}·{' '}
-            <Link to="/condiciones-del-servicio"
-              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
-            >Condiciones del Servicio</Link>
-            {' '}·{' '}
-            <Link to="/eliminacion-de-datos"
-              className="text-[var(--muted)] hover:text-[var(--green)]" style={{ textDecoration: 'none', fontWeight: 400 }}
-            >Eliminación de Datos</Link>
-          </p>
-          <p className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--border)', textTransform: 'uppercase', textAlign: 'center' }}>
-            Las Condes · Santiago · Chile
-          </p>
-        </div>
+        {/* Pie — una sola frase corrida. Los enlaces van inline a propósito:
+            así siguen amparados por la excepción de 2.5.8 para objetivos
+            dentro de un bloque de texto. */}
+        <p className="text-sdm-sm" style={{ fontWeight: 300, color: TENUE, lineHeight: 1.9 }}>
+          © 2026 SDM Capital · Todos los derechos reservados{' · '}
+          <Link to="/politica-de-privacidad" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Política de Privacidad</Link>
+          {' · '}
+          <Link to="/condiciones-del-servicio" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Condiciones del Servicio</Link>
+          {' · '}
+          <Link to="/eliminacion-de-datos" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Eliminación de Datos</Link>
+          {' · '}
+          <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>By HaikuFlow.com</a>
+        </p>
       </div>
     </footer>
   )

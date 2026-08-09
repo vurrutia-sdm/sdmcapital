@@ -13,13 +13,19 @@ export default function ContactSection() {
   const comaIdx = direccion.indexOf(',')
   const horario = get('horario', 'Lunes a Viernes · 09:00 – 18:00')
 
+  // Solo Dirección y Horario. Los teléfonos y el email subieron al footer, que
+  // está en las 13 rutas públicas; esta sección solo se monta en 7, así que
+  // repetirlos acá era duplicar en unas pocas lo que ya está en todas.
+  //
+  // Dirección y Horario se quedan porque el footer NO los lleva —ocupaban
+  // cuatro renglones y no se consultan desde ahí— y no existen en ninguna otra
+  // parte del sitio: no hay ruta /contacto, solo el ancla #contacto que apunta
+  // a esta misma sección.
   const CONTACT_INFO = [
     {
       label: 'Dirección',
       lines: comaIdx >= 0 ? [direccion.slice(0, comaIdx), direccion.slice(comaIdx + 1).trim()] : [direccion],
     },
-    { label: 'Teléfono', lines: [get('telefono_1', '+56 9 3103 8954'), get('telefono_2', '+56 9 6191 2281')].filter(Boolean) },
-    { label: 'Email',    lines: [get('email', 'contacto@sdmcapital.cl')] },
     { label: 'Horario',  lines: horario.split('·').map(s => s.trim()).filter(Boolean) },
   ]
 

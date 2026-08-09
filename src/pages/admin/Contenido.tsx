@@ -320,7 +320,10 @@ export default function Contenido() {
     empresa_nombre: 'SDM Capital', tagline: 'Tu socio confiable en bienes raíces.',
     footer_tagline: 'Tu socio confiable en bienes raíces.',
     direccion: 'Av. Apoquindo 5583, Las Condes, Santiago',
-    telefono_1: '+56 9 3103 8954', telefono_2: '+56 9 6191 2281',
+    // Estaban cruzados: telefono_1 traía el número que en la base es
+    // telefono_2, y telefono_2 uno que ya no existe. telefono_1 es el de
+    // WhatsApp — la clave `whatsapp` normalizada da el mismo número.
+    telefono_1: '+56 9 3747 8846', telefono_2: '+56 9 3103 8954',
     email: 'contacto@sdmcapital.cl', horario: 'Lunes a Viernes · 09:00 – 18:00',
     whatsapp: '56937478846',
     facebook: 'https://www.facebook.com/sdmcapitalrestate',
@@ -538,8 +541,8 @@ export default function Contenido() {
           <Full><Field label="Texto del footer"><Txa value={d.footer_tagline} onChange={set('footer_tagline')} rows={2} /></Field></Full>
           <Field label="Dirección"><Inp value={d.direccion} onChange={set('direccion')} /></Field>
           <Field label="Horario"><Inp value={d.horario} onChange={set('horario')} /></Field>
-          <Field label="Teléfono 1"><Inp value={d.telefono_1} onChange={set('telefono_1')} /></Field>
-          <Field label="Teléfono 2"><Inp value={d.telefono_2} onChange={set('telefono_2')} /></Field>
+          <Field label="Teléfono 1 · WhatsApp"><Inp value={d.telefono_1} onChange={set('telefono_1')} /></Field>
+          <Field label="Teléfono 2 · fijo"><Inp value={d.telefono_2} onChange={set('telefono_2')} /></Field>
           <Field label="Email"><Inp type="email" value={d.email} onChange={set('email')} /></Field>
           <Field label="WhatsApp (solo números)"><Inp value={d.whatsapp} onChange={set('whatsapp')} placeholder="56931038954" /></Field>
         </Sec>
