@@ -200,7 +200,6 @@ export default function HeroSection() {
   const titulo2   = get('hero_titulo_2',   'en bienes')
   const titulo3   = get('hero_titulo_3',   'raíces')
   const subtitulo = get('hero_subtitulo',  'Más de 15 años conectando personas con oportunidades inmobiliarias.')
-  const location  = get('hero_location',   'Las Condes · Santiago · Chile')
   const statProp  = Number(get('stats_propiedades', '120'))
   const statAnios = Number(get('stats_anios',        '15'))
   const statPais  = Number(get('stats_paises',        '2'))
@@ -303,14 +302,6 @@ export default function HeroSection() {
             <AnimatedStat n={statProp}  unit="+" label="Propiedades" habilitado={numeroDefinitivo} />
             <AnimatedStat n={statAnios} unit="+" label="Años"        habilitado={numeroDefinitivo} />
             <AnimatedStat n={statPais}  unit="+" label="Países"      habilitado={numeroDefinitivo} />
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--green)' }} />
-              <span className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>
-                {location}
-              </span>
-            </div>
           </div>
         </div>
       </div>

@@ -292,7 +292,6 @@ export default function Contenido() {
     hero_kicker: 'Inversión inmobiliaria · Chile & Paraguay',
     hero_titulo_1: 'Tu socio', hero_titulo_2: 'en bienes', hero_titulo_3: 'raíces',
     hero_subtitulo: 'Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y Paraguay. Financiamiento sin pagos adelantados.',
-    hero_location: 'Las Condes · Santiago · Chile',
     stats_propiedades: '120', stats_anios: '15', stats_paises: '10', stats_clientes: '500',
     banner_activo: 'false',
     banner_kicker: 'Oportunidad comercial',
@@ -426,7 +425,6 @@ export default function Contenido() {
           <Field label="Línea 3 (negrita)"><Inp value={d.hero_titulo_3} onChange={set('hero_titulo_3')} /></Field>
           <Field label="Kicker superior"><Inp value={d.hero_kicker} onChange={set('hero_kicker')} /></Field>
           <Full><Field label="Subtítulo"><Txa value={d.hero_subtitulo} onChange={set('hero_subtitulo')} rows={2} /></Field></Full>
-          <Field label="Texto de ubicación"><Inp value={d.hero_location} onChange={set('hero_location')} /></Field>
         </Sec>
         <Sec title={<><BarChart3 size={18} strokeWidth={1.75} />Estadísticas animadas</>}>
           <Field label="Propiedades"><Inp type="number" value={d.stats_propiedades} onChange={set('stats_propiedades')} /></Field>
