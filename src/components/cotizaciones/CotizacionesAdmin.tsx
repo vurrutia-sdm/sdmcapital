@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Check, FileText, Loader2, Mail, Pencil, PencilLine, Plus, Search, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
+import { obtenerIndicadores } from '@/lib/indicadores'
 import { Guardado, useGuardado } from '@/components/admin/acciones'
 import { Field, FieldGroup } from '@/components/admin/campos'
 import { subirImagen } from '@/lib/subirImagen'
@@ -112,9 +113,14 @@ function useUF() {
     setLoading(true)
     let valor: number | null = null
     try {
-      const r    = await fetch('https://mindicador.cl/api/uf')
-      const data = await r.json()
-      valor = data.serie?.[0]?.valor ?? null
+      // La fuente vive en `src/lib/indicadores.ts` desde el 2026-08-09: la
+      // comparte con la barra del header para que no haya dos consultas ni dos
+      // criterios de validación. El valor es el MISMO —`uf.valor` de
+      // mindicador, verificado 40.844,79 por las dos vías— y sigue siendo
+      // `null` ante cualquier fallo, que es lo que este wizard espera para
+      // dejar el campo editable a mano.
+      const { uf: ind } = await obtenerIndicadores()
+      valor = ind ? ind.valor : null
       setUf(valor)
     } catch { /* silent */ }
     setLoading(false)

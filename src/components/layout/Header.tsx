@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { obtenerIndicadores, formatear, fechaCorta } from '@/lib/indicadores'
+import type { Indicador, Indicadores } from '@/lib/indicadores'
 import { Menu, X, ChevronDown } from 'lucide-react'
 
 const SERVICES = [
@@ -7,6 +9,50 @@ const SERVICES = [
   { slug: 'financiamiento-empresas', label: 'Financiamiento Empresas' },
   { slug: 'inversion-internacional', label: 'Inversión Internacional' },
 ]
+
+// Barra de indicadores del header. Ver `src/lib/indicadores.ts`.
+//
+// VA DENTRO DEL HEADER Y NO ENCIMA. El header es `fixed top-0`; una barra por
+// encima obligaría a recalcular el desplazamiento del contenido en todas las
+// rutas y a tocar el `sticky` del admin, que es zona compartida. Como segunda
+// línea del propio header crece con su contenido y no hay offset que ajustar.
+//
+// RESERVA SU ALTO DESDE EL PRIMER FRAME con guiones. Si apareciera al llegar el
+// dato empujaría el contenido hacia abajo y sumaría CLS: la barra existe desde
+// el primer pintado y lo único que cambia es el texto de dentro.
+//
+// LA PETICIÓN NO BLOQUEA EL PINTADO: sale en un `useEffect`, después del primer
+// render, y si falla se queda en guiones. Nunca un cero ni un valor de ayer.
+function BarraIndicadores() {
+  const [ind, setInd] = useState<Indicadores>({ uf: null, dolar: null })
+
+  useEffect(() => { obtenerIndicadores().then(setInd) }, [])
+
+  const hoy = new Date()
+  const hoyISO = hoy.toISOString().slice(0, 10)
+  const hoyTexto = hoy.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })
+
+  // CADA INDICADOR CON SU FECHA, NO CON LA DE HOY. El dólar observado no se
+  // publica fines de semana ni festivos: un domingo la UF es de hoy y el dólar
+  // del viernes. Se anota «(al 7 ago)» SOLO cuando la fecha del indicador no es
+  // la de hoy, así que en un día hábil normal la barra queda limpia y el aviso
+  // aparece justo cuando hace falta.
+  const sufijo = (i: Indicador | null) =>
+    i && i.fecha && i.fecha.slice(0, 10) !== hoyISO ? ` (al ${fechaCorta(i.fecha)})` : ''
+
+  return (
+    <div
+      className="hidden md:flex items-center justify-end gap-4 px-8 lg:px-12 text-sdm-xs tracking-sdm-wide"
+      style={{ height: 26, borderTop: '1px solid var(--border)', color: 'var(--muted)', textTransform: 'uppercase' }}
+    >
+      <span>{hoyTexto}</span>
+      <span aria-hidden="true" style={{ color: 'var(--border)' }}>·</span>
+      <span>UF {ind.uf ? formatear(ind.uf.valor) : '—'}{sufijo(ind.uf)}</span>
+      <span aria-hidden="true" style={{ color: 'var(--border)' }}>·</span>
+      <span>Dólar {ind.dolar ? formatear(ind.dolar.valor) : '—'}{sufijo(ind.dolar)}</span>
+    </div>
+  )
+}
 
 export default function Header() {
   const location = useLocation()
@@ -169,6 +215,8 @@ export default function Header() {
           {mobileOpen ? <X aria-hidden="true" size={20} /> : <Menu aria-hidden="true" size={20} />}
         </button>
       </nav>
+
+        <BarraIndicadores />
 
       {/* Mobile menu */}
       {mobileOpen && (
