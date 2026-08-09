@@ -13,7 +13,7 @@ transcritas. Última verificación: **2026-08-09**.
 
 ## 1 · TOKENS
 
-**49 custom properties** en [`src/styles/globals.css`](./src/styles/globals.css)
+**56 custom properties** en [`src/styles/globals.css`](./src/styles/globals.css)
 (`:root`) y **13 entradas de color** en
 [`tailwind.config.js`](./tailwind.config.js), de las cuales 4 son punteros
 `var()` a las anteriores.
@@ -30,7 +30,7 @@ en el que ese token se usa de verdad.
 | `--navy` | `#1C3D5C` | **11,22** | 1,40 | 10,74 | azul de marca, texto y superficies |
 | `--navy-dark` | `#0F2535` | **15,71** | 1,00 | 15,04 | titulares, fondo de `.btn-primary` |
 | `--navy-deeper` | `#081828` | **17,92** | 1,14 | 17,15 | fondos muy oscuros, hover de `.btn-primary` |
-| `--green` | `#3DAA6E` | 2,93 ❌ | **5,37** | 2,80 | verde de marca — **solo sobre oscuro** |
+| `--green` | `#3DAA6E` | 2,93 ❌ | **5,37** | 2,80 | verde de marca — **solo sobre oscuro**. Sus 29 usos sobre claro se corrigieron el 2026-08-09 |
 | `--green-dark` | `#2D8055` | **4,85** | 3,24 | 4,64 | el verde cuando lleva blanco encima |
 | `--sky` | `#A8C4DC` | 1,81 | **8,68** | 1,73 | azul claro sobre fondos oscuros |
 | `--sky-light` | `#D4E6F1` | 1,28 | 12,26 | 1,23 | superficies teñidas |
@@ -133,9 +133,33 @@ preferencia de tamaño de fuente del navegador.
 Familias: **Cormorant Garamond 300** para display (`.font-serif`), **Inter**
 para UI y cuerpo (`.font-sans`).
 
-**No hay tokens de peso ni de interlínea.** Ver 1.5.
+**No hay tokens de interlínea.** Ver 1.6. Los de peso están en 1.3.
 
-### 1.3 Radio — 3 tokens
+### 1.3 Peso tipográfico — 3 tokens
+
+Son los tres que **las dos familias tienen de verdad**.
+
+| token | valor | clase | usos hoy |
+|---|---|---|---|
+| `--sdm-peso-ligero` | `300` | `font-sdm-ligero` | 224 |
+| `--sdm-peso-normal` | `400` | `font-sdm-normal` | 42 |
+| `--sdm-peso-medio` | `500` | `font-sdm-medio` | 70 |
+
+**600 y 700 no están, y es deliberado.** `index.html` carga
+`Inter:wght@300;400;500` y nada más: los **119 usos de 600 y 47 de 700 sobre
+Inter son negrita sintética**, que el navegador falsifica engordando los
+trazos. Se ve peor y cambia entre motores. Tokenizarlos habría sido bendecir
+un defecto; los 166 se corrigen a `medio` cuando se toque cada componente.
+
+**La escala no es por familia, y podría haberlo sido.** Cormorant carga
+300/400/500/600 y usa sobre todo 300 (152 de 176); Inter reparte entre las
+tres que tiene. Los tres valores comunes sirven a las dos. El único peso real
+fuera de la escala es Cormorant 600, con 6 usos.
+
+Medido sobre 514 literales: 300 → 43,6 % · 400 → 8,2 % · 500 → 13,6 % ·
+600 → 24,9 % · 700 → 9,7 %.
+
+### 1.4 Radio — 3 tokens
 
 Por **lo que es el elemento**, no por su tamaño.
 
@@ -152,44 +176,65 @@ superficie que tapa.
 no redondea una esquina: un token de 8px rompe una píldora. Para eso está
 `rounded-full`, que sigue existiendo.
 
-**La cola no está migrada, y es deliberado.** Quedan 155 radios sueltos. Lo
-que falta, medido sobre 268 apariciones:
+**Los dos lenguajes propios ya se alinearon** (2026-08-09): Captación pasó 16
+contenedores de 6 a 4px y su botón de 6 a 2px; SearchBar pasó sus 7 controles
+de 8 a 2px, y sus 2 desplegables se quedaron en 8px porque ya eran flotantes.
 
-- **Captación** usa `6px` en 17 contenedores y `12/14` en burbujas de chat y
-  botones. Es lenguaje propio del panel, no descuido.
-- **SearchBar** usa `8px` en 9 sitios, y solo 2 son flotantes de verdad; los
-  otros 7 son controles que deberían ir a 2px.
-- **Ningún modal usa hoy 8px**: tres van a 6, uno a 4 y dos tienen las
-  esquinas rectas. El token dice hacia dónde van, no dónde están.
+**Lo que sigue pendiente:** ningún modal usa hoy 8px — tres van a 6, uno a 4 y
+dos tienen las esquinas rectas. El token dice hacia dónde van, no dónde están.
+Y quedan radios sueltos que no coinciden con ningún token; se corrigen cuando
+se toque cada componente, no en una migración masiva (ver 4.8).
 
-### 1.4 Movimiento — sin tokens (hueco conocido)
+### 1.5 Movimiento — 3 duraciones y 1 curva
 
-**13 duraciones distintas** en 137 declaraciones. 200 ms (51) y 150 ms (43)
-concentran el 69 %, pero conviven con otras once, incluidas 180 ms y 250 ms con
-un solo uso cada una.
+| token | valor | clase | usos hoy |
+|---|---|---|---|
+| `--sdm-mov-rapido` | `150ms` | `duration-sdm-rapido` | 43 |
+| `--sdm-mov-normal` | `200ms` | `duration-sdm-normal` | 51 |
+| `--sdm-mov-lento` | `500ms` | `duration-sdm-lento` | 11 |
+| `--sdm-curva` | `cubic-bezier(0.4, 0, 0.2, 1)` | `ease-sdm` | — |
 
-**2 curvas**: `ease` (18) y `linear` (1). Además **49 transiciones inline no
-declaran curva** y heredan el `ease` implícito del navegador.
+Los tres cubren 105 de las 134 transiciones. La cola —100, 180, 300, 400 y
+600 ms— no se migra: son diferencias que nadie distingue.
 
-`prefers-reduced-motion` sí existe (7 apariciones) y su criterio es **acortar,
-no eliminar**.
+**Lo que no entra en la escala:**
 
-### 1.5 Espaciado — sin tokens (hueco conocido)
+- Los **1200 y 5000 ms** del hero y del showcase son entradas y zooms lentos,
+  no retroalimentación de interfaz.
+- La **rotación de los carruseles** (`setInterval` a 1200 y 5500 ms). Un
+  intervalo dice cada cuánto ocurre algo, no cuánto tarda: no es una
+  transición.
+
+**La curva es la de Tailwind, no el `ease` por defecto.** De las 134
+transiciones, 77 llegan por clases `transition-*` que ya usan
+`cubic-bezier(.4,0,.2,1)`; de las inline, 49 no declaran curva y heredan el
+`ease` implícito. El token alinea los dos caminos en el que ya manda.
+
+**`prefers-reduced-motion` gana a los tokens.** La media query fuerza
+`transition-duration: 0.01ms !important`, aparece en el CSS después de las
+definiciones y ninguna declaración de token lleva `!important`. Su criterio es
+**acortar, no eliminar**.
+
+### 1.6 Espaciado — sin tokens (hueco conocido)
 
 `globals.css` no define ninguna custom property de espaciado y
 `tailwind.config.js` **no extiende `spacing`**. Se usa la escala nativa de
 Tailwind (20 de sus ~34 pasos, 713 apariciones) y, en paralelo, **1.619 valores
 sueltos inline** — 484 `margin`, 416 dimensiones, 409 `padding`, 220 `gap`.
 
+**La escala NO se define hasta que se decida migrar, y es deliberado.** Tres
+tokens no resuelven 1.619 literales, y aplicarlos solo a lo nuevo dejaría dos
+ritmos conviviendo hasta que se migrara — peor que uno inconsistente. Si algún
+día se decide migrar, entonces se define. No antes.
+
 Es el hueco más grande del sistema: 2,3 números escritos a mano por cada uso de
 la escala.
 
-Tampoco hay token de **peso tipográfico** (504 literales) ni de **interlínea**
-(137), ni de **blanco** (217 `#fff`/`#ffffff` más 9 opacidades distintas de
+Tampoco hay token de **interlínea** (137), ni de **blanco** (217 `#fff`/`#ffffff` más 9 opacidades distintas de
 `rgba(255,255,255,α)`), ni de **área táctil** (`h-[44px]`/`w-[44px]` ×22, más la
 clase `.area-44` que resuelve lo mismo por otra vía).
 
-### 1.6 Sombras — sin tokens (decisión, no hueco)
+### 1.7 Sombras — sin tokens (decisión, no hueco)
 
 **El sistema usa bordes finos en vez de sombras.** Por eso no hay escala de
 elevación, y no debe crearse una sin revisar la decisión.
