@@ -6988,3 +6988,83 @@ normalización de siempre, no algo que introduzca el salto.
 > —`editor.chain().focus().toggleBold().run()`—, que es exactamente lo que hacen
 > los botones. Y `unsetLink` hay que probarlo aparte: encadenado con `setLink` el
 > HTML neto no cambia y se lee como si fallara.
+
+---
+
+## Tres arreglos del home en móvil — 2026-08-09
+
+| Commit | Qué |
+|---|---|
+| `5bb1f5e` | El icono de «Reserva tu propiedad» no se separa de la palabra |
+| `825514d` | La fecha del blog deja de competir con la categoría |
+| `6dd6c63` | El CTA es un botón, y en móvil van 3 destacadas |
+
+### LO QUE SE VE COMO «TAGS» DEL BLOG NO SON TAGS
+
+Es el hallazgo del encargo y conviene que quede escrito.
+
+La columna `tags` existe en `BlogPost` y en la tabla, pero **está vacía en los 13
+artículos**: 0 tags en total. Lo que se lee como una fila de etiquetas es el
+campo **`categoria`**, en el que se han ido escribiendo listas separadas por
+comas dentro de un único valor:
+
+```
+'Mercado, Mercado inmobiliario, Casas, Corretaje propiedades, Creditos hipotecarios'
+```
+
+Eso es UNA cadena, no cinco términos. De ahí el solapamiento: «Mercado» y
+«Mercado inmobiliario» no son dos etiquetas que se repitan, son texto seguido.
+
+- **No enlazan a nada.** Son `<span>` en los tres sitios donde se pintan
+  (`BlogPage`, `BlogPreviewSection` y el pie de `BlogPostPage`). No hay filtro
+  por categoría ni búsqueda en el blog.
+- De los 13 artículos, **9 tienen coma** en `categoria`; los 4 restantes son un
+  término solo («Inversión», «Mercado», «Asesoria Inmobiliaria»…).
+- El bloque de tags de `BlogPostPage:110` no se pinta nunca, porque depende de
+  `post.tags` y siempre está vacío.
+
+**Queda pendiente de decisión, no se tocó:** o `categoria` pasa a ser un término
+único de verdad y lo demás se mueve a `tags`, o se acepta que es una lista y se
+parte por comas al pintarla. Lo segundo es una línea; lo primero pide limpiar 9
+filas a mano y decidir la taxonomía.
+
+Lo que sí se arregló sin depender de eso: la fecha iba en un `flex items-center`
+junto a la categoría, así que con una categoría de varias líneas quedaba
+centrada contra el bloque en vez de alineada con su primera línea. En móvil se
+apilan; desde `sm` vuelven a la fila con `items-start`.
+
+### El icono que se soltaba en el footer
+
+Con `inline-flex` el enlace era un contenedor flex de una sola línea: el texto
+envolvía por dentro y el icono quedaba centrado contra un bloque de dos líneas.
+Vuelve al flujo normal y la última palabra viaja con el icono dentro de un
+`white-space: nowrap`. Medido a 360, 390 y 430: siempre en la misma línea que
+«propiedad», a 5px.
+
+### Tres destacadas en móvil
+
+Debajo de 768px la grilla ya caía a UNA columna por `mobile.css`, así que seis
+fichas eran una torre:
+
+| ancho | antes | después |
+|---|---|---|
+| 360px | 2968px | **1450px** |
+| 390px | 3080px | **1518px** |
+
+El `.slice` sigue siendo intencional; lo que cambia es que el número dependa del
+ancho, con el mismo corte de 768px que ya usa `mobile.css`.
+
+**No altera `home_destacadas_ids`:** `props` ya viene en el orden de esa clave,
+así que los 3 de móvil son los 3 primeros que eligió el admin.
+
+### «Ver todos los artículos» NO recibe el mismo tratamiento
+
+Se revisó, como pedía el encargo. En el bloque de blog la acción principal es
+**entrar a un artículo** —las tres tarjetas son el contenido—, y «Ver todos los
+artículos →» es la salida secundaria hacia el índice. En el bloque de
+propiedades, en cambio, las fichas llevan a una ficha concreta y «Ver todas» es
+la única salida al catálogo completo.
+
+Ponerles el mismo botón dejaría dos primarios compitiendo en la misma página.
+`.btn-primary` para el de propiedades (15.71:1, 281×44px) y enlace subrayado
+para el del blog.
