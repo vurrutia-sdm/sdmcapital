@@ -33,7 +33,52 @@ function leerSemilla(): Contenido | null {
 
 const semilla = leerSemilla()
 
+// Dos cachés, y hacen falta las dos.
+//
+// `cache` guarda el RESULTADO y evita pedir de nuevo una vez que llegó. Solo con
+// eso, todos los componentes que montan ANTES de la primera respuesta ven
+// `cache === null` y cada uno lanza su propia consulta idéntica: medido, 6 en el
+// home, 4 en /rental y en cada ficha, 3 en /vende-con-nosotros. Con la consulta
+// fallando llegaba a 20, porque al fallar nunca se llenaba el caché.
+//
+// `enVuelo` guarda la PETICIÓN en curso. El segundo componente que monta se
+// engancha a la del primero en vez de abrir otra.
 let cache: Contenido | null = null
+let enVuelo: Promise<Contenido | null> | null = null
+
+function pedirContenido(): Promise<Contenido | null> {
+  if (cache) return Promise.resolve(cache)
+  if (enVuelo) return enVuelo
+
+  const peticion = new Promise<Contenido | null>((resolver) => {
+    supabase.from('contenido_sitio').select('clave, valor')
+      .then(({ data }) => {
+        if (!data) { resolver(null); return }
+        const map: Contenido = {}
+        data.forEach(({ clave, valor }) => { map[clave] = valor })
+        cache = map
+        resolver(map)
+      },
+      // El segundo argumento, no `.catch`: lo que devuelve el builder de
+      // supabase es un `PromiseLike`, que solo tiene `then`.
+      //
+      // supabase-js entrega los errores dentro de `{ error }` en vez de
+      // rechazar, así que esto casi nunca corre. Está para que un rechazo raro
+      // no deje esta promesa sin resolver: hay UI esperándola para dejar de
+      // mostrar el esqueleto, y el contador del hero para saber que su número
+      // ya no va a cambiar.
+      () => resolver(null))
+  })
+
+  enVuelo = peticion
+  // Se suelta la referencia al terminar, pase lo que pase. Es lo que impide que
+  // una promesa envenenada deje al sitio sin contenido hasta recargar: si la
+  // consulta falló, `cache` sigue en null y `enVuelo` vuelve a null, así que la
+  // próxima montura reintenta. Si salió bien, responde `cache` y no se vuelve a
+  // pedir.
+  peticion.then(() => { enVuelo = null })
+  return peticion
+}
 
 export function useContenido() {
   const [contenido, setContenido] = useState<Contenido>(cache || semilla || {})
@@ -41,25 +86,15 @@ export function useContenido() {
 
   useEffect(() => {
     if (cache) { setContenido(cache); setLoading(false); return }
-    supabase.from('contenido_sitio').select('clave, valor')
-      .then(({ data }) => {
-        if (data) {
-          const map: Contenido = {}
-          data.forEach(({ clave, valor }) => { map[clave] = valor })
-          cache = map
-          setContenido(map)
-        }
-        setLoading(false)
-      },
-      // El segundo argumento, no `.catch`: lo que devuelve el builder de
-      // supabase es un `PromiseLike`, que solo tiene `then`.
-      //
-      // supabase-js entrega los errores dentro de `{ error }` en vez de
-      // rechazar, así que esto casi nunca corre. Está para que un rechazo raro
-      // no deje `loading` en true para siempre: hay UI que espera esa bandera
-      // para dejar de mostrar el esqueleto, y el contador del hero para saber
-      // que su número ya no va a cambiar.
-      () => setLoading(false))
+    // La promesa ahora es compartida y puede sobrevivir a este componente, así
+    // que hay que dejar de escucharla al desmontar.
+    let vivo = true
+    pedirContenido().then((datos) => {
+      if (!vivo) return
+      if (datos) setContenido(datos)
+      setLoading(false)
+    })
+    return () => { vivo = false }
   }, [])
 
   // Helper: get value with fallback
@@ -78,4 +113,8 @@ export function useContenido() {
 // Call this to invalidate cache after admin saves
 export function invalidateContenidoCache() {
   cache = null
+  // También la petición en curso: si el admin guardó mientras una consulta
+  // viajaba, esa respuesta ya es vieja. Sin esto, el siguiente componente en
+  // montar se engancharía justamente a los datos que se acaban de reemplazar.
+  enVuelo = null
 }
