@@ -649,7 +649,17 @@ export default function Propiedades() {
               guardar en el formulario. */}
           <div className="flex items-center justify-between gap-6 mb-6 flex-wrap">
             <h3 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar propiedad' : 'Nueva propiedad'}</h3>
-            <VerPublicada prop={editing} conTexto />
+            {/* La fila GUARDADA, no `editing`, que es el borrador. El
+                formulario trae su propio selector Activa/Pausada, y con el
+                borrador el botón lo seguía en vivo: pasar a «Activa» sin
+                guardar lo convertía en enlace hacia una ficha que la base
+                todavía oculta — justo lo que el estado deshabilitado existe
+                para evitar. Este botón abre lo PUBLICADO, así que lee lo
+                publicado.
+
+                El respaldo a `editing` cubre la propiedad nueva, que todavía no
+                está en `items`; como tampoco tiene slug, sigue sin dibujarse. */}
+            <VerPublicada prop={items.find(x => x.id === editing.id) ?? editing} conTexto />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Título"><Inp value={editing.titulo || ''} onChange={v => setEditing(p => ({ ...p, titulo: v }))} /></Field>
