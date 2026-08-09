@@ -6513,3 +6513,29 @@ Movían contadores y los dejaban desfasados hasta el refresco de 25 s.
 `cancelarVisita` funciona sobre cualquier visita, pero el botón solo existe en
 la tarjeta de las pendientes. Si una visita confirmada se cae, hoy no hay forma
 de reflejarlo. No entraba en este encargo.
+
+### MÉTODO: un 200 no prueba que el asset esté propagado
+
+Al verificar este deploy, la comprobación de propagación dio verde y era mentira.
+
+Cloudflare Pages sirve el **fallback de la SPA** para cualquier ruta que todavía
+no exista: devuelve **200 con `content-type: text/html`**, o sea el `index.html`
+completo. Un bucle que solo mira el código de estado lo cuenta como propagado.
+
+Consecuencia medida: el CSS nuevo «propagó tras 1 intento», pero durante unos
+minutos `https://sdmcapital.cl/assets/index-<hash>.css` devolvía HTML. El
+navegador que lo pidió en esa ventana **rechazó la hoja** —tipo MIME incorrecto—
+y la dejó cacheada rota: aparecía en `document.styleSheets`, sin ninguna regla
+aplicada, con `cssRules` inaccesible por SecurityError y el `body` transparente.
+Parecía que los tokens nuevos no existían. Existían.
+
+**Comprobar el `content-type`, no el código de estado:**
+
+```bash
+curl -sI "https://sdmcapital.cl/assets/index-<hash>.css" | grep -i '^content-type'
+# text/css      → propagado
+# text/html     → todavía no; es el fallback de la SPA
+```
+
+Y si un navegador ya pidió el asset durante esa ventana, hay que reiniciarlo
+—`browse stop`— antes de creerle: la hoja rota se queda en caché.
