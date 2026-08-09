@@ -88,6 +88,14 @@ export default {
         'sdm-xl':   '1.25rem',
         'sdm-2xl':  '1.5rem',
       },
+      // Espejo de la escala de peso. Solo los tres que las dos familias tienen
+      // de verdad: Inter carga 300/400/500 y nada más, así que `font-semibold`
+      // y `font-bold` producen negrita SINTÉTICA sobre Inter. No se tokenizan.
+      fontWeight: {
+        'sdm-ligero': 'var(--sdm-peso-ligero)',
+        'sdm-normal': 'var(--sdm-peso-normal)',
+        'sdm-medio':  'var(--sdm-peso-medio)',
+      },
       // Espejo de la escala de radio de globals.css, con `var()` por la misma
       // razón que los cuatro colores: el valor vive en un solo sitio.
       // `extend` no borra los radios nativos de Tailwind — `rounded-full` sigue

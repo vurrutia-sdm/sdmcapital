@@ -224,6 +224,37 @@
        `rounded-sdm-radio-control`. El prefijo `sdm-` sí se conserva en los dos
        lados, que es lo que la regla protege: `control` y `contenedor` no son
        claves nativas de Tailwind hoy, pero podrían serlo mañana. */
+    /* ─── PESO TIPOGRÁFICO ─────────────────────────────────────────────────
+       TRES VALORES, Y SON LOS TRES QUE LAS DOS FAMILIAS TIENEN DE VERDAD.
+
+       Medido el 2026-08-09 sobre 514 literales:
+
+         300  224 usos  43,6 %
+         400   42        8,2 %
+         500   70       13,6 %
+         600  128       24,9 %   ← el segundo más usado
+         700   50        9,7 %
+
+       Cinco valores, no tres. Pero 600 y 700 NO EXISTEN EN INTER: index.html
+       carga `Inter:wght@300;400;500` y nada más. Comprobado contra
+       `document.fonts`: solo se descargan Inter 300, 400 y 500. Los 119 usos
+       de 600 y los 47 de 700 sobre Inter son NEGRITA SINTÉTICA, que el
+       navegador falsifica engordando los trazos. Se ve peor y cambia entre
+       navegadores.
+
+       Por eso la escala no los incluye: tokenizarlos sería bendecir un
+       defecto. Los 166 se corrigen a `medio` cuando se toque cada componente.
+
+       LA ESCALA NO ES POR FAMILIA, y podría haberlo sido. Cormorant carga
+       300/400/500/600 y usa sobre todo 300 (152 de 176); Inter reparte entre
+       las tres que tiene. Los tres valores comunes son 300, 400 y 500, así
+       que un solo juego sirve a las dos: nombrarlos por familia habría
+       duplicado tokens sin añadir nada. El único peso real que queda fuera es
+       Cormorant 600, con 6 usos — no llega a justificar un cuarto token. */
+    --sdm-peso-ligero: 300;
+    --sdm-peso-normal: 400;
+    --sdm-peso-medio:  500;
+
     --sdm-radio-control:    2px;
     --sdm-radio-contenedor: 4px;
     --sdm-radio-flotante:   8px;
@@ -330,7 +361,8 @@
   @keyframes admin-loading-in { from { opacity: 0; } to { opacity: 1; } }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-sdm-control transition-colors duration-200;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] tracking-[1.5px] uppercase text-white cursor-pointer rounded-sdm-control transition-colors duration-200;
+    font-weight: var(--sdm-peso-medio);
     background: var(--navy-dark);
   }
   /* La contraparte de `.btn-primary` para fondo oscuro, no una excepción:
@@ -340,7 +372,8 @@
      Hace falta porque sobre un panel `--navy-dark` el propio `.btn-primary` es
      invisible: el botón y el fondo son el mismo color (1.00:1). */
   .btn-inverse {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase cursor-pointer rounded-sdm-control transition-colors duration-200;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] tracking-[1.5px] uppercase cursor-pointer rounded-sdm-control transition-colors duration-200;
+    font-weight: var(--sdm-peso-medio);
     background: #FFFFFF;
     color: var(--navy-dark);
   }
@@ -350,7 +383,8 @@
      oscuros rinde bien (5.37:1 sobre --navy-dark). El problema es solo blanco
      ENCIMA de verde. */
   .btn-green {
-    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] font-medium tracking-[1.5px] uppercase text-white cursor-pointer rounded-sdm-control transition-colors duration-200;
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] tracking-[1.5px] uppercase text-white cursor-pointer rounded-sdm-control transition-colors duration-200;
+    font-weight: var(--sdm-peso-medio);
     background: var(--green-dark);
   }
   /* EL BORDE ES LO ÚNICO QUE DELIMITA ESTE BOTÓN.
@@ -437,7 +471,8 @@
   .btn-text::after { content: '→'; }
 
   .input-line {
-    @apply w-full bg-transparent border-0 border-b py-2.5 text-[16px] font-light outline-none transition-colors duration-200;
+    @apply w-full bg-transparent border-0 border-b py-2.5 text-[16px] outline-none transition-colors duration-200;
+    font-weight: var(--sdm-peso-ligero);
     border-color: var(--border-input);
     color: var(--ink);
     font-family: 'Inter', system-ui, sans-serif;
