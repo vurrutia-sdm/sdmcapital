@@ -8,17 +8,18 @@ interface SEOProps {
   type?: string
 }
 
-const BASE = 'https://sdmcapital.cl'
-// .png y no .jpg: og-image.jpg NUNCA existió en public/. El catch-all de SPA lo
-// disimulaba devolviendo index.html con status 200, así que el crawler pedía una
-// imagen y recibía HTML, y toda ruta sin imagen propia se compartía sin imagen.
-// La Pages Function de propiedades ya usaba el valor correcto.
-const DEFAULT_IMG = `${BASE}/og-image.png`
-const SITE_NAME = 'SDM Capital'
+// Un solo sitio para lo que este componente y las Pages Functions tienen que
+// decir igual. Antes la descripción por defecto estaba escrita acá y copiada a
+// mano en las Functions, con un comentario pidiendo que no divergieran.
+//
+// El `.png` del og-image, de paso: og-image.jpg NUNCA existió en public/. El
+// catch-all de la SPA lo disimulaba devolviendo index.html con status 200, así
+// que el crawler pedía una imagen y recibía HTML.
+import { BASE_URL as BASE, DEFAULT_OG_IMAGE as DEFAULT_IMG, SITE_NAME, DEFAULT_DESCRIPTION } from '@/lib/seo-compartido.js'
 
 export default function SEO({ title, description, image, url, type = 'website' }: SEOProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | Inversión Inmobiliaria Chile & Internacional`
-  const desc = description || 'Tu socio confiable en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y Paraguay.'
+  const desc = description || DEFAULT_DESCRIPTION
   const img = image || DEFAULT_IMG
   const canonical = url ? `${BASE}${url}` : BASE
 

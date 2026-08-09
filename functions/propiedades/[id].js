@@ -2,9 +2,8 @@
 // Sirve meta tags específicas de la propiedad a crawlers (WhatsApp, Facebook, etc.)
 // que no ejecutan JS, y deja pasar a usuarios reales hacia la SPA React.
 
-const SITE_NAME = 'SDM Capital'
-const BASE_URL = 'https://sdmcapital.cl'
-const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`
+// Un solo sitio para lo que el cliente y las Functions dicen igual.
+import { SITE_NAME, BASE_URL, DEFAULT_OG_IMAGE } from '../../src/lib/seo-compartido.js'
 
 // Anon key pública (la misma que va embebida en el bundle del cliente) usada
 // como fallback si no se configuran variables de entorno en Cloudflare Pages.

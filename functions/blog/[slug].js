@@ -10,13 +10,10 @@
 // que no ejecuta JavaScript ve solo el index.html estático — o sea el título
 // genérico del sitio. Los trece artículos se compartían iguales.
 
-const SITE_NAME = 'SDM Capital'
-const BASE_URL = 'https://sdmcapital.cl'
-const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`
-
-// Espejo de la descripción por defecto de src/components/SEO.tsx.
-const DEFAULT_DESCRIPTION =
-  'Tu socio confiable en bienes raíces. Más de 15 años conectando personas con oportunidades inmobiliarias en Chile y Paraguay.'
+// Un solo sitio para lo que el cliente y las Functions tienen que decir igual.
+// Antes la descripción estaba copiada a mano acá con un comentario pidiendo que
+// no divergiera de `src/components/SEO.tsx`.
+import { SITE_NAME, DEFAULT_OG_IMAGE, DEFAULT_DESCRIPTION } from '../../src/lib/seo-compartido.js'
 
 // Anon key pública (la misma que va embebida en el bundle del cliente) usada
 // como fallback si no se configuran variables de entorno en Cloudflare Pages.
