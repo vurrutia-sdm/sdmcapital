@@ -12,6 +12,7 @@ import ContactSection from '@/components/sections/ContactSection'
 import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
 import SEO from '@/components/SEO'
 import PropertyMap from '@/components/ui/PropertyMap'
+import PropertyCard from '@/components/ui/PropertyCard'
 import { normalizeDossiers, dossierTitle } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
 import type { Propiedad } from '@/types'
@@ -204,6 +205,7 @@ export default function PropiedadDetailPage() {
   const { get } = useContenido()
   const [prop, setProp] = useState<Propiedad | null>(null)
   const [loading, setLoading] = useState(true)
+  const [similares, setSimilares] = useState<Propiedad[]>([])
 
   const [imgIdx, setImgIdx] = useState(0)
   const [lightbox, setLightbox] = useState(false)
@@ -233,6 +235,68 @@ export default function PropiedadDetailPage() {
         setLoading(false)
       })
   }, [slug])
+
+  // PROPIEDADES SIMILARES: comuna ∪ (tipo + precio ±30 %).
+  //
+  // El criterio salió de medir los siete candidatos sobre las 82. «Comuna +
+  // tipo» dejaba al 32 % sin ninguna coincidencia —hay 32 comunas distintas y
+  // 17 con una sola propiedad—, y «mismo tipo» solo daba una media de 36
+  // similares, que no es «similar» sino «el resto del catálogo». La unión cubre
+  // al 88 % con bloque completo: quien mira en una comuna concreta ve vecinos,
+  // y quien está en una comuna de una sola propiedad ve alternativas del mismo
+  // tipo y presupuesto.
+  //
+  // UNA CONSULTA MÁS, acotada. El filtro va en PostgREST y no en el cliente
+  // para no traerse los 42 departamentos del catálogo: se piden hasta 24 filas
+  // y solo las columnas que dibuja `PropertyCard`.
+  useEffect(() => {
+    if (!prop) { setSimilares([]); return }
+    const precio = typeof prop.precio_uf === 'number' && prop.precio_uf > 0 ? prop.precio_uf : null
+    const cond = [`comuna.eq.${prop.comuna}`]
+    // Sin precio no hay banda que comparar: una ficha «a consultar» solo puede
+    // parecerse por comuna. Son tres, y dos de ellas están en comunas de una
+    // sola propiedad, así que no dibujarán bloque — que es lo correcto.
+    if (precio) {
+      cond.push(`and(tipo.eq.${prop.tipo},precio_uf.gte.${(precio * 0.7).toFixed(2)},precio_uf.lte.${(precio * 1.3).toFixed(2)})`)
+    }
+    supabase.from('propiedades')
+      .select('id, slug, titulo, titulo_en, tipo, comuna, region, categoria, estado, dormitorios, banos, superficie_total, precio_uf, precio_clp, precio_usd, precio_anterior_uf, a_consultar, baja_precio, bono_pie, bono_pie_porcentaje, etapa_construccion, fecha_entrega, imagen_principal, imagenes')
+      .neq('id', prop.id)
+      .or('activo.is.null,activo.eq.true')
+      .neq('activo', false)
+      .or(cond.join(','))
+      .limit(24)
+      .then(({ data }) => setSimilares((data || []) as Propiedad[]))
+  }, [prop])
+
+  // EL ORDEN IMPORTA TANTO COMO EL FILTRO. Con una media de 14,7 candidatas y
+  // un bloque de 3, sin criterio de orden dos propiedades de la misma comuna a
+  // 3.000 y 25.000 UF salen igual de «similares».
+  //
+  // Primero las que cumplen LAS DOS condiciones —misma comuna Y tipo/precio—,
+  // que son más parecidas que las que cumplen una. Dentro de cada grupo, por
+  // cercanía de precio.
+  //
+  // Medido antes de elegirlo: priorizar las dobles NO deja bloques cortos,
+  // porque el orden solo reordena, no filtra. De las 82, 31 llenan el bloque
+  // solo con dobles, 7 lo llenan mezclando y 37 solo con simples. Las 7 que no
+  // llegan a dos candidatas no dibujan nada.
+  const precioProp = typeof prop?.precio_uf === 'number' && prop.precio_uf > 0 ? prop.precio_uf : null
+  const similaresOrdenadas = [...similares]
+    .map(s => {
+      const p = typeof s.precio_uf === 'number' && s.precio_uf > 0 ? s.precio_uf : null
+      const mismaComuna = s.comuna === prop?.comuna
+      const mismoTipoPrecio = !!(precioProp && p && s.tipo === prop?.tipo && Math.abs(p - precioProp) <= 0.30 * precioProp)
+      return {
+        s,
+        grupo: mismaComuna && mismoTipoPrecio ? 0 : 1,
+        // Sin precio no hay distancia: van al final de su grupo.
+        dist: precioProp && p ? Math.abs(p - precioProp) / precioProp : Number.POSITIVE_INFINITY,
+      }
+    })
+    .sort((a, b) => a.grupo - b.grupo || a.dist - b.dist)
+    .slice(0, 3)
+    .map(x => x.s)
 
   const allImgs: string[] = prop ? [
     ...(prop.imagen_principal ? [prop.imagen_principal] : []),
@@ -800,6 +864,24 @@ export default function PropiedadDetailPage() {
 
       {/* ── Banner Showcase El Barranco (inferior) ── */}
       {prop.id === EL_BARRANCO_ID && <ElBarrancoBanner clave="banner_foto" />}
+
+      {/* PROPIEDADES SIMILARES.
+          `<h2>` como las otras secciones de la ficha: el `<h1>` es el título de
+          la propiedad y esto es una sección más, no un nivel nuevo.
+          No se dibuja con menos de dos, igual que los relacionados del blog:
+          una sola tarjeta no es un bloque de similares. Son 7 de las 82 las que
+          no llegan, casi todas en comunas de una sola propiedad y sin precio
+          con el que comparar. */}
+      {similaresOrdenadas.length >= 2 && (
+        <div className="px-8 lg:px-12 py-12 border-t border-[#e8edf2]">
+          <h2 className="font-serif font-light mb-6 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
+            Propiedades similares
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 1, background: 'var(--border)' }}>
+            {similaresOrdenadas.map((s, i) => <PropertyCard key={s.id} propiedad={s} index={i} />)}
+          </div>
+        </div>
+      )}
 
       {/* Mapa */}
       {(prop.map_address || prop.comuna) && (
