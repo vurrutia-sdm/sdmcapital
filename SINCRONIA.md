@@ -5805,9 +5805,106 @@ tampoco tiene slug, así que sigue sin dibujarse.
 
 ## EN CURSO: simplificación del footer — sesión web pública
 
-**Anuncio de dominio.** Se va a tocar `src/components/layout/Footer.tsx`, y
-posiblemente `src/components/sections/ContactSection.tsx` según lo que se
-decida. Los dos son de la sesión web pública. El footer está en `Layout`, así
-que **cualquier cambio se ve en todas las rutas públicas**.
+**Cerrada.** Se tocaron `Footer.tsx`, `ContactSection.tsx` y una línea de
+`admin/Contenido.tsx` (los defaults cruzados de los teléfonos).
 
-Por ahora solo hay propuesta; no se ha implementado nada.
+### `ContactSection` y `Footer` son componentes distintos, y eso importa
+
+Se parecen —los dos van abajo, los dos son navy desde este cambio— pero tienen
+ciclos de vida distintos:
+
+| | `ContactSection` | `Footer` |
+|---|---|---|
+| Dónde se monta | **a mano, en 7 páginas** | en `Layout` → **las 13 rutas públicas** |
+| Qué es | una sección con el **formulario de contacto** | el pie del sitio |
+| En `/admin` | no | **tampoco** — el admin va fuera de `Layout` |
+
+**`ContactSection` NO está en 6 de las 13 rutas**: `/propiedades`, `/blog`,
+`/vende-con-nosotros`, `/politica-de-privacidad`, `/condiciones-del-servicio` y
+`/eliminacion-de-datos`. Antes de este cambio, en esas seis **no había ningún
+dato de contacto en toda la página**. Esa fue la razón de fondo para subir
+teléfonos y email al footer: no era solo simplificar.
+
+> Y una corrección al encargo: se dio por hecho que el footer estaba también en
+> `/admin`. No lo está — las rutas de admin se declaran fuera del `<Route
+> element={<Layout />}>`. Verificado: `/admin` no tiene `<footer>`.
+
+### Qué quedó
+
+Un solo bloque navy, tres columnas: marca + eslogan + las 4 redes · Navegación ·
+Contacto. Fuera la columna «Servicios» (sus tres enlaces viven dentro de
+`/servicios`, que ya está en Navegación) y fuera «LAS CONDES · SANTIAGO · CHILE»
+del pie.
+
+`ContactSection` se queda con **Dirección y Horario**, que son justamente lo que
+el footer no lleva y no existen en ninguna otra parte: **no hay ruta
+`/contacto`**, solo el ancla `#contacto` que apunta a esa misma sección.
+
+`footer_tagline` sigue leyéndose de `contenido_sitio`. Es la única clave que
+alimenta el footer; ninguna quedó huérfana.
+
+#### Los dos teléfonos, etiquetados
+
+`telefono_1` **es el de WhatsApp**: la clave `whatsapp` vale `56937478846` y
+normalizada es idéntica. `telefono_2` es el fijo.
+
+Los defaults del código estaban **cruzados**: `telefono_1` traía el número que en
+la base es `telefono_2`, y `telefono_2` uno que ya no existe. No se veía porque
+la base manda, pero al vaciar la clave habrían salido los equivocados.
+Corregidos en el footer y en `admin/Contenido.tsx`, cuyos campos ahora se rotulan
+«Teléfono 1 · WhatsApp» y «Teléfono 2 · fijo».
+
+#### «Reserva tu propiedad» no era deliberado
+
+Se veía distinto —navy en vez de gris, con `tracking-sdm-wide`— solo porque ser
+el único enlace externo obliga a `<a>` en vez de `<Link>`, y esa rama se escribió
+con otro estilo. Ahora se ve igual que sus vecinos y lleva `ExternalLink`, que es
+la marca que de verdad faltaba: «sale del sitio».
+
+### Medidas
+
+| | Antes | Después |
+|---|---|---|
+| Footer @1440 | 446 px | **398 px** (−11 %) |
+| Footer @390 | 763 px | **659 px** (−14 %) |
+| Zona contacto+footer @1440, `/quienes-somos` | 1469 px | **1421 px** |
+| Zona contacto+footer @390 | 1913 px | **1697 px** (−11 %) |
+
+En escritorio el bloque de info de `ContactSection` no encoge al pasar de 4 a 2
+elementos: su grilla es `grid-cols-2 md:grid-cols-4`, así que sigue siendo una
+fila. El ahorro vertical de esa sección solo aparece en móvil, donde pasa de dos
+filas a una.
+
+#### Contraste — SOBRE NAVY NO SE PUEDE USAR `--muted`
+
+`--muted` (#5F7183) sobre `--navy-dark` (#0F2535) da **3,13:1**: no llega al 4,5
+de 1.4.3. Es el error fácil al mover un componente de fondo blanco a fondo
+oscuro. La paleta que sí sirve, medida:
+
+| Uso | Color | Ratio |
+|---|---|---|
+| Rótulos de columna, marca | `#fff` | **15,71:1** |
+| Enlaces | `rgba(255,255,255,0.8)` | **10,44:1** |
+| Eslogan y pie legal | `rgba(255,255,255,0.6)` | **6,50:1** |
+| Hover | `--sky` #A8C4DC | 8,68:1 |
+
+22 textos medidos, **0 por debajo del mínimo**.
+
+> TRAMPA DE MEDICIÓN: una sonda que lea `getComputedStyle().color` y tome los
+> tres primeros números de `rgba(255,255,255,0.8)` da 15,71 para todo, porque
+> ignora el alfa. Hay que componer sobre el fondo antes de calcular. Pasó acá y
+> el primer informe salía con todo en 15,71.
+
+#### Objetivos táctiles y encabezados
+
+Las 4 redes pasan de icono+texto a solo icono, con `aria-label` que incluye el
+aviso de pestaña nueva. Miden 32×32 —por encima de los 24 de 2.5.8— y van a 12px,
+así que los centros quedan a 44.
+
+Los 10 enlaces de menos de 24px de alto siguen cumpliendo por separación: el
+centro más cercano queda a 30-31px, tanto a 1440 como a 390. Los 4 legales del
+pie van inline dentro de un `<p>`, exentos por ser texto corrido.
+
+Las columnas del footer se rotulan con `<div>`, no con encabezados —así era
+antes— así que quitar «Servicios» no podía crear un salto de nivel. Verificado
+igual en una ruta con `ContactSection` y otra sin: 0 saltos en las dos.
