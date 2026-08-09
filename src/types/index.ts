@@ -175,6 +175,13 @@ export interface FiltrosPropiedades {
   precio_max_uf?: number
   internacional?: boolean
   busqueda?: string
+  // `'si'` = con bono pie, cualquier porcentaje. Un número en texto —`'14'`— =
+  // ese porcentaje o MÁS. Se guarda como texto y no como número porque los dos
+  // casos viven en la misma clave de la URL, y `Number('si')` no existe.
+  bono_pie?: string
+  // `'inmediata'` | `'futura'`. No son los valores de `etapa_construccion`: la
+  // columna tiene siete y esto los agrupa en dos.
+  entrega?: string
 }
 
 // ─── Cotizaciones ─────────────────────────────────────────────────────────────

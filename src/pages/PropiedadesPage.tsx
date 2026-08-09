@@ -92,6 +92,18 @@ const REGIONES = [{ value: '', label: 'Todas las regiones' },{ value: 'R. Metrop
 const ESTADOS  = [{ value: '', label: 'Todos' },{ value: 'en_venta', label: 'En venta' },{ value: 'en_arriendo', label: 'En arriendo' },{ value: 'vendida', label: 'Vendida' },{ value: 'reservada', label: 'Reservada' },{ value: 'arrendada', label: 'Arrendada' }]
 const PRECIOS  = [{ value: '', label: 'Sin límite' },{ value: '2000', label: 'Hasta UF 2.000' },{ value: '3500', label: 'Hasta UF 3.500' },{ value: '5000', label: 'Hasta UF 5.000' },{ value: '8000', label: 'Hasta UF 8.000' },{ value: '10000', label: 'Hasta UF 10.000' },{ value: '15000', label: 'Hasta UF 15.000' }]
 
+// DOS OPCIONES, SIETE VALORES DETRÁS.
+//
+// `etapa_construccion` admite en_blanco, en_verde, planos, inicio, avanzado,
+// proxima_entrega y entrega_inmediata. Al visitante no le sirve elegir entre
+// siete fases de obra: le sirve saber si puede mudarse ya o no.
+//
+// «Futura» se define por NEGACIÓN —todo lo que no es inmediata y no está
+// vacío—, no como `= proxima_entrega`. Así el día que alguien cargue una «En
+// Verde» aparece sola, sin tocar esto. Hoy solo se usan dos de los siete
+// valores: 20 inmediatas y 3 próximas.
+const ENTREGAS = [{ value: '', label: 'Todas' },{ value: 'inmediata', label: 'Entrega inmediata' },{ value: 'futura', label: 'Entrega futura' }]
+
 const ETIQUETAS_FILTRO: Record<string, string> = {
   // Estado
   en_venta: 'En Venta',
@@ -122,6 +134,8 @@ const ETIQUETAS_FILTRO: Record<string, string> = {
 function etiquetaFiltro(key: string, val: unknown): string {
   const s = String(val)
   if (key === 'precio_max_uf') return `Hasta UF ${Number(s).toLocaleString('es-CL')}`
+  if (key === 'bono_pie')      return s === 'si' ? 'Con bono pie' : `Bono pie ${s}% o más`
+  if (key === 'entrega')       return s === 'inmediata' ? 'Entrega inmediata' : 'Entrega futura'
   return ETIQUETAS_FILTRO[s] ?? s
 }
 
@@ -246,6 +260,44 @@ export default function PropiedadesPage() {
     tipo: '', estado: '', region: '', comuna: '', internacional: false,
   })
   const [panelOpen, setPanelOpen] = useState(false)
+  // Los cortes de bono pie SALEN DE LA BASE, no de una lista escrita a mano: si
+  // mañana alguien carga un 12%, aparece solo.
+  const [bono, setBono] = useState<{ total: number; niveles: number[] }>({ total: 0, niveles: [] })
+
+  // CONSULTA APARTE, Y NO DERIVADO DEL RESULTADO YA FILTRADO.
+  //
+  // Si los porcentajes salieran de `props`, al elegir «20% o más» el propio
+  // selector se quedaría con esa única opción y no habría forma de volver atrás
+  // ni de bajar el corte. Las opciones tienen que describir el UNIVERSO de la
+  // ruta, no lo que queda después de filtrar.
+  //
+  // Por eso repite los recortes de RUTA —categoría, y la exclusión de arriendos
+  // en Proyectos Nuevos— pero ninguno de los del panel. Es un `select` de una
+  // sola columna sobre las ~28 con bono pie, y solo se rehace al cambiar de ruta.
+  useEffect(() => {
+    let ignore = false
+    let q = supabase.from('propiedades').select('bono_pie_porcentaje')
+      .or('activo.is.null,activo.eq.true').neq('activo', false).eq('bono_pie', true)
+    if (categoria)                      q = q.eq('categoria', categoria)
+    if (categoria === 'proyecto_nuevo') q = q.not('estado', 'in', '(en_arriendo,arrendada)')
+
+    q.then(({ data, error }) => {
+      if (ignore || error) return
+      const total = (data || []).length
+      const pcts = (data || [])
+        .map(d => (d as { bono_pie_porcentaje: number | null }).bono_pie_porcentaje)
+        .filter((n): n is number => typeof n === 'number' && n > 0)
+      // FUERA LOS CORTES QUE NO RECORTAN NADA. Con «o más», el porcentaje más
+      // bajo devuelve exactamente lo mismo que «Con bono pie» —hoy «4% o más»
+      // trae las 28—, y una opción que no cambia el resultado solo hace dudar
+      // de si el filtro funciona. La regla es la data, no un número escrito acá.
+      const niveles = [...new Set(pcts)].sort((a, b) => a - b)
+        .filter(n => pcts.filter(v => v >= n).length < total)
+      setBono({ total, niveles })
+    })
+
+    return () => { ignore = true }
+  }, [categoria])
 
   useEffect(() => {
     let ignore = false
@@ -264,6 +316,8 @@ export default function PropiedadesPage() {
       // El nombre lleva la unidad a propósito, porque el catálogo tiene tres
       // monedas y el tope solo sabe comparar una.
       precio_max_uf: Number(searchParams.get('precio_max_uf')) || undefined,
+      bono_pie:      searchParams.get('bono_pie') || '',
+      entrega:       searchParams.get('entrega') || '',
     }
 
     setFiltros(filtrosActuales)
@@ -324,6 +378,23 @@ export default function PropiedadesPage() {
     // Sin tope las once siguen apareciendo: la guarda solo actúa cuando hay
     // techo, que es cuando comparar importa.
     if (filtrosActuales.precio_max_uf)  q = q.gt('precio_uf', 0).lte('precio_uf', filtrosActuales.precio_max_uf)
+    // `bono_pie = true` SIEMPRE, también cuando se pide un porcentaje. Hay una
+    // propiedad con `bono_pie_porcentaje` cargado y `bono_pie` en falso —el
+    // porcentaje quedó de un bono que se retiró—, y filtrando solo por el número
+    // se colaría en todos los cortes ofreciendo un beneficio que no existe.
+    if (filtrosActuales.bono_pie) {
+      q = q.eq('bono_pie', true)
+      const minimo = Number(filtrosActuales.bono_pie)
+      // «14% o más» y no «exactamente 14%»: quien filtra por bono pie busca el
+      // mayor beneficio, no ese número. Con coincidencia exacta cuatro de los
+      // siete cortes devolverían entre 1 y 3 propiedades.
+      if (minimo) q = q.gte('bono_pie_porcentaje', minimo)
+    }
+    if (filtrosActuales.entrega === 'inmediata') q = q.eq('etapa_construccion', 'entrega_inmediata')
+    // Por negación, para que cualquier etapa nueva caiga acá sola. El `not is
+    // null` no sobra: sin él entrarían las que no tienen etapa cargada, que no
+    // es lo mismo que tener una entrega futura.
+    if (filtrosActuales.entrega === 'futura')    q = q.not('etapa_construccion', 'is', null).neq('etapa_construccion', 'entrega_inmediata')
 
     q.neq('activo', false).order('orden', { ascending: true, nullsFirst: false })
       .then(({ data, error }) => {
@@ -443,6 +514,54 @@ export default function PropiedadesPage() {
                 ))}
               </select>
             </label>
+
+            {/* BONO PIE — en las tres rutas.
+                No es exclusivo de proyectos nuevos: de las 28 con bono pie, 5 son
+                propiedades usadas. Se dibuja solo si la ruta tiene alguna, en vez
+                de ofrecer un selector que no puede devolver nada. */}
+            {bono.total > 0 && (
+              <label style={{ display: 'block' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Bono pie</span>
+                <select className="input-line"
+                  value={filtros.bono_pie || ''}
+                  onChange={e => {
+                    const nuevos = new URLSearchParams(searchParams)
+                    if (e.target.value) nuevos.set('bono_pie', e.target.value)
+                    else nuevos.delete('bono_pie')
+                    setSearchParams(nuevos, { replace: true })
+                  }}
+                  style={{ cursor: 'pointer' }}>
+                  <option value="">Todas</option>
+                  <option value="si">Con bono pie</option>
+                  {/* «o más» va ESCRITO en la opción. Si dijera «14%» a secas y el
+                      resultado trajera una del 20%, el visitante creería que el
+                      filtro falla. */}
+                  {bono.niveles.map(n => <option key={n} value={String(n)}>{n}% o más</option>)}
+                </select>
+              </label>
+            )}
+
+            {/* ENTREGA — solo en Proyectos Nuevos.
+                Las 23 propiedades con `etapa_construccion` cargada son todas de
+                esa categoría; ninguna usada tiene etapa, y no la tendría: una
+                casa de segunda mano no está en obra. En el resto de rutas el
+                selector no se dibuja, en vez de aparecer siempre vacío. */}
+            {categoria === 'proyecto_nuevo' && (
+              <label style={{ display: 'block' }}>
+                <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Entrega</span>
+                <select className="input-line"
+                  value={filtros.entrega || ''}
+                  onChange={e => {
+                    const nuevos = new URLSearchParams(searchParams)
+                    if (e.target.value) nuevos.set('entrega', e.target.value)
+                    else nuevos.delete('entrega')
+                    setSearchParams(nuevos, { replace: true })
+                  }}
+                  style={{ cursor: 'pointer' }}>
+                  {ENTREGAS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </label>
+            )}
           </div>
         )}
 
