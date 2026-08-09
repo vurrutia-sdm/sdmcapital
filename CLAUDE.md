@@ -1,5 +1,16 @@
 # SDM Capital — notas para Claude Code
 
+## El sistema de diseño está en SISTEMA-DISENO.md
+
+[`SISTEMA-DISENO.md`](./SISTEMA-DISENO.md) es la **referencia**: los tokens con
+sus valores y ratios, los componentes con sus variantes y estados, la tabla de
+«qué botón uso cuando…», los principios con su razón, las decisiones cerradas
+que no se reabren y las trampas del proyecto.
+
+Antes de escribir un componente, elegir un color o inventar un token, mirar ahí.
+Cuando ese documento y `SINCRONIA.md` se contradigan, **manda
+`SISTEMA-DISENO.md`**: el segundo es el registro cronológico, no la referencia.
+
 ## Antes de tocar nada: leer SINCRONIA.md
 
 Varias sesiones de Claude Code trabajan sobre este repo en paralelo.
