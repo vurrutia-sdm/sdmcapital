@@ -264,7 +264,10 @@ export default function AdminPage() {
         </aside>
 
         <main className="flex-1 min-w-0 p-4 lg:p-8 xl:p-10 lg:ml-56">
-          {tab === 'propiedades'  && <Propiedades />}
+          {/* Las pestañas son estado de React, no rutas, así que el salto a
+              Contenido que ofrece la etiqueta de Propiedades viaja como
+              callback desde acá. */}
+          {tab === 'propiedades'  && <Propiedades onIrAContenido={() => setTab('contenido')} />}
           {tab === 'cotizaciones' && <CotizacionesAdmin />}
           {tab === 'blog'         && <Blog />}
           {tab === 'equipo'       && <Equipo />}

@@ -27,6 +27,7 @@ import { avisarError } from '@/lib/errores'
 import { subirImagen, subirArchivo } from '@/lib/subirImagen'
 import { normalizeDossiers, dossierFileName } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
+import { useContenido } from '@/hooks/useContenido'
 import type { Propiedad, DossierItem, UnidadPropiedad } from '@/types'
 import MapPicker from '@/components/ui/MapPicker'
 import { Field, FieldGroup, Inp, Chk, Sel } from '@/components/admin/campos'
@@ -515,7 +516,29 @@ function slugify(titulo: string, comuna?: string, dormitorios?: number) {
 // Para nombrar en la etiqueta la columna que está apagando el arrastre.
 const ENCABEZADO_ORDEN: Record<string, string> = { tipo: 'Tipo', estado: 'Estado', precio_uf: 'Precio' }
 
-export default function Propiedades() {
+// Enlace a la pestaña Contenido. Las pestañas del admin son estado de React en
+// `AdminPage`, no rutas, así que el salto viaja como callback. Si no llega
+// —montado suelto, en una prueba— degrada a texto y no deja un enlace muerto.
+function EnlaceContenido({ onIr }: { onIr?: () => void }) {
+  if (!onIr) return <strong>Contenido</strong>
+  return (
+    <button type="button" onClick={onIr} className="text-sdm-sm"
+      style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', fontWeight: 700,
+        color: 'var(--navy)', textDecoration: 'underline', cursor: 'pointer' }}>
+      Contenido
+    </button>
+  )
+}
+
+// Cómo se llama, en la etiqueta, el modo de orden del catálogo que hay puesto.
+// Espejo de las opciones de Contenido → «¿Cómo se ordenan las propiedades?».
+const MODO_CATALOGO: Record<string, string> = {
+  precio_alto: 'por precio, de mayor a menor',
+  precio_bajo: 'por precio, de menor a mayor',
+  aleatorio:   'al azar en cada visita',
+}
+
+export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () => void } = {}) {
   const [items, setItems]         = useState<Propiedad[]>([])
   const [guardado, avisarGuardado] = useGuardado()
   const [editing, setEditing]     = useState<Partial<Propiedad> | null>(null)
@@ -523,6 +546,9 @@ export default function Propiedades() {
   const [sortField, setSortField] = useState<'tipo'|'estado'|'precio_uf'|null>(null)
   const [sortDir, setSortDir]     = useState<'asc'|'desc'>('asc')
   const [showInactive, setShowInactive] = useState(false)
+  // Para poder avisar cuando el orden que se está fijando no se está aplicando.
+  const { get: getContenido } = useContenido()
+  const modoCatalogo = getContenido('catalogo_orden', 'manual')
 
   // ORDENA POR `orden`, que es el campo que el arrastre escribe. Antes cargaba
   // por `created_at`, así que aunque se guardara el orden nuevo la lista volvía
@@ -697,7 +723,18 @@ export default function Propiedades() {
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
           {arrastreActivo ? (
-            <><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> <strong>Arrastra</strong> las filas para reordenarlas. Las primeras <strong>6</strong> aparecen en el Inicio.</>
+            <>
+              <MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> <strong>Arrastra</strong> las filas para fijar el orden del catálogo. Las destacadas del Inicio se eligen en <EnlaceContenido onIr={onIrAContenido} />.
+              {/* EL AVISO SOLO APARECE CUANDO ES VERDAD.
+                  El orden manual únicamente se aplica con `catalogo_orden` en
+                  'manual', y hoy en producción está en 'precio_alto': se puede
+                  arrastrar toda la tarde sin que el visitante vea un cambio.
+                  Decirlo siempre sería mentir el día que alguien lo ponga en
+                  Manual, así que se lee la clave y la línea desaparece sola. */}
+              {MODO_CATALOGO[modoCatalogo] && (
+                <><br /><span style={{ color: 'var(--error)' }}>Ojo:</span> el catálogo está ordenado <strong>{MODO_CATALOGO[modoCatalogo]}</strong>, así que este orden todavía no se aplica. Se cambia en <EnlaceContenido onIr={onIrAContenido} />.</>
+              )}
+            </>
           ) : (
             /* Con el arrastre apagado la etiqueta no puede seguir prometiéndolo:
                dice qué lo apagó y cómo volver a encenderlo. */
@@ -1013,7 +1050,7 @@ export default function Propiedades() {
                 key={p.id}
                 {...(arrastreActivo ? filaProps(idx) : {})}
                 className="flex flex-wrap items-center gap-y-0.5 rounded-sm border border-[#e8edf2] p-3 mb-2 lg:table-row lg:rounded-none lg:border-0 lg:p-0 lg:mb-0"
-                style={{ borderBottom: '1px solid var(--border)', cursor: arrastreActivo ? 'grab' : 'default', opacity: arrastrando === idx ? 0.45 : p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : i < 6 ? 'rgba(61,170,110,0.04)' : 'transparent' }}
+                style={{ borderBottom: '1px solid var(--border)', cursor: arrastreActivo ? 'grab' : 'default', opacity: arrastrando === idx ? 0.45 : p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : 'transparent' }}
               >
                 {/* Debajo de lg la manija es una franja propia arriba de la
                     tarjeta: la fila es flex-wrap y la celda del titulo lleva
@@ -1028,12 +1065,13 @@ export default function Propiedades() {
                   )}
                 </td>
                 {/* El numero de orden a secas es ruido en movil: no se puede
-                    reordenar desde el telefono. Solo se muestra la linea de las
-                    6 primeras, que son las que salen publicadas en el Inicio. */}
-                <td className={`${i < 6 ? 'order-4 grow' : 'hidden'} lg:table-cell lg:grow-0 lg:py-3 lg:pr-4`}>
-                  <span className="hidden lg:inline text-sdm-sm" style={{ fontWeight: 700, color: i < 6 ? 'var(--green)' : 'var(--muted)' }}>{i + 1}</span>
-                  {i < 6 && <Star size={11} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.15em', marginLeft: 4, color: 'var(--green)' }} />}
-                  {i < 6 && <span className="lg:hidden text-sdm-xs" style={{ color: 'var(--green)', marginLeft: 6 }}>aparece en el Inicio</span>}
+                    reordenar desde el telefono, asi que solo se ve desde lg.
+                    Aqui vivia ademas la estrella verde de las 6 primeras con un
+                    «aparece en el Inicio»: repetia la misma promesa falsa que la
+                    etiqueta, porque el Inicio toma sus destacadas de la lista de
+                    Contenido y no de esta posicion. */}
+                <td className="hidden lg:table-cell lg:grow-0 lg:py-3 lg:pr-4">
+                  <span className="hidden lg:inline text-sdm-sm" style={{ fontWeight: 700, color: 'var(--muted)' }}>{i + 1}</span>
                 </td>
                 <td className="block w-full order-1 lg:table-cell lg:w-auto lg:py-3 lg:pr-4">
                   <div className="flex items-center gap-3">
