@@ -46,7 +46,7 @@ export default function AsociadosPage() {
     <div>
       <SEO
         title="Nuestros asociados"
-        description="Red de socios y alianzas estratégicas de SDM Capital en Chile y el extranjero."
+        description="Red de socios y alianzas estratégicas de SDM Capital en Chile y Paraguay."
       />
       {/* Header */}
       <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]">
@@ -92,8 +92,8 @@ export default function AsociadosPage() {
             </h2>
             <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.85 }}>
               {lang === 'es'
-                ? 'Nuestra red abarca instituciones financieras, portales inmobiliarios, notarías y consultoras en Chile y el extranjero.'
-                : 'Our network spans financial institutions, real estate portals, notaries and consultancies in Chile and abroad.'
+                ? 'Nuestra red abarca instituciones financieras, portales inmobiliarios, notarías y consultoras en Chile y Paraguay.'
+                : 'Our network spans financial institutions, real estate portals, notaries and consultancies in Chile and Paraguay.'
               }
             </p>
           </div>

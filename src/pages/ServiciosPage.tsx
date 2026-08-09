@@ -50,7 +50,7 @@ export default function ServiciosPage() {
           Nuestros <em>servicios</em>
         </h1>
         <p className="font-light mt-5 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.9, maxWidth: 480 }}>
-          Soluciones integrales en inversión inmobiliaria y financiamiento, tanto en Chile como en el extranjero.
+          Soluciones integrales en inversión inmobiliaria y financiamiento, tanto en Chile como en Paraguay.
         </p>
       </div>
       <div>

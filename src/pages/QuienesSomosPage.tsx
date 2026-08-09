@@ -74,8 +74,8 @@ export default function QuienesSomosPage() {
         </h1>
         <p className="font-light mt-6 border-l-2 pl-4 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.9, borderColor: 'var(--green)', maxWidth: 520 }}>
           {lang === 'es'
-            ? 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con oportunidades únicas en Chile y el extranjero.'
-            : 'SDM Capital is a Chilean company specializing in real estate investment and financial management, with over 15 years connecting people with unique opportunities in Chile and abroad.'
+            ? 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con oportunidades únicas en Chile y Paraguay.'
+            : 'SDM Capital is a Chilean company specializing in real estate investment and financial management, with over 15 years connecting people with unique opportunities in Chile and Paraguay.'
           }
         </p>
       </div>
@@ -214,7 +214,7 @@ export default function QuienesSomosPage() {
           Nuestros <em>asociados</em>
         </h2>
         <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>
-          Trabajamos con una red de socios estratégicos en Chile y el extranjero para ofrecer las mejores oportunidades a nuestros clientes.
+          Trabajamos con una red de socios estratégicos en Chile y Paraguay para ofrecer las mejores oportunidades a nuestros clientes.
         </p>
         <a className="text-sdm-xs tracking-sdm-wide border border-[var(--navy-dark)] text-[var(--navy-dark)] bg-transparent hover:bg-[var(--navy-dark)] hover:text-white" href="/asociados" style={{ display: 'inline-block', fontWeight: 400, textTransform: 'uppercase', padding: '12px 28px', textDecoration: 'none', borderRadius: 2, transition: 'all 0.2s' }}
         >Ver todos los asociados</a>
