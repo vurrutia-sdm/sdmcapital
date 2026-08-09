@@ -132,6 +132,7 @@ línea o se marca como cerrada.
 | 2026-08-09 | Captación — insignias de lead a token | **CAMBIO EN ZONA COMPARTIDA: nacen seis tokens `--lead-*` en `src/styles/globals.css`** (tres de texto y tres de fondo) para la escala Hot/Warm/Cold, que vivía como literales en `Captacion.tsx` y fallaba contraste en dos de los tres. Solo los consume `Captacion.tsx`; no toca ninguna clase existente | Cerrada — commit `54d9cdc`. **Declarar siempre la matriz de daltonismo al medir ΔE**: la de acá es ~2 puntos más generosa que la de agosto |
 | 2026-08-09 | Captación — cerrar el ciclo de la visita | Sección «Visitas confirmadas» y acción «Marcar como realizada». Solo `src/pages/admin/Captacion.tsx` | Cerrada — el ciclo pendiente → confirmada → realizada por fin tiene las tres etapas visibles |
 | 2026-08-09 | Deuda menor — cierre | **INVASIÓN DE DOMINIO sobre `src/pages/`, `src/components/` y `functions/`** (sesión web pública y sesión Sofía): 4 Pages Functions nuevas, header, SEO, chevron de fichas y unificación de `FLabel`. No toca `globals.css` | En curso |
+| 2026-08-09 | Teclado + TipTap | **INVASIÓN DE DOMINIO sobre `src/pages/` y `src/components/`**: reordenamiento por teclado en los 10 puntos de arrastre. Además TipTap 3.23.6 → 3.29.2, que toca `package.json` y `package-lock.json`, **ZONA COMPARTIDA** | Cerrada — commits `8435408`, `c9d563a` y `2a68f95` |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -6884,3 +6885,106 @@ where clave in (
 > todas las filas candidatas. **Un 204 en un DELETE no prueba que se haya
 > borrado** — hay que contar antes y después. Se contó: siguen las 6 y el total
 > sigue en 148.
+
+---
+
+## Reordenar con teclado, en los diez puntos — 2026-08-09
+
+`usePointerSort` está construido sobre Pointer Events: con teclado no había forma
+de reordenar nada, en ninguna de las diez listas. Incumplía **2.1.1**.
+
+**Va en los diez o en ninguno.** Media función —que ande en tres paneles y en
+siete no— es peor que ninguna: el usuario no tiene cómo saber dónde funciona.
+
+| punto | guarda en |
+|---|---|
+| Propiedades · lista | Supabase (`orden`) |
+| Propiedades · unidades | estado del formulario |
+| Propiedades · fotos | estado del formulario |
+| Contenido · carrusel del hero | estado del panel |
+| Contenido · destacadas del inicio | `contenido_sitio` al guardar |
+| Equipo | Supabase (`orden`) |
+| Asociados | Supabase (`orden`) |
+| Ficha de cliente · nueva y editar | estado del formulario |
+| Sidebar del admin | `localStorage` |
+
+### Se agrega al lado, no se toca el arrastre
+
+`src/components/admin/ordenTeclado.tsx` **no importa nada de `useDragSort.ts` ni
+lo modifica**. Son dos caminos independientes hacia el mismo guardado.
+
+**Cada punto guarda por SU mismo camino:** `moverEnLista` hace el mismo `splice`
+que el arrastre, llama al mismo setter y entrega el array al mismo `alSoltar`.
+Donde el callback estaba inline se le puso nombre para poder reutilizarlo, sin
+cambiarle una línea. Así el teclado no puede divergir del arrastre.
+
+### Lo que no es obvio
+
+- **`aria-disabled` y NO `disabled`.** Un botón deshabilitado de verdad sale del
+  orden de tabulación: quien navega con teclado nunca lo encuentra y no se entera
+  de por qué no puede usarlo.
+- **Nombre con contexto:** «Subir «Casa en Peñalolén»», no «Subir».
+- **El foco sigue al elemento movido**, y si llega a un extremo pasa al otro
+  botón en vez de quedarse en uno inerte. El dato del foco pendiente vive en el
+  módulo y no en estado de React: entre el clic y el re-render no hay ningún
+  componente vivo que pueda llevarlo.
+- **24×24 exactos**, el mínimo de 2.5.8. Midiendo los dos, el criterio se cumple
+  por tamaño y no hace falta separarlos.
+- **En Propiedades los ▲▼ respetan la MISMA guarda que el arrastre.** Con una
+  columna ordenada harían el mismo `splice` sobre el array del hook y
+  reintroducirían el desfase de índices.
+- **En el sidebar van FUERA del `<button>` de la pestaña**: un botón dentro de
+  otro es HTML inválido.
+
+### Verificado mirando lo que se guarda
+
+Sobre el componente real con `fetch` interceptado: bajar «Propiedad 2» deja la
+pantalla en `1 · 3 · 2 · 4 · 5` y guarda `id-3→2`, `id-2→3` — lo mismo que se ve.
+El foco se queda en el botón del elemento movido; al llegar al final salta al ▲.
+
+> **`TarjetasEquipo` queda fuera y no es olvido.** Ya tenía ▲▼ y por lo tanto no
+> incumplía 2.1.1. Su mecanismo es otro —intercambia el `orden` de dos filas en
+> vez de reordenar un array— y usa `disabled` y `title` en vez de `aria-disabled`
+> y `aria-label`. Migrarlo exigiría tocar su guardado. Es la única lista con
+> presentación distinta.
+
+---
+
+## TipTap 3.23.6 → 3.29.2 — 2026-08-09
+
+**ZONA COMPARTIDA:** `package.json` y `package-lock.json`. Se subieron las 41
+entradas —9 dependencias y 32 overrides— al mismo número.
+
+**El salto es limpio.** Se comprobó antes de subir, que era la condición:
+
+| qué | resultado |
+|---|---|
+| Serialización de contenido real | **IDÉNTICA** en los tres tipos |
+| Las 16 órdenes de la barra | responden en los tres tipos |
+| Cambios de API en las 9 extensiones | ninguno: compila sin tocar código |
+| `npm install` sin `--legacy-peer-deps` | funciona sobre `node_modules` borrado |
+| Los 32 overrides | **siguen haciendo falta** |
+
+### Cómo se comprobó la serialización, que era lo que más importaba
+
+Los 13 artículos, las 3 páginas legales y las descripciones de propiedad ya están
+guardados: si la serialización cambiaba, el contenido existente podía renderizar
+distinto. Se sacaron de la base un artículo publicado, una página legal y una
+descripción, se pasaron por el mismo juego de extensiones del editor y se comparó
+`getHTML()`:
+
+```
+blog       2972 car  IDÉNTICO
+legal      3354 car  IDÉNTICO
+propiedad  4169 car  IDÉNTICO
+```
+
+`legal` entra con 3450 caracteres y sale con 3354 **en las dos versiones**: es la
+normalización de siempre, no algo que introduzca el salto.
+
+> **Trampa del método.** Probar los controles pulsando los botones con eventos
+> sintéticos NO sirve: ProseMirror lleva su propia selección y no la ve. El bucle
+> daba «sin efecto» en los 16. Hay que ejecutar las órdenes por la API
+> —`editor.chain().focus().toggleBold().run()`—, que es exactamente lo que hacen
+> los botones. Y `unsetLink` hay que probarlo aparte: encadenado con `setLink` el
+> HTML neto no cambia y se lee como si fallara.
