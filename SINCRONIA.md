@@ -7068,3 +7068,70 @@ la única salida al catálogo completo.
 Ponerles el mismo botón dejaría dos primarios compitiendo en la misma página.
 `.btn-primary` para el de propiedades (15.71:1, 281×44px) y enlace subrayado
 para el del blog.
+
+---
+
+## La taxonomía del blog: qué hay y qué falta decidir — 2026-08-09
+
+Commit `6cf3c97`. Se cierra la parte de presentación; la de datos queda abierta a
+propósito y conviene tenerla escrita antes de que alguien construya encima.
+
+### `blog_posts.tags` ESTÁ VACÍA. No la uses sin llenarla primero.
+
+La columna existe en la tabla y en el tipo `BlogPost`, y **los 13 artículos
+publicados tienen 0 tags**. Consecuencia directa: **el bloque de
+`BlogPostPage:110` que la pinta no se renderiza nunca** —depende de
+`post.tags && post.tags.length > 0`— y lleva ahí desde que se escribió.
+
+No es código muerto que haya que borrar: es la mitad de una funcionalidad que
+nunca se terminó. Borrarlo sería tan arbitrario como dejarlo. La decisión de
+abajo es la que resuelve cuál de las dos cosas hacer.
+
+### `categoria` contiene listas escritas a mano
+
+Es una columna de texto libre y se ha usado como si admitiera varios valores:
+
+```
+'Mercado, Mercado inmobiliario, Casas, Corretaje propiedades, Creditos hipotecarios'
+'Mercado, hipotecarios, creditos, financiamiento, asesoria inmobiliaria '
+'Inversión'
+```
+
+**9 de los 13 tienen coma.** Los otros 4 son un término solo. Nadie los escribió
+pensando en que se leerían como etiquetas, de ahí el solapamiento: «Mercado» y
+«Mercado inmobiliario» no son dos categorías, son la misma idea dos veces.
+
+### Lo que se hizo: recortar la PRESENTACIÓN, no el dato
+
+`categoriaPrincipal()` en `src/lib/blog.ts` parte por coma y recorta espacios.
+Se aplica en los cinco sitios donde se pinta —la lista de /blog, el bloque del
+home (artículo grande y pequeños) y la cabecera del artículo—. **La cadena
+completa sigue intacta en la base.**
+
+Se pudo hacer sin perder nada porque **esos `<span>` no son navegación**: el blog
+no tiene filtro ni búsqueda por categoría. Son decoración.
+
+| | antes | después |
+|---|---|---|
+| Tarjeta de 5 términos, 390px | 507px | **468px** |
+| Tarjeta de 1 término, 390px | 570px | 570px |
+| Lista completa de /blog | 6588px | **6373px** |
+| Bloque de blog del home | 1466px | **1341px** |
+
+### SI ALGÚN DÍA SE HACE UN FILTRO DE BLOG, PRIMERO LA TAXONOMÍA
+
+En cuanto una categoría pase a ser un enlace, `categoriaPrincipal()` deja de
+alcanzar: filtrar por «Mercado» traería nueve artículos que no tienen nada que
+ver entre sí, y los otros cuatro términos de cada cadena quedarían inalcanzables.
+
+El orden correcto es:
+
+1. **Decidir la lista cerrada de categorías.** Una por artículo.
+2. **Limpiar las 9 filas con coma**: dejar el término que corresponda en
+   `categoria` y mover el resto a `tags`.
+3. Recién entonces, convertir `categoria` en enlace y usar `tags` —que a partir
+   de ahí sí tendría contenido, y el bloque de `BlogPostPage:110` empezaría a
+   renderizarse solo.
+
+Hacerlo al revés —poner el filtro sobre los datos de hoy— da una navegación que
+miente sobre lo que agrupa.
