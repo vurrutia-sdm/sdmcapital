@@ -2,15 +2,26 @@ import { Link } from 'react-router-dom'
 import { ExternalLink } from 'lucide-react'
 import { useContenido } from '@/hooks/useContenido'
 
-// El footer va sobre navy, así que NINGÚN texto puede usar `--muted`: sobre
-// #0F2535 da 3,13:1 y no llega al 4,5 de 1.4.3. Medido para esta paleta:
+// El footer va sobre `--off` (#F9FAFB), no sobre blanco ni sobre navy.
 //
-//   #fff                      15,71:1   rótulos de columna
-//   rgba(255,255,255,0.8)     10,44:1   enlaces        (lo que ya usa ContactSection)
-//   rgba(255,255,255,0.6)      6,50:1   eslogan y pie
-//   --sky #A8C4DC              8,68:1   hover
-const TEXTO = 'rgba(255,255,255,0.8)'
-const TENUE = 'rgba(255,255,255,0.6)'
+// POR QUÉ --off Y NO BLANCO. Contra el navy de `ContactSection` los dos
+// contrastan igual, pero el footer sigue a contenido blanco en las 6 rutas
+// donde esa sección no se monta —/propiedades, /blog, /vende-con-nosotros y
+// las tres legales—. Ahí el blanco no separaría nada y todo el peso recaería
+// en el filete superior; `--off` lo separa por sí solo.
+//
+// LA PALETA SE RECALCULA ENTERA al cambiar de fondo. La de navy —blanco,
+// rgba(255,255,255,.8), rgba(255,255,255,.6), --sky en hover— no vale acá:
+// sobre claro esos colores desaparecen. Medido sobre #F9FAFB:
+//
+//   --navy-dark #0F2535   15,04:1   rótulos de columna y hover
+//   --muted     #5F7183    4,81:1   enlaces, eslogan y pie legal
+//
+// `--muted` pasa el 4,5 de 1.4.3, pero con poco margen: sobre blanco daba 5,03
+// y sobre `--off` baja a 4,81. No hay sitio para oscurecer el fondo más.
+const TEXTO = 'var(--muted)'
+const TENUE = 'var(--muted)'
+const FUERTE = 'var(--navy-dark)'
 
 const SOCIALS = [
   {
@@ -77,9 +88,9 @@ export default function Footer() {
   const enlace = { display: 'block', fontWeight: 300, marginBottom: 8, textDecoration: 'none', color: TEXTO } as const
 
   return (
-    <footer style={{ background: 'var(--navy-dark)' }}>
+    <footer style={{ background: 'var(--off)', borderTop: '1px solid var(--border)' }}>
       <div className="px-8 lg:px-12 pt-12 pb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-7 mb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.15)' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-7 mb-5" style={{ borderBottom: '1px solid var(--border)' }}>
 
           {/* Marca, eslogan y redes */}
           <div>
@@ -90,7 +101,7 @@ export default function Footer() {
                 <div className="logo-stripe logo-stripe--navy" />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="font-serif text-[20px] font-semibold tracking-[3px]" style={{ color: '#fff' }}>SDM</span>
+                <span className="font-serif text-[20px] font-semibold tracking-[3px]" style={{ color: FUERTE }}>SDM</span>
                 <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: TENUE, marginTop: 2, display: 'block' }}>Capital</span>
               </div>
             </div>
@@ -105,8 +116,8 @@ export default function Footer() {
               {SOCIALS.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                   aria-label={`${s.label} de SDM Capital (se abre en una pestaña nueva)`}
-                  className="hover:text-[var(--sky)]"
-                  style={{ textDecoration: 'none', width: 32, height: 32, minWidth: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '50%', color: TEXTO }}>
+                  className="hover:text-[var(--navy-dark)]"
+                  style={{ textDecoration: 'none', width: 32, height: 32, minWidth: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)', borderRadius: '50%', color: TEXTO }}>
                   <SocialIcon s={s} />
                 </a>
               ))}
@@ -115,7 +126,7 @@ export default function Footer() {
 
           {/* Navegación */}
           <div>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#fff', marginBottom: 20 }}>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: FUERTE, marginBottom: 20 }}>
               Navegación
             </div>
             {[
@@ -126,12 +137,12 @@ export default function Footer() {
               { to: '/vende-con-nosotros', label: 'Vende con nosotros' },
               { to: '/blog',               label: 'Blog' },
             ].map(l => (
-              <Link className="text-sdm-base hover:text-[var(--sky)]" key={l.to} to={l.to} style={enlace}>{l.label}</Link>
+              <Link className="text-sdm-base hover:text-[var(--navy-dark)]" key={l.to} to={l.to} style={enlace}>{l.label}</Link>
             ))}
             {/* Único enlace que sale del sitio. Antes se distinguía por color y
                 espaciado, que no significaban nada; ahora lleva la marca que sí
                 corresponde y se ve igual que sus vecinos. */}
-            <a className="text-sdm-base hover:text-[var(--sky)] inline-flex items-center gap-1.5"
+            <a className="text-sdm-base hover:text-[var(--navy-dark)] inline-flex items-center gap-1.5"
               href="https://www.flow.cl/uri/gHSdT2jVv" target="_blank" rel="noopener noreferrer"
               aria-label="Reserva tu propiedad (se abre en una pestaña nueva)"
               style={{ ...enlace, display: 'inline-flex' }}>
@@ -144,16 +155,16 @@ export default function Footer() {
               no tenían ningún dato de contacto: ContactSection solo se monta en
               7 de las 13. */}
           <div>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#fff', marginBottom: 20 }}>
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: FUERTE, marginBottom: 20 }}>
               Contacto
             </div>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: TENUE, marginBottom: 2 }}>WhatsApp</div>
-            <a className="text-sdm-base hover:text-[var(--sky)]" href={`https://wa.me/${waLink}`} target="_blank" rel="noopener noreferrer"
+            <a className="text-sdm-base hover:text-[var(--navy-dark)]" href={`https://wa.me/${waLink}`} target="_blank" rel="noopener noreferrer"
               aria-label={`Escribir por WhatsApp al ${whatsapp} (se abre en una pestaña nueva)`}
               style={{ ...enlace, marginBottom: 14 }}>{whatsapp}</a>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: TENUE, marginBottom: 2 }}>Teléfono</div>
-            <a className="text-sdm-base hover:text-[var(--sky)]" href={`tel:${telefono.replace(/\s/g, '')}`} style={{ ...enlace, marginBottom: 14 }}>{telefono}</a>
-            <a className="text-sdm-base hover:text-[var(--sky)]" href={`mailto:${email}`} style={enlace}>{email}</a>
+            <a className="text-sdm-base hover:text-[var(--navy-dark)]" href={`tel:${telefono.replace(/\s/g, '')}`} style={{ ...enlace, marginBottom: 14 }}>{telefono}</a>
+            <a className="text-sdm-base hover:text-[var(--navy-dark)]" href={`mailto:${email}`} style={enlace}>{email}</a>
           </div>
         </div>
 
@@ -162,13 +173,13 @@ export default function Footer() {
             dentro de un bloque de texto. */}
         <p className="text-sdm-sm" style={{ fontWeight: 300, color: TENUE, lineHeight: 1.9 }}>
           © 2026 SDM Capital · Todos los derechos reservados{' · '}
-          <Link to="/politica-de-privacidad" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Política de Privacidad</Link>
+          <Link to="/politica-de-privacidad" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Política de Privacidad</Link>
           {' · '}
-          <Link to="/condiciones-del-servicio" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Condiciones del Servicio</Link>
+          <Link to="/condiciones-del-servicio" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Condiciones del Servicio</Link>
           {' · '}
-          <Link to="/eliminacion-de-datos" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Eliminación de Datos</Link>
+          <Link to="/eliminacion-de-datos" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Eliminación de Datos</Link>
           {' · '}
-          <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--sky)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>By HaikuFlow.com</a>
+          <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>By HaikuFlow.com</a>
         </p>
       </div>
     </footer>
