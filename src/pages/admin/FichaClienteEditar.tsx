@@ -4,6 +4,7 @@ import { ArrowLeft, GripVertical, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { subirImagen } from '@/lib/subirImagen'
 import { usePointerSort } from '@/components/admin/useDragSort'
+import { ControlesOrden, moverEnLista } from '@/components/admin/ordenTeclado'
 import { Field } from '@/components/admin/campos'
 
 type Agente = { id: string; nombre: string; telefono: string | null; correo: string | null }
@@ -170,6 +171,9 @@ export default function FichaClienteEditar() {
   // Sin trabajo al soltar: el orden vive en este estado hasta que se guarda la
   // ficha, igual que antes.
   const { arrastrando, filaProps, manijaProps } = usePointerSort(photos, setPhotos, () => {})
+  // Sin trabajo al soltar: el orden vive en este estado hasta que se guarda la
+  // ficha. El teclado usa el mismo setter.
+  const moverFoto = moverEnLista(photos, setPhotos, () => {})
 
   const uploadNewPhotos = async (items: NewPhoto[]): Promise<string[]> => {
     const timestamp = Date.now()
@@ -364,6 +368,11 @@ export default function FichaClienteEditar() {
                         <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
                         <div className="text-sdm-xs" style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(13,34,64,0.75)', borderRadius: 2, padding: '1px 6px', fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
                           {i + 1}
+                        </div>
+                        <div style={{ position: 'absolute', bottom: 4, right: 4 }}>
+                          <ControlesOrden zona={'fotos-FichaClienteEditar'} clave={String(i)} nombre={`Foto ${i + 1}`}
+                            puedeSubir={i > 0} puedeBajar={i < photos.length - 1}
+                            onMover={dir => moverFoto(i, dir)} />
                         </div>
                         {p.kind === 'new' && (
                           <div className="text-sdm-xs tracking-sdm-wide" style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(77,184,112,0.9)', borderRadius: 2, padding: '1px 5px', fontWeight: 700, color: '#fff', textTransform: 'uppercase' }}>

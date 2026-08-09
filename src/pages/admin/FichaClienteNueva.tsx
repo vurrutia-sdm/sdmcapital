@@ -4,6 +4,7 @@ import { ArrowLeft, GripVertical, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { subirImagen } from '@/lib/subirImagen'
 import { usePointerSort } from '@/components/admin/useDragSort'
+import { ControlesOrden, moverEnLista } from '@/components/admin/ordenTeclado'
 import { Field } from '@/components/admin/campos'
 
 type Agente = { id: string; nombre: string; telefono: string | null; correo: string | null }
@@ -117,6 +118,9 @@ export default function FichaClienteNueva() {
   // Sin trabajo al soltar: el orden vive en este estado hasta que se guarda la
   // ficha, igual que antes.
   const { arrastrando, filaProps, manijaProps } = usePointerSort(photos, setPhotos, () => {})
+  // Sin trabajo al soltar: el orden vive en este estado hasta que se guarda la
+  // ficha. El teclado usa el mismo setter.
+  const moverFoto = moverEnLista(photos, setPhotos, () => {})
 
   const uploadPhotos = async (items: PhotoItem[]): Promise<string[]> => {
     const timestamp = Date.now()
@@ -285,6 +289,11 @@ export default function FichaClienteNueva() {
                     <img src={p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
                     <div className="text-sdm-xs" style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(13,34,64,0.75)', borderRadius: 2, padding: '1px 6px', fontWeight: 700, color: '#fff', lineHeight: 1.4 }}>
                       {i + 1}
+                    </div>
+                    <div style={{ position: 'absolute', bottom: 4, right: 4 }}>
+                      <ControlesOrden zona="fotos-ficha-nueva" clave={String(i)} nombre={`Foto ${i + 1}`}
+                        puedeSubir={i > 0} puedeBajar={i < photos.length - 1}
+                        onMover={dir => moverFoto(i, dir)} />
                     </div>
                     <span {...manijaProps} style={{ ...manijaProps.style, position: 'absolute', bottom: 0, left: 0, background: 'rgba(13,34,64,0.75)', borderRadius: '0 3px 0 3px', padding: '8px 10px', display: 'flex' }}>
                       <GripVertical size={14} strokeWidth={2} color="#fff" />

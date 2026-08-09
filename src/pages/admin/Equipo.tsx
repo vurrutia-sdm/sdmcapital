@@ -13,6 +13,7 @@ import { Field, Inp, Txa, Chk } from '@/components/admin/campos'
 import { SaveBtn, Badge, Guardado, useGuardado } from '@/components/admin/acciones'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { useDragSort } from '@/components/admin/useDragSort'
+import { ControlesOrden, moverEnLista } from '@/components/admin/ordenTeclado'
 
 export default function Equipo() {
   const [items, setItems]     = useState<MiembroEquipo[]>([])
@@ -23,7 +24,10 @@ export default function Equipo() {
   const load = () => supabase.from('equipo').select('*').order('orden').then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
-  const { items: sorted, arrastrando, filaProps, manijaProps } = useDragSort(items, async (reordered) => {
+  // UN SOLO CAMINO DE GUARDADO para el arrastre y para el teclado. Estaba
+  // inline dentro de `useDragSort`; se le pone nombre para que los botones ▲▼
+  // entreguen su array al mismo sitio y no puedan divergir.
+  const guardarOrden = async (reordered: MiembroEquipo[]) => {
     const fallo = (await Promise.all(reordered.map((m, i) => supabase.from('equipo').update({ orden: i + 1 }).eq('id', m.id)))).find(r => r.error)
     // CORTA ANTES DEL `load()`, igual que Propiedades y Asociados. Un PATCH por
     // fila no es una transacción: si falla a media lista, unas quedan con el
@@ -33,7 +37,10 @@ export default function Equipo() {
     // reintentar soltando otra vez.
     if (avisarError('No se pudo guardar el nuevo orden del equipo', fallo?.error ?? null)) return
     load()
-  })
+  }
+
+  const { items: sorted, setItems: setSorted, arrastrando, filaProps, manijaProps } = useDragSort(items, guardarOrden)
+  const moverEquipo = moverEnLista(sorted, setSorted, guardarOrden)
 
   const save = async () => {
     if (!editing) return
@@ -107,6 +114,9 @@ export default function Equipo() {
               <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: -10, flexShrink: 0 }}>
                 <GripVertical size={18} strokeWidth={2} style={{ color: 'var(--muted)' }} />
               </span>
+              <ControlesOrden zona="equipo" clave={m.id} nombre={m.nombre || 'este miembro'}
+                puedeSubir={i > 0} puedeBajar={i < sorted.length - 1}
+                onMover={dir => moverEquipo(i, dir)} />
               {m.foto
                 ? <img src={m.foto} alt={m.nombre} className="w-14 h-14 object-cover rounded-full" style={{ border: '2px solid var(--border)' }} />
                 : <div className="w-14 h-14 rounded-full flex items-center justify-center font-serif flex-shrink-0 text-sdm-xl" style={{ background: 'var(--navy)', color: 'var(--sky)' }}>{m.nombre.split(' ').map(n => n[0]).join('').slice(0,2)}</div>
