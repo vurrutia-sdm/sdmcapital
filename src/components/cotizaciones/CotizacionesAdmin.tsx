@@ -516,7 +516,7 @@ function CotizacionWizard({
                 )}
                 <button
                   onClick={() => setManualProp(true)}
-                  className="border border-[var(--border)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
+                  className="border border-[var(--border-input)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
                   style={BTN_MODO}
                 >
                   <PencilLine aria-hidden="true" size={13} />
@@ -531,7 +531,7 @@ function CotizacionWizard({
                 {!draft.propiedad_id && (
                   <button
                     onClick={() => { setManualProp(false); setPropSearch('') }}
-                    className="border border-[var(--border)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
+                    className="border border-[var(--border-input)] text-[var(--navy-dark)] hover:border-[var(--green)] hover:text-[var(--green)]"
                     style={BTN_MODO}
                   >
                     <Search aria-hidden="true" size={13} />
@@ -865,7 +865,7 @@ function CotizacionWizard({
             </button>
           ) : (
             <>
-              <button onClick={() => onSave('borrador')} disabled={saving} className="btn-outline" style={{ color: 'var(--muted)', border: '1px solid var(--border)' }}>
+              <button onClick={() => onSave('borrador')} disabled={saving} className="btn-outline" style={{ color: 'var(--muted)', border: '1px solid var(--border-input)' }}>
                 {saving ? 'Guardando…' : 'Guardar borrador'}
               </button>
               <button onClick={() => onSave('enviada')} disabled={saving} className="btn-green">

@@ -45,7 +45,7 @@ export default function Mensajes() {
               </div>
               <div className="flex gap-2">
                 <a href={`mailto:${m.email}?subject=Re: Consulta SDM Capital`} className="btn-primary text-sdm-xs" style={{ padding: '8px 16px' }}>Responder</a>
-                {!m.leido && <button className="text-sdm-xs tracking-sdm-wide" onClick={() => m.id && marcar(m.id)} style={{ textTransform: 'uppercase', padding: '8px 16px', borderRadius: 2, border: '1px solid var(--border)', color: 'var(--muted)', background: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Marcar leído</button>}
+                {!m.leido && <button className="text-sdm-xs tracking-sdm-wide" onClick={() => m.id && marcar(m.id)} style={{ textTransform: 'uppercase', padding: '8px 16px', borderRadius: 2, border: '1px solid var(--border-input)', color: 'var(--muted)', background: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Marcar leído</button>}
               </div>
             </div>
           </div>

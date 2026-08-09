@@ -406,7 +406,7 @@ export default function FichaClienteEditar() {
               {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>
             <Link className="text-sdm-base" to={`/admin/ficha-cliente/${clienteId}/ficha/${fichaId}`}
-              style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, color: 'var(--muted)', textDecoration: 'none', fontWeight: 500 }}>
+              style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 2, color: 'var(--muted)', textDecoration: 'none', fontWeight: 500 }}>
               Cancelar
             </Link>
           </div>

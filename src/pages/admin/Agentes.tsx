@@ -200,11 +200,11 @@ export default function Agentes() {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                   <button className="text-sdm-sm" onClick={() => toggleActivo(a)}
-                    style={{ padding: '5px 12px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', fontFamily: 'inherit' }}>
+                    style={{ padding: '5px 12px', background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', fontFamily: 'inherit' }}>
                     {a.activo ? 'Pausar' : 'Activar'}
                   </button>
                   <button onClick={() => openEdit(a)} title="Editar"
-                    style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '5px 8px', display: 'flex', alignItems: 'center', fontFamily: 'inherit' }}>
+                    style={{ background: 'none', border: '1px solid var(--border-input)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '5px 8px', display: 'flex', alignItems: 'center', fontFamily: 'inherit' }}>
                     <Edit2 aria-hidden="true" size={13} />
                   </button>
                   <button onClick={() => del(a.id)} disabled={deleting === a.id} title="Eliminar"
@@ -249,7 +249,7 @@ export default function Agentes() {
                 {saving ? 'Guardando…' : modal.editing ? 'Guardar cambios' : 'Crear agente'}
               </button>
               <button className="text-sdm-base" onClick={closeModal}
-                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
                 Cancelar
               </button>
             </div>

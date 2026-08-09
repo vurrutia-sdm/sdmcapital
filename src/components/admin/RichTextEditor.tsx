@@ -125,7 +125,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 4, paddingLeft: 6, borderLeft: '1px solid var(--border)' }}>
           <span className="text-sdm-sm" style={{ color: 'var(--muted)' }}>Color:</span>
           <input type="color" onChange={e => editor.chain().focus().setColor(e.target.value).run()} title="Color del texto"
-            style={{ width: 26, height: 26, borderRadius: 3, border: '1px solid var(--border)', padding: 2, cursor: 'pointer', background: 'none' }} />
+            style={{ width: 26, height: 26, borderRadius: 3, border: '1px solid var(--border-input)', padding: 2, cursor: 'pointer', background: 'none' }} />
         </div>
       </div>
       <EditorContent editor={editor} />

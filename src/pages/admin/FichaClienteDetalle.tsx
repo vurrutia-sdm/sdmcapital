@@ -189,7 +189,7 @@ export default function FichaClienteDetalle() {
               </div>
               <Guardado visible={guardado} />
               <button className="text-sdm-sm" onClick={() => setShowEdit(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: 'var(--navy-dark)', fontFamily: 'inherit' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 2, padding: '8px 16px', cursor: 'pointer', color: 'var(--navy-dark)', fontFamily: 'inherit' }}>
                 <Edit2 aria-hidden="true" size={13} /> Editar
               </button>
             </div>
@@ -249,7 +249,7 @@ export default function FichaClienteDetalle() {
                         )}
                         <button className="text-sdm-sm" onClick={e => { e.stopPropagation(); navigate(`/admin/ficha-cliente/${clienteId}/ficha/${f.id}/editar`) }}
                           title="Editar ficha"
-                          style={{ position: 'relative', zIndex: 2, background: 'none', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
+                          style={{ position: 'relative', zIndex: 2, background: 'none', border: '1px solid var(--border-input)', borderRadius: 2, cursor: 'pointer', color: 'var(--navy-dark)', padding: '3px 10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
                           <Edit2 aria-hidden="true" size={12} /> Editar
                         </button>
                         <button onClick={e => deleteFicha(e, f)} disabled={isDel} title="Eliminar ficha"
@@ -296,7 +296,7 @@ export default function FichaClienteDetalle() {
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowEdit(false)}
-                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
                 Cancelar
               </button>
             </div>

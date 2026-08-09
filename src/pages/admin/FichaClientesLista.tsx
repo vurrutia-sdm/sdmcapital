@@ -226,7 +226,7 @@ export default function FichaClientesLista() {
                 {saving ? 'Guardando…' : 'Crear cliente'}
               </button>
               <button className="text-sdm-base" onClick={() => setShowModal(false)}
-                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
+                style={{ padding: '11px 20px', background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--muted)' }}>
                 Cancelar
               </button>
             </div>

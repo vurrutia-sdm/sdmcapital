@@ -175,7 +175,7 @@ function CarouselPhotoManager({ d, setD }: { d: Record<string, string>; setD: (f
                 aria-label={`Posición de la foto ${i + 1}`}
                 value={d[HERO_POS_KEYS[i]] || 'center center'}
                 onChange={e => setD(prev => ({ ...prev, [HERO_POS_KEYS[i]]: e.target.value }))}
-                style={{ width: '100%', marginTop: 4, padding: '4px 6px', border: '1px solid var(--border)', borderRadius: 3, color: 'var(--navy-dark)', background: '#fff', fontFamily: 'inherit', cursor: 'pointer' }}
+                style={{ width: '100%', marginTop: 4, padding: '4px 6px', border: '1px solid var(--border-input)', borderRadius: 3, color: 'var(--navy-dark)', background: '#fff', fontFamily: 'inherit', cursor: 'pointer' }}
               >
                 {POSITION_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -407,7 +407,7 @@ export default function Contenido() {
       <div className="flex flex-wrap gap-2 mb-8">
         {PAGINAS.map(p => (
           <button className="text-sdm-sm" key={p.key} onClick={() => handlePaginaChange(p.key)}
-            style={{ padding: '8px 16px', fontWeight: pagina === p.key ? 600 : 300, borderRadius: 2, border: pagina === p.key ? '2px solid var(--green)' : '1px solid var(--border)', background: pagina === p.key ? 'var(--green)' : '#fff', color: pagina === p.key ? '#fff' : 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6 }}>
+            style={{ padding: '8px 16px', fontWeight: pagina === p.key ? 600 : 300, borderRadius: 2, border: pagina === p.key ? '2px solid var(--green)' : '1px solid var(--border-input)', background: pagina === p.key ? 'var(--green)' : '#fff', color: pagina === p.key ? '#fff' : 'var(--muted)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6 }}>
             <p.icon size={14} strokeWidth={2} />{p.label}
           </button>
         ))}
