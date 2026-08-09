@@ -19,16 +19,33 @@ export default {
           light: '#D4E6F1',
           pale: '#EDF4F9',
         },
-        ink: '#1a1a1a',
-        // #7a8a96 daba 3,56:1 sobre blanco y NO cumple AA para texto normal.
-        // Es el valor que la auditoría ya había rechazado: se corrigió en
-        // globals.css y quedó vivo acá, así que `var(--muted)` pintaba el que
-        // cumple y `text-muted` el que no. Mismo nombre, dos colores.
-        // #5F7183 da 5,03:1. Los cuatro nombres que viven en los dos archivos
-        // —muted, border, ink, off— tienen que valer lo mismo en ambos.
-        muted: '#5F7183',
-        border: '#e8edf2',
-        off: '#F9FAFB',
+        // ESTOS CUATRO NO LLEVAN VALOR: APUNTAN A globals.css.
+        //
+        // Antes estaban escritos acá Y allá, y `muted` acabó valiendo dos cosas
+        // —#7a8a96 en este archivo, #5F7183 en globals.css—. El primero da
+        // 3,56:1 sobre blanco y no cumple AA: era el valor que la auditoría ya
+        // había rechazado, corregido en globals.css y olvidado acá. Durante ese
+        // tiempo `var(--muted)` pintaba el que cumple y `text-muted` el que no.
+        //
+        // Con `var()` el valor vive en UN SOLO SITIO y la divergencia deja de
+        // ser posible por construcción. Sin test, sin script de prebuild, sin
+        // dependencia nueva: no hay dos números que puedan separarse.
+        //
+        // EL COSTE: se pierden los modificadores de opacidad —`text-muted/50`
+        // deja de funcionar—. Recuperarlos exigiría guardar el token como
+        // canales sueltos (`--muted: 95 113 131`) y envolverlo en
+        // `rgb(var(--muted) / <alpha-value>)`, que cambiaría cómo se escriben
+        // los 306 `var(--muted)` del proyecto. Hoy no hay ni un solo uso de
+        // esos modificadores, así que el coste es cero.
+        //
+        // NAVY, GREEN Y SKY NO ENTRAN. Están anidados —navy.DEFAULT, navy.dark,
+        // navy.deeper— y no tienen equivalente exacto en globals.css. Forzarlos
+        // obligaría a inventar tokens para que encajen, que es peor que la
+        // duplicación que esto resuelve.
+        ink: 'var(--ink)',
+        muted: 'var(--muted)',
+        border: 'var(--border)',
+        off: 'var(--off)',
       },
       fontFamily: {
         serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
