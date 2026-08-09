@@ -433,7 +433,17 @@ export default function PropiedadesPage() {
 
   return (
     <div className="min-h-screen">
-      <SEO title="Propiedades en Venta y Arriendo" description="Encuentra casas, departamentos, parcelas y propiedades comerciales en Chile." url="/propiedades" />
+      {/* EL CANONICAL SALE DE LA RUTA, NO DE UN LITERAL.
+          Este componente sirve tres rutas —/propiedades, /propiedades-usadas y
+          /proyectos-nuevos— con inventarios distintos y un <h1> propio cada una.
+          Con `url="/propiedades"` fijo, las otras dos le decían a Google que la
+          página buena era la primera: contenido propio pidiendo no ser indexado.
+
+          `location.pathname` y no `location.pathname + search` A PROPÓSITO: los
+          filtros del catálogo —?estado=, ?tipo=, ?bono_pie=— SÍ deben
+          canonicalizarse a la ruta limpia. Siete filtros combinables generan
+          miles de URLs que son la misma página con otro recorte. */}
+      <SEO title="Propiedades en Venta y Arriendo" description="Encuentra casas, departamentos, parcelas y propiedades comerciales en Chile." url={location.pathname} />
 
       {/* Header */}
       <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[#e8edf2]">

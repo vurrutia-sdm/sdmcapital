@@ -39,10 +39,13 @@ export default function ServiciosPage() {
 
   return (
     <div>
+      {/* El canonical incluye el slug cuando lo hay: /servicios/:slug es una
+          página con su propio contenido, y con `url="/servicios"` fijo las
+          cuatro hijas se canonicalizaban a su índice. */}
       <SEO
         title="Servicios"
         description="Inversión inmobiliaria en Chile e internacional, financiamiento hipotecario y bancarización."
-        url="/servicios"
+        url={slug ? `/servicios/${slug}` : '/servicios'}
       />
       <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 18 }}>Lo que hacemos</div>
