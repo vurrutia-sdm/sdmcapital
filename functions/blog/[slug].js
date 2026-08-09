@@ -13,7 +13,7 @@
 // Un solo sitio para lo que el cliente y las Functions tienen que decir igual.
 // Antes la descripción estaba copiada a mano acá con un comentario pidiendo que
 // no divergiera de `src/components/SEO.tsx`.
-import { SITE_NAME, DEFAULT_OG_IMAGE, DEFAULT_DESCRIPTION } from '../../src/lib/seo-compartido.js'
+import { SITE_NAME, BASE_URL, DEFAULT_OG_IMAGE, DEFAULT_DESCRIPTION } from '../../src/lib/seo-compartido.js'
 
 // Anon key pública (la misma que va embebida en el bundle del cliente) usada
 // como fallback si no se configuran variables de entorno en Cloudflare Pages.
