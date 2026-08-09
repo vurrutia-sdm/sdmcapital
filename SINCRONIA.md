@@ -129,8 +129,8 @@ línea o se marca como cerrada.
 | 2026-08-08 | Accesibilidad — tanda 6: los menores | 70 iconos decorativos ocultos, estado en los 3 controles de dos estados, `.sr-only` nueva en **`globals.css`** y los 13 tokens tipográficos a `rem` en **`globals.css` y `tailwind.config.js`, ZONA COMPARTIDA**. **El reordenamiento por teclado NO se hizo** | Cerrada — commits `b306c5a`, `49fef29`, `ea2ea11` y `248e418` |
 | 2026-08-08 | Contenido — cierre de la inconsistencia internacional | 12 textos de «el mundo» pasan a «Chile y Paraguay» —**`src/lib/i18n.ts` y `functions/blog/[slug].js`, ZONA COMPARTIDA y dominio Sofía**— y se borra el material muerto de los seis destinos | Cerrada — commits `48d38dd` y `2fb2712` |
 | 2026-08-09 | Captación — cierre de los nueve pendientes | **Invasión de dominio autorizada: `Captacion.tsx`. Se cierran los nueve hallazgos que quedaron pendientes de las auditorías de UX copy, color y accesibilidad. No se toca la lógica del bot ni sus escrituras a Supabase** | Cerrada — commits `77d216c`, `166bca2`, `d0ba68e`, `92030bf` y `d236092`. **Ya no queda ningún módulo con excepciones de auditoría.** Deja 5 pendientes nuevos, el primero es blanco sobre `--green` a 2.93:1 |
-| 2026-08-09 | Captación — insignias de lead a token | **CAMBIO EN ZONA COMPARTIDA: nacen seis tokens `--lead-*` en `src/styles/globals.css`** (tres de texto y tres de fondo) para la escala Hot/Warm/Cold, que vivía como literales en `Captacion.tsx` y fallaba contraste en dos de los tres. Solo los consume `Captacion.tsx`; no toca ninguna clase existente | En curso |
-| 2026-08-09 | Captación — cerrar el ciclo de la visita | Sección «Visitas confirmadas» y acción «Marcar como realizada». Solo `src/pages/admin/Captacion.tsx` | En curso |
+| 2026-08-09 | Captación — insignias de lead a token | **CAMBIO EN ZONA COMPARTIDA: nacen seis tokens `--lead-*` en `src/styles/globals.css`** (tres de texto y tres de fondo) para la escala Hot/Warm/Cold, que vivía como literales en `Captacion.tsx` y fallaba contraste en dos de los tres. Solo los consume `Captacion.tsx`; no toca ninguna clase existente | Cerrada — commit `54d9cdc`. **Declarar siempre la matriz de daltonismo al medir ΔE**: la de acá es ~2 puntos más generosa que la de agosto |
+| 2026-08-09 | Captación — cerrar el ciclo de la visita | Sección «Visitas confirmadas» y acción «Marcar como realizada». Solo `src/pages/admin/Captacion.tsx` | Cerrada — el ciclo pendiente → confirmada → realizada por fin tiene las tres etapas visibles |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
@@ -6439,3 +6439,77 @@ razón por la que 12.0 alcanza y no hace falta perseguir 20.
 Los seis pares dan exactamente los ratios documentados. De paso, las métricas
 «Pendientes» y «Realizadas» dejaron sus literales y pasaron de 3.52 y 6.60 a
 **5.18** y **6.60** sobre blanco: antes cumplían solo por ser texto de 24 px.
+
+---
+
+## Captación — el ciclo de la visita por fin tiene final — 2026-08-09
+
+El disparador fue una métrica muerta: «Realizadas» contaba
+`visitas.estado='realizada'` y **nadie escribía ese valor**. Pero el problema de
+fondo era mayor: **una visita desaparecía del panel en el momento de
+confirmarla**, que es justo cuando pasa a ser un compromiso con un cliente.
+`loadVisitas` pedía solo las `pendiente`, y no había ninguna pantalla que
+mostrara lo que venía.
+
+### Qué se agregó
+
+- **Sección «Visitas confirmadas»**, entre las pendientes y los leads.
+- **Acción «Marcar como realizada»**, que cierra el ciclo.
+
+`loadVisitas` pasa a pedir los dos estados en **una sola consulta**
+—`estado=in.(pendiente,confirmada)`— y los parte en cliente. `cancelada` y
+`realizada` quedan fuera a propósito: son finales de ciclo y no piden acción.
+Verificado inspeccionando la URL que arma supabase-js.
+
+### Componente aparte, NO una variante con bandera
+
+`VisitaConfirmadaCard` es un componente nuevo y no un `VisitaCard` con un
+`readonly`. Apagar controles con una bandera los deja existiendo en el DOM
+—alcanzables con Tab, anunciados por un lector, sin hacer nada— o exige rociar
+`disabled` por todas partes y confiar en no olvidar ninguno. Acá simplemente no
+hay controles que apagar: lo que era editable se pinta como dato.
+
+Medido en el navegador: **1 elemento enfocable** en la tarjeta de solo lectura
+—la acción— contra 5 en la editable, y **0 campos de formulario**.
+
+Lo que muestra: nombre, teléfono, cuándo se solicitó, insignia de score, comuna,
+intención, **asignada a** y **horario** (que en la pendiente son controles y acá
+son datos), el brief, y la acción.
+
+### La confirmación dice lo que no se puede deshacer
+
+```
+¿Marcar como realizada la visita de María José Fernández?
+
+Sale de esta sección y no se puede deshacer desde el panel.
+
+Al cliente no le llega ningún aviso.
+```
+
+Verificado antes de escribirlo: solo se escribe `visitas.estado='realizada'`; la
+tarjeta sale de la sección porque la consulta pide `pendiente` y `confirmada`;
+**no hay ninguna pantalla que liste las realizadas ni acción que las devuelva**,
+y esa es la diferencia real con confirmar o cancelar, que siempre dejan la
+visita a la vista en alguna sección; al cliente no le llega nada porque el
+Worker nunca lee `visitas.estado`; y `leads.status` no se toca —la fila del lead
+pasa a decir «Visita realizada» por el cruce de `estadoLead`.
+
+### Criterios heredados
+
+Objetivo táctil de **44 px** explícito en el botón: con el `padding: 11px` y
+texto de 13 px que usa el resto del panel medía ~41. Contraste **15.71:1**,
+anillo de foco visible, cero colores fuera de token, `avisarError` con `return`.
+
+La consulta nueva **no** pasa por `avisarError` —corre cada 25 s con el refresco
+y un fallo no puede levantar un `alert()` encima de quien trabaja—: va a
+consola, igual que el cruce con visitas.
+
+De paso, `confirmarVisita` y `cancelarVisita` ahora también recargan Métricas.
+Movían contadores y los dejaban desfasados hasta el refresco de 25 s.
+
+### Pendiente que deja
+
+**Una visita confirmada no se puede cancelar desde el panel.** La acción
+`cancelarVisita` funciona sobre cualquier visita, pero el botón solo existe en
+la tarjeta de las pendientes. Si una visita confirmada se cae, hoy no hay forma
+de reflejarlo. No entraba en este encargo.

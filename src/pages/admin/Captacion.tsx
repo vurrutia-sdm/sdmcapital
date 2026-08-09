@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, ChevronDown, ChevronUp, Check, X, Pencil, Trash2, Bell } from 'lucide-react'
+import { ArrowLeft, RefreshCw, ChevronDown, ChevronUp, Check, X, Pencil, Trash2, Bell, CalendarCheck } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 
@@ -932,6 +932,60 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
   )
 }
 
+// ── Sección 1b: Visitas confirmadas ──────────────────────────────────────────
+//
+// COMPONENTE APARTE, NO UNA VARIANTE DE `VisitaCard` CON UNA BANDERA.
+//
+// `VisitaCard` lleva dos botones de asignación, un campo de texto y dos
+// acciones. Apagarlos con un `readonly` deja controles que siguen existiendo en
+// el DOM —alcanzables con Tab, anunciados por un lector, sin hacer nada— o
+// exige rociar `disabled` por todas partes y confiar en no olvidar ninguno.
+// Acá simplemente no hay controles que apagar: lo que era editable se pinta
+// como texto, y el único elemento enfocable es la acción que sí funciona.
+function VisitaConfirmadaCard({ visita, onRealizada, saving }: {
+  visita: VisitaConLead
+  onRealizada: () => void
+  saving: boolean
+}) {
+  const lead = visita.lead
+  return (
+    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+        <div>
+          <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
+          <div className="text-sdm-sm" style={{ color: COLORS.muted, marginTop: 2 }}>{fmt(lead?.wa_phone)} · solicitada {timeAgo(visita.created_at)}</div>
+        </div>
+        {lead && <ScoreBadge score={lead.score} />}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 14 }}>
+        <DRow label="Comuna" value={fmt(lead?.comuna)} />
+        <DRow label="Intención" value={fmt(lead?.intencion)} />
+        {/* Lo que en una visita pendiente son controles, acá son datos. */}
+        <DRow label="Asignada a" value={fmt(visita.asignado_a)} />
+        <DRow label="Horario" value={fmt(visita.horario_confirmado || visita.horario_propuesto)} />
+      </div>
+
+      {lead?.brief && (
+        <div className="text-sdm-sm" style={{ color: COLORS.navy, lineHeight: 1.7, background: COLORS.bg, borderRadius: 6, padding: '12px 14px', borderLeft: `3px solid ${COLORS.green}` }}>
+          {lead.brief}
+        </div>
+      )}
+
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 16 }}>
+        {/* `minHeight: 44` explícito: con `padding 11px` y texto de 13 px el
+            botón medía ~41 px y se quedaba corto del objetivo táctil. */}
+        <button className="text-sdm-sm tracking-sdm-wide" type="button" onClick={onRealizada} disabled={saving}
+          style={{ width: '100%', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 4, padding: '11px 18px', fontWeight: 700,
+            cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1, fontFamily: 'inherit' }}>
+          <CalendarCheck size={15} aria-hidden="true" /> {saving ? 'Guardando…' : 'Marcar como realizada'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── Sección 2: Leads recientes ───────────────────────────────────────────────
 function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, deleting, onModoChange }: {
   lead: Lead
@@ -1074,6 +1128,7 @@ export default function Captacion() {
 
   // Visitas
   const [visitas, setVisitas] = useState<VisitaConLead[]>([])
+  const [confirmadas, setConfirmadas] = useState<VisitaConLead[]>([])
   const [loadingVisitas, setLoadingVisitas] = useState(true)
   const [edits, setEdits] = useState<Record<string, { asignado: string; horario: string }>>({})
   const [savingId, setSavingId] = useState<string | null>(null)
@@ -1101,11 +1156,19 @@ export default function Captacion() {
   // ── Loaders ─────────────────────────────────────────────────────────────────
   const loadVisitas = useCallback(async () => {
     setLoadingVisitas(true)
-    const { data: vs } = await supabase
+    // Los DOS estados en una sola consulta, y se parten acá. Antes esto pedía
+    // solo las `pendiente`, así que una visita desaparecía del panel en el
+    // momento en que se confirmaba: no había ninguna pantalla que mostrara lo
+    // que venía. `cancelada` y `realizada` quedan fuera a propósito — son
+    // finales de ciclo y no piden ninguna acción.
+    const { data: vs, error } = await supabase
       .from('visitas')
       .select('*')
-      .eq('estado', 'pendiente')
+      .in('estado', ['pendiente', 'confirmada'])
       .order('created_at', { ascending: false })
+    // Sin `avisarError`: esto corre cada 25 s con el refresco automático y un
+    // fallo no puede levantar un alert() encima de quien está trabajando.
+    if (error) console.error('[No se pudieron cargar las visitas]', error)
     const visitasArr = (vs as Visita[]) || []
 
     const leadIds = [...new Set(visitasArr.map(v => v.lead_id).filter((x): x is string => !!x))]
@@ -1119,10 +1182,13 @@ export default function Captacion() {
     }
 
     const merged: VisitaConLead[] = visitasArr.map(v => ({ ...v, lead: v.lead_id ? leadsMap[v.lead_id] || null : null }))
-    setVisitas(merged)
+    const pendientes = merged.filter(v => v.estado === 'pendiente')
+    setVisitas(pendientes)
+    setConfirmadas(merged.filter(v => v.estado === 'confirmada'))
+    // `edits` solo para las pendientes: son las únicas con campos editables.
     setEdits(prev => {
       const next = { ...prev }
-      for (const v of merged) {
+      for (const v of pendientes) {
         if (!next[v.id]) next[v.id] = { asignado: v.asignado_a || 'Roberto', horario: v.horario_confirmado || v.horario_propuesto || '' }
       }
       return next
@@ -1295,6 +1361,9 @@ export default function Captacion() {
     setSavingId(null)
     loadVisitas()
     loadLeads()
+    // Confirmar mueve dos contadores —Pendientes baja, Confirmadas sube—, así
+    // que Métricas también se recarga en vez de esperar el refresco de 25 s.
+    loadMetrics()
   }
 
   const cancelarVisita = async (v: VisitaConLead) => {
@@ -1302,8 +1371,8 @@ export default function Captacion() {
     //
     //   1. Lo único que se escribe es `visitas.estado = 'cancelada'`. No hay
     //      DELETE: el registro se conserva.
-    //   2. La tarjeta desaparece porque `loadVisitas` filtra `estado=pendiente`,
-    //      no porque se borre nada.
+    //   2. La tarjeta desaparece porque `loadVisitas` pide `pendiente` y
+    //      `confirmada`, no porque se borre nada.
     //   3. NO se le avisa al cliente. El worker de Sofía
     //      (`sdm-captacion-worker-project/index.js`) solo hace POST a `visitas`
     //      cuando el lead califica; no lee `estado` en ningún momento, así que
@@ -1328,6 +1397,37 @@ export default function Captacion() {
     // También los leads: el estado que muestra la fila sale del cruce con la
     // última visita, así que sin esto la lista seguiría diciendo «Visita
     // pendiente» hasta el refresco automático de los 25 s.
+    loadLeadsQuiet()
+    loadMetrics()
+  }
+
+  const marcarRealizada = async (v: VisitaConLead) => {
+    // Consecuencia verificada contra el código, igual que en `cancelarVisita`:
+    //
+    //   1. Solo se escribe `visitas.estado = 'realizada'`.
+    //   2. La tarjeta desaparece de esta sección: `loadVisitas` pide
+    //      `pendiente` y `confirmada`, no `realizada`.
+    //   3. NO SE PUEDE DESHACER DESDE EL PANEL. No hay ninguna pantalla que
+    //      liste las realizadas ni acción que las devuelva. Por eso el aviso lo
+    //      dice: es la diferencia real con confirmar o cancelar, que siempre
+    //      dejan la visita a la vista en alguna sección.
+    //   4. Al cliente no le llega nada — el worker nunca lee `visitas.estado`.
+    //   5. `leads.status` no se toca: lo escribe el Worker. La fila del lead
+    //      pasará a decir «Visita realizada» por el cruce de `estadoLead`.
+    const quien = v.lead?.nombre?.trim() || v.lead?.wa_phone?.trim() || 'este lead'
+    if (!confirm(
+      `¿Marcar como realizada la visita de ${quien}?\n\n` +
+      'Sale de esta sección y no se puede deshacer desde el panel.\n\n' +
+      'Al cliente no le llega ningún aviso.'
+    )) return
+    setSavingId(v.id)
+    const { error } = await supabase.from('visitas').update({ estado: 'realizada' }).eq('id', v.id)
+    setSavingId(null)
+    if (avisarError('No se pudo marcar la visita como realizada', error)) return
+    loadVisitas()
+    loadMetrics()
+    // La fila del lead muestra el estado cruzado con su última visita, así que
+    // sin esto seguiría diciendo «Visita confirmada» hasta el refresco de 25 s.
     loadLeadsQuiet()
   }
 
@@ -1458,6 +1558,33 @@ export default function Captacion() {
                     onChange={next => setEdits(prev => ({ ...prev, [v.id]: next }))}
                     onConfirm={() => confirmarVisita(v)}
                     onCancel={() => cancelarVisita(v)}
+                    saving={savingId === v.id}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* ── Sección 1b: Visitas confirmadas ──────────────────────────────
+              La sección que faltaba. Hasta ahora una visita desaparecía del
+              panel en el momento de confirmarla, que es justo cuando pasa a
+              ser un compromiso con un cliente: no había forma de saber qué
+              venía ni de cerrar el ciclo. */}
+          <section>
+            <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Visitas confirmadas</h2>
+            {loadingVisitas && confirmadas.length === 0 ? (
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando visitas…</div>
+            ) : confirmadas.length === 0 ? (
+              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 6 }}>
+                No hay visitas confirmadas por realizar.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))', gap: 16 }}>
+                {confirmadas.map(v => (
+                  <VisitaConfirmadaCard
+                    key={v.id}
+                    visita={v}
+                    onRealizada={() => marcarRealizada(v)}
                     saving={savingId === v.id}
                   />
                 ))}
