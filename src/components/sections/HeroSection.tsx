@@ -261,8 +261,7 @@ export default function HeroSection() {
             limpieza de «Chile y Paraguay» porque necesita el salto de línea en
             un punto exacto. La clave `hero_kicker` sigue existiendo en la base y
             editable desde el admin, pero ya no pinta nada: hasta hace un momento
-            se leía en un `const` que nadie usaba. Si alguien la vuelve a
-            conectar, tiene que ir también a scripts/sync-contenido-seed.mjs. */}
+            se leía en un `const` que nadie usaba. */}
         <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green)' }}>
           <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
           <span>

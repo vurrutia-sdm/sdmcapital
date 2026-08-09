@@ -1,11 +1,13 @@
-// Siembra el contenido del hero dentro de index.html para que el primer pintado
-// ya sea el definitivo.
+// Siembra `contenido_sitio` dentro de index.html para que el primer pintado ya
+// sea el definitivo.
 //
-// El problema: los textos del hero viven en `contenido_sitio`, y `useContenido`
-// los consulta recién después de que React monta. Hasta que llega la respuesta
-// se pintan los defaults escritos en el código, así que el visitante lee «Tu
-// socio» y a los ~600ms el texto cambia a «Tu socio confiable». Medido antes de
-// este script: primer texto a 142ms, cambio a 807ms.
+// El problema: los textos del sitio viven en `contenido_sitio`, y
+// `useContenido` los consulta recién después de que React monta. Hasta que
+// llega la respuesta se pintan los defaults escritos en el código, así que el
+// visitante lee «Tu socio» y a los ~600ms el texto cambia a «Tu socio
+// confiable». Medido antes de este script: primer texto a 142ms, cambio a
+// 807ms. En el pie de página pasaba lo mismo con los teléfonos, en todas las
+// rutas públicas.
 //
 // Las alternativas se descartaron por medición, no por gusto:
 //   · No pintar hasta tener datos deja el hero vacío ese mismo rato, y el <h1>
@@ -18,11 +20,14 @@
 //     quedara en Chile y Paraguay.
 //
 // EL COMPROMISO, que es real y hay que tenerlo presente: la semilla es de la
-// hora del build. Si Víctor edita un texto del hero desde el admin y no hay
-// deploy, la semilla queda vieja — el primer pintado muestra lo anterior y la
-// consulta en vivo lo corrige, o sea vuelve el flash. La diferencia con hoy es
-// que el flash pasa de constante a intermitente: solo entre una edición y el
-// siguiente deploy, y solo si la edición tocó el hero. Un deploy lo resincroniza.
+// hora del build. Si Víctor edita un texto desde el admin y no hay deploy, la
+// semilla queda vieja — el primer pintado muestra lo anterior y la consulta en
+// vivo lo corrige, o sea vuelve el flash. La diferencia con antes es que el
+// flash pasa de constante a intermitente: solo entre una edición y el siguiente
+// deploy. Un deploy lo resincroniza.
+//
+// Ahora que la semilla cubre la tabla entera, esa ventana vale para TODO el
+// sitio, no solo para el hero.
 //
 // Si la consulta falla NO rompe el build: deja la semilla como esté y avisa. Se
 // deja la anterior en vez de vaciarla porque una semilla de ayer sigue siendo
@@ -41,21 +46,22 @@ const ID = 'sdm-contenido-seed'
 
 const aviso = (m) => console.warn(`[contenido-seed] ${m}`)
 
-// Exactamente las claves que HeroSection.tsx le pide a `get()`. Si allá se
-// agrega o se saca una, acá también: sembrar de más pesa sin servir, y sembrar
-// de menos deja esa clave con el flash de siempre.
+// Se siembra la tabla ENTERA, no una lista de claves.
 //
-// Por ahora solo el hero. Los otros 15 componentes que usan `useContenido`
-// tienen el mismo patrón y el mismo flash; se resuelven ampliando esta lista o
-// sembrando la tabla entera, pero eso se decide con la medición del hero a la
-// vista. Ver SINCRONIA.md.
-const CLAVES = [
-  'hero_titulo_1', 'hero_titulo_2', 'hero_titulo_3',
-  'hero_subtitulo', 'hero_location',
-  'stats_propiedades', 'stats_anios', 'stats_paises',
-  'hero_imagen_url', 'hero_imagen_url_2', 'hero_imagen_url_3', 'hero_imagen_url_4', 'hero_imagen_url_5',
-  'hero_pos_1', 'hero_pos_2', 'hero_pos_3', 'hero_pos_4', 'hero_pos_5',
-]
+// Empezó con las 18 del hero para medir el efecto antes de extenderlo. Medido:
+// el flash desapareció y el LCP bajó de 408ms a 164ms, así que se amplió. Con
+// 148 claves son 11 kB (4 kB gzip) en un index.html que pesaba 1,96 kB
+// comprimido — se triplica, pero queda en ~5,7 kB al lado de los 67 kB del
+// bundle principal.
+//
+// Sembrar la tabla entera en vez de una lista tiene una ventaja que no es solo
+// de peso: no hay lista que mantener sincronizada. Una clave nueva usada desde
+// cualquier componente queda sembrada sola, sin que nadie se acuerde de venir
+// acá. La lista de 18 ya obligaba a recordar dos lugares.
+//
+// El pie de página es el que más se notaba: está en todas las rutas públicas y
+// sus teléfonos por defecto no son los de la base, así que se veían ~215ms los
+// números viejos en el catálogo, en cada ficha y en /rental.
 
 // El contenido de `contenido_sitio` lo escribe Víctor desde el admin, así que
 // desde acá es entrada no confiable: un `</script>` en cualquier texto cerraría
@@ -85,23 +91,25 @@ async function obtenerContenido() {
   const timeout = setTimeout(() => ctrl.abort(), 10_000)
   try {
     const res = await fetch(
-      `${base}/rest/v1/contenido_sitio?clave=in.(${CLAVES.join(',')})&select=clave,valor`,
+      `${base}/rest/v1/contenido_sitio?select=clave,valor`,
       { headers: { apikey: key, Authorization: `Bearer ${key}` }, signal: ctrl.signal },
     )
     if (!res.ok) { aviso(`Supabase respondio ${res.status}; se deja la semilla como esta`); return null }
     const filas = await res.json()
     if (!Array.isArray(filas)) { aviso('respuesta inesperada de Supabase; se deja la semilla como esta'); return null }
 
+    // Se ordena por clave para que el bloque generado sea estable: sin esto, dos
+    // builds seguidos pueden escribir el mismo contenido en distinto orden y
+    // ensuciar el diff de index.html sin que haya cambiado nada.
     const semilla = {}
-    for (const f of filas) {
+    for (const f of [...filas].sort((a, b) => String(a?.clave).localeCompare(String(b?.clave)))) {
       if (typeof f?.clave !== 'string' || typeof f?.valor !== 'string') continue
-      if (!CLAVES.includes(f.clave)) continue   // in.() ya filtra, pero el objeto se inyecta: no se confia
       semilla[f.clave] = f.valor
     }
-    if (!Object.keys(semilla).length) { aviso('no volvio ninguna clave del hero; se deja la semilla como esta'); return null }
+    if (!Object.keys(semilla).length) { aviso('contenido_sitio volvio vacia; se deja la semilla como esta'); return null }
 
-    const faltantes = CLAVES.filter((c) => !(c in semilla))
-    if (faltantes.length) console.log(`[contenido-seed] sin valor en la base (usan el default): ${faltantes.join(', ')}`)
+    const sinValor = filas.length - Object.keys(semilla).length
+    if (sinValor > 0) console.log(`[contenido-seed] ${sinValor} fila(s) sin valor de texto, se omiten (usan el default del codigo)`)
     return semilla
   } catch (e) {
     aviso(`no se pudo consultar Supabase (${e.name === 'AbortError' ? 'timeout' : e.message}); se deja la semilla como esta`)
