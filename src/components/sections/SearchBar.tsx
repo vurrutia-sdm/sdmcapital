@@ -251,7 +251,11 @@ export default function SearchBar() {
     if (region)                  params.set('region', region)
     if (comuna)                  params.set('comuna', comuna)
     if (precio)                  params.set('precio_max', precio)
-    navigate(`/propiedades-usadas?${params.toString()}`)
+    // `/propiedades` y NO `/propiedades-usadas`: esa ruta fuerza
+    // `categoria=usada`, así que cualquier búsqueda —con o sin filtros—
+    // escondía los 13 proyectos nuevos. El buscador no pregunta por categoría,
+    // así que no debe imponer una.
+    navigate(`/propiedades?${params.toString()}`)
   }
 
   const handleRegionChange = (v: string) => {

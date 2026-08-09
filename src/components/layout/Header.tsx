@@ -104,19 +104,23 @@ export default function Header() {
             <button type="button"
               aria-expanded={propiedadesOpen}
               onClick={() => setPropiedadesOpen(v => !v)}
-              className={navLinkClass(isActive('/propiedades-usadas'))}
-              style={estiloDisparador(isActive('/propiedades-usadas'))}>
-              Propiedades Usadas
+              className={navLinkClass(isActive('/propiedades'))}
+              style={estiloDisparador(isActive('/propiedades'))}>
+              Propiedades
               <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {propiedadesOpen && (
               <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
-                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >En Venta</Link>
-                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >En Arriendo</Link>
-                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >Ver todas</Link>
+                {/* La ruta de categoría sigue accesible, ahora dicha por su
+                    nombre y como pareja de «Proyectos Nuevos». */}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
+                >Solo usadas</Link>
                 <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
                 >Vende con nosotros</Link>
               </div>
@@ -178,15 +182,18 @@ export default function Header() {
             </Link>
           ))}
 
-          {/* Propiedades Usadas */}
-          <Link className="text-sdm-base tracking-sdm-wide" to="/propiedades-usadas" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
-            Propiedades Usadas
+          {/* Propiedades */}
+          <Link className="text-sdm-base tracking-sdm-wide" to="/propiedades" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            Propiedades
           </Link>
-          <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas?estado=en_venta" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+          <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades?estado=en_venta" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
             En Venta
           </Link>
-          <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas?estado=en_arriendo" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+          <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades?estado=en_arriendo" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
             En Arriendo
+          </Link>
+          <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades-usadas" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
+            Solo usadas
           </Link>
           {/* Faltaba: en móvil no había forma de llegar a «Vende con nosotros»
               ni a las tres páginas de servicios desde el header. */}
