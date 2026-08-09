@@ -5369,7 +5369,11 @@ Sigue siendo mejor que el estado anterior, donde el flash era constante, pero es
 un comportamiento que depende de cuándo fue el último build y conviene tenerlo
 presente al mirar el sitio después de editar.
 
-### Dos cosas que aparecieron midiendo, y que la semilla NO arregla
+### Dos cosas que aparecieron midiendo, y que la semilla no arreglaba
+
+> **Ya están cerradas.** Ver «Una consulta por página, y las claves sueltas
+> pasan por el hook», más abajo. Se dejan acá porque explican por qué existía
+> el problema.
 
 #### 1 · Hay consultas a `contenido_sitio` que no pasan por `useContenido`
 
@@ -5379,7 +5383,14 @@ sueltas, así que **la semilla no las cubre**: el orden de las fichas del
 catálogo y la selección de destacadas del home siguen llegando tarde.
 
 Con la consulta bloqueada el catálogo muestra las mismas 54 fichas en otro
-orden. No es un flash de texto, pero la grilla se reordena a los ~300 ms.
+orden, así que la clave decide el orden y llega tarde.
+
+> CORRECCIÓN: acá se dijo que «la grilla se reordena a los ~300 ms». Eso era una
+> inferencia, no una medición, y al medirlo resultó falso: las fichas aparecen
+> a los ~925 ms, bastante después de que llega `catalogo_orden`, así que el
+> reordenamiento nunca se llegaba a ver. La carrera existía —si las propiedades
+> vinieran del caché y el contenido tardara, se vería— pero el síntoma estaba
+> exagerado.
 
 Se arreglarían leyendo esas dos claves desde `useContenido` —ya vienen en la
 semilla— en vez de con una consulta propia.
@@ -5403,3 +5414,109 @@ llena el caché y cada reintento de render vuelve a pedir.
 
 Se resuelve guardando la promesa en vuelo a nivel de módulo, no solo el
 resultado. No se tocó en esta pasada.
+
+---
+
+## Una consulta por página, y las claves sueltas pasan por el hook
+
+Cierra las tres pendientes que había dejado la semilla.
+
+### `useContenido` pedía una vez por componente
+
+**Corrección de un diagnóstico anterior:** en su momento describí `useContenido`
+como «una consulta por carga de página compartida por los 16 componentes». Era
+falso. El caché de módulo guardaba el **resultado**, y eso solo sirve *después*
+de que vuelve la primera respuesta. Todos los componentes montan antes, todos
+ven `cache === null` y cada uno abría su propia consulta idéntica.
+
+Ahora se guarda también la **petición en curso** (`enVuelo`): el segundo
+componente que monta se engancha a la del primero.
+
+| Ruta | Antes | Después |
+|---|---|---|
+| home | 7 (6 del hook + `home_destacadas_ids`) | **1** |
+| catálogo | 3 (2 del hook + `catalogo_orden`) | **1** |
+| ficha | 4 | **1** |
+| /rental | 4 | **1** |
+| /vende-con-nosotros | 3 | **1** |
+| /quienes-somos | 4 | **1** |
+| /servicios | 4 | **1** |
+| /blog | 2 | **1** |
+
+#### La promesa no puede quedar envenenada
+
+Cachear la petición tiene un riesgo que el caché de resultado no tenía: si la
+consulta falla y la promesa queda guardada, el sitio se queda sin contenido
+hasta recargar. Por eso la referencia se suelta **siempre** al terminar. Si
+falló, `cache` sigue en null y `enVuelo` vuelve a null, así que la próxima
+montura reintenta; si salió bien, responde `cache` y no se vuelve a pedir.
+
+Verificado: se carga con la consulta bloqueada (falla), se desbloquea, y una
+navegación del lado del cliente dispara el reintento — 3 → 4 peticiones. Una
+tercera navegación **no** vuelve a pedir: ya hay caché.
+
+`invalidateContenidoCache()` limpia las dos. Si el admin guarda mientras una
+consulta viaja, esa respuesta ya es vieja y engancharse a ella devolvería
+justamente los datos que se acaban de reemplazar.
+
+### `catalogo_orden` y `home_destacadas_ids` salen del hook
+
+Las dos consultas sueltas se fueron. Ahora se leen con `get()`, así que vienen
+sembradas en index.html y el primer render ya tiene el valor bueno. Siguen
+actualizándose si la consulta en vivo trae otra cosa, porque el efecto del home
+depende del valor y el orden del catálogo se aplica en el render.
+
+El catálogo no se reordena: 54 fichas, **un solo estado de la grilla, 0
+reordenamientos**. Tampoco antes, según se explica en la corrección de más
+arriba.
+
+De paso, el `JSON.parse` de `home_destacadas_ids` quedó dentro de un try: iba
+suelto, y una comilla de más en la base tiraba el efecto entero — sin
+destacadas y sin respaldo.
+
+> El home sigue mostrando `SAMPLE_PROPS` (las fichas de muestra `/propiedades/1`
+> a `/6`) durante los primeros ~400 ms, hasta que llegan las reales. Eso no lo
+> toca esta pasada: son datos de la tabla `propiedades`, no de contenido.
+
+### El kicker vuelve a `hero_kicker`
+
+Era la peor combinación: el campo estaba en el admin y no movía nada. Los
+renglones se separan con `\n` en el valor y cada línea se renderiza en su
+`<span>` con `display: block`; se recortan espacios y se descartan líneas
+vacías, porque un campo de texto libre no puede mover el diseño.
+
+Verificado píxel a píxel con la foto del carrusel fijada —emulando
+`prefers-reduced-motion: reduce`, que la deja pausada en la primera— y la
+consulta bloqueada: **0 píxeles distintos de 114.400**, y el contenedor mide
+exactamente lo mismo, `64,120,1312,33`.
+
+#### PENDIENTE: el valor de la base está viejo
+
+`hero_kicker` contiene hoy `"Inversión inmobiliaria · Chile "` — un solo
+renglón, con espacio al final, sin Paraguay y con un `·` que el maquetado ya no
+usa. **Hasta que se corrija desde el admin, el kicker muestra ese texto**, no el
+default del código: `get()` devuelve el valor de la base porque no está vacío, y
+la semilla lo lleva tal cual.
+
+El texto que hay que dejar en Textos del sitio → Inicio → `hero_kicker` es dos
+renglones:
+
+```
+Inversión inmobiliaria
+Chile & Paraguay
+```
+
+### LCP
+
+| | Antes | Después |
+|---|---|---|
+| home | 132 ms | 128 ms |
+| catálogo | 836 ms | 772 ms |
+| ficha | 404 ms | 432 ms |
+| /rental | 128 ms | 124 ms |
+| /vende-con-nosotros | 128 ms | 132 ms |
+| /admin | 108 ms | 112 ms |
+
+Home y catálogo mejoran. Ficha, vende y admin se mueven dentro del ruido: sus
+rangos se solapan casi por completo (la ficha, por ejemplo, va de 368 a 468 ms
+antes y de 372 a 592 después).
