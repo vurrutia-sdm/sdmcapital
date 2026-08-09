@@ -305,6 +305,24 @@
     border-color: var(--border-input);
     color: var(--ink);
     font-family: 'Inter', system-ui, sans-serif;
+    /* QUE EL <select> MIDA LO MISMO QUE EL <input>.
+       Medido: el input resolvía 24px de interlínea y el select `normal` —20px—,
+       así que con el mismo marcado y el mismo padding uno medía 45px y el otro
+       41. En cualquier fila con los dos, esa diferencia de 4px se leía como
+       campos desalineados.
+       El `line-height` solo no basta: el navegador le impone al <select>
+       `line-height: normal !important` desde su hoja de agente de usuario. La
+       regla llega, se ve en el CSS servido, y el select sigue computando
+       `normal`. Por eso hace falta además la altura mínima.
+       NO ES UNA ALTURA FIJA. Sale de la misma fórmula que ya resolvía el input:
+       una línea de texto (1.5em, o sea la interlínea de aquí arriba aplicada al
+       tamaño de fuente del propio campo) + el padding vertical de `py-2.5`
+       (0.625rem × 2) + el borde inferior. Si mañana cambia el cuerpo del texto o
+       el padding, la altura los sigue sola.
+       El <textarea> comparte la clase y no se ve afectado: con `rows=3` ya mide
+       muy por encima del mínimo. */
+    line-height: 1.5;
+    min-height: calc(1.5em + 1.25rem + 1px);
   }
   /* #9AA8B4 daba 2.43:1 sobre blanco. #6B7681 da 4.63:1 y cumple AA para texto
      normal, que es lo que corresponde: en varios formularios el placeholder es
