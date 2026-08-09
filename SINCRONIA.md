@@ -7206,3 +7206,89 @@ decírselo.
 > **Trampa al verificar.** `useDialogoModal` escucha `keydown` en `document`, no
 > en `window`. Un Escape sintético despachado sobre `window` no cierra nada y se
 > lee como si el hook estuviera roto.
+
+---
+
+## `estado` y `categoria` son ejes independientes — y la navegación los ataba — 2026-08-09
+
+Commits `f8ca5f8`, `65b34b7` y `a806c83`.
+
+Lo destapó un caso concreto: un departamento nuevo que una clienta compró para
+arrendar. Es **nuevo Y está en arriendo**, y no aparecía por ninguna parte.
+
+### El modelo de datos SIEMPRE admitió la combinación
+
+`categoria` responde «¿nueva o usada?» y `estado` responde «¿se vende o se
+arrienda?». Son ortogonales por diseño, y las consultas de `PropiedadesPage` los
+tratan como tales. La propiedad se guardó **limpia**: `estado=en_arriendo`,
+`categoria=proyecto_nuevo`, con los campos de proyecto vacíos. **No había nada
+que corregir en la base.**
+
+### El defecto estaba en SEIS enlaces, no en el formulario
+
+Todos ataban un filtro de `estado` a la ruta `/propiedades-usadas`, que fuerza
+`categoria=usada`:
+
+| sitio | qué |
+|---|---|
+| `Header.tsx` ×4 | «En Venta» y «En Arriendo», escritorio y móvil |
+| `RentalPage.tsx` | el CTA hacia arriendos |
+| `SearchBar.tsx` | **toda** búsqueda, con o sin filtros |
+
+Medido contra la base:
+
+| | total | mostraba | escondidas |
+|---|---|---|---|
+| En venta | 57 | 44 | **13** |
+| En arriendo | 3 | 2 | 1 |
+
+**«En Venta» era mucho más grave que el caso que lo destapó**, y el buscador se
+llevaba los 13 proyectos nuevos en cualquier búsqueda. Ahora los seis apuntan a
+`/propiedades?estado=…`, sin categoría.
+
+Verificado tras el cambio: «En Arriendo» devuelve las 3 —2 usadas + 1 proyecto
+nuevo, con la de la clienta entre ellas— y «En Venta» las 57.
+
+### El rótulo del menú también mentía
+
+Con los enlaces arreglados, el desplegable **«Propiedades Usadas»** pasaba a
+mostrar proyectos nuevos en dos de sus opciones. Pasa a llamarse
+**«Propiedades»**, «Ver todas» apunta al catálogo entero y la ruta de categoría
+sigue accesible como **«Solo usadas»**, pareja de «Proyectos Nuevos».
+
+### Y el del formulario
+
+`Field label="Estado de venta"` → **«Estado»**. El selector incluye «En arriendo»
+y «Arrendada», así que el rótulo contradecía sus propias opciones y sugería que
+venta y arriendo eran el mismo eje — justo la confusión de partida. Aparecía en
+un solo sitio.
+
+---
+
+## `TarjetasEquipo` recupera el reordenamiento, con arrastre — 2026-08-09
+
+Consecuencia de `b5b99a7`: era la única lista **sin arrastre**, así que al
+quitarle las ▲▼ se quedó sin ningún mecanismo. Ahora usa `usePointerSort` como
+las otras tres.
+
+**El guardado pasó del INTERCAMBIO al RENUMERADO.** Antes intercambiaba el
+`orden` de dos filas; ahora escribe `orden: i + 1` sobre la lista entera. Deja
+las cuatro con el mismo mecanismo y **elimina el fallo parcial del intercambio**,
+donde si uno de los dos PATCH pasaba y el otro no quedaban dos tarjetas con el
+mismo `orden` y el desempate lo decidía Postgres. Con el renumerado, un fallo a
+media lista deja huecos pero nunca empates.
+
+Se comprobó antes de migrar que **nadie más lee `tarjetas_equipo`** —ni página
+pública ni Pages Function—, así que el renumerado no puede afectar a nada fuera
+del panel.
+
+### El campo «Orden» manual se queda
+
+Con el arrastre puesto es redundante, pero **Equipo y Asociados también lo
+tienen** junto a su arrastre. Quitarlo solo de Tarjetas crearía una
+inconsistencia nueva en vez de resolver una.
+
+Si se quita algún día, hay que quitarlo en las tres a la vez. Y conviene tener
+presente que el campo permite escribir números repetidos o con huecos que el
+siguiente arrastre normaliza en silencio: es un segundo escritor sobre el mismo
+concepto, igual en las tres.
