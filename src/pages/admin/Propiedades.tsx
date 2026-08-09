@@ -524,7 +524,17 @@ export default function Propiedades() {
   const [sortDir, setSortDir]     = useState<'asc'|'desc'>('asc')
   const [showInactive, setShowInactive] = useState(false)
 
-  const load = () => supabase.from('propiedades').select('*').order('created_at', { ascending: true }).then(({ data }) => setItems(data || []))
+  // ORDENA POR `orden`, que es el campo que el arrastre escribe. Antes cargaba
+  // por `created_at`, así que aunque se guardara el orden nuevo la lista volvía
+  // a saltar al recargar: escribir `orden` sin esto no se nota.
+  //
+  // `created_at` queda de desempate para las que todavía tengan `orden` en NULL
+  // —hoy 32 de 65—, que con `nullsFirst: false` caen al final en el mismo orden
+  // de siempre en vez de barajarse. Al primer arrastre dejan de existir.
+  const load = () => supabase.from('propiedades').select('*')
+    .order('orden', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: true })
+    .then(({ data }) => setItems(data || []))
   useEffect(() => { load() }, [])
 
   // Tres estados y no dos: ascendente → descendente → SIN ORDENAR.
