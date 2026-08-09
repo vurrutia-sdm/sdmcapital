@@ -5,6 +5,7 @@
 // Un solo sitio para lo que el cliente y las Functions dicen igual.
 import { SITE_NAME, BASE_URL, DEFAULT_OG_IMAGE } from '../../src/lib/seo-compartido.js'
 import { BUSCADOR_UA_REGEX, reescribirCabecera } from '../../src/lib/og-estatico.js'
+import { schemaPropiedad, bloqueJsonLd } from '../../src/lib/schema.js'
 
 // Anon key pública (la misma que va embebida en el bundle del cliente) usada
 // como fallback si no se configuran variables de entorno en Cloudflare Pages.
@@ -127,6 +128,7 @@ export async function onRequestGet(context) {
     // palabras de cuerpo. Ver la nota de los dos filtros en `og-estatico.js`.
     if (BUSCADOR_UA_REGEX.test(userAgent)) {
       return reescribirCabecera(await next(), {
+        jsonLd: bloqueJsonLd(schemaPropiedad(prop, pageUrl)),
         title: prop.titulo || 'Propiedad',
         description: buildDescription(prop),
         image: prop.imagen_principal,

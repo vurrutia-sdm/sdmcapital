@@ -57,12 +57,12 @@ export const BUSCADOR_UA_REGEX =
 //
 // `og:url` y `canonical` reciben el mismo valor a propósito: son el mismo dato
 // dicho a dos consumidores.
-export function reescribirCabecera(respuesta, { title, description, image, url }) {
+export function reescribirCabecera(respuesta, { title, description, image, url, jsonLd }) {
   const t = `${title} | ${SITE_NAME}`
   const d = recortar(description)
   const img = image || DEFAULT_OG_IMAGE
 
-  return new HTMLRewriter()
+  const rw = new HTMLRewriter()
     .on('title', { element: (e) => e.setInnerContent(t) })
     .on('meta[name="description"]', { element: (e) => e.setAttribute('content', d) })
     .on('link[rel="canonical"]', { element: (e) => e.setAttribute('href', url) })
@@ -73,7 +73,13 @@ export function reescribirCabecera(respuesta, { title, description, image, url }
     .on('meta[name="twitter:title"]', { element: (e) => e.setAttribute('content', t) })
     .on('meta[name="twitter:description"]', { element: (e) => e.setAttribute('content', d) })
     .on('meta[name="twitter:image"]', { element: (e) => e.setAttribute('content', img) })
-    .transform(respuesta)
+
+  // El JSON-LD del recurso se AÑADE al final de <head>, no reemplaza nada: el
+  // `RealEstateAgent` del index.html describe a la empresa y este describe la
+  // página. Google lee todos los bloques y los une.
+  if (jsonLd) rw.on('head', { element: (e) => e.append(jsonLd, { html: true }) })
+
+  return rw.transform(respuesta)
 }
 
 export function escapeHtml(value) {
