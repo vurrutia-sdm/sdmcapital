@@ -19,7 +19,7 @@
 // el arrastre, que además muestra el resultado antes de soltar.
 
 import { useState, useEffect, useRef, useId } from 'react'
-import type { Dispatch, SetStateAction, CSSProperties, PointerEvent as EventoPuntero, MouseEvent as EventoRaton } from 'react'
+import type { Dispatch, SetStateAction, CSSProperties, PointerEvent as EventoPuntero, MouseEvent as EventoRaton, DragEvent as EventoArrastre } from 'react'
 
 type Oyente = [string, (e: PointerEvent) => void]
 
@@ -162,6 +162,23 @@ export function usePointerSort<T>(
       movio.current = false
       montarOyentes()
     },
+
+    // EL ARRASTRE NATIVO TIENE QUE MORIR ACÁ, O SE COME AL NUESTRO.
+    //
+    // `<img>` y `<a>` son arrastrables por defecto en HTML. Al presionar sobre
+    // una miniatura y mover, el navegador arranca SU arrastre y deja de
+    // entregar eventos de puntero: medido, llegaba un solo `pointermove` y
+    // ningún `pointerup`. El hook se quedaba esperando para siempre y la lista
+    // no se reordenaba nunca.
+    //
+    // Con la API HTML5 esto no pasaba porque el arrastre nativo ERA el
+    // mecanismo. Al migrar a Pointer Events se quitó el `draggable` de la fila
+    // y quedaron adentro los elementos que lo traen de fábrica.
+    //
+    // Va acá y no como `draggable={false}` en cada `<img>`: son siete listas, y
+    // la octava que alguien agregue mañana volvería a nacer rota. `dragstart`
+    // burbujea, así que cancelarlo en la fila cubre todo lo que tenga adentro.
+    onDragStart: (e: EventoArrastre<HTMLElement>) => { e.preventDefault() },
 
     // Después de un arrastre el navegador manda igual un click, y en el sidebar
     // eso cambiaría de pestaña justo al terminar de ordenar. La API HTML5 se lo
