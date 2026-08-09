@@ -82,7 +82,14 @@ export default function BlogPage() {
                     )}
                   </div>
                   <div className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
+                    {/* Apilados en móvil, en línea desde sm.
+                        `categoria` guarda listas separadas por comas —«Mercado,
+                        Mercado inmobiliario, Casas, Corretaje propiedades,
+                        Creditos hipotecarios»— así que ocupa varias líneas y,
+                        con `items-center`, la fecha quedaba centrada contra ese
+                        bloque en vez de alineada con su primera línea.
+                        `items-start` la ancla arriba cuando sí caben en fila. */}
+                    <div className="flex flex-col items-start gap-1 mb-3 sm:flex-row sm:items-start sm:gap-3">
                       <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{post.categoria}</span>
                       <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--muted)' }}>{fecha}</span>
                     </div>
