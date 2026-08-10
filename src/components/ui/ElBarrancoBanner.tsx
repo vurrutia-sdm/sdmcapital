@@ -38,6 +38,41 @@ export default function ElBarrancoBanner({ clave = 'banner_detalle_foto' }: { cl
             }} />
           )}
 
+          {/* ─── VELO ENTRE LA FOTO Y EL TEXTO ────────────────────────────────
+              EL COLOR NO ES EL PROBLEMA. `#4CAF82` es el verde de El Barranco y
+              sobre el negro de su marca da 7,25:1: su uso es correcto. Lo que
+              rompe el contraste es la FOTO al 35 % que va encima de ese negro y
+              lo aclara. Contra el compuesto, el verde caía a 2,78 con una foto
+              clara y a 2,30 con una blanca. El subtítulo `#A8C4D8` también
+              fallaba —3,42 y 4,13— aunque el diagnóstico no lo mencionaba.
+
+              MISMO ENFOQUE QUE EL HERO: una capa de degradado propia entre la
+              foto y el contenido, en vez de bajar el `opacity: 0.35` de la
+              imagen. Bajarlo apagaría la fotografía ENTERA para resolver las dos
+              zonas donde hay texto.
+
+              PERO NO LA MISMA FORMA, y la diferencia es del contenido, no del
+              gusto. El hero pone su texto solo a la izquierda, así que le sirve
+              un degradado direccional que se desvanece hacia la derecha. Acá el
+              banner tiene tinta en los DOS extremos —el eyebrow a la izquierda y
+              el CTA «View Full Showcase» a la derecha—, y un degradado
+              direccional dejaría el CTA sin cubrir. Por eso es SIMÉTRICO: fuerte
+              en los dos bordes, más suave en el centro, que es justo la franja
+              donde no hay nada escrito y la fotografía puede respirar.
+
+              Medido en el borde (0.62), contra las cuatro luminancias de foto:
+
+                              blanca  clara  media  oscura
+                #4CAF82         5,17   5,50   6,37    7,07   ✅ (umbral 4,5)
+                #A8C4D8         7,69   8,19   9,47   10,52   ✅
+
+              El negro del velo es el `#0a0c0b` del propio banner, no el navy del
+              hero: cada marca oscurece con su color. */}
+          <div aria-hidden="true" style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(100deg,rgba(10,12,11,0.62) 0%,rgba(10,12,11,0.46) 50%,rgba(10,12,11,0.62) 100%)',
+          }} />
+
           {/* Contenido */}
           <div style={{
             position: 'relative', zIndex: 1,
