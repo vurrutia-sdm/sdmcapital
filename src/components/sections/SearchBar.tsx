@@ -144,6 +144,10 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
   const [step, setStep] = useState<'region' | 'comuna'>('region')
   const ref = useRef<HTMLDivElement>(null)
   const etiquetaId = useId()
+  // El panel de este selector no tenía `id` ni el disparador `aria-controls`,
+  // a diferencia de `DropSelect`. Mismo criterio que allá: el IDREF solo
+  // mientras el panel existe en el DOM.
+  const panelId = useId()
 
   useEffect(() => {
     const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
@@ -193,6 +197,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
           aria-labelledby={etiquetaId}
           aria-expanded={open}
           aria-haspopup="listbox"
+          aria-controls={open ? panelId : undefined}
           onClick={() => { setOpen(v => !v); setStep(region && !comuna ? 'comuna' : 'region') }}
           style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
         />
@@ -209,7 +214,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
 
       {/* Dropdown */}
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, width: '100%', minWidth: 280, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden' }}>
+        <div id={panelId} style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, width: '100%', minWidth: 280, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden' }}>
 
           {/* Tabs región / comuna */}
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
@@ -305,7 +310,18 @@ export default function SearchBar() {
        hero NO cambia de alto: la caja ocupa espacio que antes era foto, así que
        el documento se acorta. */
     <div style={{ position: 'relative', zIndex: 10, marginTop: -48, padding: '0 clamp(16px,5vw,48px) 28px' }}>
-      <div style={{ background: '#fff', border: '1px solid var(--border-input)', borderRadius: 'var(--sdm-radio-contenedor)', maxWidth: 1280, margin: '0 auto', overflow: 'hidden' }}>
+      {/* SIN `overflow: hidden`, Y ESTO NO ES UN DETALLE.
+          Lo puse al convertir el buscador en tarjeta, por reflejo, «para que el
+          radio recorte el contenido». Recortaba los cuatro desplegables: el
+          panel de Tipo mide 314px y quedaban 13 VISIBLES —ni una fila, que
+          miden 45—. El buscador del Inicio dejó de servir desde ese despliegue.
+          NO HACÍA FALTA PARA NADA: los dos únicos hijos de esta tarjeta son
+          contenedores con `padding` y sin fondo propio, así que ninguna
+          superficie llega a las esquinas y el radio de 4px no tiene qué cortar.
+          Comprobado con un píxel a píxel del buscador cerrado: idéntico.
+          Los paneles son `position: absolute` dentro de este árbol, así que
+          bastaba con dejar de recortarlos; no hace falta portal ni `fixed`. */}
+      <div style={{ background: '#fff', border: '1px solid var(--border-input)', borderRadius: 'var(--sdm-radio-contenedor)', maxWidth: 1280, margin: '0 auto' }}>
 
       {/* ── DESKTOP ── */}
       <div className="hidden md:block" style={{ padding: '20px clamp(16px,5vw,48px)' }}>
