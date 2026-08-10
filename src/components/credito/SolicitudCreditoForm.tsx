@@ -96,10 +96,18 @@ function RadioGroup({ label, options, value, onChange }: {
             onKeyDown={e => alTeclear(e, i)}
             onClick={() => onChange(opt.value)}
             className="px-4 py-2 text-[13px] border transition-colors"
+            /* LAS DOS CARAS DE LA REGLA 4.2 EN UN SOLO CONTROL, y las dos fallaban.
+               ELEGIDO: `--green` de fondo con texto blanco encima daba 2,93:1 a
+               13px. Es exactamente el caso que `SISTEMA-DISENO.md` 4.2 describe
+               como el que «se escapó dos veces», porque el barrido buscaba
+               `color:` y esto es `background:`. Con `--green-dark` da 4,85:1.
+               SIN ELEGIR: el borde era `--border` (1,18:1) y es lo ÚNICO que
+               delimita el control —el fondo es transparente—, así que cae en
+               1.4.11. Pasa a `--border-input`, igual que los del buscador. */
             style={{
               borderRadius: 2,
-              borderColor: value === opt.value ? 'var(--green)' : 'var(--border)',
-              background: value === opt.value ? 'var(--green)' : 'transparent',
+              borderColor: value === opt.value ? 'var(--green-dark)' : 'var(--border-input)',
+              background: value === opt.value ? 'var(--green-dark)' : 'transparent',
               color: value === opt.value ? '#fff' : 'var(--navy-dark)',
             }}
           >

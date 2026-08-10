@@ -101,7 +101,10 @@ export default function RentalPage() {
             >Quiero arrendar mi propiedad</a>
           </div>
           <div style={{ background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', borderRadius: 2, padding: '48px 40px' }}>
-            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)', marginBottom: 24 }}>Nuestras comisiones</div>
+            {/* `--green-dark`: este eyebrow va sobre BLANCO, y ahí `--green` da
+                2,93:1. Es la regla 4.2 en su cara más simple, y sobrevivió al
+                barrido de los 29 usos del 2026-08-09. */}
+            <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 24 }}>Nuestras comisiones</div>
             <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 24, marginBottom: 24 }}>
               <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Arriendo Tradicional</div>
               <div className="font-serif text-sdm-display-md" style={{ color: '#fff', fontWeight: 300 }}>{comisionTradPct}</div>

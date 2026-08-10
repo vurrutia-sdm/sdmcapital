@@ -25,12 +25,13 @@ resto del sitio sí cumple.
 
 Quedan **2 hallazgos críticos**. El tercero —C1, el desfase del header, que escondía 27px
 de contenido en todas las páginas desde 768px— **ya está resuelto**, igual que **todo el
-eje de contraste**: los nueve pares que no llegaban a AA se cerraron en dos tandas.
+eje de contraste**: doce pares corregidos en tres tandas, la última cerrada con un
+barrido bidireccional de la regla 4.2 sobre las nueve rutas públicas.
 
 | Severidad | Cantidad | Naturaleza |
 |---|---|---|
 | Crítico | 2 (de 3) | rompen contenido o dejan al teclado sin salida, en todas las páginas |
-| Alto | **1 abierto** (de 10) | incumplen WCAG AA en superficies públicas |
+| Alto | **1 abierto** (de 11) | incumplen WCAG AA en superficies públicas |
 | Medio | 11 | inconsistencia interna, valores fuera de escala, roce de usabilidad |
 | Bajo | 5 | deuda cosmética y de mantenimiento |
 
@@ -51,11 +52,19 @@ eje de contraste**: los nueve pares que no llegaban a AA se cerraron en dos tand
 | A8 | `<select>` móviles a 13px (zoom iOS) | pendiente |
 | A9 | `scrollIntoView` a `#contacto` sin offset | pendiente — **descubierto** al resolver C1 |
 | A10 | Los cuatro pares del barrido de contraste | ✅ **Resuelto** — tanda 2 |
-| M12 | Insignia de estado del admin con borde a 1,90:1 | pendiente — **descubierto** en la tanda 2 |
+| A11 | Barrido bidireccional de la regla 4.2 | ✅ **Resuelto** — tanda 3 |
+| M12 | Dos usos de color fuera de norma en admin | pendiente — **descubierto** en las tandas 2 y 3 |
 
-> **El eje de contraste queda cerrado en el sitio público.** Nueve pares corregidos entre
-> las dos tandas, todos medidos componiendo contra el fondo real —fotografía o alfa—, no
-> contra blanco. Lo único que queda del eje es M12, que es admin.
+> **El eje de contraste queda cerrado en el sitio público — verificado con un barrido
+> bidireccional de la regla 4.2.** Doce pares corregidos en tres tandas. La afirmación se
+> apoya en A11, que es el único barrido que miró las **dos** caras de la regla: los 47
+> usos de `--green` y `--green-dark` de las nueve rutas públicas, medidos en el navegador
+> contra su fondo efectivo y con el umbral que les toca por tamaño. Cero infracciones.
+>
+> Las dos tandas anteriores **no** bastaban para decirlo, y de hecho lo dije antes de
+> tiempo: ver A11.
+>
+> En admin quedan dos, anotados en M12.
 
 ---
 
@@ -596,6 +605,72 @@ reposo → hover sigue subiendo el contraste.
 
 ---
 
+### A11 · Las dos caras de la regla 4.2, barridas por fin juntas — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10 (tanda 3).** Es el hallazgo que **corrige a esta propia
+> auditoría**: tras la tanda 2 escribí que el eje de contraste quedaba cerrado en el sitio
+> público. No lo estaba.
+
+**Cómo apareció.** Midiendo en producción los rótulos de Rental para validar la tanda 2, el
+selector capturó de paso el eyebrow «NUESTRAS COMISIONES» y computó `rgb(61,170,110)` sobre
+blanco: **2,93:1**. Por casualidad, no por barrido.
+
+**Por qué los dos barridos anteriores no lo vieron.** Los dos fueron **acotados a una sola
+dirección de la regla**:
+
+| Barrido | Qué buscó | Qué encontró | Qué dejó pasar |
+|---|---|---|---|
+| tanda 1 | `--green-dark` sobre fotografía | el kicker del hero | todo lo demás |
+| tanda 2 | ídem, ampliado | el «+» de los contadores | `--green` sobre claro |
+| **tanda 3** | **las dos caras, los dos tokens, todos los fondos** | los tres de abajo | — |
+
+La decisión 4.2 tiene dos caras —«`--green` solo sobre oscuro» y «`--green-dark` en el
+resto»— y además dos formas de manifestarse, como `color` y como `background` con texto
+encima. El propio `SISTEMA-DISENO.md` avisa de esto: dice que 8 usos *«se encontraron ese
+mismo día después de dar el eje por cerrado, porque el barrido anterior buscó `color:` y
+estos eran `background:`»*. Volvió a pasar exactamente igual.
+
+**Lo que encontró el barrido completo.** Tres infracciones públicas, todas corregidas:
+
+| Dónde | Qué era | Antes | Ahora |
+|---|---|---|---|
+| `RentalPage.tsx:104` | `--green` como texto sobre blanco (11px) | 2,93 | **4,85** |
+| `SolicitudCreditoForm.tsx:103` | `--green` de **fondo** con texto blanco (13px) | 2,93 | **4,85** |
+| `SolicitudCreditoForm.tsx:102` | `--border` como borde de un control | 1,18 | **4,06** |
+
+Las dos de `SolicitudCreditoForm` estaban en el **mismo control**: el selector de opciones
+del formulario de crédito, que se abre desde el Inicio, `/servicios` y
+`/evaluacion-gratuita`. Una cara fallaba en el estado elegido y la otra en el no elegido.
+
+**El método, que es lo que hace la afirmación defendible.** No fue grep: fue medir en el
+navegador los 47 usos de los dos tokens en las nueve rutas públicas, cada uno con
+
+- su **fondo efectivo**, subiendo por el árbol hasta el primer ancestro con fondo opaco —no
+  el fondo declarado, que en la mitad de los casos es `transparent`—, y
+- el **umbral que le toca por tamaño**: 3:1 desde 24px, o desde 18,66px en negrita; 4,5:1
+  en el resto.
+
+Ese segundo punto evitó un falso positivo que ya había dado por bueno: los seis números de
+«Nuestro proceso» en `/vende-con-nosotros` son `--green-dark` sobre `--navy-dark` a
+**3,24:1**, y con el umbral plano de 4,5 los conté como infracción. Van a 40px, así que su
+umbral es 3:1 y **cumplen**. Estuve a punto de «arreglar» seis valores correctos.
+
+**Resultado del barrido, ya con los tres arreglos aplicados:**
+
+```
+  /                     12 usos   OK        /asociados             4 usos   OK
+  /rental                6 usos   OK        /blog                  6 usos   OK
+  /quienes-somos         7 usos   OK        /propiedades           1 uso    OK
+  /servicios             0 usos   OK        /evaluacion-gratuita   0 usos   OK
+  /vende-con-nosotros   11 usos   OK
+```
+
+**La lección, anotada también en `proyecto_sdm_maestro.md`:** un barrido acotado a una
+dirección de una regla deja pasar la contraria, y como *encuentra* cosas, se siente
+completo. Si la regla tiene dos caras, el barrido tiene que tener dos.
+
+---
+
 ## MEDIO
 
 ### M1 · Las dos media queries de `mobile.css` se solapan en 768px exactos — ✅ RESUELTO
@@ -866,11 +941,30 @@ lead.
 
 ---
 
-### M12 · La insignia de estado del admin se delimita con un borde a 1,90:1
+### M12 · Los dos usos de color fuera de norma que quedan, los dos en admin
 
 **Dónde:** [`src/pages/admin/Propiedades.tsx:1202`](./src/pages/admin/Propiedades.tsx#L1202)
+· [`src/pages/admin/Equipo.tsx:116`](./src/pages/admin/Equipo.tsx#L116)
 
-> Descubierto en el barrido de la tanda 2 de contraste. Es lo único que queda de ese eje.
+> Descubiertos en los barridos de las tandas 2 y 3. Es todo lo que queda del eje de
+> contraste, y los dos son admin.
+
+#### `admin/Equipo.tsx:116` — `--green` como texto sobre blanco
+
+```tsx
+<div className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)' }}>{m.cargo}</div>
+```
+
+**2,93:1.** Es el gemelo exacto de `RentalPage.tsx:104`, que se corrigió en la tanda 3: el
+cargo de cada miembro del equipo, en `--green` sobre la tarjeta blanca del panel. El
+arreglo es idéntico —`--green-dark`, 4,85:1— y no se aplicó solo porque esta tanda estaba
+acotada al sitio público.
+
+Con éste, los cuatro usos de `--green` como color de texto del proyecto quedan
+clasificados: dos correctos sobre `--navy-dark` (5,37:1) y dos sobre blanco, de los cuales
+uno ya está corregido y éste no.
+
+#### `admin/Propiedades.tsx:1202` — la insignia de estado
 
 ```tsx
 style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4',
