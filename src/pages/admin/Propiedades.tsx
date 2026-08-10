@@ -748,7 +748,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
       avance_obra:          p.avance_obra ?? undefined,
       subsidios:            Array.isArray(p.subsidios) ? p.subsidios : [],
       dossiers:             normalizeDossiers(p.dossiers),
-      mostrar_boton_flow:   p.mostrar_boton_flow !== false,
+      mostrar_boton_reserva: p.mostrar_boton_reserva !== false,
     })
     setTimeout(() => {
       document.getElementById('prop-edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -789,7 +789,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
     load()
   }
 
-  const blank = (): Partial<Propiedad> => ({ titulo: '', descripcion: '', tipo: 'casa', estado: 'en_venta', categoria: 'usada', a_consultar: false, region: 'R. Metropolitana', comuna: '', pais: 'Chile', imagenes: [], destacada: false, internacional: false, activo: true, etapa_construccion: undefined, fecha_entrega: '', avance_obra: undefined, subsidios: [], dossiers: [], mostrar_boton_flow: true })
+  const blank = (): Partial<Propiedad> => ({ titulo: '', descripcion: '', tipo: 'casa', estado: 'en_venta', categoria: 'usada', a_consultar: false, region: 'R. Metropolitana', comuna: '', pais: 'Chile', imagenes: [], destacada: false, internacional: false, activo: true, etapa_construccion: undefined, fecha_entrega: '', avance_obra: undefined, subsidios: [], dossiers: [], mostrar_boton_reserva: true })
 
   return (
     <div>
@@ -1093,9 +1093,12 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
           </div>
 
           <div className="mb-6 bg-[var(--off)]" style={{ borderRadius: 4, padding: '16px 20px' }}>
-            <Chk label="Mostrar botón de pago Flow (Reserva esta propiedad)"
-              checked={editing.mostrar_boton_flow !== false}
-              onChange={v => setEditing(p => ({ ...p, mostrar_boton_flow: v }))} />
+            {/* El rótulo decía «botón de pago Flow». Flow está desactivado
+                desde `c737689`: el botón abre `ReservaModal`, que cobra por
+                transferencia. */}
+            <Chk label="Mostrar botón «Reservar esta propiedad»"
+              checked={editing.mostrar_boton_reserva !== false}
+              onChange={v => setEditing(p => ({ ...p, mostrar_boton_reserva: v }))} />
           </div>
 
           <div className="mb-6">

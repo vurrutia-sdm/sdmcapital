@@ -7460,3 +7460,92 @@ fundirse**: uno dice «todavía no tenemos», el otro «no están aquí, están 
 > activas, no 14 y 68— porque se publicó una propiedad entre medio. El filtro
 > saca exactamente una: la de San Joaquín, la única `proyecto_nuevo` que no está
 > `en_venta`.
+
+---
+
+## `mostrar_boton_flow` → `mostrar_boton_reserva`, en dos pasos de cuatro — 2026-08-10
+
+**ZONA COMPARTIDA:** `src/types/index.ts`. Además toca `src/pages/` (sesión web
+pública) y `src/pages/admin/` (sesión admin). El árbol estaba limpio al empezar.
+
+El botón dejó de ser de Flow en `c737689`: hoy abre `ReservaModal`, que cobra por
+transferencia. La columna seguía llamándose como el proveedor que ya no se usa.
+`PropiedadDetailPage.tsx` traía escrito que no valía la pena renombrarla; el
+encargo decidió lo contrario, con el procedimiento que hace que no sea riesgoso.
+
+### PENDIENTE, Y CONDICIONADO: falta el paso 4
+
+```sql
+-- NO EJECUTAR hasta que el deploy esté verificado en producción
+ALTER TABLE propiedades DROP COLUMN mostrar_boton_flow;
+```
+
+Los cuatro pasos, y en cuál vamos:
+
+| paso | qué | estado |
+|---|---|---|
+| 1 | `ADD COLUMN mostrar_boton_reserva`, backfill, mismo default | **hecho** (`20260810000000`) |
+| 2 | el código pasa a la columna nueva | **hecho** |
+| 3 | deploy, y verificar en producción | **pendiente** |
+| 4 | `DROP COLUMN mostrar_boton_flow` | **pendiente, y bloqueado por el 3** |
+
+El archivo del paso 4 **no está escrito a propósito**. Escribirlo antes de tiempo
+es dejar una migración destructiva en el directorio que la CLI recorre.
+
+### MIENTRAS TANTO: no muevas la bandera en el admin
+
+Entre el commit y el deploy las dos columnas conviven, y el código nuevo **solo
+escribe la nueva**. En producción no pasa nada —corre el código viejo, que lee y
+escribe la vieja, y las dos están de acuerdo—, pero si alguien levanta el admin
+con `npm run dev` contra la base de producción y toca ese checkbox, las dos
+columnas divergen y el sitio en vivo sigue mostrando lo viejo hasta el deploy.
+
+Lo mismo al crear una propiedad nueva desde local: `mostrar_boton_reserva` toma
+lo del formulario y `mostrar_boton_flow` toma el `DEFAULT true` de la columna.
+
+Se descartó sincronizar las dos con un trigger o escribiendo ambas desde el
+admin: reintroduce el nombre viejo en el código que el encargo venía a limpiar, y
+la ventana se cierra con un deploy.
+
+### Por qué el `ADD` + backfill y no un `RENAME`
+
+Un `ALTER TABLE ... RENAME COLUMN` es instantáneo, pero el sitio en vivo está
+leyendo esa columna: entre el rename y el deploy, `select('*')` deja de traer
+`mostrar_boton_flow` y `prop.mostrar_boton_flow !== false` pasa a evaluar
+`undefined !== false` → **true**. El botón aparecería en las 82, incluido el
+Hotel de Futaleufú, que es el único que lo tiene apagado.
+
+El fallo es silencioso y va en la dirección peligrosa: no rompe la página, la
+llena de un botón de reserva donde no debe haberlo.
+
+### El backfill copia NULL como NULL
+
+La columna es nullable y la lectura es `!== false`, así que NULL significa «sí
+muestra». Convertirlo a `true` en el backfill sería cambiar el dato en vez de
+moverlo, aunque hoy no haya ninguna fila NULL.
+
+### Verificado contra producción, antes y después
+
+| | antes | después |
+|---|---|---|
+| filas | 82 | 82 |
+| muestran botón (`!== false`) | 81 | **81** |
+| no lo muestran | 1 · Hotel + Restaurante · Futaleufú | **1 · el mismo** |
+| NULL | 0 | 0 |
+| desacuerdos vieja vs nueva | — | **0 de 82** |
+
+Los 82 se compararon fila a fila, no por conteos: dos conteos que cuadran no
+prueban que las mismas filas estén de los mismos lados.
+
+> **Cuidado con la comparación entre columnas por PostgREST.** El intento de
+> pedir «filas donde una columna difiere de la otra» con
+> `and=(mostrar_boton_reserva.neq.mostrar_boton_flow)` **devuelve vacío siempre**:
+> PostgREST lee el lado derecho como un literal, no como una columna, así que el
+> vacío no significa «no hay desacuerdos». Hay que traerse las filas y compararlas
+> fuera.
+
+### El rótulo del checkbox también mentía
+
+«Mostrar botón de pago Flow (Reserva esta propiedad)» → «Mostrar botón «Reservar
+esta propiedad»». Es el texto que ve Víctor en el admin, y nombraba un proveedor
+desactivado.

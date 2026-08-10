@@ -62,7 +62,10 @@ export interface Propiedad {
   youtube_url?: string
   dossier_url?: string
   dossiers?: DossierItem[]
-  mostrar_boton_flow?: boolean
+  /** «Esta propiedad muestra el botón de reserva». Se llamó
+   *  `mostrar_boton_flow` hasta el 2026-08-10; la columna vieja sigue en la
+   *  base y se borra después de verificar el deploy. */
+  mostrar_boton_reserva?: boolean
   precio_anterior_uf?: number
   baja_precio?: boolean
   ano_construccion?: number

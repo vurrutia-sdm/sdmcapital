@@ -820,12 +820,14 @@ export default function PropiedadDetailPage() {
                 La constante se conserva para no perder el identificador:      */}
             {/* const FLOW_URI_DESACTIVADO = 'https://www.flow.cl/uri/gHSdT2jVv' */}
 
-            {/* `mostrar_boton_flow` CONSERVA SU NOMBRE aunque ya no sea Flow.
-                Renombrar la columna es DDL contra la base de producción, y el
-                nombre no vale ese riesgo: la bandera significa «esta propiedad
-                muestra el botón de reserva» y eso no ha cambiado. Anotado como
-                deuda en AUDITORIA-UI-FASE3.md. */}
-            {prop.mostrar_boton_flow !== false && !destacado && (
+            {/* Se llamaba `mostrar_boton_flow`. El renombrado se hizo en dos
+                pasos —columna nueva con backfill, después el código— porque el
+                sitio en vivo estaba leyendo la vieja. `mostrar_boton_flow`
+                sigue en la base y se borra cuando el deploy esté verificado.
+
+                `!== false` y no `=== true`: la columna es nullable, y un NULL
+                significa «no se ha dicho que no». Hoy no hay ninguno. */}
+            {prop.mostrar_boton_reserva !== false && !destacado && (
               <button
                 type="button"
                 onClick={() => setReservaAbierta(true)}
