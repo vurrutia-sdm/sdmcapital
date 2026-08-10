@@ -133,6 +133,135 @@ function Testimonios({ get, t }: { get: (k: string, d: string) => string; t: Ret
   )
 }
 
+// ─── FINANCIAMIENTO ───────────────────────────────────────────────────────────
+//
+// SUBE DEL PUESTO 5 AL 3. Era la quinta sección y entraba a los 2967px de scroll
+// en escritorio y a los 3512 en móvil: cuatro pantallas y media antes de que
+// apareciera lo único que la competencia no tiene. El análisis competitivo lo
+// midió — ni Fuenzalida ni REMAX First ni Galvarino venden financiamiento.
+//
+// VA POR ENCIMA DEL BANNER PROMOCIONAL, y esa parte importa: el banner se apaga
+// desde el admin, así que si el financiamiento quedara debajo su posición
+// dependería de si ese día hay campaña corrida. El bloque que define a la
+// empresa no puede moverse por una promoción de oficinas.
+//
+// ─── QUÉ SE FUE ──────────────────────────────────────────────────────────────
+//
+// Era un panel a dos columnas con una foto de una alcancía rosada de banco de
+// imágenes, y TRES acciones compitiendo: dos enlaces a /servicios/:slug y, en
+// tercer lugar y en el estilo más débil de los tres, el único botón que
+// capturaba un lead. Queda una sola acción.
+//
+// Los dos enlaces a servicios no dejan nada huérfano: las cinco rutas
+// `/servicios/:slug` renderizan 1287 caracteres idénticos —solo hacen scroll a
+// un ancla, por eso su canonical apunta a /servicios— y las dos siguen
+// enlazadas desde el menú de escritorio y el de móvil.
+//
+// ─── POR QUÉ BANDA OSCURA Y NO UNA SUPERFICIE CLARA ──────────────────────────
+//
+// `--off` da 1,05:1 contra blanco y `--sky-pale` 1,11:1. A esa distancia el ojo
+// no registra dos superficies: darían una sección más, no un bloque que
+// destaca. La banda `--navy-dark` ya es el vocabulario del sistema para «cambio
+// de registro» —la usan el hero y el contacto—, así que no se inventa nada: se
+// reutiliza la que este mismo bloque ya tenía y se le quita todo lo demás.
+//
+// El cuerpo pasa de `rgba(255,255,255,0.5)` —4,78:1, pasaba AA por 0,28 y en
+// peso 300 se leía mal— a 0,85, que da 11,63:1.
+function Financiamiento({ get, t, onSolicitar }: {
+  get: (k: string, d: string) => string
+  t: ReturnType<typeof useLang>['t']
+  onSolicitar: () => void
+}) {
+  // El par `titulo` + `titulo_em` sigue el patrón de `props_titulo` /
+  // `props_titulo_em` de la sección de destacadas. Reemplaza al
+  // `t.sections.financiamiento.title.split('financiamiento')[0]` que había, que
+  // partía la cadena traducida por una palabra suya para colar la cursiva.
+  //
+  // `financiamiento_titulo` YA EXISTÍA en el admin y en la semilla, y no la leía
+  // nadie: el home usaba la constante de i18n. Editar ese campo guardaba sin
+  // cambiar nada en pantalla. Acá queda conectada por fin.
+  const titulo    = get('financiamiento_titulo', '¿El banco te va a')
+  const tituloEm  = get('financiamiento_titulo_em', 'decir que sí?')
+  const body      = get('financiamiento_body', 'Hacemos la preevaluación hipotecaria y te acompañamos hasta la inscripción en el Conservador de Bienes Raíces. Si compras tu propiedad con nosotros, la gestión del crédito no tiene costo.')
+  const condicion = get('financiamiento_condicion', 'Sin pagos adelantados en ninguna etapa. Si la compra la haces por fuera, la gestión sí se cobra.')
+  const prueba    = get('financiamiento_prueba', 'Roberto Urrutia · Director Comercial · +20 años en banca')
+  const cta       = get('financiamiento_cta', 'Solicita tu preevaluación gratuita')
+
+  return (
+    // `py-8 md:py-14` y no un 56 fijo: a 390 el cuerpo cae en 5 líneas, la
+    // condición en 2 y el rótulo del botón en 2, y con 56 arriba y abajo el
+    // bloque medía 530 — más que los 462 del que reemplaza, o sea que el home
+    // habría CRECIDO en móvil. El aire se recorta donde no cuesta lectura, no
+    // en el texto. Desde 768 vuelve a 56, donde nunca hubo problema.
+    <section
+      className="py-8 md:py-14"
+      style={{
+        background: 'var(--navy-dark)',
+        paddingLeft: 'clamp(16px,5vw,48px)',
+        paddingRight: 'clamp(16px,5vw,48px)',
+        // EL FILETE LO CREA ESTE BLOQUE PORQUE ES EL QUE SE MOVIÓ. Al subir al
+        // puesto 3 queda pegado al banner promocional, que es exactamente el
+        // mismo `--navy-dark`: sin separación los dos leen como una sola masa
+        // oscura de 750px. Antes no pasaba porque el banner tenía la tarjeta
+        // blanca del buscador encima y las destacadas debajo.
+        // Filete de 1px y no un tono distinto de navy: el sistema separa
+        // superficies con líneas finas, no con degradados de la misma familia.
+        // Si el banner se apaga desde el admin, debajo queda el blanco de las
+        // destacadas y la línea deja de tener nada que separar, pero tampoco
+        // molesta: es 1px al borde de una banda oscura.
+        borderBottom: '1px solid rgba(168,196,220,0.22)',
+      }}
+    >
+      <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+        <div className="section-label section-label--light" style={{ marginBottom: 12, justifyContent: 'center' }}>
+          {t.sections.financiamiento.label}
+        </div>
+
+        {/* El titular es la pregunta con la que el visitante se levanta, no el
+            nombre del servicio: «Financiamiento personas» no le dice nada.
+            Blanco 15,71:1, y la cursiva en `--sky` 8,68:1. */}
+        <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,4vw,40px)', lineHeight: 1.12, color: '#fff' }}>
+          {titulo} <em style={{ color: 'var(--sky)' }}>{tituloEm}</em>
+        </h2>
+
+        <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.85)', marginTop: 16 }}>
+          {body}
+        </p>
+
+        {/* LA CONDICIÓN VA EN LÍNEA APARTE Y NO ES LETRA CHICA.
+            «Si compras con nosotros, la gestión no tiene costo» invita a la
+            pregunta «¿y si no?», y dejarla sin responder sería prometer de más
+            aunque cada palabra fuera cierta. Esta línea la responde en la misma
+            pantalla.
+            Va en `--sdm-text-sm` —el mismo tamaño que la ciudad bajo el nombre
+            de cada testimonio— y a 8,35:1, MÁS contraste que el cuerpo que
+            había antes. La letra chica es la que se esconde; ésta se lee.
+            NO dice cuándo se cobra en el caso de compra por fuera: las dos
+            superficies que lo declaraban no coincidían entre sí y ninguna
+            describía la política. Está anotado en SINCRONIA.md. */}
+        <p className="text-sdm-sm" style={{ fontWeight: 300, lineHeight: 1.7, color: 'rgba(255,255,255,0.70)', marginTop: 10 }}>
+          {condicion}
+        </p>
+
+        {/* La prueba: hasta ahora solo aparecía dentro del modal, a un clic de
+            distancia de donde hacía falta. El filete es el mismo recurso del
+            `section-label` y del panel del modal, no un adorno nuevo. */}
+        <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <span aria-hidden="true" style={{ display: 'block', width: 40, height: 1, background: 'rgba(168,196,220,0.4)' }} />
+          <div className="text-sdm-sm" style={{ fontWeight: 300, color: 'var(--sky)' }}>{prueba}</div>
+        </div>
+
+        {/* `.btn-green` sobre la banda: 3,24:1 como objeto (1.4.11 pide 3:1) y
+            4,85:1 el texto blanco encima. Abre el modal, que ya trae foco
+            atrapado, Escape, foco devuelto al disparador y bloqueo de scroll. */}
+        <button onClick={onSolicitar} className="btn-green min-h-[44px]" style={{ marginTop: 18 }}>
+          {cta}
+        </button>
+      </div>
+    </section>
+  )
+}
+
 export default function HomePage() {
   const { t } = useLang()
   const { get } = useContenido()
@@ -198,7 +327,11 @@ export default function HomePage() {
     return () => { ignorar = true }
   }, [destacadasIds])
 
-  const finImg = get('financiamiento_imagen', '')
+  // Acá vivía `finImg`, la foto de apoyo del bloque de financiamiento. Ver la
+  // nota del componente: era una alcancía rosada de banco de imágenes, que dice
+  // banca minorista justo donde SDM vende asesoría. `financiamiento_imagen`
+  // queda huérfana en la base y su campo del admin se retira — un editor que
+  // modifica algo que ya no se dibuja es una trampa, igual que `hero_location`.
 
   // TRES DESTACADAS EN MÓVIL, SEIS EN ESCRITORIO.
   //
@@ -238,10 +371,14 @@ export default function HomePage() {
       {/* 2. Search bar */}
       <SearchBar />
 
-      {/* 2b. Banner promocional — se controla desde Contenido → Inicio */}
+      {/* 3. Financiamiento — ver la nota del componente: sube del puesto 5 y
+             va POR ENCIMA del banner, que se apaga desde el admin */}
+      <Financiamiento get={get} t={t} onSolicitar={() => setCreditoOpen(true)} />
+
+      {/* 4. Banner promocional — se controla desde Contenido → Inicio */}
       <BannerPromo />
 
-      {/* 3. Propiedades destacadas */}
+      {/* 5. Propiedades destacadas */}
       <section className="py-12 lg:py-24">
         <div style={{ paddingLeft: 'clamp(16px,5vw,48px)', paddingRight: 'clamp(16px,5vw,48px)' }}>
           <div className="mb-8 lg:mb-12" style={{ textAlign: 'center' }} >
@@ -283,53 +420,6 @@ export default function HomePage() {
           })}
         </div>
       </section>
-
-      {/* 5. Financiamiento */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-px mb-px" style={{ background: 'var(--border)' }}>
-        <div
-          className="flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-16"
-          style={{ background: 'var(--navy-dark)', minHeight: 380 }}
-        >
-          <div className="text-center lg:text-left">
-            <div className="section-label section-label--light justify-center lg:justify-start" style={{ marginBottom: 18 }}>
-              {t.sections.financiamiento.label}
-            </div>
-            <h2 className="font-serif font-light" style={{ fontSize: 'clamp(32px,5vw,44px)', lineHeight: 1.1, color: '#fff' }}>
-              {t.sections.financiamiento.title.split('financiamiento')[0]}
-              <br /><em style={{ color: 'var(--sky)' }}>financiamiento</em>?
-            </h2>
-            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: 'rgba(255,255,255,0.5)', marginTop: 20 }}>
-              {get('financiamiento_body', t.sections.financiamiento.body)}
-            </p>
-          </div>
-          <div className="flex gap-3 mt-8 justify-center lg:justify-start">
-            <Link to="/servicios/financiamiento-personas" className="btn-green">
-              {t.sections.financiamiento.personas}
-            </Link>
-            <Link
-              to="/servicios/financiamiento-empresas"
-              className="btn-outline bg-transparent hover:bg-[rgba(255,255,255,0.1)]"
-              style={{ color: '#FFFFFF', border: '1.5px solid #FFFFFF' }}
-            >
-              {t.sections.financiamiento.empresas}
-            </Link>
-          </div>
-          <div className="flex mt-3 justify-center lg:justify-start">
-            <button onClick={() => setCreditoOpen(true)} className="btn-inverse">
-              Solicita una evaluación gratuita →
-            </button>
-          </div>
-        </div>
-        <div
-          className="hidden lg:flex items-center justify-center overflow-hidden"
-          style={{ background: 'linear-gradient(160deg,#0d2035,#162d45)', minHeight: 440 }}
-        >
-          {finImg
-            ? <img src={finImg} alt="Financiamiento" className="w-full h-full object-cover" style={{ minHeight: 440 }} />
-            : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.15)' }}>Fotografía de apoyo</span>
-          }
-        </div>
-      </div>
 
       {/* 6. Internacional — temporalmente oculta */}
 

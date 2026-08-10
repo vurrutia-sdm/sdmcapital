@@ -44,12 +44,18 @@ const translationsRaw = {
         sub: 'Propiedades curadas por nuestro equipo de expertos.',
         verTodas: 'Ver todas las propiedades',
       },
+      // Solo queda `label`. El bloque del Inicio se rediseñó y su título,
+      // cuerpo y los dos botones de servicios pasaron a `contenido_sitio`
+      // —`financiamiento_titulo`, `_titulo_em`, `_body`, `_condicion`— o
+      // desaparecieron.
+      //
+      // `body` NO se borra solo por estar muerta: decía «Gestionamos créditos
+      // […] Sin pagos adelantados» y omitía la política de honorarios, que es
+      // justo lo que este trabajo vino a corregir en las tres superficies. Una
+      // cadena muerta con una afirmación comercial superada es una mina: el día
+      // que alguien busque un texto de financiamiento la encuentra y la usa.
       financiamiento: {
         label: 'Gestión crediticia',
-        title: '¿Necesitas financiamiento?',
-        body: 'Gestionamos créditos de consumo, hipotecarios y bancarización para personas y empresas en Chile y el extranjero. Sin pagos adelantados.',
-        personas: 'Personas',
-        empresas: 'Empresas',
       },
       testimonios: {
         label: 'Experiencias',
@@ -146,10 +152,6 @@ const translationsRaw = {
       },
       financiamiento: {
         label: 'Credit management',
-        title: 'Need financing?',
-        body: 'We manage consumer, mortgage and banking credit for individuals and companies in Chile and abroad. No upfront payments.',
-        personas: 'Individuals',
-        empresas: 'Companies',
       },
       testimonios: {
         label: 'Experiences',

@@ -300,8 +300,12 @@ export default function Contenido() {
     banner_subtitulo: '42 oficinas disponibles · desde 178 m² · ejes Miraflores, Ahumada y Nueva York',
     banner_cta_texto: 'Ver disponibilidad',
     banner_cta_url: '/propiedades/oficinas-arriendo-santiago-centro',
-    financiamiento_titulo: '¿Necesitas financiamiento?',
-    financiamiento_body: 'Gestionamos créditos de consumo, hipotecarios y bancarización para personas y empresas en Chile y Paraguay. Sin pagos adelantados.',
+    financiamiento_titulo: '¿El banco te va a',
+    financiamiento_titulo_em: 'decir que sí?',
+    financiamiento_body: 'Hacemos la preevaluación hipotecaria y te acompañamos hasta la inscripción en el Conservador de Bienes Raíces. Si compras tu propiedad con nosotros, la gestión del crédito no tiene costo.',
+    financiamiento_condicion: 'Sin pagos adelantados en ninguna etapa. Si la compra la haces por fuera, la gestión sí se cobra.',
+    financiamiento_prueba: 'Roberto Urrutia · Director Comercial · +20 años en banca',
+    financiamiento_cta: 'Solicita tu preevaluación gratuita',
     testimonial_1_texto: 'SDM Capital hizo posible el sueño de mi familia de adquirir nuestra primera vivienda en Santiago.',
     testimonial_1_autor: 'María Sánchez · Santiago, Chile', testimonial_1_url: '',
     testimonial_2_texto: 'Como inversionista internacional, SDM Capital simplificó todo el proceso.',
@@ -340,7 +344,7 @@ export default function Contenido() {
     servicio_banco_titulo: 'Bancarización en el Extranjero', servicio_banco_visible: 'false',
     servicio_banco_desc: 'Te ayudamos a abrir cuentas bancarias y acceder a servicios financieros en el extranjero.',
     servicio_banco_tags: 'EE.UU.,España,Uruguay,Rep. Dominicana',
-    financiamiento_imagen: '', quienes_imagen_historia: '',
+    quienes_imagen_historia: '',
     servicio_inv_int_imagen: '', servicio_inv_cl_imagen: '',
     servicio_fin_per_imagen: '', servicio_fin_emp_imagen: '', servicio_banco_imagen: '',
     asociados_intro: 'Trabajamos con una red selecta de socios estratégicos que nos permiten ofrecer a nuestros clientes el mejor servicio integral en cada etapa del proceso inmobiliario y financiero.',
@@ -483,10 +487,19 @@ export default function Contenido() {
         <Sec title={<><Home size={18} strokeWidth={1.75} />Propiedades destacadas en el Inicio</>}>
           <Full><HomeDestacadasSelector value={d.home_destacadas_ids || '[]'} onChange={v => setD(p => ({ ...p, home_destacadas_ids: v }))} /></Full>
         </Sec>
+        {/* «Foto de apoyo» se retiró: el bloque del Inicio ya no dibuja imagen.
+            `financiamiento_imagen` sigue en la base pero nadie la lee, y un
+            campo que edita algo invisible es una trampa — misma regla que
+            `hero_location`.
+            «Título» en cambio EMPIEZA a funcionar: existía desde siempre y el
+            Inicio no la leía, así que guardaba sin cambiar nada en pantalla. */}
         <Sec title={<><Wallet size={18} strokeWidth={1.75} />Sección Financiamiento</>}>
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>
+          <Field label="Título en cursiva"><Inp value={d.financiamiento_titulo_em} onChange={set('financiamiento_titulo_em')} /></Field>
           <Full><Field label="Descripción"><Txa value={d.financiamiento_body} onChange={set('financiamiento_body')} rows={3} /></Field></Full>
-          <Full><FieldGroup label="Foto de apoyo"><ImageUploader currentUrl={d.financiamiento_imagen} folder="paginas" onUploaded={url => setD(p => ({ ...p, financiamiento_imagen: url }))} /></FieldGroup></Full>
+          <Full><Field label="Condición (línea pequeña bajo la descripción)"><Txa value={d.financiamiento_condicion} onChange={set('financiamiento_condicion')} rows={2} /></Field></Full>
+          <Full><Field label="Línea de respaldo"><Inp value={d.financiamiento_prueba} onChange={set('financiamiento_prueba')} /></Field></Full>
+          <Field label="Texto del botón"><Inp value={d.financiamiento_cta} onChange={set('financiamiento_cta')} /></Field>
         </Sec>
       </>}
 
