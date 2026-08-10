@@ -214,9 +214,38 @@ export default function PropiedadDetailPage() {
     if (!slug) return
     setLoading(true)
 
+    // ─── `.eq('activo', true)` EN LAS DOS CONSULTAS ─────────────────────────
+    //
+    // ESTA PÁGINA ERA EL ÚNICO SITIO DEL CÓDIGO PÚBLICO QUE NO FILTRABA.
+    // El catálogo, las destacadas del home, las similares de más abajo y el
+    // sitemap ya lo hacían; ésta consultaba por slug a secas.
+    //
+    // No se notaba porque la política `propiedades_select_anon` —`USING (activo
+    // IS TRUE)`, migración 20260805000300— descarta la fila antes de que llegue.
+    // Pero eso dejaba a esa política como ÚNICO control sobre las direcciones de
+    // la cartera del socio: las 10 fichas de edificio siguen en la base, con su
+    // `direccion` real, y solo están en `activo = false`. Si la política se
+    // edita, se recrea desde el dashboard como `Allow all` —cosa contra la que
+    // la propia migración advierte— o la ficha se abre con sesión iniciada,
+    // `/propiedades/torre-los-andes` volvía a renderizar entera, con dirección y
+    // mapa. Ahora hacen falta las dos cosas para que eso ocurra.
+    //
+    // `.eq('activo', true)` Y NO `.neq('activo', false)`, que es lo que usan sus
+    // vecinas. Las dos formas difieren solo en las filas con `activo` NULL —hoy
+    // no hay ninguna, medido: 82 de 82 en `true`— y ésta es la que copia
+    // EXACTAMENTE el predicado de la política. Es el punto: que el código diga
+    // lo mismo que el RLS, no algo parecido.
+    //
+    // `.maybeSingle()` y no `.single()`: con el filtro puesto, «cero filas» pasa
+    // a ser un resultado NORMAL —toda propiedad pausada da eso— y `.single()` lo
+    // trataba como error y lo escupía por consola en cada visita. `maybeSingle`
+    // devuelve `data: null, error: null` para cero filas y sigue reportando los
+    // errores de verdad. La rama de `!prop` (más abajo) ya pinta «Propiedad no
+    // encontrada», así que una pausada cae exactamente donde un slug inventado.
+
     // Links viejos con UUID → resolver el slug actual y redirigir 301
     if (UUID_REGEX.test(slug)) {
-      supabase.from('propiedades').select('slug').eq('id', slug).single()
+      supabase.from('propiedades').select('slug').eq('id', slug).eq('activo', true).maybeSingle()
         .then(({ data, error }) => {
           if (!error && data?.slug) {
             window.location.replace(`/propiedades/${data.slug}`)
@@ -228,7 +257,7 @@ export default function PropiedadDetailPage() {
       return
     }
 
-    supabase.from('propiedades').select('*').eq('slug', slug).single()
+    supabase.from('propiedades').select('*').eq('slug', slug).eq('activo', true).maybeSingle()
       .then(({ data, error }) => {
         if (error) console.error('Error cargando propiedad:', error)
         setProp(data)
