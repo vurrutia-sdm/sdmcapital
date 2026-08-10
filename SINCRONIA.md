@@ -7656,3 +7656,105 @@ Las cinco pantallas con sesión iniciada, incluida la descarga del PDF. La
 migración solo borró políticas `TO anon` y las `TO authenticated` quedaron
 intactas, así que no debería cambiar nada — pero eso es un argumento, no una
 comprobación, y no tengo credenciales del admin.
+
+---
+
+## Sofía y `envios_plantilla`: por qué el pendiente NO se puede cerrar con la anon key — 2026-08-10
+
+Pendiente desde el 5 de agosto: confirmar que Sofía siga registrando envíos tras
+`20260805000400`, que activó RLS en esa tabla. **Solo diagnóstico, no se tocó
+nada.**
+
+### El resultado corto
+
+**No se puede responder desde fuera, y eso es correcto por diseño.** Hace falta
+una sesión de admin o el SQL Editor del dashboard. Abajo va el SQL exacto, con
+un control al lado que es lo que hace la respuesta interpretable.
+
+### Lo que sí quedó medido
+
+Con la anon key, **todas** las tablas y vistas de Sofía responden `200` con cero
+filas:
+
+| | anon |
+|---|---|
+| `envios_plantilla`, `mensajes`, `eventos_turno`, `mensajes_pendientes`, `decisiones_shadow`, `eventos_procesados` | 200 · 0 filas |
+| `leads`, `visitas`, `config` | 200 · 0 filas |
+| `metricas_calidad`, `metricas_costo`, `metricas_descartes`, `metricas_operacion` | 200 · 0 filas |
+
+Las cuatro vistas son de paso una **verificación de `20260805000500`**: en aquella
+migración se midieron en 3, 3, 1 y 3 filas a través del bypass, y hoy dan 0. El
+`security_invoker` aguantó.
+
+### UN CERO POR RLS NO SE DISTINGUE DE UNA TABLA VACÍA, Y EL ESTIMADOR TAMPOCO AYUDA
+
+Es la trampa a documentar. `Prefer: count=planned` y `count=estimated` usan la
+estimación del planificador en vez de contar, así que parecía una vía para leer
+el tamaño real sin leer filas. **No lo es**, y se comprobó calibrando contra una
+tabla cuyo contenido se conoce:
+
+| tabla | filas reales | `exact` | `planned` | `estimated` |
+|---|---|---|---|---|
+| `ficha_clientes` | **1** | 0 | **0** | **0** |
+| `propiedades` | 82 | 82 | 82 | 82 |
+
+Con deny-all la política se convierte en un filtro constante falso y la
+estimación colapsa a 0 igual que el conteo. **Los tres modos de conteo mienten lo
+mismo.** Si alguien intenta este atajo otra vez, ya está probado que no existe.
+
+### La hipótesis, y por qué es fuerte aunque falte la comprobación
+
+Sofía usa `SUPABASE_SERVICE_KEY`. El rol `service_role` de Supabase lleva
+`BYPASSRLS`, así que ninguna política puede afectarle. Además hay evidencia
+registrada en el propio repo: `20260805000500` dejó anotado que las cuatro vistas
+de métricas devolvían **3, 3, 1 y 3 filas** el 5 de agosto. Esas vistas agregan
+`eventos_turno`, `mensajes_pendientes`, `decisiones_shadow` y `eventos_procesados`,
+que llevaban meses con **RLS activo y CERO políticas**. O sea: había datos dentro
+de tablas en deny-all, escritos por algo que salta RLS. Ese algo es Sofía.
+
+Y `envios_plantilla` quedó **más abierta** que esas cuatro, no menos: tiene una
+política `FOR ALL TO authenticated` que ellas no tienen. Añadir una política para
+`authenticated` no puede quitarle acceso a `service_role`.
+
+**Es un argumento sólido, no una observación.** Se documenta como hipótesis
+confirmada por deducción y pendiente de comprobación directa.
+
+### EL SQL PARA EL EDITOR DE SUPABASE
+
+El control es la parte que importa: `envios_plantilla` cambió de RLS el 5 de
+agosto y sus cuatro hermanas no. Contarla sola no distingue «la migración la
+rompió» de «Sofía no envió plantillas esos días».
+
+```sql
+-- 1 · La hipótesis, en una línea
+select rolname, rolbypassrls
+  from pg_roles where rolname in ('service_role', 'authenticated', 'anon');
+-- se espera: service_role = true
+
+-- 2 · Qué políticas quedaron sobre la tabla
+select policyname, permissive, roles, cmd, qual, with_check
+  from pg_policies where schemaname = 'public' and tablename = 'envios_plantilla';
+-- se espera: solo envios_plantilla_all_auth, TO authenticated
+
+-- 3 · La pregunta CON su control
+--     (si alguna no tiene `created_at`, mirar antes:
+--      select table_name, column_name from information_schema.columns
+--       where table_schema='public' and column_name ilike '%creat%';)
+select 'envios_plantilla' t, count(*) total,
+       count(*) filter (where created_at >= '2026-08-05') desde_el_5,
+       max(created_at) ultima from public.envios_plantilla
+union all select 'eventos_turno',       count(*), count(*) filter (where created_at >= '2026-08-05'), max(created_at) from public.eventos_turno
+union all select 'mensajes_pendientes', count(*), count(*) filter (where created_at >= '2026-08-05'), max(created_at) from public.mensajes_pendientes
+union all select 'eventos_procesados',  count(*), count(*) filter (where created_at >= '2026-08-05'), max(created_at) from public.eventos_procesados;
+```
+
+Cómo se lee el resultado:
+
+| envios_plantilla desde el 5 | las hermanas desde el 5 | conclusión |
+|---|---|---|
+| > 0 | — | **funciona.** Pendiente cerrado |
+| 0 | **> 0** | **la migración la rompió.** Sofía escribe, pero no ahí |
+| 0 | 0 | **Sofía estuvo quieta.** No prueba nada; hay que reintentar tras un envío real |
+
+La tercera fila es la razón de ser del control: sin él, un cero se lee como avería
+cuando puede ser silencio.
