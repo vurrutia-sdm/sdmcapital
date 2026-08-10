@@ -129,8 +129,26 @@ export default function Footer() {
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: FUERTE, marginBottom: 20 }}>
               Navegación
             </div>
+            {/* DOS COLUMNAS QUE SE LLENAN DE ARRIBA ABAJO, no de izquierda a
+                derecha, y la diferencia es de accesibilidad, no de gusto.
+                Una lista vertical se lee bajando: con `grid-flow-col` y cuatro
+                filas fijas, la columna izquierda son los ítems 1-4 y la derecha
+                los 5-8, que es exactamente el orden del DOM y por tanto el del
+                tabulador. Con `grid-cols-2` normal el llenado sería por filas
+                —1,2 / 3,4 / …— y quien bajara por la columna izquierda leería
+                1,3,5,7 mientras el tabulador va 1,2,3,4.
+                `xl:` y no `md:`: a 768 y a 1024 la columna del footer mide 208 y
+                282px, así que partida en dos «Reserva tu propiedad» y «Vende con
+                nosotros» no caben en una línea. Debajo de eso se queda en una
+                sola columna, que es lo que ya hacía.
+                OJO con `mobile.css`: su regla `footer .grid > div > a` deja de
+                alcanzar a estos enlaces al meterlos en este contenedor. No pasa
+                nada — `display:block` lo trae `enlace` y el centrado se hereda
+                del `text-align: center` que la misma hoja pone en `> div`. */}
+            <div className="xl:grid xl:grid-rows-4 xl:grid-flow-col xl:gap-x-6">
+            {/* «Inicio» se fue: el logo del header ya lleva al home y es la
+                convención. Un enlace más en un índice que no aporta destino. */}
             {[
-              { to: '/',                   label: 'Inicio' },
               { to: '/quienes-somos',      label: 'Quiénes Somos' },
               { to: '/servicios',          label: 'Servicios' },
               { to: '/propiedades',        label: 'Propiedades' },
@@ -171,6 +189,7 @@ export default function Footer() {
                   style={{ display: 'inline-block', verticalAlign: '-0.12em', marginLeft: 5 }} />
               </span>
             </a>
+            </div>
           </div>
 
           {/* Contacto — sube al footer para que esté en TODAS las rutas. Sin
