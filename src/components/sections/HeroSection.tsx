@@ -243,7 +243,7 @@ export default function HeroSection() {
   return (
     <section
       className="relative overflow-hidden"
-      style={{ height: 'calc(100vh - 64px)', minHeight: 540, maxHeight: 920 }}
+      style={{ height: 'calc(100vh - var(--sdm-header-total))', minHeight: 540, maxHeight: 920 }}
     >
       <HeroCarousel images={filled.map(f => f.img)} positions={filled.map(f => f.pos)} />
 
@@ -266,7 +266,7 @@ export default function HeroSection() {
           Los contadores no están bajos: es el solapamiento el que los alcanza.
           `pb-[76px]` deja 28px libres en los tres anchos — los mismos 28 que ya
           hay DEBAJO de la tarjeta, así que respira igual por los dos lados.
-          NO TOCA NINGUNA ALTURA: el hero mide `calc(100vh - 64px)` acotado
+          NO TOCA NINGUNA ALTURA: el hero mide `calc(100vh - var(--sdm-header-total))` acotado
           entre 540 y 920, o sea que su alto lo fija la ventana, no su relleno.
           Subir el relleno mueve los contadores hacia arriba dentro de una caja
           que no cambia de tamaño — cero desplazamiento de layout, cero CLS. */}

@@ -12,7 +12,15 @@
    protegido por defecto.
    ============================================================ */
 
-@media (max-width: 768px) {
+/* 767.98 Y NO 768. El bloque de abajo abre en `min-width: 768px`, y el token
+   `--sdm-barra` de globals.css también: con `max-width: 768px` los tres se
+   solapaban en 768 exactos —el ancho de un iPad en vertical— y ahí convivían la
+   grilla de una columna de este bloque y la de dos del bloque de tablet. Ganaba
+   la última por orden de cascada, o sea por accidente y no por diseño.
+   El .98 y no un entero: en pantallas de densidad no entera el ancho del
+   viewport puede ser fraccionario, y `max-width: 767px` dejaría sin reglas el
+   tramo 767,01–767,99. Es la convención de Bootstrap, por este mismo motivo. */
+@media (max-width: 767.98px) {
 
   /* ── Layout general ── */
   /* `clip`, nunca `hidden`. Es el tercer lugar del proyecto donde vive esta

@@ -396,11 +396,17 @@ export default function HomePage() {
   // —`ids.map(id => data.find(...))` en el efecto de arriba—, así que cortar por
   // los 3 primeros da los 3 primeros de la lista que eligió el admin, no una
   // selección arbitraria.
+  // 767.98 Y NO 768, para que el corte coincida con el de `mobile.css`. Con
+  // `max-width: 768px` los dos discrepaban justo en 768: acá daba `true` —o sea
+  // 3 destacadas— mientras la hoja de estilos ya pintaba la grilla de DOS
+  // columnas del tramo tablet. Tres tarjetas en dos columnas dejan una fila
+  // huérfana de una. Con el mismo corte, 768 es tablet para los dos: 6 tarjetas
+  // en 2 columnas, tres filas limpias.
   const [cuantasDestacadas, setCuantasDestacadas] = useState(
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches ? 3 : 6
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767.98px)').matches ? 3 : 6
   )
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 768px)')
+    const mq = window.matchMedia('(max-width: 767.98px)')
     const alCambiar = () => setCuantasDestacadas(mq.matches ? 3 : 6)
     alCambiar()
     mq.addEventListener('change', alCambiar)

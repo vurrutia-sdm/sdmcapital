@@ -151,7 +151,7 @@ línea o se marca como cerrada.
 | 2026-08-05 | Inventario oficinas (cambio de estrategia) | Los 10 edificios pasan a referencia interna permanente; se publica una ficha genérica en su lugar. Solo toca `supabase/migrations/` | Cerrada — commit `06d32b1`, migración aplicada y pusheada. Sin deploy propio: era SQL, no cambiaba el bundle |
 | 2026-08-05 | Banner promocional | Barra promocional en el home controlada desde el admin. Toca `src/components/sections/BannerPromo.tsx`, `src/pages/HomePage.tsx` y `ContenidoAdmin` dentro de `src/pages/AdminPage.tsx` | Cerrada — commiteada y desplegada |
 | 2026-08-05 | RLS / exposición de datos | Diagnóstico de lectura anónima en Supabase. Solo investigación | Cerrada — derivó en la migración `20260805000300` |
-| 2026-08-05 | RLS / cierre de escritura anónima | Migración `20260805000300`: RLS en `propiedades`, `ficha_clientes`, `ficha_propiedades` y `sdm_agentes`. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada contra producción |
+| 2026-08-05 | RLS / cierre de escritura anónima | Migración `20260805000300`: RLS en `propiedades`, `ficha_clientes`, `ficha_propiedades` y `sdm_agentes`. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada contra producción. **Reverificada el 2026-08-10**: con la anon key, `propiedades?activo=eq.false` devuelve **0 filas** (82 activas), así que las direcciones de la cartera del socio siguen cerradas |
 | 2026-08-05 | RLS / `envios_plantilla` | Migración `20260805000400`: RLS en la última tabla de `public` que lo tenía apagado. Tabla de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada. **Falta confirmar que Sofía siga registrando envíos** |
 | 2026-08-05 | RLS / vistas de métricas | Migración `20260805000500`: `security_invoker` en las 4 vistas `metricas_*`, que evadían el RLS de las tablas de Sofía. Solo toca `supabase/migrations/` | Cerrada — aplicada y verificada con medición antes/después |
 | 2026-08-05 | Admin — Fase 3, etapa 1 | Partir `AdminPage.tsx`. Primitivas a `src/components/admin/primitivas.tsx` y pestaña piloto a `src/pages/admin/Mensajes.tsx` | Cerrada — commiteada, desplegada y verificada |
@@ -214,7 +214,24 @@ línea o se marca como cerrada.
 | 2026-08-09 | Datos estructurados de fichas y artículos | **INVASIÓN ANUNCIADA de `functions/`, dominio de la sesión Sofía.** `RealEstateListing`+`Accommodation` en las 82 fichas y `BlogPosting` en los 13 artículos, más `BreadcrumbList` en ambos, emitidos desde las Pages Functions. SIN `geo` ni `streetAddress` — ver el porqué en `src/lib/schema.js`. El `RealEstateAgent` de index.html se queda y convive | En curso |
 | 2026-08-09 | Buscador del hero + barra de indicadores | **ZONA COMPARTIDA: se crea `src/lib/indicadores.ts`**, que pasa a ser la única fuente de UF y dólar. `CotizacionesAdmin` deja de tener su propio `fetch` a mindicador y consume el módulo — TOCA EL CÁLCULO DE DINERO DEL WIZARD, verificado que el valor y el flujo no cambian | En curso |
 | 2026-08-09 | Financiamiento al puesto 3 del Inicio + política de honorarios | **ZONA SIN DUEÑO ASIGNADA: `src/components/credito/` pasa a la sesión web pública** — no figuraba en ninguna. **INVASIÓN ANUNCIADA de `src/pages/admin/Contenido.tsx`** (sesión admin) para los campos nuevos, y de **`src/lib/i18n.ts`, ZONA COMPARTIDA**, para retirar 4 claves muertas de `sections.financiamiento`. El bloque sube del puesto 5 al 3, por encima del banner promocional. Seis claves de `contenido_sitio`, sembradas con la migración `20260809000000`. Se corrige la declaración de honorarios en las TRES superficies que la hacían | Cerrado |
+| 2026-08-10 | Auditoría UI Fase 3 | Auditoría UI/UX completa del sitio contra `ui-ux-pro-max` → `AUDITORIA-UI-FASE3.md` (3 críticos, 9 altos, 11 medios, 5 bajos). Se resuelve **C1**: el header `fixed` medía 91px desde 768px —al sumar la barra de indicadores de `2d380e5`— pero el desplazamiento del contenido seguía en 64px, así que los primeros 27px de cada página quedaban tapados en las 17 rutas. **ZONA COMPARTIDA: nace `--sdm-header-total` en `src/styles/globals.css`** y `Layout.tsx` pasa a consumirlo. **INVASIÓN ANUNCIADA de `src/pages/ServiciosPage.tsx` y `src/pages/HomePage.tsx`** (sesión web pública), por dos referencias más que encontró el barrido previo. Toca además `HeroSection.tsx` y **`mobile.css`, ZONA COMPARTIDA** (corte a 767.98px) | Commiteada, **sin push y sin deploy** |
 | — | Sofía / chatbot | — | — |
+
+> **`--sdm-header-total` es zona compartida, y de la clase que más duele.**
+> El alto del header vive ahora en un solo sitio —`:root` de `globals.css`— y lo
+> consumen `Layout.tsx` (el relleno de `<main>`), `HeroSection.tsx` (el alto del
+> hero) y `ServiciosPage.tsx` (el anclaje de sus secciones). Cambiar el token es
+> una línea, pero **mueve las 17 rutas públicas a la vez**.
+>
+> La regla práctica: si tocas la altura del `<header>` de `Header.tsx` —el `h-16`
+> del `<nav>`, el `height` de `BarraIndicadores` o el `border-b`— **tienes que
+> mover el token en el mismo commit**. Son el mismo hecho escrito en dos sitios,
+> y esta sesión existe justamente porque la última vez que crecieron no se
+> movieron juntos.
+>
+> El corte de la media query del token (768px) es el mismo que el `hidden md:flex`
+> que enciende la barra. Si esa clase cambia de breakpoint, la media query de
+> `globals.css` cambia con ella.
 
 ### Sesión RLS — 2026-08-05
 

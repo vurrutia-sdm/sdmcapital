@@ -304,6 +304,41 @@
     --sdm-radio-control:    2px;
     --sdm-radio-contenedor: 4px;
     --sdm-radio-flotante:   8px;
+
+    /* ─── ALTO DEL HEADER ──────────────────────────────────────────────────
+       EL HEADER PÚBLICO ES `fixed`, ASÍ QUE SU ALTO NO LO SABE NADIE MÁS.
+       Todo lo que tenga que empezar por debajo de él necesita ese número, y
+       hasta hoy estaba escrito a mano en tres sitios que no coincidían.
+
+       DE QUÉ SE COMPONE, medido contra `Header.tsx`:
+
+         <nav class="h-16">        64px   siempre
+         <BarraIndicadores/>       26px   `hidden md:flex` — 0 por debajo de 768
+         border-b del <header>      1px   siempre
+                                   ────
+                          <768      65px
+                          ≥768      91px
+
+       EL BORDE VA EN `--sdm-header` Y NO SUELTO. El `<header>` no declara
+       altura: la suya es la suma de sus hijos MÁS su propio borde inferior, y
+       ese píxel tapa contenido igual que los otros 64. Metiéndolo acá cada
+       token sigue describiendo un elemento real —«el nav con su borde» y «la
+       barra»— y el total sale exacto en los dos anchos. Repartirlo de otra
+       forma deja 64 por debajo de 768, que es el error que esto viene a cerrar,
+       una vez más y con un píxel en vez de veintisiete.
+
+       EL CORTE ES EL MISMO 768 QUE USA `md:` EN TAILWIND, porque quien enciende
+       la barra es la clase `hidden md:flex` de `Header.tsx:69`. Si esa clase
+       cambia de breakpoint, esta media query tiene que cambiar con ella: son el
+       mismo hecho escrito en dos lenguajes. `mobile.css` corta en 767.98 para no
+       solaparse con este 768 — ver la nota de allá. */
+    --sdm-header:       65px;
+    --sdm-barra:         0px;
+    --sdm-header-total: calc(var(--sdm-header) + var(--sdm-barra));
+  }
+
+  @media (min-width: 768px) {
+    :root { --sdm-barra: 26px; }
   }
 
   * { box-sizing: border-box; }

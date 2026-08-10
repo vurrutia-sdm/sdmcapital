@@ -73,7 +73,12 @@ export default function ServiciosPage() {
           return (
             <div key={s.slug} id={s.slug}
               className="grid grid-cols-1 lg:grid-cols-2 gap-px border-b border-[#e8edf2]"
-              style={{ background: 'var(--border)', scrollMarginTop: 80 }}>
+              /* `scrollMarginTop` con el token: el `scrollIntoView` de arriba
+                 alinea el borde superior de este bloque con el del viewport, y
+                 ahí está el header `fixed` tapándolo. Eran 80px escritos a mano
+                 —un cuarto número calibrado contra un header que medía otra
+                 cosa— y quedaban 11px cortos desde 768. */
+              style={{ background: 'var(--border)', scrollMarginTop: 'var(--sdm-header-total)' }}>
               <div className={'bg-white px-8 lg:px-14 py-14' + (flip ? ' lg:order-2' : '')}>
                 <div className="font-serif mb-5 text-sdm-display-md" style={{ fontWeight: 300, color: 'var(--border)' }}>{num}</div>
                 <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
