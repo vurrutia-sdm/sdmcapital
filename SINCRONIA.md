@@ -7590,3 +7590,69 @@ prueban que las mismas filas estén de los mismos lados.
 «Mostrar botón de pago Flow (Reserva esta propiedad)» → «Mostrar botón «Reservar
 esta propiedad»». Es el texto que ve Víctor en el admin, y nombraba un proveedor
 desactivado.
+
+---
+
+## Las fichas de cliente dejan de ser legibles con la anon key — 2026-08-10
+
+**ZONA COMPARTIDA:** `supabase/migrations/`. No toca código.
+
+`20260805000300` dejó `ficha_clientes_select_anon` y
+`ficha_propiedades_select_anon` a propósito, con este criterio escrito: «lectura
+anónima (el cliente abre su ficha sin login)».
+
+**Ese caso de uso no existe.** Confirmado con Roberto: la ficha se le entrega al
+cliente como **PDF descargado**, nunca como enlace a una URL del sitio. Sin ese
+caso, la política regalaba datos personales —nombre, teléfono, correo— y las
+propiedades asociadas a cualquiera con la anon key, que viaja en el bundle
+público.
+
+### Antes de borrar: quién las consulta
+
+Las cinco pantallas viven bajo `/admin/ficha-cliente/…` y **las cinco pasan por
+`useAdminAuth`**, o sea por sesión de Supabase, o sea por el rol
+`authenticated`: `FichaClientesLista`, `FichaClienteDetalle`,
+`FichaClienteNueva`, `FichaClienteVer` y `FichaClienteEditar`. Sus políticas
+`*_all_auth` siguen intactas.
+
+El PDF tampoco dependía de `anon`: `FichaClienteVer` lo genera con
+`window.print()` sobre la página ya renderizada, sin ninguna consulta aparte.
+
+### La comprobación es de comportamiento, y por eso sirve
+
+No hacía falta leer `pg_policies` —sin Docker no se puede desde la CLI— porque
+**las políticas permisivas se combinan con OR**: si quedara cualquier otra que
+concediera SELECT a `anon` o a `public`, las filas seguirían llegando. Llegan
+cero, así que no queda ninguna.
+
+| tabla | anon antes | anon ahora |
+|---|---|---|
+| `ficha_clientes` | 1 | **0** |
+| `ficha_propiedades` | 4 | **0** |
+| `sdm_agentes` | 1 | 1 (sin tocar) |
+| `propiedades` | 82 | 82 (sin tocar) |
+
+Las dos últimas filas son el control: prueban que el `DROP` fue quirúrgico y no
+un apagón general de RLS.
+
+> **Un 0 hay que leerlo con cuidado.** La respuesta es **HTTP 200 con `[]`**, no
+> un 404 ni un `42P01`: la tabla existe y RLS filtra. Es la misma trampa del
+> `DELETE` que devuelve 204 sin borrar. Por eso se midió el ANTES —1 y 4— antes
+> de tocar nada: sin línea base, un 0 podría ser «tabla vacía».
+
+La escritura anónima sigue cerrada como estaba: `42501 new row violates
+row-level security policy`.
+
+### `sdm_agentes` NO se tocó, y no es olvido
+
+Viene de la misma migración y con el mismo criterio dudoso. Queda fuera porque
+**nadie ha comprobado si algo público lee esa tabla**, y cerrarla «por simetría»
+sin esa comprobación es exactamente lo que dejó estas dos abiertas. Es una
+decisión aparte, con su propia verificación pendiente.
+
+### PENDIENTE DE VERIFICAR POR VÍCTOR
+
+Las cinco pantallas con sesión iniciada, incluida la descarga del PDF. La
+migración solo borró políticas `TO anon` y las `TO authenticated` quedaron
+intactas, así que no debería cambiar nada — pero eso es un argumento, no una
+comprobación, y no tengo credenciales del admin.
