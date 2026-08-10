@@ -1,6 +1,20 @@
 import { useEffect, useState } from "react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useSearchParams, useNavigate } from "react-router-dom";
+
+// ESTA PÁGINA ESTABA ENTERA FUERA DEL SISTEMA, y es la que ve alguien que acaba
+// de pagar con tarjeta. En 35 líneas usaba `rounded-2xl` y `rounded-lg` contra
+// la escala de tres radios, `shadow-lg` donde el sistema usa bordes finos,
+// `#1a3c5e` —una variante de navy que no es ningún token—, `text-red-600` de la
+// paleta por defecto de Tailwind, `text-2xl font-bold` fuera de la escala
+// tipográfica, un <button> a mano en vez de `.btn-primary`, y dos EMOJI de 48px
+// como icono de estado.
+//
+// Los emoji eran lo peor de los siete: el glifo lo pone la fuente del sistema
+// operativo, así que cambia de forma y de color según el dispositivo; su verde
+// no es el de la marca; y el lector de pantalla lee «marca de verificación
+// blanca» antes del <h1> que sí dice qué pasó, porque no llevaban `aria-hidden`.
 
 export default function ReservaConfirmacionPage() {
   const [params] = useSearchParams();
@@ -29,37 +43,43 @@ export default function ReservaConfirmacionPage() {
     <div className="min-h-screen flex items-center justify-center bg-[var(--off)]">
       {/* Sin descripcion propia a proposito: no es una pagina que se comparta. */}
       <SEO title="Confirmación de reserva" />
-      <div className="bg-white rounded-2xl shadow-lg p-10 max-w-md w-full text-center">
+      <div
+        className="bg-white p-10 max-w-md w-full text-center rounded-sdm-contenedor"
+        style={{ border: '1px solid var(--border)' }}
+      >
         {estado === "cargando" && (
           <>
-            <div className="w-12 h-12 border-4 border-[#1a3c5e] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div
+              className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4"
+              style={{ borderColor: 'var(--navy)', borderTopColor: 'transparent' }}
+            />
             <p className="text-[var(--muted)]">Verificando pago...</p>
           </>
         )}
         {estado === "exitosa" && (
           <>
-            <div className="text-5xl mb-4">✅</div>
-            <h1 className="text-2xl font-bold text-[#1a3c5e] mb-2">¡Reserva confirmada!</h1>
+            <CheckCircle2 aria-hidden="true" size={48} strokeWidth={1.5} className="mx-auto mb-4" style={{ color: 'var(--green-dark)' }} />
+            <h1 className="font-serif text-sdm-display-sm font-sdm-ligero mb-2" style={{ color: 'var(--navy-dark)' }}>¡Reserva confirmada!</h1>
             <p className="text-[var(--muted)] mb-6">Tu pago fue procesado correctamente.</p>
             {datos && (
-              <div className="text-left text-sm bg-[var(--off)] rounded-lg p-4 mb-6 space-y-1">
-                <p><span className="font-semibold">Orden:</span> {datos.buy_order}</p>
-                <p><span className="font-semibold">Monto:</span> ${datos.amount?.toLocaleString("es-CL")} CLP</p>
-                <p><span className="font-semibold">Tarjeta:</span> **** {datos.card_detail?.card_number}</p>
-                <p><span className="font-semibold">Código autorización:</span> {datos.authorization_code}</p>
+              <div className="text-left text-sdm-sm bg-[var(--off)] p-4 mb-6 space-y-1 rounded-sdm-contenedor" style={{ border: '1px solid var(--border)' }}>
+                <p><span className="font-sdm-semi">Orden:</span> {datos.buy_order}</p>
+                <p><span className="font-sdm-semi">Monto:</span> ${datos.amount?.toLocaleString("es-CL")} CLP</p>
+                <p><span className="font-sdm-semi">Tarjeta:</span> **** {datos.card_detail?.card_number}</p>
+                <p><span className="font-sdm-semi">Código autorización:</span> {datos.authorization_code}</p>
               </div>
             )}
-            <button onClick={() => navigate("/")} className="w-full bg-[#1a3c5e] text-white py-3 rounded-lg font-semibold">
-              ← Volver al inicio
+            <button onClick={() => navigate("/")} className="btn-primary w-full justify-center">
+              Volver al inicio
             </button>
           </>
         )}
         {estado === "fallida" && (
           <>
-            <div className="text-5xl mb-4">❌</div>
-            <h1 className="text-2xl font-bold text-red-600 mb-2">Pago no completado</h1>
+            <XCircle aria-hidden="true" size={48} strokeWidth={1.5} className="mx-auto mb-4" style={{ color: 'var(--error)' }} />
+            <h1 className="font-serif text-sdm-display-sm font-sdm-ligero mb-2" style={{ color: 'var(--error)' }}>Pago no completado</h1>
             <p className="text-[var(--muted)] mb-6">No se pudo procesar el pago. Intenta nuevamente.</p>
-            <button onClick={() => navigate(-1)} className="w-full bg-[#1a3c5e] text-white py-3 rounded-lg font-semibold">
+            <button onClick={() => navigate(-1)} className="btn-primary w-full justify-center">
               Volver
             </button>
           </>

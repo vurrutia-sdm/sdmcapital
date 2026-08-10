@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import SEO from '@/components/SEO'
 import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
@@ -161,7 +162,8 @@ export default function VendeConNosotrosPage() {
 
           {status === 'ok' ? (
             <div className="py-12 text-center text-sdm-xl" style={{ color: 'var(--green-dark)' }}>
-              ✓ ¡Gracias! Recibimos tu información y te contactaremos pronto.
+              <Check aria-hidden="true" size={22} strokeWidth={2} className="inline-block align-[-3px] mr-1.5" />
+              ¡Gracias! Recibimos tu información y te contactaremos pronto.
             </div>
           ) : (
             <form onSubmit={submit}>

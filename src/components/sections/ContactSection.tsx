@@ -1,5 +1,6 @@
 // SDM Capital — ContactSection
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useContenido } from '@/hooks/useContenido'
 import type { MensajeContacto } from '@/types'
@@ -57,7 +58,8 @@ export default function ContactSection() {
         <div className="bg-white rounded-sm p-10 lg:p-14 mb-12">
           {status === 'ok' ? (
             <div className="py-12 text-center text-sdm-xl" style={{ color: 'var(--green-dark)' }}>
-              ✓ Mensaje enviado. Te contactaremos pronto.
+              <Check aria-hidden="true" size={22} strokeWidth={2} className="inline-block align-[-3px] mr-1.5" />
+              Mensaje enviado. Te contactaremos pronto.
             </div>
           ) : (
             <form onSubmit={submit}>
