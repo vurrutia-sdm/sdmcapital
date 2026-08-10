@@ -824,8 +824,22 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
         </label>
       </div>
 
+      {/* `scrollMarginTop` CON EL TOKEN DEL ADMIN, no con el del sitio público.
+          El `scrollIntoView` de más arriba alinea el borde de este formulario
+          con el del viewport, y encima está el header del admin, que es
+          `sticky` y mide `--admin-header-h` (80px). Sin esto, al abrir una
+          propiedad para editarla el título del formulario quedaba tapado.
+
+          NO se usa `--sdm-header-total`: ése vale 91px y describe el header
+          PÚBLICO, que es `fixed` y tiene otra composición. Por eso la regla
+          `scroll-padding-top` de `globals.css` está acotada a
+          `html.ruta-publica` y el admin no la recibe.
+
+          `--admin-header-h` lo declara `AdminPage` en su div raíz, así que la
+          variable resuelve por herencia desde acá. */}
       {editing && (
-        <div id="prop-edit-form" className="bg-white border border-[var(--border)] p-8 mb-10 rounded-sm">
+        <div id="prop-edit-form" className="bg-white border border-[var(--border)] p-8 mb-10 rounded-sm"
+          style={{ scrollMarginTop: 'var(--admin-header-h, 80px)' }}>
           {/* El enlace va junto al título del formulario: editando es cuando
               más se quiere comprobar cómo quedó. En una propiedad nueva no se
               dibuja —todavía no hay slug— y en una pausada sale deshabilitado
@@ -1199,7 +1213,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
                     onMouseDown={e => { e.stopPropagation(); e.preventDefault() }}
                     onPointerDown={e => e.stopPropagation()}
-                    style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4', border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, borderRadius: 4, padding: '6px 14px', fontWeight: 600, cursor: 'pointer', color: p.activo === false ? '#dc2626' : '#16a34a', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    style={{ background: p.activo === false ? 'var(--error-fondo)' : 'var(--admin-ok-fondo)', border: `1px solid ${p.activo === false ? 'var(--error)' : 'var(--admin-ok)'}`, borderRadius: 4, padding: '6px 14px', fontWeight: 600, cursor: 'pointer', color: p.activo === false ? 'var(--error)' : 'var(--admin-ok)', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                     {p.activo === false ? <><Pause aria-hidden="true" size={14} strokeWidth={2} />Pausada</> : <><Check aria-hidden="true" size={14} strokeWidth={2} />Activa</>}
                   </button>
                 </td>

@@ -259,7 +259,7 @@ function HomeDestacadasSelector({ value, onChange }: { value: string; onChange: 
           <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 10 }}>Disponibles — clic para agregar</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, maxHeight: 400, overflowY: 'auto', padding: 4 }}>
             {available.map(p => (
-              <button type="button" className="bg-[var(--off)] border border-transparent hover:border-[var(--green-dark)] hover:bg-[#f0faf4]" key={p.id} onClick={() => add(p)}
+              <button type="button" className="bg-[var(--off)] border border-transparent hover:border-[var(--green-dark)] hover:bg-[var(--admin-ok-fondo)]" key={p.id} onClick={() => add(p)}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 4, cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left', fontFamily: 'inherit', width: '100%' }}>
                 {thumb(p) && <img src={thumb(p)} alt="" style={{ width: 40, height: 32, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
                 <div style={{ minWidth: 0 }}>
@@ -444,7 +444,7 @@ export default function Contenido() {
                   Pieza que aparece en el inicio, justo debajo del buscador. Se muestra a todos los
                   visitantes mientras esté activa: para retirarla, apaga este switch.
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: activo ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${activo ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: activo ? 'var(--admin-ok-fondo)' : 'var(--error-fondo)', borderRadius: 4, border: `1px solid ${activo ? 'var(--admin-ok)' : 'var(--error)'}`, marginBottom: 8 }}>
                   {/* `role="switch"` y no `aria-pressed`: es un interruptor de
                       encendido/apagado, no un botón que queda hundido. Sin esto
                       el lector solo decía «botón». */}
@@ -453,13 +453,13 @@ export default function Contenido() {
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: activo ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: activo ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
-                  {/* `--error` y no `#dc2626`. No era un fallo de contraste —sobre
-                      `#fff3f3` daba 4,45 y el token da 5,81— sino de sistema: el
+                  {/* `--error` y no `var(--error)`. No era un fallo de contraste —sobre
+                      `var(--error-fondo)` daba 4,45 y el token da 5,81— sino de sistema: el
                       proyecto tiene UN rojo de error, elegido midiendo su distancia
                       a `--estado-vendida` bajo daltonismo, y un segundo rojo suelto
-                      reabre justo ese problema. El `#16a34a` de al lado queda
+                      reabre justo ese problema. El `var(--admin-ok)` de al lado queda
                       pendiente: es el otro verde fuera de la paleta. */}
-                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: activo ? '#16a34a' : 'var(--error)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{activo ? <><Check size={14} strokeWidth={2} />Visible en el inicio</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
+                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: activo ? 'var(--admin-ok)' : 'var(--error)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{activo ? <><Check size={14} strokeWidth={2} />Visible en el inicio</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
                 </div>
                 <AvisoDespliegue donde="del inicio" />
               </Full>
@@ -553,14 +553,14 @@ export default function Contenido() {
           return (
             <Sec key={key} title={<>{isVisible ? <Eye size={18} strokeWidth={1.75} /> : <EyeOff size={18} strokeWidth={1.75} />}{label}</>}>
               <Full>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: isVisible ? '#f0faf4' : '#fff3f3', borderRadius: 4, border: `1px solid ${isVisible ? '#86efac' : '#fca5a5'}`, marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', background: isVisible ? 'var(--admin-ok-fondo)' : 'var(--error-fondo)', borderRadius: 4, border: `1px solid ${isVisible ? 'var(--admin-ok)' : 'var(--error)'}`, marginBottom: 8 }}>
                   <button role="switch" aria-checked={isVisible} aria-label={`Mostrar ${label} en el sitio`}
                     onClick={() => setD(p => ({ ...p, [`servicio_${key}_visible`]: isVisible ? 'false' : 'true' }))}
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: isVisible ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: isVisible ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
                   {/* `--error`, mismo criterio que el bloque del banner. */}
-                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: isVisible ? '#16a34a' : 'var(--error)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{isVisible ? <><Check size={14} strokeWidth={2} />Visible</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
+                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: isVisible ? 'var(--admin-ok)' : 'var(--error)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{isVisible ? <><Check size={14} strokeWidth={2} />Visible</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
                 </div>
                 {/* Mismo aviso que el banner, y acá hacía MÁS falta: `ServiciosPage`
                     filtra por `servicio_*_visible` leyendo la semilla y sin ningún

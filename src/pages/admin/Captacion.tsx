@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, RefreshCw, ChevronDown, ChevronUp, Check, X, Pencil, Trash2, Bell, CalendarCheck } from 'lucide-react'
+import { ArrowLeft, RefreshCw, ChevronDown, ChevronUp, Check, X, Pencil, Trash2, Bell, CalendarCheck, Mic, Hand, Bot } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 
@@ -528,7 +528,7 @@ function MensajeBubble({ m }: { m: Mensaje }) {
           whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
           {m.tipo === 'voz' && (
             <div className="text-sdm-xs" style={{ fontWeight: 700, marginBottom: 4, opacity: 0.8 }}>
-              🎤 Nota de voz
+              <Mic aria-hidden="true" size={13} className="inline-block align-[-2px] mr-1" />Nota de voz
             </div>
           )}
           {m.contenido || <span style={{ fontStyle: 'italic', opacity: 0.6 }}>(sin contenido)</span>}
@@ -638,7 +638,14 @@ function ModoToggleBanner({ lead, onModoChange }: {
       borderRadius: 8, padding: '12px 16px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span className="text-sdm-2xl" style={{ lineHeight: 1 }}>{isManual ? '✋' : '🤖'}</span>
+        {/* Iconos y no emoji: el glifo lo ponía la fuente del sistema, así que
+            cambiaba de forma y color según el equipo. `aria-hidden` porque el
+            texto de al lado ya dice el estado. */}
+        <span style={{ lineHeight: 1, display: 'inline-flex' }}>
+          {isManual
+            ? <Hand aria-hidden="true" size={22} style={{ color: 'var(--lead-warm)' }} />
+            : <Bot aria-hidden="true" size={22} style={{ color: 'var(--navy)' }} />}
+        </span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* EL COLOR DEL BANNER LO LLEVA EL FONDO, NO EL TEXTO.
               El titular iba en el color del modo —verde en automático, ámbar
@@ -674,7 +681,11 @@ function ModoToggleBanner({ lead, onModoChange }: {
           background: isManual ? COLORS.greenDark : 'var(--lead-warm)',
           opacity: togglingModo ? 0.6 : 1,
           boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
-        {togglingModo ? 'Guardando…' : isManual ? '🤖 Devolver a Sofía' : '✋ Tomar control'}
+        {togglingModo
+          ? 'Guardando…'
+          : isManual
+          ? <><Bot aria-hidden="true" size={14} className="inline-block align-[-3px] mr-1.5" />Devolver a Sofía</>
+          : <><Hand aria-hidden="true" size={14} className="inline-block align-[-3px] mr-1.5" />Tomar control</>}
       </button>
     </div>
   )
@@ -1048,7 +1059,30 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
 
   return (
     <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', overflow: 'hidden', opacity: deleting ? 0.5 : 1, transition: 'opacity 0.2s' }}>
-      <div onClick={onToggle} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer' }}>
+      {/* CONTROL DE VERDAD, NO UN <div> QUE ESCUCHA CLICS.
+          Era un <div onClick> con `cursor: pointer` y nada más: sin `role`, sin
+          `tabIndex` y sin `onKeyDown`. No recibía foco, no respondía a Enter ni a
+          Espacio y no se anunciaba como control, así que CON TECLADO NO SE PODÍA
+          ABRIR NINGÚN LEAD — los únicos elementos alcanzables de la fila eran los
+          botones «Editar» y «Eliminar» de dentro.
+
+          NO SE ENVUELVE EN UN <button>, y por eso hace falta el `role`: esta
+          cabecera CONTIENE esos dos botones, y un <button> dentro de otro es
+          marcado inválido. Es la misma restricción que `globals.css` describe
+          para `.enlace-tarjeta`.
+
+          `preventDefault()` en Espacio no sobra: sin él la página se desplaza
+          además de abrir el lead, porque Espacio es «avanzar una pantalla» en un
+          elemento que no es un control nativo. */}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        onClick={onToggle}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() }
+        }}
+        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer' }}>
         <ScoreBadge score={lead.score} />
         {/* Estas seis columnas ENVUELVEN en vez de recortarse. Medido: a 1100 px
             de ancho —el máximo del panel— cada una mide ~124 px, y a 768 px

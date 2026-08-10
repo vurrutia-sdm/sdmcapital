@@ -167,7 +167,7 @@ export default function FichaClienteVer() {
               {/* Badge */}
               {(ficha.tipo || ficha.operacion) && (
                 <div style={{ marginBottom: 14 }}>
-                  <span className="pe text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-block', background: '#edf7f1', border: '1px solid #b6e4ca', color: '#1a6e3c', fontWeight: 700, textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20 }}>
+                  <span className="pe text-sdm-xs tracking-sdm-wide" style={{ display: 'inline-block', background: 'var(--admin-ok-fondo)', border: '1px solid var(--admin-ok)', color: 'var(--admin-ok)', fontWeight: 700, textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20 }}>
                     {[ficha.tipo, ficha.operacion].filter(Boolean).join(' · ')}
                   </span>
                 </div>

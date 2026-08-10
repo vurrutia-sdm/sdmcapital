@@ -113,7 +113,9 @@ export default function Equipo() {
               }
               <div>
                 <div className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{m.nombre}</div>
-                <div className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)' }}>{m.cargo}</div>
+                {/* `--green-dark`: sobre la tarjeta blanca `--green` da 2,93:1. Gemelo del
+                    eyebrow de RentalPage, que se corrigió en la tanda 3 del eje de color. */}
+                <div className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green-dark)' }}>{m.cargo}</div>
               </div>
             </div>
             <p style={{ color: 'var(--muted)', lineHeight: 1.6, marginBottom: 12 }} className="line-clamp-2 text-sdm-sm">{m.bio}</p>

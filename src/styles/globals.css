@@ -121,6 +121,37 @@
        un error, el problema reaparece. */
     --error: #A8384B;
 
+    /* ─── INSIGNIAS DEL ADMIN ──────────────────────────────────────────────
+       Cuarta familia, y la última que quedaba fuera del sistema: el par
+       «activo / inactivo» que aparece en Agentes, FichaClientesLista,
+       Contenido y Propiedades. Vivía como OCHO literales de la paleta por
+       defecto de Tailwind repartidos en cuatro archivos, y dos de ellos ni
+       siquiera coincidían entre sí: `#1a6e3c` en dos paneles y `#16a34a` en
+       los otros dos, que sobre el mismo fondo da 3,09:1 y no cumple.
+
+       Se conserva el par que YA cumplía —el de Agentes y FichaClientesLista—
+       y se le da nombre:
+
+         --admin-ok sobre --admin-ok-fondo   5,89:1  ✅
+         --error    sobre --error-fondo      5,81:1  ✅
+
+       EL BORDE ES EL COLOR DEL TEXTO, y no un pastel. La insignia de
+       Propiedades se PULSA —alterna activa/pausada— así que su borde cae en
+       1.4.11 y necesita 3:1 contra el blanco de la tabla. Ningún pastel llega:
+
+         #b6e4ca  1,41    #86efac  1,40    #fca5a5  1,90    todos fallan
+
+       Y no es que estuvieran mal elegidos: cualquier tono lo bastante suave
+       para leerse como «tinte» está por debajo de 3:1 contra blanco. Medido
+       también con verdes y rojos intermedios (2,14 y 2,71). El único valor que
+       cumple sin inventar un color nuevo es el propio texto: 6,29 y 6,30.
+
+       El resultado se ve más marcado que el pastel de antes. Es el precio de
+       que la insignia tenga un límite perceptible. */
+    --admin-ok:        #1a6e3c;
+    --admin-ok-fondo:  #f0faf4;
+    --error-fondo:     #fff3f3;
+
     /* ─── ESTADOS DE LOS BOTONES ───────────────────────────────────────────
        EL HOVER CAMBIA EL COLOR, NO LA OPACIDAD.
        Bajar la opacidad mezcla el botón con lo que tenga detrás, y eso arrastra

@@ -188,7 +188,7 @@ export default function Agentes() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 3 }}>
                     <span className="text-sdm-base" style={{ fontWeight: 600, color: 'var(--navy-dark)' }}>{a.nombre}</span>
-                    <span className="text-sdm-xs" style={{ background: a.activo ? '#f0faf4' : 'var(--off)', color: a.activo ? '#1a6e3c' : 'var(--muted)', border: `1px solid ${a.activo ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '2px 8px', fontWeight: 600 }}>
+                    <span className="text-sdm-xs" style={{ background: a.activo ? 'var(--admin-ok-fondo)' : 'var(--off)', color: a.activo ? 'var(--admin-ok)' : 'var(--muted)', border: `1px solid ${a.activo ? 'var(--admin-ok)' : 'var(--border)'}`, borderRadius: 20, padding: '2px 8px', fontWeight: 600 }}>
                       {a.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </div>

@@ -184,7 +184,7 @@ export default function FichaClientesLista() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <span className="text-sdm-sm" style={{ background: fichaCount > 0 ? '#f0faf4' : 'var(--off)', color: fichaCount > 0 ? '#1a6e3c' : 'var(--muted)', border: `1px solid ${fichaCount > 0 ? '#b6e4ca' : 'var(--border)'}`, borderRadius: 20, padding: '3px 12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    <span className="text-sdm-sm" style={{ background: fichaCount > 0 ? 'var(--admin-ok-fondo)' : 'var(--off)', color: fichaCount > 0 ? 'var(--admin-ok)' : 'var(--muted)', border: `1px solid ${fichaCount > 0 ? 'var(--admin-ok)' : 'var(--border)'}`, borderRadius: 20, padding: '3px 12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {fichaCount} {fichaCount === 1 ? 'ficha' : 'fichas'}
                     </span>
                     <button onClick={e => deleteCliente(e, c.id)} disabled={isDel}
