@@ -21,6 +21,29 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
   const [loaded, setLoaded] = useState(false)
   const [showMap, setShowMap] = useState(!!(lat && lng))
 
+  // ─── LOS LISTENERS DE GOOGLE MAPS LEEN DE ACÁ, NO DE LA CLAUSURA ───────────
+  // `place_changed`, `dragend` y `click` se registran UNA vez —el efecto que
+  // los cuelga sale temprano si `mapObj.current` ya existe— y a partir de ahí
+  // viven fuera del ciclo de React. Si leen las props directamente, leen las
+  // del render en que se registraron y ahí se quedan.
+  //
+  // El defecto concreto que esto arregla: editabas una propiedad que ya tenía
+  // coordenadas —así que `showMap` nacía en `true` y el mapa se construía en el
+  // primer render—, elegías otra dirección en el autocomplete y arrastrabas el
+  // pin. `dragend` guardaba las coordenadas NUEVAS con la dirección VIEJA.
+  //
+  // NO SE ARREGLA METIENDO LAS DEPENDENCIAS AL ARRAY. `[loaded, showMap,
+  // address, lat, lng, onUpdate]` vuelve a correr el efecto en cada tecla de la
+  // dirección, y como `onUpdate` es una flecha inline en `Propiedades.tsx`, en
+  // cada render del formulario. El efecto construye un `Map` y un `Marker`
+  // nuevos, así que sería recrear el mapa —perdiendo zoom y encuadre— para
+  // arreglar un valor.
+  const actual = useRef({ address, lat, lng, onUpdate })
+  // Sin array de dependencias a propósito: corre después de CADA render. Va
+  // declarado antes que los efectos que lo leen, que es lo que garantiza que
+  // ellos vean el valor de este mismo render y no el del anterior.
+  useEffect(() => { actual.current = { address, lat, lng, onUpdate } })
+
   // Load Maps + Places script
   useEffect(() => {
     if (window.google?.maps?.places) { setLoaded(true); return }
@@ -49,7 +72,7 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
       const newLat = place.geometry.location.lat()
       const newLng = place.geometry.location.lng()
       const newAddr = place.formatted_address || ''
-      onUpdate({ address: newAddr, lat: newLat, lng: newLng })
+      actual.current.onUpdate({ address: newAddr, lat: newLat, lng: newLng })
       setShowMap(true)
       // Update map
       if (mapObj.current) {
@@ -63,9 +86,14 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
   // Init map when showMap becomes true
   useEffect(() => {
     if (!loaded || !showMap || !mapRef.current || mapObj.current) return
-    const center = { lat: lat || -33.4489, lng: lng || -70.6693 }
+    // El encuadre inicial sí quiere el valor del momento en que el mapa nace,
+    // pero se lee por la ref igual que el resto: en este punto vale lo mismo
+    // —el efecto de sincronía ya corrió— y deja el array de dependencias
+    // diciendo la verdad sobre lo que hace correr al efecto.
+    const { lat: lat0, lng: lng0 } = actual.current
+    const center = { lat: lat0 || -33.4489, lng: lng0 || -70.6693 }
     const map = new window.google.maps.Map(mapRef.current, {
-      zoom: lat ? 16 : 12,
+      zoom: lat0 ? 16 : 12,
       center,
       mapTypeControl: false,
       streetViewControl: false,
@@ -91,8 +119,8 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
     m.addListener('dragend', () => {
       const pos = m.getPosition()
       if (!pos) return
-      onUpdate({
-        address: address,
+      actual.current.onUpdate({
+        address: actual.current.address,
         lat: pos.lat(),
         lng: pos.lng(),
       })
@@ -102,8 +130,8 @@ export default function MapPicker({ address, lat, lng, onUpdate }: MapPickerProp
     map.addListener('click', (e: google.maps.MapMouseEvent) => {
       if (!e.latLng) return
       m.setPosition(e.latLng)
-      onUpdate({
-        address: address,
+      actual.current.onUpdate({
+        address: actual.current.address,
         lat: e.latLng.lat(),
         lng: e.latLng.lng(),
       })
