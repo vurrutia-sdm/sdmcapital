@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import type { CSSProperties } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Bath, ChevronLeft, ChevronRight, FileText, Hammer, Home, Link2, MapPin, Maximize2, Package, ParkingSquare, Share2, X } from 'lucide-react'
+import { Bath, ChevronLeft, ChevronRight, FileText, Hammer, Home, Landmark, Link2, MapPin, Maximize2, Package, ParkingSquare, Share2, X } from 'lucide-react'
 import { sanitizarContenido } from '@/lib/contenidoRico'
 import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
@@ -11,6 +11,7 @@ import { useCerrarConEscape } from '@/hooks/useCerrarConEscape'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
+import ReservaModal from '@/components/reserva/ReservaModal'
 import SEO from '@/components/SEO'
 import PropertyMap from '@/components/ui/PropertyMap'
 import PropertyCard from '@/components/ui/PropertyCard'
@@ -220,6 +221,7 @@ export default function PropiedadDetailPage() {
 
   const [imgIdx, setImgIdx] = useState(0)
   const [lightbox, setLightbox] = useState(false)
+  const [reservaAbierta, setReservaAbierta] = useState(false)
 
   useEffect(() => {
     if (!slug) return
@@ -787,31 +789,79 @@ export default function PropiedadDetailPage() {
               )}
             </div>
 
+            {/* ─── PAGO CON FLOW: DESACTIVADO, NO ELIMINADO ─────────────────────
+                Acá vivía un <a> a `https://www.flow.cl/uri/gHSdT2jVv` con el
+                logo de Flow. NO era una integración: era una URL escrita a mano
+                —la misma en las 81 propiedades que tienen el botón y en el pie
+                de las 17 rutas— apuntando a un LINK DE PAGO DE COBRO ÚNICO
+                creado en el panel de Flow. Cero generación de órdenes, cero
+                persistencia, cero callback: `commerceOrder` no existió nunca en
+                este repositorio.
+
+                Ese cobro se pagó una vez —transacción N° 172266471— y desde
+                entonces el enlace devuelve, a TODO el que lo abre:
+
+                  «Ya existe un pago para la transacción N° 172266471»
+
+                Verificado el 2026-08-10 con un GET al mismo enlace: redirige
+                siempre al token fijo 9D604FADE9E15D314E6286A5AB56C0E2A278E78E.
+
+                PARA REACTIVARLO hacen falta las dos cosas, no solo la primera:
+                  1. Un link de pago REUTILIZABLE en Flow, no un cobro único; o
+                     mejor, la API con un `commerceOrder` distinto por intento y
+                     persistido antes de redirigir.
+                  2. Un callback que cierre la reserva. Hoy no hay ninguno.
+
+                `supabase/functions/transbank-init` ya hace las dos cosas bien
+                —orden única, insert en `reservas`, retorno a
+                /reserva/confirmacion— aunque está huérfana: nadie la llama. Es
+                la plantilla si algún día se retoma el pago en línea.
+
+                La constante se conserva para no perder el identificador:      */}
+            {/* const FLOW_URI_DESACTIVADO = 'https://www.flow.cl/uri/gHSdT2jVv' */}
+
+            {/* `mostrar_boton_flow` CONSERVA SU NOMBRE aunque ya no sea Flow.
+                Renombrar la columna es DDL contra la base de producción, y el
+                nombre no vale ese riesgo: la bandera significa «esta propiedad
+                muestra el botón de reserva» y eso no ha cambiado. Anotado como
+                deuda en AUDITORIA-UI-FASE3.md. */}
             {prop.mostrar_boton_flow !== false && !destacado && (
-              <a className="tracking-sdm-wide text-sdm-sm bg-transparent text-[var(--navy-dark)] hover:bg-[var(--navy-dark)] hover:text-white"
-                href="https://www.flow.cl/uri/gHSdT2jVv"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => setReservaAbierta(true)}
+                className="tracking-sdm-wide text-sdm-sm bg-transparent text-[var(--navy-dark)] hover:bg-[var(--navy-dark)] hover:text-white"
                 style={{ display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '10px',
                   marginTop: '12px',
+                  width: '100%',
                   padding: '13px 24px',
                   border: '1px solid var(--navy-dark)',
-                  borderRadius: '6px',
+                  borderRadius: 'var(--sdm-radio-control)',
                   fontWeight: 400,
                   textTransform: 'uppercase',
-                  textDecoration: 'none',
-                  transition: 'all 0.2s ease' }}
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  transition: 'background var(--sdm-mov-normal) var(--sdm-curva), color var(--sdm-mov-normal) var(--sdm-curva)' }}
               >
-                <img loading="lazy" decoding="async" src="/FLOW-HORIZONTAL-LOGO.png" alt="Flow" style={{ height: '20px', objectFit: 'contain' }} />
-                <span>Reserva esta propiedad</span>
-              </a>
+                <Landmark aria-hidden="true" size={16} strokeWidth={1.75} />
+                <span>Reservar esta propiedad</span>
+              </button>
             )}
           </div>
         </div>
       </div>
+
+      {/* Modal de reserva por transferencia. Se monta sólo cuando está abierto,
+          igual que el lightbox y que `SolicitudCreditoModal`: `useDialogoModal`
+          y `useBloquearScroll` cuelgan de su montaje. */}
+      {reservaAbierta && (
+        <ReservaModal
+          propiedad={{ id: prop.id, titulo }}
+          onClose={() => setReservaAbierta(false)}
+        />
+      )}
 
       {/* ── Lightbox ── */}
       {lightbox && allImgs.length > 0 && (
