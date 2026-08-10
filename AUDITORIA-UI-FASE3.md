@@ -24,12 +24,13 @@ página de confirmación de pago), estados que solo fallan sobre fotografía, y 
 resto del sitio sí cumple.
 
 Quedan **2 hallazgos críticos**. El tercero —C1, el desfase del header, que escondía 27px
-de contenido en todas las páginas desde 768px— **ya está resuelto**.
+de contenido en todas las páginas desde 768px— **ya está resuelto**, igual que **todo el
+eje de contraste**: los nueve pares que no llegaban a AA se cerraron en dos tandas.
 
 | Severidad | Cantidad | Naturaleza |
 |---|---|---|
 | Crítico | 2 (de 3) | rompen contenido o dejan al teclado sin salida, en todas las páginas |
-| Alto | 9 | incumplen WCAG AA en superficies públicas |
+| Alto | **1 abierto** (de 10) | incumplen WCAG AA en superficies públicas |
 | Medio | 11 | inconsistencia interna, valores fuera de escala, roce de usabilidad |
 | Bajo | 5 | deuda cosmética y de mantenimiento |
 
@@ -40,7 +41,21 @@ de contenido en todas las páginas desde 768px— **ya está resuelto**.
 | C1 | Desfase del header | ✅ **Resuelto** el 2026-08-10 |
 | C2 | Botón «volver arriba» enfocable e invisible | pendiente |
 | C3 | Escape en los desplegables del buscador | pendiente |
+| A1 | Kicker del hero a 2,13:1 | ✅ **Resuelto** — tanda 1 |
+| A2 | Fecha del artículo a 2,67:1 | ✅ **Resuelto** — tanda 1 |
+| A3 | Rótulos de Rental a 3,68:1 | ✅ **Resuelto** — tanda 1 |
+| A4 | Puntos del carrusel sin nombre accesible | pendiente |
+| A5 | `aria-haspopup="listbox"` sin listbox | pendiente |
+| A6 | Bordes del buscador con `--border` | ✅ **Resuelto** — tanda 1 |
+| A7 | Emoji en la confirmación de pago | pendiente |
+| A8 | `<select>` móviles a 13px (zoom iOS) | pendiente |
 | A9 | `scrollIntoView` a `#contacto` sin offset | pendiente — **descubierto** al resolver C1 |
+| A10 | Los cuatro pares del barrido de contraste | ✅ **Resuelto** — tanda 2 |
+| M12 | Insignia de estado del admin con borde a 1,90:1 | pendiente — **descubierto** en la tanda 2 |
+
+> **El eje de contraste queda cerrado en el sitio público.** Nueve pares corregidos entre
+> las dos tandas, todos medidos componiendo contra el fondo real —fotografía o alfa—, no
+> contra blanco. Lo único que queda del eje es M12, que es admin.
 
 ---
 
@@ -225,7 +240,11 @@ instancias y ya hay una quinta implementación en `Header`.
 
 ## ALTO
 
-### A1 · El kicker del hero no se lee sobre foto clara — 2,13:1
+### A1 · El kicker del hero no se lee sobre foto clara — 2,13:1 — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10 (tanda 1).** `var(--green-dark)` → `var(--sky)`. Medido tras el
+> cambio: **5,71 / 6,29 / 7,98 / 9,63** contra las cuatro luminancias de foto. El separador
+> decorativo de `:280` se queda en `--green`.
 
 **Dónde:** [`src/components/sections/HeroSection.tsx:279`](./src/components/sections/HeroSection.tsx#L279)
 
@@ -273,7 +292,10 @@ style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--sky)' }}
 
 ---
 
-### A2 · La fecha del artículo de blog está a 2,67:1
+### A2 · La fecha del artículo de blog está a 2,67:1 — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10 (tanda 1).** Alfa 0.30 → 0.55. Medido: **5,68:1**. La cabecera
+> queda entera por encima de AA: categoría 5,37 · fecha 5,68 · autor 5,68.
 
 **Dónde:** [`src/pages/BlogPostPage.tsx:110`](./src/pages/BlogPostPage.tsx#L110)
 
@@ -292,7 +314,11 @@ en el sitio. Cero valores nuevos.
 
 ---
 
-### A3 · Los rótulos de la tarjeta destacada de Rental están a 3,68:1
+### A3 · Los rótulos de la tarjeta destacada de Rental están a 3,68:1 — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10 (tanda 1).** Alfa 0.40 → 0.55. Medido: **5,68:1**, contra los
+> 5,03 de la columna clara. La asimetría se invierte: ya no es la tarjeta destacada la
+> menos legible.
 
 **Dónde:** [`src/pages/RentalPage.tsx:137`](./src/pages/RentalPage.tsx#L137)
 
@@ -381,7 +407,11 @@ no hacen nada.
 
 ---
 
-### A6 · Los cuatro controles del buscador usan el borde decorativo
+### A6 · Los cuatro controles del buscador usan el borde decorativo — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10 (tanda 1).** `var(--border)` → `var(--border-input)` en las tres
+> ramas inactivas (`:63`, `:110`, `:190`). Medido: **1,18 → 4,06:1**. El estado activo sigue
+> en `--navy-dark`. Escritorio y móvil quedan por fin con el mismo token.
 
 **Dónde:** [`SearchBar.tsx:63`](./src/components/sections/SearchBar.tsx#L63) (`Pill`)
 · [`:110`](./src/components/sections/SearchBar.tsx#L110) (`DropSelect`)
@@ -530,6 +560,39 @@ admin queda como está.
 
 Al aplicarla, `ServiciosPage.tsx:76` **debe perder su `scrollMarginTop`**: `scroll-padding`
 del contenedor y `scroll-margin` del destino **se suman**, y quedarían 182px de hueco.
+
+---
+
+### A10 · Los cuatro pares que el barrido de la tanda 1 destapó — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10 (tanda 2).** Ninguno estaba en el diagnóstico original: salieron
+> de barrer los mismos valores problemáticos por el resto del proyecto después de aplicar
+> la tanda 1.
+
+| Dónde | Qué era | Antes | Ahora |
+|---|---|---|---|
+| `HeroSection.tsx:53` | `--green-dark` en el «+» de los contadores, sobre la misma foto que el kicker | 2,13–3,59 | **5,71–9,63** |
+| `RentalPage.tsx:65` | borde blanco 0.30 del `<a>` «Busco arriendo» | 2,25–2,67 | **3,97–5,68** |
+| `PropiedadesPage.tsx:257` | `<button>` × con borde `--border` | 1,18 | **4,06** |
+| `PropiedadesPage.tsx:645` | chips de filtro con borde `--border` | 1,18 | **4,06** |
+
+**`HeroSection.tsx:53` es el que importa**, porque demuestra que A1 estaba resuelto a
+medias: el «+» de los tres contadores usaba el mismo `--green-dark` sobre la misma
+fotografía, a diez líneas del kicker. A 28px cuenta como texto grande, así que su umbral
+es 3:1 — y aun así fallaba en tres de las cuatro luminancias.
+
+El valor vive una sola vez: `AnimatedStat` se instancia tres veces (propiedades, años,
+países), así que los tres «+» no pueden separarse. Verificado en navegador: los tres y el
+kicker computan `rgb(168, 196, 220)`.
+
+**`RentalPage.tsx:65`** se midió contra el fondo real, que no es navy plano: es
+`--navy-dark` con la foto del hero al 18 % encima. Ese compuesto es lo que baja el ratio
+a 2,25 con una foto clara.
+
+**Los dos de `PropiedadesPage`** son literalmente el caso de A6 repetido: `--border`
+delimitando un `<button>`. El `hover:border-[var(--muted)]` de los chips **no** se tocó:
+`--muted` (5,03:1) es más oscuro que `--border-input` (4,06:1), así que la progresión
+reposo → hover sigue subiendo el contraste.
 
 ---
 
@@ -803,6 +866,38 @@ lead.
 
 ---
 
+### M12 · La insignia de estado del admin se delimita con un borde a 1,90:1
+
+**Dónde:** [`src/pages/admin/Propiedades.tsx:1202`](./src/pages/admin/Propiedades.tsx#L1202)
+
+> Descubierto en el barrido de la tanda 2 de contraste. Es lo único que queda de ese eje.
+
+```tsx
+style={{ background: p.activo === false ? '#fff3f3' : '#f0faf4',
+         border: `1px solid ${p.activo === false ? '#fca5a5' : '#86efac'}`, ... }}
+```
+
+**Qué está mal.** Es la píldora «Activa / Pausada» de cada fila del listado, y es un
+control: se pulsa para alternar el estado. Su borde es lo que la delimita contra el fondo
+blanco de la tabla, así que cae en 1.4.11 (3:1):
+
+| valor | rol | sobre blanco |
+|---|---|---|
+| `#fca5a5` | borde de «Pausada» | **1,90** ❌ |
+| `#86efac` | borde de «Activa» | **1,40** ❌ |
+
+**Por qué se queda pendiente.** Los dos son de la paleta por defecto de Tailwind
+(`red-300`, `green-300`) y arrastran el mismo problema que M3: son colores fuera del
+sistema. Arreglarlos sueltos —subiéndolos hasta cumplir 3:1— dejaría dos literales más
+que igual habría que migrar después. Corresponde hacerlo junto con M3, en una tanda de
+admin que unifique de una vez los verdes y los rojos de las insignias en los tokens que
+ya existen (`--error` y el `#1a6e3c` sobre `#f0faf4` que ya usan `Agentes` y
+`FichaClientesLista`, 5,89:1).
+
+Es admin —público interno, no indexable— y por eso queda en Medio y no en Alto.
+
+---
+
 ## BAJO
 
 ### B1 · Emoji como icono en el panel de Captación
@@ -871,10 +966,10 @@ Arreglos de menos de 15 minutos, verificables de un vistazo. Ordenados por impac
 | # | Archivo:línea | Cambio | Efecto | ⏱ |
 |---|---|---|---|---|
 | 1 | `FloatingButtons.tsx:27` | añadir `tabIndex={show ? 0 : -1}` y `aria-hidden={!show}` | quita una parada de foco invisible en 17 rutas | 2 min |
-| 2 | `HeroSection.tsx:279` | `var(--green-dark)` → `var(--sky)` | 2,13:1 → 5,71:1 en la primera línea del home | 2 min |
-| 3 | `BlogPostPage.tsx:110` | `rgba(255,255,255,0.3)` → `0.55` | 2,67:1 → 5,68:1 | 1 min |
-| 4 | `RentalPage.tsx:137` | `rgba(255,255,255,0.4)` → `0.55` | 3,68:1 → 5,68:1 | 1 min |
-| 5 | `SearchBar.tsx:63,110,190` | `var(--border)` → `var(--border-input)` | 1,18:1 → 4,06:1 en 4 controles; cierra 4.1 | 3 min |
+| ~~2~~ | ~~`HeroSection.tsx:279`~~ | ~~`var(--green-dark)` → `var(--sky)`~~ | ✅ **hecho** — tanda 1 | — |
+| ~~3~~ | ~~`BlogPostPage.tsx:110`~~ | ~~`rgba(255,255,255,0.3)` → `0.55`~~ | ✅ **hecho** — tanda 1 | — |
+| ~~4~~ | ~~`RentalPage.tsx:137`~~ | ~~`rgba(255,255,255,0.4)` → `0.55`~~ | ✅ **hecho** — tanda 1 | — |
+| ~~5~~ | ~~`SearchBar.tsx:63,110,190`~~ | ~~`var(--border)` → `var(--border-input)`~~ | ✅ **hecho** — tanda 1 | — |
 | 6 | `SearchBar.tsx:104,199` | `aria-haspopup="listbox"` → `"true"` | deja de prometer un widget que no existe | 2 min |
 | 7 | `HeroSection.tsx:165` | `aria-label={\`Ver la foto ${i+1} de ${images.length}\`}` | 5 botones sin nombre → con nombre | 3 min |
 | 8 | `ReservaConfirmacionPage.tsx:41,59` | `✅`/`❌` → `CheckCircle2`/`XCircle` de lucide | quita emoji de la pantalla de pago | 5 min |
@@ -882,11 +977,14 @@ Arreglos de menos de 15 minutos, verificables de un vistazo. Ordenados por impac
 | ~~10~~ | ~~`mobile.css:15`~~ | ~~`max-width: 768px` → `767.98px`~~ | ✅ **hecho** el 2026-08-10, con C1 | — |
 | 11 | `Header.tsx:252-295` | aplicar `navLinkClass(isActive(l.to))` a los enlaces móviles | marca la ruta activa en el teléfono | 5 min |
 | 12 | 10 archivos (M7) | `loading="lazy" decoding="async"` | 10 imágenes menos en la carga inicial | 8 min |
-| 13 | `FichaClienteEditar.tsx:398`, `FichaClienteNueva.tsx:311` | `#dc2626` → `var(--error)` | 4,45:1 → 6,30:1 y un solo rojo | 2 min |
-| 14 | `Contenido.tsx:456,556` | `#16a34a` → `#1a6e3c` (el que ya usa Agentes) | 3,30:1 → 5,89:1 | 2 min |
+| ~~13~~ | ~~`FichaClienteEditar.tsx:398`, `FichaClienteNueva.tsx:311`~~ | ~~`#dc2626` → `var(--error)`~~ | ✅ **hecho** — tanda 1 (5,81:1 sobre `#fff3f3`, no 6,30 que era contra blanco) | — |
+| 14 | `Contenido.tsx:456,556` | `#16a34a` → `#1a6e3c` (el que ya usa Agentes) | 3,30:1 → 5,89:1. El `#dc2626` de esas mismas líneas ya pasó a `var(--error)` en la tanda 2 | 2 min |
 
-**Quedan 13 arreglos, ~41 minutos**, entre ellos 1 de los 2 críticos que siguen abiertos
-y 6 de los 9 altos. El #10 salió de la lista: se hizo junto con C1.
+**Quedan 8 arreglos, ~30 minutos.** De los 14 originales se cerraron seis: el #10 con C1,
+y el #2, #3, #4, #5 y #13 en las dos tandas de contraste.
+
+El eje de contraste del sitio público queda cerrado: nueve pares corregidos, todos
+medidos contra el fondo real. Lo que sigue abierto son emojis, ARIA, foco y tokens.
 
 Lo que **no** es quick win:
 

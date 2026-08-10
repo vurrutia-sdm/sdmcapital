@@ -453,7 +453,13 @@ export default function Contenido() {
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: activo ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: activo ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
-                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: activo ? '#16a34a' : '#dc2626', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{activo ? <><Check size={14} strokeWidth={2} />Visible en el inicio</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
+                  {/* `--error` y no `#dc2626`. No era un fallo de contraste —sobre
+                      `#fff3f3` daba 4,45 y el token da 5,81— sino de sistema: el
+                      proyecto tiene UN rojo de error, elegido midiendo su distancia
+                      a `--estado-vendida` bajo daltonismo, y un segundo rojo suelto
+                      reabre justo ese problema. El `#16a34a` de al lado queda
+                      pendiente: es el otro verde fuera de la paleta. */}
+                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: activo ? '#16a34a' : 'var(--error)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{activo ? <><Check size={14} strokeWidth={2} />Visible en el inicio</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
                 </div>
                 <AvisoDespliegue donde="del inicio" />
               </Full>
@@ -553,7 +559,8 @@ export default function Contenido() {
                     style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', background: isVisible ? 'var(--green)' : '#ccc', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                     <span style={{ position: 'absolute', top: 2, left: isVisible ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                   </button>
-                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: isVisible ? '#16a34a' : '#dc2626', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{isVisible ? <><Check size={14} strokeWidth={2} />Visible</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
+                  {/* `--error`, mismo criterio que el bloque del banner. */}
+                  <span className="text-sdm-sm" style={{ fontWeight: 500, color: isVisible ? '#16a34a' : 'var(--error)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>{isVisible ? <><Check size={14} strokeWidth={2} />Visible</> : <><Pause size={14} strokeWidth={2} />Oculto</>}</span>
                 </div>
                 {/* Mismo aviso que el banner, y acá hacía MÁS falta: `ServiciosPage`
                     filtra por `servicio_*_visible` leyendo la semilla y sin ningún

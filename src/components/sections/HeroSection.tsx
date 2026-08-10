@@ -50,7 +50,15 @@ function AnimatedStat({ n, unit, label, habilitado }: { n: number; unit: string;
   return (
     <div ref={ref} className="border-t pt-3" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
       <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: '#fff' }}>
-        {count}<span className="text-sdm-display-sm" style={{ color: 'var(--green-dark)' }}>{unit}</span>
+        {/* `--sky`, igual que el kicker: mismo color, misma fotografía, mismo
+            defecto. `--green-dark` daba 2,13–3,59 según la foto, y a 28px el
+            umbral es 3:1 (texto grande), así que fallaba en tres de las cuatro.
+            Con `--sky` van de 5,71 a 9,63, o sea que cumplen incluso el 4,5 de
+            texto normal.
+            EL VALOR VIVE ACÁ UNA SOLA VEZ: `AnimatedStat` se instancia tres
+            veces —propiedades, años, países—, así que los tres «+» no pueden
+            separarse. */}
+        {count}<span className="text-sdm-display-sm" style={{ color: 'var(--sky)' }}>{unit}</span>
       </div>
       <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>
         {label}

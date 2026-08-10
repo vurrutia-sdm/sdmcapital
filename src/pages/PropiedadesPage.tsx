@@ -254,7 +254,10 @@ function MapView({ props }: { props: Propiedad[] }) {
               <Link className="text-sdm-sm tracking-sdm-wide" to={`/propiedades/${selected.slug || selected.id}`} style={{ flex: 1, textAlign: 'center', padding: '8px', background: 'var(--navy-dark)', color: '#fff', borderRadius: 2, textDecoration: 'none', fontWeight: 600, textTransform: 'uppercase' }}>
                 Ver propiedad
               </Link>
-              <button className="text-sdm-lg" onClick={() => setSelected(null)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 2, background: '#fff', cursor: 'pointer' }}>×</button>
+              {/* `--border-input` — regla 4.1, mismo caso que los controles del
+                  buscador: es un <button> sobre fondo blanco y el borde es lo
+                  único que lo delimita. No tiene estado activo que preservar. */}
+              <button className="text-sdm-lg" onClick={() => setSelected(null)} style={{ padding: '8px 12px', border: '1px solid var(--border-input)', borderRadius: 2, background: '#fff', cursor: 'pointer' }}>×</button>
             </div>
           </div>
         </div>
@@ -642,7 +645,11 @@ export default function PropiedadesPage() {
               // «En Venta» no comunica que pulsarlo lo elimina.
               <button key={key} type="button"
                 aria-label={`Quitar el filtro ${etiquetaFiltro(key, val)}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer text-sdm-sm bg-white border border-[var(--border)] hover:bg-[var(--off)] hover:border-[var(--muted)]"
+                // `border-[var(--border-input)]` en reposo — regla 4.1. El
+                // `hover:border-[var(--muted)]` NO se toca: `--muted` (5,03:1) es
+                // más oscuro que `--border-input` (4,06:1), así que la progresión
+                // reposo → hover sigue subiendo el contraste, que es lo correcto.
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer text-sdm-sm bg-white border border-[var(--border-input)] hover:bg-[var(--off)] hover:border-[var(--muted)]"
                 style={{ fontWeight: 400, color: 'var(--ink)', fontFamily: 'inherit', transition: 'border-color 0.2s, background 0.2s' }}
                 onClick={() => { clearFiltro(key as keyof FiltrosPropiedades); if (key === 'comuna') setComunaInput('') }}>
                 {etiquetaFiltro(key, val)}

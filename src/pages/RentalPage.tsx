@@ -62,7 +62,13 @@ export default function RentalPage() {
           <p className="font-light mt-6 border-l-2 pl-4 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.9, borderColor: 'var(--green)', maxWidth: 520 }}>{heroSubtitulo}</p>
           <div style={{ display: 'flex', gap: 12, marginTop: 40, flexWrap: 'wrap' }}>
             <a className="text-sdm-xs tracking-sdm-wide" href="#propietarios" style={{ padding: '13px 28px', background: 'var(--green-dark)', color: '#fff', textDecoration: 'none', fontWeight: 500, textTransform: 'uppercase', borderRadius: 2 }}>Soy propietario</a>
-            <a className="text-sdm-xs tracking-sdm-wide" href="#arrendatarios" style={{ padding: '13px 28px', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', textDecoration: 'none', fontWeight: 500, textTransform: 'uppercase', borderRadius: 2 }}>Busco arriendo</a>
+            <a className="text-sdm-xs tracking-sdm-wide" href="#arrendatarios" style={{ padding: '13px 28px', border: '1px solid rgba(255,255,255,0.55)', color: '#fff', textDecoration: 'none', fontWeight: 500, textTransform: 'uppercase', borderRadius: 2 }}>Busco arriendo</a>
+            {/* 0.55 y no 0.30 en el borde: este <a> no tiene relleno propio, así
+                que el borde es lo ÚNICO que lo identifica como control —1.4.11,
+                3:1—. El fondo es `--navy-dark` con la foto del hero al 18 %
+                encima, y contra ese compuesto daba 2,25–2,67 según la foto.
+                Con 0.55 va de 3,97 a 5,68. Es la misma opacidad que ya quedó en
+                los rótulos de la tarjeta destacada. */}
           </div>
         </div>
       </div>
