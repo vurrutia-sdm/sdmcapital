@@ -30,6 +30,23 @@ en el que ese token se usa de verdad.
 | `--navy` | `#1C3D5C` | **11,22** | 1,40 | 10,74 | azul de marca, texto y superficies |
 | `--navy-dark` | `#0F2535` | **15,71** | 1,00 | 15,04 | titulares, fondo de `.btn-primary` |
 | `--navy-deeper` | `#081828` | **17,92** | 1,14 | 17,15 | fondos muy oscuros, hover de `.btn-primary` |
+
+> **`#1C2B3A` es un tercer navy, y se queda como literal a propósito.** No es un
+> token y no debe migrarse a `--navy-dark`: la distancia sRGB entre los dos es
+> **15,2**, o sea perceptible, y cambiarlo alteraría visualmente dos superficies
+> de conversión. Cuatro usos: el panel izquierdo de
+> [`SolicitudCreditoModal`](./src/components/credito/SolicitudCreditoModal.tsx)
+> (`:43` fondo, `:140` texto) y la sección y el pie de
+> [`EvaluacionGratuitaPage`](./src/pages/EvaluacionGratuitaPage.tsx) (`:51`, `:96`).
+>
+> Contrasta bien con lo que lleva encima —blanco 0.85 da 10,81:1, `--sky` 0.85 da
+> 6,19:1— así que no hay motivo de accesibilidad para tocarlo.
+>
+> Lo acompaña **`#2E4057`** (3 usos, las cajas de honorarios del mismo modal),
+> que está a 18,9 de `--navy` por la misma razón. Si algún día se unifican, va la
+> pareja junta y es un cambio de diseño, no de mantenimiento.
+>
+> **Un barrido de literales de color NO debe marcar estos dos como deuda.**
 | `--green` | `#3DAA6E` | 2,93 ❌ | **5,37** | 2,80 | verde de marca — **solo sobre oscuro**. Sus 29 usos sobre claro se corrigieron el 2026-08-09 |
 | `--green-dark` | `#2D8055` | **4,85** | 3,24 | 4,64 | el verde cuando lleva blanco encima |
 | `--sky` | `#A8C4DC` | 1,81 | **8,68** | 1,73 | azul claro sobre fondos oscuros |

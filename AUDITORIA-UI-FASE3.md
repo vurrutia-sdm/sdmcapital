@@ -880,12 +880,23 @@ cumple. Unificar los cinco sitios en ese par, y tokenizarlo si va a repetirse.
 #5C9B7E  ← 3 usos. Sobre #1C2B3A da 4,43:1 — falla por 0,07 (SolicitudCreditoModal:121)
 ```
 
-Ninguna diferencia es perceptible; todas son ruido de mantenimiento. Las dos últimas
-además incumplen AA.
+**Corregido al aplicarlo (2026-08-10):** «ninguna diferencia es perceptible» era falso
+para uno de los cuatro. Medida la distancia sRGB de cada literal a su token:
 
-`#4CAF82` es el verde de El Barranco, que es una marca aparte con su propia paleta
-(`ElBarrancoShowcase.tsx:14`) — ahí es legítimo, pero `ElBarrancoBanner` lo pinta **sobre
-blanco** dentro del sitio SDM, y ahí da 2,71:1.
+| literal | token | distancia | |
+|---|---|---|---|
+| `#1a3d5c` | `--navy` | **2,0** | migrado |
+| `#0d2035` | `--navy-dark` | **5,4** | migrado |
+| `#1C2B3A` | `--navy-dark` | **15,2** | **NO se migra** — decisión, ver `SISTEMA-DISENO.md` §1.1 |
+
+`#5C9B7E` sí incumplía AA y se migró a `--green` (4,43 → 4,93).
+
+`#4CAF82` es el verde de El Barranco, marca aparte con paleta propia
+(`ElBarrancoShowcase.tsx:14`). **El dato de «2,71:1 sobre blanco» de este hallazgo era un
+error de diagnóstico**: el contenedor del banner tiene `background: '#0a0c0b'`, y sobre
+ese negro el verde da **7,25:1**. El uso es correcto y el color no se tocó. Lo que sí
+había era una fotografía al 35 % encima que aclaraba el fondo — resuelto con un velo en
+`dd81372`, sin cambiar el color.
 
 **El arreglo.** Los de navy y `#5C9B7E` a los tokens equivalentes. Para
 `ElBarrancoBanner`, usar el verde de El Barranco solo sobre su propio fondo oscuro, que
@@ -1250,7 +1261,8 @@ Lo que **no** es quick win:
 
 ## Lo que queda
 
-Cuatro cosas, ninguna de ellas un arreglo pendiente de código.
+Dos cosas, ninguna de ellas un arreglo pendiente de código. Las otras dos que había acá
+—M8 y el velo de El Barranco— se cerraron el 2026-08-10.
 
 ### M2 · El rango 768–1023px no tiene diseño propio — **decisión, no defecto**
 
@@ -1260,15 +1272,11 @@ explícitamente de la tanda de cierre: bajar la navegación a `md:` y dar un pas
 intermedio a las rejillas es una decisión de diseño con implicaciones visuales en las
 cuatro plantillas públicas, no una corrección.
 
-### M8 · El foco no vuelve al disparador **al elegir una opción**
+### ~~M8~~ — ✅ resuelto en `5508a5d`
 
-C3 cerró la vía de Escape, y se dio M8 por cerrado con ella. No lo está: elegir una
-opción llama a `setOpen(false)` sin devolver el foco, en `SearchBar.tsx:134` (`DropSelect`)
-y en `handleRegion` / `handleComuna`. El panel se desmonta con el foco dentro, así que cae
-al `<body>` y el siguiente Tab reinicia el recorrido.
-
-Es de dos líneas —el `disparador` ya existe en los dos componentes, puesto por C3— pero
-quedó fuera del alcance enumerado de la tanda de cierre.
+Los tres desplegables del buscador devuelven el foco al disparador también al elegir. El
+barrido destapó un cuarto caso con los dos huecos a la vez, `ShareButtons` de la ficha de
+propiedad, que recibió además el Escape que le faltaba.
 
 ### `#1C2B3A` no se migró a `--navy-dark`
 
@@ -1278,24 +1286,17 @@ dos que sí se migraron. Cambia visiblemente el panel del modal de crédito y do
 de `/evaluacion-gratuita`, que son superficies de conversión. Cuatro usos, más `#2E4057`
 (18,9) que vive en el mismo modal y tendría que decidirse con él.
 
-### El verde de El Barranco: el diagnóstico de M4 estaba equivocado
+### ~~El verde de El Barranco~~ — ✅ resuelto en `dd81372`
 
-M4 decía que `ElBarrancoBanner` pinta `#4CAF82` **sobre blanco**, a 2,71:1. No es así: el
-contenedor del banner tiene `background: '#0a0c0b'`, el negro de la marca El Barranco, y
-sobre él el verde da **7,25:1**. El uso es correcto.
+El diagnóstico de M4 estaba equivocado: el banner no está sobre blanco sino sobre
+`#0a0c0b`, donde el verde da 7,25:1. El color no se tocó. El problema era la fotografía
+al 35 % encima, resuelto con un velo simétrico —mismo enfoque que el hero, forma distinta
+porque acá hay tinta en los dos extremos—. Peor caso: 5,17:1.
 
-Lo que sí hay es otra cosa, y es la misma que ya mordió dos veces en el hero: **una
-fotografía al 35 % de opacidad encima del fondo**. Contra ese compuesto:
-
-| foto | ratio | |
-|---|---|---|
-| oscura | 6,72 | ✅ |
-| media | 4,58 | ✅ |
-| clara | 2,78 | ❌ |
-| blanca | 2,30 | ❌ |
-
-El arreglo no es el color sino el velo: bajar el 0.35 o meter un degradado bajo el texto.
-Sin tocar, a la espera de tu decisión — El Barranco es marca aparte con paleta propia.
+**Queda una nota, sin arreglar:** el borde del CTA es `rgba(76,175,130,0.5)` y ningún
+alfa de velo lo salva (1,53 → 2,26 y se estanca), porque oscurecer sube el borde y su
+entorno a la vez. Hoy no es un control propio —el banner entero es un solo `<Link>`— así
+que 1.4.11 no le aplica como tal. Si algún día se separa, necesita borde opaco.
 
 ---
 
