@@ -365,6 +365,37 @@
     overflow-x: clip;
   }
 
+  /* ─── EL HEADER FIJO NO SE COME EL DESTINO DE UN ANCLAJE ────────────────────
+     `scrollIntoView` y los saltos por `#fragmento` alinean el borde superior del
+     destino con el del VIEWPORT, no con el del contenido visible. Con un header
+     `fixed` de 91px encima, eso dejaba tapados los primeros 91px de la sección a
+     la que se salta: los cuatro enlaces «Contacto» del sitio —el del header, y
+     los CTA de la ficha de propiedad, de asociados y de servicios— aterrizaban
+     en mitad del formulario, sin el rótulo ni el «Hablemos de tus metas».
+
+     UNA REGLA EN VEZ DE CUATRO NÚMEROS. La alternativa era un `scroll-margin-top`
+     en cada destino, que son cuatro sitios hoy y uno más cada vez que alguien
+     añada un ancla. `scroll-padding-top` vive en el contenedor de scroll y cubre
+     todos los anclajes de una vez, presentes y futuros.
+
+     VA EN EL <html> PORQUE EL CONTENEDOR DE SCROLL ES EL VIEWPORT. En el `<div>`
+     de `Layout` no haría nada.
+
+     ACOTADA A `.ruta-publica`, que `Layout` pone y quita. El admin tiene otro
+     header —`--admin-header-h`, 80px, y `sticky` en vez de `fixed`— así que
+     aplicarle estos 91 sería cambiar un desfase por otro. Su `scrollIntoView` a
+     `#prop-edit-form` sigue como estaba: sin offset y con la misma deuda que
+     tenía, anotada en la auditoría.
+
+     NO SE ACUMULA CON `scroll-margin`, y esto importa: las dos se SUMAN. Al
+     poner esta regla hubo que quitar el `scrollMarginTop` de `ServiciosPage`,
+     que si no dejaba ese anclaje con 182px de hueco en vez de 91. Es el único
+     `scroll-margin` del proyecto — verificado — así que no hay más que quitar,
+     pero quien añada uno tiene que saber que se suma a esto. */
+  html.ruta-publica {
+    scroll-padding-top: var(--sdm-header-total);
+  }
+
   body {
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--ink);

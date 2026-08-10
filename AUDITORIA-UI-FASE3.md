@@ -23,8 +23,9 @@ página de confirmación de pago), estados que solo fallan sobre fotografía, y 
 `SearchBar`, que es la herramienta principal del home y quedó fuera de tres reglas que el
 resto del sitio sí cumple.
 
-**Los tres hallazgos críticos están resueltos**, y con ellos el eje de contraste entero
-del sitio público. Queda **un alto** (A9) y la deuda de admin.
+**Los tres hallazgos críticos y los once altos están resueltos**, y con ellos el eje de
+contraste entero del sitio público. Lo que queda es de severidad media o baja, más la
+deuda de admin.
 
 C1 era el desfase del header, que escondía 27px de contenido en las 17 rutas desde 768px.
 C2 y C3 eran de navegación por teclado: una parada de foco invisible en todas las páginas,
@@ -34,7 +35,7 @@ tandas —doce pares—, la última con un barrido bidireccional de la regla 4.2
 | Severidad | Cantidad | Naturaleza |
 |---|---|---|
 | Crítico | **0 abiertos** (de 3) | rompen contenido o dejan al teclado sin salida, en todas las páginas |
-| Alto | **1 abierto** (de 11) | incumplen WCAG AA en superficies públicas |
+| Alto | **0 abiertos** (de 11) | incumplen WCAG AA en superficies públicas |
 | Medio | 11 | inconsistencia interna, valores fuera de escala, roce de usabilidad |
 | Bajo | 5 | deuda cosmética y de mantenimiento |
 
@@ -53,7 +54,7 @@ tandas —doce pares—, la última con un barrido bidireccional de la regla 4.2
 | A6 | Bordes del buscador con `--border` | ✅ **Resuelto** — tanda 1 |
 | A7 | Emoji en la confirmación de pago | pendiente |
 | A8 | `<select>` móviles a 13px (zoom iOS) | pendiente |
-| A9 | `scrollIntoView` a `#contacto` sin offset | pendiente — **descubierto** al resolver C1 |
+| A9 | `scrollIntoView` a `#contacto` sin offset | ✅ **Resuelto** el 2026-08-10 |
 | A10 | Los cuatro pares del barrido de contraste | ✅ **Resuelto** — tanda 2 |
 | A11 | Barrido bidireccional de la regla 4.2 | ✅ **Resuelto** — tanda 3 |
 | M12 | Dos usos de color fuera de norma en admin | pendiente — **descubierto** en las tandas 2 y 3 |
@@ -564,7 +565,52 @@ zoom para todo el mundo y es el anti-patrón «Disable zoom» de la prioridad 5.
 
 ---
 
-### A9 · Los cuatro `scrollIntoView` a `#contacto` no compensan el header
+### A9 · Los cuatro `scrollIntoView` a `#contacto` no compensan el header — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10.** Una regla en lugar de cuatro números:
+> `html.ruta-publica { scroll-padding-top: var(--sdm-header-total) }`, con la clase que
+> `Layout` pone al montar y quita al desmontar.
+>
+> **La clase es propia, no `sitio-publico`.** Reutilizar ese nombre era lo obvio y habría
+> sido un error silencioso: `mobile.css` tiene **doce** reglas acotadas con
+> `.sitio-publico X`, varias por subcadena de atributo (trampa 5.6) y con `!important`.
+> Todas cuentan con que ese ancestro sea el `<div>` de `Layout`; con la clase también en
+> el `<html>`, `.sitio-publico [class*="px-8"]` pasaría a alcanzar el documento entero.
+> Hoy no cambiaría nada visible —no hay portales, verificado— pero el coste de un nombre
+> nuevo es cero.
+>
+> **Va en el `<html>` porque `scroll-padding` es del contenedor de scroll**, que acá es el
+> viewport. En el `<div>` no haría nada.
+>
+> **Hubo que quitar el `scrollMarginTop` de `ServiciosPage.tsx:76`**: `scroll-padding` del
+> contenedor y `scroll-margin` del destino **se suman**, y ese anclaje habría quedado con
+> 182px de hueco. Es el único `scroll-margin` del proyecto —barrido completo— así que no
+> hubo más que quitar.
+>
+> **Medido, no asumido.** Desfase entre el borde inferior del header y el borde superior
+> de la sección de destino:
+>
+> | Anclaje | 1440px (header 91) | 375px (header 65) |
+> |---|---|---|
+> | Header «Contacto» | **+0,1** | **−0,1** |
+> | `AsociadosPage:182` | **+0,1** | **−0,1** |
+> | `ServiciosPage:98` | **+0,1** | **−0,1** |
+> | `PropiedadDetailPage:770` «Contactar agente» | **0,0** | — |
+> | `/servicios/<slug>` (tras quitar su `scroll-margin`) | **+0,2** | **−0,4** |
+>
+> Décimas de píxel del suavizado del scroll. El token da 91 y 65 según el ancho, y el
+> aterrizaje lo sigue.
+>
+> **El admin no la recibe:** en `/admin` y en `/evaluacion-gratuita` —que tampoco cuelga
+> de `Layout`— el `<html>` queda sin clase y `scroll-padding-top` computa `auto`. Su
+> `scrollIntoView` a `#prop-edit-form` sigue sin offset bajo un `sticky` de 80px: misma
+> deuda que tenía, ahora anotada en M12.
+>
+> **Ningún scroll programático se rompe.** `scroll-padding` solo afecta a
+> `scrollIntoView`, a los saltos por fragmento y al scroll-snap; no a `scrollTo()` con
+> coordenadas. Verificados los cuatro: `scrollTo(0,2000)` → 2000 · «volver arriba» → 0 ·
+> `ScrollToTop` al cambiar de ruta → 0 · `useBloquearScroll` restaura los 900 exactos tras
+> abrir y cerrar un modal.
 
 **Dónde:** [`Header.tsx:126`](./src/components/layout/Header.tsx#L126) (y `:129`)
 · [`PropiedadDetailPage.tsx:741`](./src/pages/PropiedadDetailPage.tsx#L741)
@@ -1010,6 +1056,21 @@ acotada al sitio público.
 Con éste, los cuatro usos de `--green` como color de texto del proyecto quedan
 clasificados: dos correctos sobre `--navy-dark` (5,37:1) y dos sobre blanco, de los cuales
 uno ya está corregido y éste no.
+
+#### `admin/Propiedades.tsx:754` — el anclaje del formulario de edición
+
+```tsx
+document.getElementById('prop-edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+```
+
+Sin `scroll-margin` ni `scroll-padding`, bajo un header `sticky` de 80px
+(`--admin-header-h`): el borde superior del formulario queda tapado al saltar.
+
+Es el mismo defecto que A9 cerró en el sitio público, y **no se arregló a propósito**: la
+regla de A9 está acotada a `html.ruta-publica` porque el admin tiene otra altura de header
+y otro mecanismo (`sticky`, no `fixed`). Aplicarle los 91px del header público sería
+cambiar un desfase por otro. Lo suyo es una regla propia con `--admin-header-h`, en la
+tanda de admin.
 
 #### `admin/Propiedades.tsx:1202` — la insignia de estado
 
