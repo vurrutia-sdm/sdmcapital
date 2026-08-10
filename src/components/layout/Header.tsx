@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCerrarConEscape } from '@/hooks/useCerrarConEscape'
+import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 import { obtenerIndicadores, formatear, fechaCorta } from '@/lib/indicadores'
 import type { Indicador, Indicadores } from '@/lib/indicadores'
 import { Menu, X, ChevronDown } from 'lucide-react'
@@ -104,6 +105,25 @@ export default function Header() {
   }, [])
   useCerrarConEscape(servicesOpen || propiedadesOpen || mobileOpen, cerrarMenus)
 
+  // Con el menú móvil abierto, la página de detrás no se desplaza.
+  //
+  // POR QUÉ ESTO SÍ Y `useDialogoModal` NO. La auditoría pedía «atrapar el foco»,
+  // y ese hook lo hace — pero está escrito para un `role="dialog"` con
+  // `aria-modal="true"`, y este menú no es ninguna de las dos cosas: es un
+  // disclosure, un panel que cuelga de un <button aria-expanded>. Atrapar el Tab
+  // sin declarar `aria-modal` deja al lector de pantalla anunciando una lista de
+  // enlaces normal mientras el Tab, en silencio, no deja salir de ella. Y su
+  // Escape (captura + stopPropagation) duplicaría el de `useCerrarConEscape`.
+  //
+  // Convertir el menú en diálogo de verdad —role, aria-modal, título accesible—
+  // es un cambio de estructura, no el arreglo que describe la auditoría, así que
+  // queda anotado ahí en vez de improvisado acá.
+  //
+  // `useBloquearScroll` sí encaja tal cual y resuelve la mitad concreta del
+  // problema: el panel tapa la página y hasta ahora se podía desplazar por
+  // debajo de él.
+  useBloquearScroll(mobileOpen)
+
   // Los disparadores de los desplegables son <button aria-expanded>, no <Link>.
   // Con onMouseEnter solamente, sus opciones ni siquiera llegaban a renderizarse
   // para un usuario de teclado. El hover se conserva para el ratón: entrar y
@@ -118,8 +138,8 @@ export default function Header() {
   //
   // Sin `color` en el objeto de estilo: lo pone `navLinkClass`, y un inline
   // ganaría sobre la clase y volvería a dejar el hover sin efecto.
-  const estiloDisparador = (active: boolean) => ({
-    ...navLinkStyle(active), display: 'flex', alignItems: 'center', gap: 4,
+  const estiloDisparador = () => ({
+    ...navLinkStyle(), display: 'flex', alignItems: 'center', gap: 4,
     background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
   })
 
@@ -135,7 +155,11 @@ export default function Header() {
     }
   }
 
-  const navLinkStyle = (active: boolean) => ({
+  // SIN PARÁMETRO. Recibía `active` y lo ignoraba desde que el color se movió a
+  // `navLinkClass` —por la trampa 5.1, un inline gana sobre la clase y dejaba el
+  // hover sin efecto—. Las seis llamadas seguían pasándolo, lo que hacía creer
+  // que el estilo dependía del estado activo cuando ya no.
+  const navLinkStyle = () => ({
     fontSize: 'var(--sdm-text-xs)', fontWeight: 400, letterSpacing: 'var(--sdm-tracking-wide)' as const,
     textTransform: 'uppercase' as const, padding: '8px 12px',
     textDecoration: 'none', whiteSpace: 'nowrap' as const, transition: 'color 0.2s',
@@ -170,7 +194,7 @@ export default function Header() {
             { to: '/quienes-somos',label: 'Quiénes Somos' },
             { to: '/rental',       label: 'SDM Rental' },
           ].map(l => (
-            <Link key={l.to} to={l.to} className={navLinkClass(isActive(l.to))} style={navLinkStyle(isActive(l.to))}
+            <Link key={l.to} to={l.to} className={navLinkClass(isActive(l.to))} style={navLinkStyle()}
             >{l.label}</Link>
           ))}
 
@@ -180,7 +204,7 @@ export default function Header() {
               aria-expanded={propiedadesOpen}
               onClick={() => setPropiedadesOpen(v => !v)}
               className={navLinkClass(isActive('/propiedades'))}
-              style={estiloDisparador(isActive('/propiedades'))}>
+              style={estiloDisparador()}>
               Propiedades
               <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
@@ -203,7 +227,7 @@ export default function Header() {
           </div>
 
           {/* Proyectos Nuevos */}
-          <Link to="/proyectos-nuevos" className={navLinkClass(isActive('/proyectos-nuevos'))} style={navLinkStyle(isActive('/proyectos-nuevos'))}
+          <Link to="/proyectos-nuevos" className={navLinkClass(isActive('/proyectos-nuevos'))} style={navLinkStyle()}
           >Proyectos Nuevos</Link>
 
           {/* Servicios dropdown — entre Propiedades y Asociados */}
@@ -212,7 +236,7 @@ export default function Header() {
               aria-expanded={servicesOpen}
               onClick={() => setServicesOpen(v => !v)}
               className={navLinkClass(isActive('/servicios'))}
-              style={estiloDisparador(isActive('/servicios'))}>
+              style={estiloDisparador()}>
               Servicios
               <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
@@ -250,17 +274,24 @@ export default function Header() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="lg:hidden bg-white border-t border-[#e8edf2] px-8 py-6 flex flex-col gap-5">
+          {/* `navLinkClass` TAMBIÉN ACÁ. Los catorce enlaces del menú móvil iban
+              en `--muted`, así que en el teléfono no había forma de saber en qué
+              página estabas — la navegación de escritorio sí lo distingue desde
+              siempre con `--navy-dark`. La función ya existía; solo no se estaba
+              usando. El `color` sale del `style` inline por la trampa 5.1: un
+              inline ganaría sobre la clase y anularía tanto el estado activo
+              como el hover. */}
           {[
             { to: '/', label: 'Inicio' },
             { to: '/quienes-somos', label: 'Quiénes Somos' },
           ].map(l => (
-            <Link className="text-sdm-base tracking-sdm-wide" key={l.to} to={l.to} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+            <Link className={`text-sdm-base tracking-sdm-wide ${navLinkClass(isActive(l.to))}`} key={l.to} to={l.to} style={{ fontWeight: 300, textTransform: 'uppercase', textDecoration: 'none' }}>
               {l.label}
             </Link>
           ))}
 
           {/* Propiedades */}
-          <Link className="text-sdm-base tracking-sdm-wide" to="/propiedades" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+          <Link className={`text-sdm-base tracking-sdm-wide ${navLinkClass(isActive('/propiedades'))}`} to="/propiedades" style={{ fontWeight: 300, textTransform: 'uppercase', textDecoration: 'none' }}>
             Propiedades
           </Link>
           <Link className="text-sdm-sm tracking-sdm-wide" to="/propiedades?estado=en_venta" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', paddingLeft: 16 }}>
@@ -279,11 +310,11 @@ export default function Header() {
           </Link>
 
           {/* Proyectos Nuevos */}
-          <Link className="text-sdm-base tracking-sdm-wide" to="/proyectos-nuevos" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+          <Link className={`text-sdm-base tracking-sdm-wide ${navLinkClass(isActive('/proyectos-nuevos'))}`} to="/proyectos-nuevos" style={{ fontWeight: 300, textTransform: 'uppercase', textDecoration: 'none' }}>
             Proyectos Nuevos
           </Link>
 
-          <Link className="text-sdm-base tracking-sdm-wide" to="/servicios" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+          <Link className={`text-sdm-base tracking-sdm-wide ${navLinkClass(isActive('/servicios'))}`} to="/servicios" style={{ fontWeight: 300, textTransform: 'uppercase', textDecoration: 'none' }}>
             Servicios
           </Link>
           {SERVICES.map(s => (
@@ -292,7 +323,7 @@ export default function Header() {
             </Link>
           ))}
 
-          <Link className="text-sdm-base tracking-sdm-wide" to="/rental" style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>
+          <Link className={`text-sdm-base tracking-sdm-wide ${navLinkClass(isActive('/rental'))}`} to="/rental" style={{ fontWeight: 300, textTransform: 'uppercase', textDecoration: 'none' }}>
             SDM Rental
           </Link>
           <button className="text-sdm-base tracking-sdm-wide" onClick={handleContacto} style={{ fontWeight: 300, textTransform: 'uppercase', color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>

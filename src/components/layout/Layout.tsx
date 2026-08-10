@@ -33,12 +33,34 @@ export default function Layout() {
 
   return (
     <div className="sitio-publico min-h-screen flex flex-col">
+      {/* SALTAR AL CONTENIDO — WCAG 2.4.1 (evitar bloques).
+          El header expone 7 paradas de tabulación en escritorio y 14 en el menú
+          móvil ANTES de la primera línea de contenido, y hay que recorrerlas en
+          cada una de las 17 rutas. Con landmarks correctos un lector de pantalla
+          puede saltar por regiones; el afectado real es quien navega con teclado
+          y sin lector, que no tiene esa vía.
+
+          `.sr-only` lo saca de la vista sin sacarlo del árbol de accesibilidad
+          —recorte de 1px, no `display: none`— y `focus:not-sr-only` lo devuelve
+          al flujo en cuanto recibe el foco. Va PRIMERO en el DOM porque su valor
+          es ser la primera parada.
+
+          Aterriza bien gracias al `scroll-padding-top` de `html.ruta-publica`:
+          el salto a `#contenido` alinea el <main> con el borde del viewport, y
+          sin esa regla los primeros 91px habrían quedado bajo el header. */}
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:left-4 focus:top-4 focus:px-4 focus:py-3 focus:bg-white focus:text-[var(--navy-dark)] text-sdm-sm tracking-sdm-wide"
+        style={{ textTransform: 'uppercase', textDecoration: 'none', border: '1px solid var(--border-input)', borderRadius: 'var(--sdm-radio-control)' }}
+      >
+        Saltar al contenido
+      </a>
       <Header />
       {/* `paddingTop` con el token y no `pt-16`. El header es `fixed`, así que
           este relleno es lo ÚNICO que impide que el contenido se meta debajo, y
           su alto cambia a los 768px cuando aparece la barra de indicadores.
           `pt-16` eran 64px fijos contra un header de 65 u 91. */}
-      <main className="flex-1" style={{ paddingTop: 'var(--sdm-header-total)' }}>
+      <main id="contenido" tabIndex={-1} className="flex-1" style={{ paddingTop: 'var(--sdm-header-total)' }}>
         <Outlet />
       </main>
       <Footer />

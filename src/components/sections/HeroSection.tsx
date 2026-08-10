@@ -169,15 +169,45 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
           >
             {pausado ? <Play aria-hidden="true" size={10} fill="currentColor" /> : <Pause aria-hidden="true" size={10} fill="currentColor" />}
           </button>
+          {/* NOMBRE ACCESIBLE Y LÍMITE VISIBLE, que faltaban los dos.
+              Eran cinco <button> sin texto ni `aria-label`: el lector decía
+              «botón» cinco veces seguidas (WCAG 4.1.2). El botón de pausa de
+              aquí arriba sí lo llevaba — la tanda de accesibilidad cubrió el
+              control de 2.2.2 y dejó fuera los puntos.
+
+              EL ANILLO NO ES DECORACIÓN: ES LO QUE HACE QUE EL PUNTO EXISTA.
+              Los puntos van en `zIndex: 10`, o sea POR ENCIMA del degradado, así
+              que su fondo es la fotografía cruda. Medido el punto inactivo
+              contra las cuatro luminancias posibles:
+
+                                 foto blanca  clara  media  oscura
+                blanco 0.40           1.00    1.14   1.88    3.63
+                blanco 0.85           1.00    1.31   3.32   11.11
+
+              Subir la opacidad NO ARREGLA el caso que importa: blanco sobre una
+              foto blanca es 1.00 a cualquier alfa, porque es el mismo color. Y
+              las cinco fotos de hoy son exteriores con cielo.
+
+              El anillo sólido en `--navy-deeper` —el mismo navy del degradado—
+              da un límite que NO depende de la foto: punto contra anillo son
+              17,92:1 siempre. Y los dos extremos se cubren entre sí: sobre foto
+              clara se ve el anillo, sobre foto oscura se ve el punto.
+
+              `aria-current` y no `aria-pressed`: esto no es un interruptor sino
+              «cuál de los cinco estás viendo», que es exactamente lo que
+              `aria-current` expresa. */}
           {images.map((_, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
+              aria-label={`Ver la foto ${i + 1} de ${images.length}`}
+              aria-current={i === current ? 'true' : undefined}
               style={{
                 width: i === current ? 24 : 8,
                 height: 8,
                 borderRadius: 4,
-                background: i === current ? 'var(--green)' : 'rgba(255,255,255,0.4)',
+                background: i === current ? 'var(--green)' : 'rgba(255,255,255,0.85)',
+                boxShadow: '0 0 0 1px var(--navy-deeper)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.4s ease',

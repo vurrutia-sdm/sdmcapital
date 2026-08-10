@@ -111,10 +111,20 @@ function DropSelect({ label, options, value, onChange }: {
           desplegado nada.
           `aria-controls` SOLO cuando está abierto: el panel se desmonta al cerrarse,
           y un IDREF a un elemento inexistente es una referencia rota. */}
+      {/* `aria-haspopup="true"` Y NO `"listbox"`. Declarar `listbox` promete un
+          widget que no existe: el panel es un <div> con <button> dentro, y en
+          todo el proyecto hay CERO `role="listbox"` y CERO `role="option"`. El
+          lector anunciaba «cuadro de lista contraído», el usuario esperaba
+          flechas y un «opción 3 de 17», y no había ninguna de las dos cosas.
+          Un ARIA incorrecto es peor que ninguno. Con `"true"` el patrón queda
+          declarado como lo que ES —un disclosure— y `aria-expanded` +
+          `aria-controls` ya lo describen bien. Implementar el listbox de verdad
+          es reescribir el componente; el propio archivo ya descartó un
+          `radiogroup` en `Pill` por el mismo motivo. */}
       <button className="text-sdm-sm"
         ref={disparador}
         aria-expanded={open}
-        aria-haspopup="listbox"
+        aria-haspopup="true"
         aria-controls={open ? panelId : undefined}
         onClick={() => setOpen(v => !v)}
         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
@@ -213,12 +223,13 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
           height: 46, position: 'relative',
         }}
       >
+        {/* `aria-haspopup="true"`, mismo criterio que en `DropSelect`. */}
         <button
           type="button"
           ref={disparador}
           aria-labelledby={etiquetaId}
           aria-expanded={open}
-          aria-haspopup="listbox"
+          aria-haspopup="true"
           aria-controls={open ? panelId : undefined}
           onClick={() => { setOpen(v => !v); setStep(region && !comuna ? 'comuna' : 'region') }}
           style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
