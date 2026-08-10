@@ -7659,102 +7659,127 @@ comprobación, y no tengo credenciales del admin.
 
 ---
 
-## Sofía y `envios_plantilla`: por qué el pendiente NO se puede cerrar con la anon key — 2026-08-10
+## CERRADO · Sofía y `envios_plantilla`: nunca pasó por esa política — 2026-08-10
 
-Pendiente desde el 5 de agosto: confirmar que Sofía siga registrando envíos tras
-`20260805000400`, que activó RLS en esa tabla. **Solo diagnóstico, no se tocó
-nada.**
+Pendiente desde el 5 de agosto: confirmar que Sofía siguiera registrando envíos
+tras `20260805000400`, que activó RLS en esa tabla. **Cerrado, y no por una
+medición de filas sino por construcción.** Solo documentación: no se tocó código
+ni el repo del worker.
 
-### El resultado corto
+### La evidencia, ejecutada en el SQL Editor
 
-**No se puede responder desde fuera, y eso es correcto por diseño.** Hace falta
-una sesión de admin o el SQL Editor del dashboard. Abajo va el SQL exacto, con
-un control al lado que es lo que hace la respuesta interpretable.
+```sql
+select rolname, rolbypassrls
+  from pg_roles where rolname in ('service_role', 'authenticated', 'anon');
+```
 
-### Lo que sí quedó medido
+| rol | `rolbypassrls` |
+|---|---|
+| `anon` | false |
+| `authenticated` | false |
+| **`service_role`** | **true** |
+
+```sql
+select policyname, permissive, roles, cmd, qual, with_check
+  from pg_policies where schemaname = 'public' and tablename = 'envios_plantilla';
+```
+
+| policyname | permissive | roles | cmd | qual | with_check |
+|---|---|---|---|---|---|
+| `envios_plantilla_all_auth` | PERMISSIVE | `{authenticated}` | ALL | true | true |
+
+**Es la única.**
+
+### EL RAZONAMIENTO, PARA QUE NADIE LO REABRA
+
+Sofía accede con `SUPABASE_SERVICE_KEY`, o sea como `service_role`, y
+`service_role` tiene **`rolbypassrls = true`**. Un rol con `BYPASSRLS` **no
+evalúa ninguna política de fila**: no es que las cumpla, es que el planificador
+ni las aplica.
+
+De ahí se sigue que `20260805000400` **no pudo afectarla**, y la deducción no
+depende de qué política se escribiera:
+
+1. La única política sobre la tabla es `TO authenticated`. `service_role` no es
+   `authenticated`, así que ni siquiera le correspondería.
+2. Aunque le correspondiera, o aunque la política fuera `USING (false)`,
+   `BYPASSRLS` la saltaría igual.
+
+O sea que **el resultado es el mismo para cualquier política que se ponga sobre
+esta tabla**. Activar RLS en `envios_plantilla` solo cambió lo que ven `anon` y
+`authenticated`; para Sofía la tabla se comporta exactamente igual que antes del
+5 de agosto.
+
+Confirmado además por Víctor: Sofía funciona con normalidad.
+
+**Corolario que conviene tener presente:** este mismo argumento cubre a las otras
+tablas del worker. Cerrar con RLS cualquier tabla que solo escriba Sofía es
+seguro por la misma razón. Lo que **sí** hay que mirar antes de cerrar una tabla
+es si algo del **sitio** la lee con la anon key —eso es lo que rompió el criterio
+de las fichas de cliente—, no si Sofía escribe en ella.
+
+### La consulta de conteo se descartó, y por qué no hace falta
+
+Se había preparado una tercera consulta que contaba filas posteriores al 5 de
+agosto en `envios_plantilla` y en tres tablas hermanas de control. **Falló con
+`42703`: la columna de fecha no se llama `created_at`.**
+
+No se rehízo, y no es un cabo suelto. Era la **confirmación empírica de algo que
+las dos primeras resuelven estructuralmente**: un conteo podría a lo sumo mostrar
+que las escrituras llegan, mientras que `rolbypassrls = true` explica *por qué*
+no podían dejar de llegar. Un experimento que solo puede confirmar lo que ya está
+demostrado no aporta, y su caso ambiguo —cero filas porque Sofía estuvo quieta—
+habría dejado el pendiente abierto sin motivo.
+
+Si alguna vez hace falta contar por otra razón, primero hay que averiguar el
+nombre real de la columna:
+
+```sql
+select table_name, column_name from information_schema.columns
+ where table_schema = 'public' and table_name = 'envios_plantilla';
+```
+
+### Lo que se midió por el camino, y sigue siendo válido
 
 Con la anon key, **todas** las tablas y vistas de Sofía responden `200` con cero
-filas:
+filas: `envios_plantilla`, `mensajes`, `eventos_turno`, `mensajes_pendientes`,
+`decisiones_shadow`, `eventos_procesados`, `leads`, `visitas`, `config` y las
+cuatro vistas `metricas_*`.
 
-| | anon |
-|---|---|
-| `envios_plantilla`, `mensajes`, `eventos_turno`, `mensajes_pendientes`, `decisiones_shadow`, `eventos_procesados` | 200 · 0 filas |
-| `leads`, `visitas`, `config` | 200 · 0 filas |
-| `metricas_calidad`, `metricas_costo`, `metricas_descartes`, `metricas_operacion` | 200 · 0 filas |
-
-Las cuatro vistas son de paso una **verificación de `20260805000500`**: en aquella
+Las vistas son de paso una **verificación de `20260805000500`**: en aquella
 migración se midieron en 3, 3, 1 y 3 filas a través del bypass, y hoy dan 0. El
 `security_invoker` aguantó.
 
-### UN CERO POR RLS NO SE DISTINGUE DE UNA TABLA VACÍA, Y EL ESTIMADOR TAMPOCO AYUDA
+---
 
-Es la trampa a documentar. `Prefer: count=planned` y `count=estimated` usan la
-estimación del planificador en vez de contar, así que parecía una vía para leer
-el tamaño real sin leer filas. **No lo es**, y se comprobó calibrando contra una
-tabla cuyo contenido se conoce:
+## TRAMPA · Un cero desde fuera no distingue «vacía» de «bloqueada». Los tres conteos mienten igual.
 
-| tabla | filas reales | `exact` | `planned` | `estimated` |
+Salió del caso de arriba y vale para cualquier tabla con RLS, no solo las de
+Sofía.
+
+PostgREST ofrece tres modos de conteo, y los dos últimos **no cuentan**: usan la
+estimación del planificador, lo que parece una vía para leer el tamaño real de
+una tabla sin poder leer sus filas.
+
+**No lo es.** Comprobado calibrando contra una tabla cuyo contenido se conoce:
+
+| tabla | filas reales | `count=exact` | `count=planned` | `count=estimated` |
 |---|---|---|---|---|
 | `ficha_clientes` | **1** | 0 | **0** | **0** |
 | `propiedades` | 82 | 82 | 82 | 82 |
 
-Con deny-all la política se convierte en un filtro constante falso y la
-estimación colapsa a 0 igual que el conteo. **Los tres modos de conteo mienten lo
-mismo.** Si alguien intenta este atajo otra vez, ya está probado que no existe.
+Con deny-all la política se convierte en un **filtro constante falso**, y la
+estimación del planificador colapsa a 0 exactamente igual que el conteo. No hay
+atajo.
 
-### La hipótesis, y por qué es fuerte aunque falte la comprobación
+Consecuencias prácticas:
 
-Sofía usa `SUPABASE_SERVICE_KEY`. El rol `service_role` de Supabase lleva
-`BYPASSRLS`, así que ninguna política puede afectarle. Además hay evidencia
-registrada en el propio repo: `20260805000500` dejó anotado que las cuatro vistas
-de métricas devolvían **3, 3, 1 y 3 filas** el 5 de agosto. Esas vistas agregan
-`eventos_turno`, `mensajes_pendientes`, `decisiones_shadow` y `eventos_procesados`,
-que llevaban meses con **RLS activo y CERO políticas**. O sea: había datos dentro
-de tablas en deny-all, escritos por algo que salta RLS. Ese algo es Sofía.
-
-Y `envios_plantilla` quedó **más abierta** que esas cuatro, no menos: tiene una
-política `FOR ALL TO authenticated` que ellas no tienen. Añadir una política para
-`authenticated` no puede quitarle acceso a `service_role`.
-
-**Es un argumento sólido, no una observación.** Se documenta como hipótesis
-confirmada por deducción y pendiente de comprobación directa.
-
-### EL SQL PARA EL EDITOR DE SUPABASE
-
-El control es la parte que importa: `envios_plantilla` cambió de RLS el 5 de
-agosto y sus cuatro hermanas no. Contarla sola no distingue «la migración la
-rompió» de «Sofía no envió plantillas esos días».
-
-```sql
--- 1 · La hipótesis, en una línea
-select rolname, rolbypassrls
-  from pg_roles where rolname in ('service_role', 'authenticated', 'anon');
--- se espera: service_role = true
-
--- 2 · Qué políticas quedaron sobre la tabla
-select policyname, permissive, roles, cmd, qual, with_check
-  from pg_policies where schemaname = 'public' and tablename = 'envios_plantilla';
--- se espera: solo envios_plantilla_all_auth, TO authenticated
-
--- 3 · La pregunta CON su control
---     (si alguna no tiene `created_at`, mirar antes:
---      select table_name, column_name from information_schema.columns
---       where table_schema='public' and column_name ilike '%creat%';)
-select 'envios_plantilla' t, count(*) total,
-       count(*) filter (where created_at >= '2026-08-05') desde_el_5,
-       max(created_at) ultima from public.envios_plantilla
-union all select 'eventos_turno',       count(*), count(*) filter (where created_at >= '2026-08-05'), max(created_at) from public.eventos_turno
-union all select 'mensajes_pendientes', count(*), count(*) filter (where created_at >= '2026-08-05'), max(created_at) from public.mensajes_pendientes
-union all select 'eventos_procesados',  count(*), count(*) filter (where created_at >= '2026-08-05'), max(created_at) from public.eventos_procesados;
-```
-
-Cómo se lee el resultado:
-
-| envios_plantilla desde el 5 | las hermanas desde el 5 | conclusión |
-|---|---|---|
-| > 0 | — | **funciona.** Pendiente cerrado |
-| 0 | **> 0** | **la migración la rompió.** Sofía escribe, pero no ahí |
-| 0 | 0 | **Sofía estuvo quieta.** No prueba nada; hay que reintentar tras un envío real |
-
-La tercera fila es la razón de ser del control: sin él, un cero se lee como avería
-cuando puede ser silencio.
+- **Desde fuera de la base no se puede distinguir «la tabla está vacía» de «RLS
+  me la está tapando».** Ni contando, ni estimando, ni por el código HTTP: la
+  respuesta es `200` con `[]`, no un 404.
+- Por eso, cuando se vaya a cerrar una tabla, **hay que medir el ANTES**. Sin
+  línea base, el cero de después no prueba que el cierre funcionó.
+- Es la misma familia que la trampa del `DELETE` que devuelve **204 sin borrar**
+  cuando RLS filtra todas las filas candidatas, y que la del catch-all de SPA que
+  devuelve **200 para cualquier ruta**. En los tres casos la respuesta es
+  sintácticamente correcta y semánticamente vacía.
