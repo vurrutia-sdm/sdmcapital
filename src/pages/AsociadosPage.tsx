@@ -141,7 +141,7 @@ export default function AsociadosPage() {
               style={{ textDecoration: 'none', minHeight: 180, width: 'calc(25% - 1px)', minWidth: 220 }}
             >
               {a.logo ? (
-                <img
+                <img loading="lazy" decoding="async"
                   src={a.logo}
                   alt={a.nombre}
                   className="max-h-14 max-w-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300"

@@ -353,7 +353,7 @@ export default function ElBarrancoShowcase() {
               ))}
             </div>
           </div>
-          <img src={c('destination_foto', IMG.exterior)} alt="Futaleufú aerial view" style={{ width: '100%', aspectRatio: '4/5', objectFit: 'cover' }} />
+          <img loading="lazy" decoding="async" src={c('destination_foto', IMG.exterior)} alt="Futaleufú aerial view" style={{ width: '100%', aspectRatio: '4/5', objectFit: 'cover' }} />
         </div>
       </section>
 
@@ -581,7 +581,7 @@ export default function ElBarrancoShowcase() {
 function ActivityCard({ img, title, sub, Icon: IconComp }: { img: string; title: string; sub: string; Icon: () => JSX.Element }) {
   return (
     <div className="group" style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden', cursor: 'default' }}>
-      <img src={img} alt={title} className="transition-transform duration-500 group-hover:scale-[1.06]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s ease' }} />
+      <img loading="lazy" decoding="async" src={img} alt={title} className="transition-transform duration-500 group-hover:scale-[1.06]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s ease' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,11,0.88) 0%, transparent 60%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 28 }}>
         <div style={{ marginBottom: 10 }}><IconComp /></div>
         <div className="text-sdm-2xl" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, color: C.cream, lineHeight: 1.2 }}>{title}</div>
@@ -594,7 +594,7 @@ function ActivityCard({ img, title, sub, Icon: IconComp }: { img: string; title:
 function PhotoBlock({ src }: { src: string }) {
   return (
     <div className="group" style={{ overflow: 'hidden', aspectRatio: '16/9' }}>
-      <img src={src} alt="" className="transition-transform duration-500 group-hover:scale-[1.04]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }} />
+      <img loading="lazy" decoding="async" src={src} alt="" className="transition-transform duration-500 group-hover:scale-[1.04]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }} />
     </div>
   )
 }
@@ -602,7 +602,7 @@ function PhotoBlock({ src }: { src: string }) {
 function GalleryItem({ img, col, row }: { img: string; col: string; row: string }) {
   return (
     <div className="group" style={{ gridColumn: col, gridRow: row, overflow: 'hidden' }}>
-      <img src={img} alt="" className="transition-transform duration-500 group-hover:scale-[1.05]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }} />
+      <img loading="lazy" decoding="async" src={img} alt="" className="transition-transform duration-500 group-hover:scale-[1.05]" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }} />
     </div>
   )
 }

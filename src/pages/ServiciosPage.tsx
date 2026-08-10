@@ -103,7 +103,7 @@ export default function ServiciosPage() {
               </div>
               <div className={'flex items-center justify-center overflow-hidden' + (flip ? ' lg:order-1' : '')}
                 style={{ minHeight: 340, background: 'linear-gradient(160deg,' + (GRADIENTS[i] || 'var(--navy)') + ',var(--navy-dark))' }}>
-                {img ? <img src={img} alt={titulo} className="w-full h-full object-cover" style={{ minHeight: 340 }} /> : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.15)' }}>{titulo}</span>}
+                {img ? <img loading="lazy" decoding="async" src={img} alt={titulo} className="w-full h-full object-cover" style={{ minHeight: 340 }} /> : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.15)' }}>{titulo}</span>}
               </div>
             </div>
           )

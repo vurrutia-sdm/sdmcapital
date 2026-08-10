@@ -118,7 +118,7 @@ export default function QuienesSomosPage() {
           </div>
           <div className="flex items-center justify-center overflow-hidden" style={{ height: 440, background: 'linear-gradient(160deg,var(--navy),var(--navy-dark))', borderRadius: 2 }}>
             {historiaImg
-              ? <img src={historiaImg} alt="Equipo SDM Capital" className="w-full h-full object-cover" style={{ borderRadius: 2 }} />
+              ? <img loading="lazy" decoding="async" src={historiaImg} alt="Equipo SDM Capital" className="w-full h-full object-cover" style={{ borderRadius: 2 }} />
               : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.2)' }}>Fotografía oficina / equipo</span>
             }
           </div>

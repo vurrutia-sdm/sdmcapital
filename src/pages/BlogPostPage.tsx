@@ -136,7 +136,7 @@ export default function BlogPostPage() {
       {/* Cover image */}
       {post.imagen_portada && (
         <div style={{ width: '100%', background: 'var(--off)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 0', maxHeight: 600, overflow: 'hidden' }}>
-          <img src={post.imagen_portada} alt={titulo} style={{ maxWidth: '100%', maxHeight: 552, objectFit: 'contain', display: 'block' }} />
+          <img loading="lazy" decoding="async" src={post.imagen_portada} alt={titulo} style={{ maxWidth: '100%', maxHeight: 552, objectFit: 'contain', display: 'block' }} />
         </div>
       )}
 

@@ -62,7 +62,7 @@ export default function BlogPreviewSection() {
         >
           <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: 'var(--off)' }}>
             {main.imagen_portada && (
-              <img src={main.imagen_portada} alt={getTitle(main)}
+              <img loading="lazy" decoding="async" src={main.imagen_portada} alt={getTitle(main)}
                 style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', transition: 'transform 0.5s ease' }}
                 className="group-hover:scale-[1.03]"
               />
@@ -86,7 +86,7 @@ export default function BlogPreviewSection() {
             >
               <div style={{ height: 180, overflow: 'hidden', background: 'var(--off)' }}>
                 {post.imagen_portada && (
-                  <img src={post.imagen_portada} alt={getTitle(post)}
+                  <img loading="lazy" decoding="async" src={post.imagen_portada} alt={getTitle(post)}
                     style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', transition: 'transform 0.5s ease' }}
                     className="group-hover:scale-[1.03]"
                   />

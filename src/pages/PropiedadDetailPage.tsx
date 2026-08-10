@@ -794,7 +794,7 @@ export default function PropiedadDetailPage() {
                   textDecoration: 'none',
                   transition: 'all 0.2s ease' }}
               >
-                <img src="/FLOW-HORIZONTAL-LOGO.png" alt="Flow" style={{ height: '20px', objectFit: 'contain' }} />
+                <img loading="lazy" decoding="async" src="/FLOW-HORIZONTAL-LOGO.png" alt="Flow" style={{ height: '20px', objectFit: 'contain' }} />
                 <span>Reserva esta propiedad</span>
               </a>
             )}

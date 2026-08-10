@@ -414,10 +414,23 @@ export default function SearchBar() {
             visible, solo que sin asociar. `display: block` es obligatorio en
             los dos — un <label> y un <span> son inline por defecto, y estos
             div llevaban padding, borde y marginBottom de bloque. */}
+        {/* LOS <select> VAN A 16px, Y NO ES UNA ELECCIÓN TIPOGRÁFICA.
+            Safari en iOS hace ZOOM automático sobre cualquier control de
+            formulario con `font-size` menor a 16px, y NO vuelve al nivel
+            anterior al cerrar el selector: el usuario se queda con la página
+            ampliada y desplazada, y tiene que hacer pinch para volver. Con
+            cuatro controles seguidos —Región, Comuna, Tipo, Precio— pasaba
+            cuatro veces en la ruta principal del tráfico móvil.
+            `.input-line` de globals.css ya declaraba `text-[16px]` contra la
+            escala por este mismo motivo; el buscador se había quedado en 13.
+            NO se usa `maximum-scale=1` en el viewport: eso apaga el zoom para
+            todo el mundo, que es el anti-patrón que esto evita.
+            El rótulo de encima sigue identificando el campo, así que la
+            densidad visual no se resiente. */}
         <label className="mb-2" style={{ display: 'block', background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px' }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Región</span>
-          <select className="text-sdm-sm area-44" value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
-            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
+          <select className="area-44" value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer', fontSize: '16px' }}>
             {REGIONES.map(r => <option key={r.value} value={r.value} style={{ color: 'var(--ink)', background: '#fff' }}>{r.label}</option>)}
           </select>
         </label>
@@ -433,8 +446,8 @@ export default function SearchBar() {
             una sola regla al 50 % en globals.css y esto la respeta. */}
         <label className="mb-3" style={{ display: 'block', background: 'var(--off)', border: '1px solid var(--border-input)', opacity: region ? 1 : 0.5, borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px' }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Comuna</span>
-          <select className="text-sdm-sm area-44" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
-            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed' }}>
+          <select className="area-44" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
+            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed', fontSize: '16px' }}>
             <option value="" style={{ color: 'var(--ink)', background: '#fff' }}>{region ? 'Todas las comunas' : 'Primero elige región'}</option>
             {region && getComunas(region).map(c => <option key={c} value={c} style={{ color: 'var(--ink)', background: '#fff' }}>{c}</option>)}
           </select>
@@ -444,7 +457,7 @@ export default function SearchBar() {
           {[{ label: 'Tipo', options: TIPOS, value: tipo, onChange: setTipo }, { label: 'Precio', options: PRECIOS, value: precio, onChange: setPrecio }].map(f => (
             <label key={f.label} style={{ display: 'block', flex: 1, background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px' }}>
               <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>{f.label}</span>
-              <select className="text-sdm-sm area-44" value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer' }}>
+              <select className="area-44" value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer', fontSize: '16px' }}>
                 {f.options.map(o => <option key={o.value} value={o.value} style={{ color: 'var(--ink)', background: '#fff' }}>{o.label}</option>)}
               </select>
             </label>
