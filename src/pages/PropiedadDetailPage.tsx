@@ -7,6 +7,7 @@ import { useLang } from '@/hooks/useLang'
 import { supabase } from '@/lib/supabase'
 import { useDialogoModal } from '@/hooks/useDialogoModal'
 import { useBloquearScroll } from '@/hooks/useBloquearScroll'
+import { useCerrarConEscape } from '@/hooks/useCerrarConEscape'
 import { useContenido } from '@/hooks/useContenido'
 import ContactSection from '@/components/sections/ContactSection'
 import ElBarrancoBanner from '@/components/ui/ElBarrancoBanner'
@@ -31,6 +32,16 @@ function ShareButtons({ titulo }: { titulo: string }) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  // MISMO PATRÓN QUE LOS DESPLEGABLES DEL BUSCADOR, y con los mismos dos huecos:
+  // sólo cerraba con `mousedown` fuera —sin salida por teclado— y al elegir una
+  // red el panel se desmontaba con el foco dentro, que caía al <body>.
+  // Se cierra con Escape y devuelve el foco a «Compartir» en los dos caminos.
+  const disparador = useRef<HTMLButtonElement>(null)
+  const cerrarYEnfocar = useCallback(() => {
+    setOpen(false)
+    disparador.current?.focus()
+  }, [])
+  useCerrarConEscape(open, useCallback(() => setOpen(false), []), disparador)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -46,14 +57,14 @@ function ShareButtons({ titulo }: { titulo: string }) {
   const copyLink = async () => {
     await navigator.clipboard.writeText(window.location.href)
     setCopied(true)
-    setOpen(false)
+    cerrarYEnfocar()
     setTimeout(() => setCopied(false), 2000)
   }
 
   return (
     <div ref={wrapperRef} style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
       {/* Trigger */}
-      <button className={`text-sdm-sm tracking-sdm-normal border ${copied ? 'border-[#3DAA6E] text-[#3DAA6E]' : 'border-[var(--border)] text-[#0F2535] hover:border-[#3DAA6E] hover:text-[#3DAA6E]'}`}
+      <button ref={disparador} className={`text-sdm-sm tracking-sdm-normal border ${copied ? 'border-[#3DAA6E] text-[#3DAA6E]' : 'border-[var(--border)] text-[#0F2535] hover:border-[#3DAA6E] hover:text-[#3DAA6E]'}`}
         onClick={() => setOpen(o => !o)}
         style={{ display: 'inline-flex',
           alignItems: 'center',
@@ -90,7 +101,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
               href={net.getHref(pageUrl, pageText)}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
+              onClick={cerrarYEnfocar}
               style={{ display: 'flex',
                 alignItems: 'center',
                 gap: 11,

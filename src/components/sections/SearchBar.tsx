@@ -97,6 +97,21 @@ function DropSelect({ label, options, value, onChange }: {
   const disparador = useRef<HTMLButtonElement>(null)
   useCerrarConEscape(open, useCallback(() => setOpen(false), []), disparador)
 
+  // CERRAR ELIGIENDO TAMBIÉN DEVUELVE EL FOCO, no solo cerrar con Escape.
+  //
+  // El panel se DESMONTA al cerrarse, y con teclado el foco está dentro —en la
+  // opción que acabas de pulsar—. Al desaparecer ese nodo el foco cae al
+  // `<body>`, y el siguiente Tab reinicia el recorrido desde el principio del
+  // documento: el usuario acaba de elegir «Casa» y el Tab lo manda al logo.
+  // Es WCAG 2.4.3.
+  //
+  // `useCerrarConEscape` ya hacía esto para su vía; ésta se había quedado sin
+  // cubrir porque la tanda de teclado miró el Escape y no la selección.
+  const cerrarYEnfocar = useCallback(() => {
+    setOpen(false)
+    disparador.current?.focus()
+  }, [])
+
   useEffect(() => {
     const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
     document.addEventListener('mousedown', fn)
@@ -141,7 +156,7 @@ function DropSelect({ label, options, value, onChange }: {
       {open && (
         <div id={panelId} style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, minWidth: 200, background: '#fff', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 12px 40px rgba(15,37,53,0.12)', zIndex: 50, overflow: 'hidden', maxHeight: 320, overflowY: 'auto' }}>
           {options.map(opt => (
-            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false) }}
+            <button key={opt.value} onClick={() => { onChange(opt.value); cerrarYEnfocar() }}
               className={`text-sdm-base ${opt.value === value ? 'bg-[var(--sky-pale)] text-[var(--navy-dark)]' : 'bg-transparent text-[var(--muted)] hover:bg-[var(--off)]'}`}
               style={{ width: '100%', padding: '11px 16px', textAlign: 'left', fontWeight: 300,
                 border: 'none', cursor: 'pointer', fontFamily: 'inherit',
@@ -188,16 +203,25 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
   const label = comuna ? comuna : region ? region : 'Región o comuna...'
   const hasValue = !!(region || comuna)
 
+  // Mismo criterio que en `DropSelect`: cerrar eligiendo devuelve el foco al
+  // disparador. Acá sólo en los DOS puntos donde el panel se cierra de verdad —
+  // elegir región con valor pasa al paso «comuna» y el panel sigue abierto, así
+  // que ahí mover el foco sería sacarlo de una lista que el usuario aún usa.
+  const cerrarYEnfocar = useCallback(() => {
+    setOpen(false)
+    disparador.current?.focus()
+  }, [])
+
   const handleRegion = (v: string) => {
     onChangeRegion(v)
     onChangeComuna('')
     if (v) setStep('comuna')
-    else { setOpen(false) }
+    else { cerrarYEnfocar() }
   }
 
   const handleComuna = (v: string) => {
     onChangeComuna(v)
-    setOpen(false)
+    cerrarYEnfocar()
   }
 
   const handleClear = (e: React.MouseEvent) => {
