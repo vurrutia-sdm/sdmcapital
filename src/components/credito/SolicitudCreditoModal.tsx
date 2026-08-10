@@ -83,8 +83,28 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
             <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
               Honorarios
             </div>
+            {/* EL CASO COMPLETO VA ACÁ, y no en el home, porque éste es el
+                punto donde el visitante decide.
+
+                Decía «Nuestros honorarios se pagan únicamente contra el éxito
+                de la operación», que omitía lo principal: si el cliente compra
+                su propiedad con SDM, la gestión del crédito no se cobra. La
+                frase describía cuándo SE COBRA y la política define cuándo NO.
+
+                La tercera oración se mantiene palabra por palabra: de las tres
+                que había, era la única correcta.
+
+                NO SE DICE CUÁNDO se cobra en el caso de compra por fuera. Las
+                dos superficies que lo declaraban no coincidían entre sí —«al
+                éxito de la operación» acá, «al éxito de la gestión» en
+                /evaluacion-gratuita— y ninguna de las dos describe la política.
+                Queda anotado en SINCRONIA.md como pendiente de decisión
+                comercial. «Contra el resultado» es lo que sí está establecido y
+                no compromete un momento concreto. */}
             <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.7, color: '#FFFFFF', margin: 0, backgroundColor: 'transparent' }}>
-              Nuestros honorarios se pagan únicamente contra el éxito de la operación.
+              Si compras tu propiedad con SDM Capital —nueva o usada—, la gestión del crédito
+              no tiene costo. Si la compra la haces por fuera, se cobran honorarios por la
+              gestión, siempre contra el resultado.
               Sin cobros anticipados en ninguna etapa del proceso.
             </p>
           </div>
