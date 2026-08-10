@@ -125,9 +125,21 @@ dashboard, o consultas por PostgREST cuando la tabla esté expuesta.
 
 ## Build y deploy
 
-`npm run build` corre `tsc && vite build`: el typecheck bloquea el build a
-propósito, para que un error de tipos no llegue a producción. Hay un hook
-`prebuild` (`scripts/sync-hero-preload.mjs`) que sincroniza el preload del hero.
+`npm run build` corre `npm run lint && npm run typecheck && vite build`. Las dos
+primeras etapas **bloquean el build a propósito**, para que ni un error de tipos
+ni una regla de hooks rota lleguen a producción. Hay un hook `prebuild`
+(`scripts/sync-hero-preload.mjs`, `sync-contenido-seed.mjs`, `sync-sitemap.mjs`)
+que corre antes que todo eso.
+
+El lint va primero porque es el que falla rápido: **1,6 s contra 4,7 s** del
+typecheck. Y cada etapa es su propio script —`lint` y `typecheck`, no `eslint` y
+`tsc` sueltos— para que npm imprima su banner antes del error y se vea cuál de
+las dos cortó. Sin eso, un `error TS2322` aparece justo debajo del banner de
+`lint` y se lee como si lo hubiera producido ESLint.
+
+Los cinco `eslint-disable-next-line react-hooks/exhaustive-deps` del repo llevan
+la razón escrita al lado. **No se quitan sin leerla**: los cinco describen qué se
+rompe al completar el array, no una preferencia.
 
 Deploy a Cloudflare Pages:
 

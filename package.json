@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5103 --strictPort",
-    "build": "tsc && vite build",
+    "build": "npm run lint && npm run typecheck && vite build",
+    "typecheck": "tsc",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "prebuild": "node scripts/sync-hero-preload.mjs && node scripts/sync-contenido-seed.mjs && node scripts/sync-sitemap.mjs"
