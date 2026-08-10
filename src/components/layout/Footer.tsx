@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { ExternalLink } from 'lucide-react'
 import { useContenido } from '@/hooks/useContenido'
 
 // El footer va sobre `--off` (#F9FAFB), no sobre blanco ni sobre navy.
@@ -188,29 +187,6 @@ export default function Footer() {
             ].map(l => (
               <Link className="text-sdm-base hover:text-[var(--navy-dark)]" key={l.to} to={l.to} style={enlace}>{l.label}</Link>
             ))}
-            {/* Único enlace que sale del sitio. Antes se distinguía por color y
-                espaciado, que no significaban nada; ahora lleva la marca que sí
-                corresponde y se ve igual que sus vecinos. */}
-            {/* EL ICONO NO SE SEPARA DE LA ÚLTIMA PALABRA.
-                Con `inline-flex` el enlace era un contenedor flex de una sola
-                línea: el texto envolvía por dentro y el icono quedaba centrado
-                contra un bloque de dos líneas, o sea suelto y desalineado. En
-                móvil, donde «Reserva tu propiedad» no cabe de una, se veía
-                siempre.
-                Vuelve al flujo normal —`enlace` ya trae `display: block`— y la
-                última palabra viaja con el icono dentro de un `nowrap`: si hay
-                que partir, se parte antes de «propiedad» y nunca entre la
-                palabra y su icono. */}
-            <a className="text-sdm-base hover:text-[var(--navy-dark)]"
-              href="https://www.flow.cl/uri/gHSdT2jVv" target="_blank" rel="noopener noreferrer"
-              aria-label="Reserva tu propiedad (se abre en una pestaña nueva)"
-              style={enlace}>
-              Reserva tu{' '}
-              <span style={{ whiteSpace: 'nowrap' }}>
-                propiedad<ExternalLink aria-hidden="true" size={13} strokeWidth={2}
-                  style={{ display: 'inline-block', verticalAlign: '-0.12em', marginLeft: 5 }} />
-              </span>
-            </a>
             </div>
           </div>
 
