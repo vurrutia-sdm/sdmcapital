@@ -60,7 +60,13 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
       aria-pressed={active}
       onClick={onClick}
       style={{ padding: '6px 20px', fontWeight: active ? 600 : 400, textTransform: 'uppercase',
-        border: active ? '1px solid var(--navy-dark)' : '1px solid var(--border)',
+        // `--border-input` y no `--border` en la rama inactiva. Es la regla 4.1 del
+        // sistema: `--border` (1,18:1) es para separaciones decorativas y
+        // `--border-input` (4,06:1) para el límite de un CONTROL, que es lo que pide
+        // 1.4.11. Esto es un <button> y su borde es lo único que lo delimita cuando
+        // no está elegido. La versión móvil de este mismo control (más abajo) ya
+        // usaba `--border-input`: el escritorio se había quedado atrás.
+        border: active ? '1px solid var(--navy-dark)' : '1px solid var(--border-input)',
         borderRadius: 20,
         background: active ? 'var(--navy-dark)' : 'transparent',
         color: active ? '#fff' : 'var(--muted)',
@@ -107,7 +113,8 @@ function DropSelect({ label, options, value, onChange }: {
         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
           background: value ? 'var(--navy-dark)' : '#fff',
           color: value ? '#fff' : 'var(--ink)',
-          border: `1px solid ${value ? 'var(--navy-dark)' : 'var(--border)'}`,
+          // `--border-input` en la rama sin valor — regla 4.1, igual que en `Pill`.
+          border: `1px solid ${value ? 'var(--navy-dark)' : 'var(--border-input)'}`,
           borderRadius: 'var(--sdm-radio-control)', cursor: 'pointer', fontFamily: 'inherit', fontWeight: value ? 500 : 300, transition: 'all 0.18s', whiteSpace: 'nowrap' }}
       >
         <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', opacity: 0.6, marginRight: 2 }}>{label}</span>
@@ -187,7 +194,9 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
           background: '#fff',
-          border: `1.5px solid ${open ? 'var(--navy-dark)' : 'var(--border)'}`,
+          // `--border-input` en reposo — regla 4.1. Éste es el control principal del
+          // buscador y el que más depende de su borde: no tiene relleno propio.
+          border: `1.5px solid ${open ? 'var(--navy-dark)' : 'var(--border-input)'}`,
           borderRadius: 'var(--sdm-radio-control)', padding: '0 16px', transition: 'border-color 0.2s', cursor: 'pointer',
           height: 46, position: 'relative',
         }}

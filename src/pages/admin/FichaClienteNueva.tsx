@@ -307,8 +307,9 @@ export default function FichaClienteNueva() {
           )}
         </SCard>
 
+        {/* `--error`, mismo criterio que en `FichaClienteEditar`. */}
         {saveError && (
-          <div className="text-sdm-base" style={{ background: '#fff3f3', border: '1px solid #fca5a5', borderRadius: 4, padding: '12px 16px', marginBottom: 16, color: '#dc2626' }}>
+          <div className="text-sdm-base" style={{ background: '#fff3f3', border: '1px solid #fca5a5', borderRadius: 4, padding: '12px 16px', marginBottom: 16, color: 'var(--error)' }}>
             {saveError}
           </div>
         )}

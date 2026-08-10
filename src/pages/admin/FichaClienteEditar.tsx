@@ -394,8 +394,13 @@ export default function FichaClienteEditar() {
             )}
           </SCard>
 
+          {/* `--error` y no `#dc2626`: el literal daba 4,45:1 sobre este fondo y
+              no llegaba a AA. Además era un SEGUNDO rojo de error —el sistema ya
+              tiene uno, elegido midiendo su distancia a `--estado-vendida` bajo
+              daltonismo— y `globals.css` avisa de que abrir esa puerta reabre el
+              problema de distinguibilidad. */}
           {saveError && (
-            <div className="text-sdm-base" style={{ background: '#fff3f3', border: '1px solid #fca5a5', borderRadius: 4, padding: '12px 16px', marginBottom: 16, color: '#dc2626' }}>
+            <div className="text-sdm-base" style={{ background: '#fff3f3', border: '1px solid #fca5a5', borderRadius: 4, padding: '12px 16px', marginBottom: 16, color: 'var(--error)' }}>
               {saveError}
             </div>
           )}

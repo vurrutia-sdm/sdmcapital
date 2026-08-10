@@ -276,7 +276,25 @@ export default function HeroSection() {
             vacías y se recortan los espacios: la clave viene de un campo de
             texto del admin y un espacio al final o un renglón de más no pueden
             mover el diseño. */}
-        <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--green-dark)' }}>
+        {/* `--sky` Y NO NINGUNO DE LOS DOS VERDES, y es el reverso de la regla 4.2.
+            Esa regla dice «`--green` solo sobre oscuro, `--green-dark` en todo lo
+            demás», y acá el fondo ES oscuro —el degradado arranca en
+            rgba(8,24,40,0.82)—, así que parecía tocar `--green`. Pero debajo del
+            degradado hay una FOTOGRAFÍA que carga el admin, y el contraste real
+            depende de ella. Medido contra las cuatro luminancias posibles:
+
+                              foto blanca  clara  media  oscura
+              --green-dark          2,13   2,35   2,98    3,59   ✗ falla en las 4
+              --green               3,53   3,89   4,94    5,96   ✗ falla en 2
+              --sky                 5,71   6,29   7,98    9,63   ✓
+
+            Las cinco fotos de hoy son exteriores con cielo, o sea la columna
+            «clara». `--sky` es además el acento que ya usa el <h1> de aquí abajo,
+            así que no entra un color nuevo al hero.
+
+            EL SEPARADOR DE LA LÍNEA SIGUIENTE SE QUEDA EN `--green`: es una
+            línea de 1px sin texto, o sea decoración, y 1.4.11 no le aplica. */}
+        <div className="flex items-start gap-3 text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 400, textTransform: 'uppercase', color: 'var(--sky)' }}>
           <span style={{ width: 28, minWidth: 28, height: 1, background: 'var(--green)', display: 'inline-block', marginTop: 6 }} />
           <span>
             {kicker.split('\n').map(l => l.trim()).filter(Boolean).map((linea, i) => (

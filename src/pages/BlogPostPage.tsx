@@ -107,7 +107,12 @@ export default function BlogPostPage() {
       <div className="px-8 lg:px-12 py-16 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
         <div className="flex items-center gap-4 mb-6">
           {categoriaPrincipal(post.categoria) && <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'var(--green)', textTransform: 'uppercase' }}>{categoriaPrincipal(post.categoria)}</span>}
-          <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'rgba(255,255,255,0.3)' }}>{fecha}</span>
+          {/* 0.55 y no 0.3: sobre `--navy-dark` daba 2,67:1, el peor par de texto
+              plano del sitio. Es la opacidad que ya usa el autor quince líneas más
+              abajo, así que no entra un valor nuevo — y deja las tres piezas de
+              esta cabecera por encima de AA (categoría 5,37 · fecha 5,68 · autor
+              5,68). */}
+          <span className="text-sdm-sm tracking-sdm-wide" style={{ color: 'rgba(255,255,255,0.55)' }}>{fecha}</span>
         </div>
         <h1
           className="font-serif font-normal tracking-sdm-tight"

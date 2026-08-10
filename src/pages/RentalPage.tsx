@@ -134,7 +134,12 @@ export default function RentalPage() {
               <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: c.destacado ? '#fff' : 'var(--navy-dark)' }}>{c.tipo}</h3>
               {[{ label: 'Definición', value: c.def }, { label: 'Duración', value: c.dur }, { label: 'Gestión', value: c.ges }, { label: 'Comisión', value: c.com }].map(row => (
                 <div key={row.label} style={{ marginBottom: 20 }}>
-                  <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: c.destacado ? 'rgba(255,255,255,0.4)' : 'var(--muted)', marginBottom: 4 }}>{row.label}</div>
+                  {/* 0.55 y no 0.4 en la rama destacada: sobre `--navy-dark` daba
+                      3,68:1 a 11px en versalitas. La asimetría era del revés de lo
+                      que corresponde —la columna clara usa `--muted`, 5,03:1, así
+                      que la tarjeta RECOMENDADA era la menos legible de las dos—.
+                      Con 0.55 quedan parejas: 5,68 contra 5,03. */}
+                  <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: c.destacado ? 'rgba(255,255,255,0.55)' : 'var(--muted)', marginBottom: 4 }}>{row.label}</div>
                   <div className="text-sdm-base" style={{ fontWeight: 300, color: c.destacado ? '#fff' : 'var(--muted)', lineHeight: 1.7 }}>{row.value}</div>
                 </div>
               ))}
