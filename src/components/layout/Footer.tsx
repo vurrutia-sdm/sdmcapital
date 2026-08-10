@@ -90,7 +90,18 @@ export default function Footer() {
   return (
     <footer style={{ background: 'var(--off)', borderTop: '1px solid var(--border)' }}>
       <div className="px-8 lg:px-12 pt-12 pb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-7 mb-5" style={{ borderBottom: '1px solid var(--border)' }}>
+        {/* LAS TRES COLUMNAS DEJAN DE SER IGUALES A PARTIR DE 1024, porque sus
+            contenidos no lo son: la marca tiene un eslogan con tope de 260px y
+            cuatro iconos de 32, contacto tiene tres líneas cortas —la más larga
+            es el correo, 165px— y navegación ahora necesita el doble de ancho
+            porque va partida en dos.
+            Con 1fr 1fr 1fr a 1024 navegación recibía 283px y «Reserva tu
+            propiedad» caía en dos líneas; con 1fr 1.4fr 1fr recibe 349 y no
+            envuelve nada. Contacto baja a 249, donde el correo sigue entrando
+            de una. Medido en los dos anchos.
+            De 768 a 1023 se queda en tres columnas iguales, que es lo que ya
+            hacía, porque ahí navegación no se parte. */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-[1fr_1.4fr_1fr] gap-10 pb-7 mb-5" style={{ borderBottom: '1px solid var(--border)' }}>
 
           {/* Marca, eslogan y redes */}
           <div>
@@ -137,15 +148,26 @@ export default function Footer() {
                 tabulador. Con `grid-cols-2` normal el llenado sería por filas
                 —1,2 / 3,4 / …— y quien bajara por la columna izquierda leería
                 1,3,5,7 mientras el tabulador va 1,2,3,4.
-                `xl:` y no `md:`: a 768 y a 1024 la columna del footer mide 208 y
-                282px, así que partida en dos «Reserva tu propiedad» y «Vende con
-                nosotros» no caben en una línea. Debajo de eso se queda en una
-                sola columna, que es lo que ya hacía.
+                EL CORTE ES `lg` (1024) Y NO `xl` (1280). Estuvo en `xl` un
+                despliegue y fue un error de criterio: la medición decía que a
+                1024 «Reserva tu propiedad» envolvía, y evité el envoltorio a
+                costa de que la mayoría de las pantallas no vieran nunca el
+                cambio. La salida buena no era subir el corte sino darle ancho a
+                la columna — ver la nota de la grilla de arriba: a 1024 pasa de
+                283 a 349px y ya no envuelve nada.
+                A 768 no se aplica a propósito: ahí la columna mide 257px y
+                «Reserva tu propiedad» sí caería en dos líneas. Y debajo de 768
+                `mobile.css` reparte el footer en dos columnas de 167px, donde
+                dos subcolumnas serían de 78.
+                `grid-rows-[repeat(4,auto)]` y no `grid-rows-4`: el utilitario de
+                Tailwind es `repeat(4,minmax(0,1fr))`, que iguala las cuatro
+                filas a la más alta. Si mañana una etiqueta envuelve, con `1fr`
+                crecen las cuatro; con `auto` crece solo la suya.
                 OJO con `mobile.css`: su regla `footer .grid > div > a` deja de
                 alcanzar a estos enlaces al meterlos en este contenedor. No pasa
                 nada — `display:block` lo trae `enlace` y el centrado se hereda
                 del `text-align: center` que la misma hoja pone en `> div`. */}
-            <div className="xl:grid xl:grid-rows-4 xl:grid-flow-col xl:gap-x-6">
+            <div className="lg:grid lg:grid-rows-[repeat(4,auto)] lg:grid-flow-col lg:gap-x-6">
             {/* «Inicio» se fue: el logo del header ya lleva al home y es la
                 convención. Un enlace más en un índice que no aporta destino. */}
             {[
