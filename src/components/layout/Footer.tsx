@@ -102,9 +102,28 @@ export default function Footer() {
             hacía, porque ahí navegación no se parte. */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-[1fr_1.4fr_1fr] gap-10 pb-7 mb-5" style={{ borderBottom: '1px solid var(--border)' }}>
 
+          {/* ─── LAS TRES COLUMNAS, CENTRADAS POR DENTRO ──────────────────────
+              Las columnas NO se mueven: siguen donde las pone la rejilla
+              (1fr 1.4fr 1fr desde 1024). Lo que se centra es su CONTENIDO, para
+              que la línea de copyright de abajo —que ya iba centrada— y la banda
+              de DIRECCIÓN/HORARIO de arriba —que también— dejen de ser las dos
+              únicas piezas centradas de un pie alineado a la izquierda.
+
+              `textAlign` va en cada columna y no en la rejilla: así queda a la
+              vista de quien lea la columna, y no hay que ir a buscar de dónde
+              hereda.
+
+              POR DEBAJO DE 768 ESTO NO CAMBIA NADA. `mobile.css` ya centraba el
+              pie con `footer .grid > div { text-align: center !important }`, así
+              que en móvil el resultado es idéntico al de antes; lo que hace este
+              cambio es que escritorio y móvil por fin coincidan.
+
+              `text-align` NO centra un contenedor flex ni un bloque con
+              `max-width`: por eso la fila del logo lleva `justify-center`, la de
+              redes `justifyContent: 'center'` y el eslogan `margin: '0 auto'`. */}
           {/* Marca, eslogan y redes */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
+          <div style={{ textAlign: 'center' }}>
+            <div className="flex items-center justify-center gap-3 mb-4">
               <div className="logo-stripes">
                 <div className="logo-stripe logo-stripe--sky" />
                 <div className="logo-stripe logo-stripe--green" />
@@ -116,13 +135,13 @@ export default function Footer() {
               </div>
             </div>
             {/* Sigue saliendo de contenido_sitio: no se convierte en texto fijo. */}
-            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: TENUE, maxWidth: 260, marginBottom: 20 }}>
+            <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.9, color: TENUE, maxWidth: 260, marginBottom: 20, marginLeft: 'auto', marginRight: 'auto' }}>
               {get('footer_tagline', 'Tu socio confiable en bienes raíces.')}
             </p>
             {/* Solo el icono: el rótulo se va al aria-label. Los círculos miden
                 32px —por encima de los 24 de 2.5.8— y van a 12px, así que los
                 centros quedan a 44. */}
-            <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 12, justifyContent: 'center' }}>
               {SOCIALS.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                   aria-label={`${s.label} de SDM Capital (se abre en una pestaña nueva)`}
@@ -135,7 +154,7 @@ export default function Footer() {
           </div>
 
           {/* Navegación */}
-          <div>
+          <div style={{ textAlign: 'center' }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: FUERTE, marginBottom: 20 }}>
               Navegación
             </div>
@@ -194,7 +213,7 @@ export default function Footer() {
               esto, /propiedades, /blog, /vende-con-nosotros y las tres legales
               no tenían ningún dato de contacto: ContactSection solo se monta en
               7 de las 13. */}
-          <div>
+          <div style={{ textAlign: 'center' }}>
             <div className="text-sdm-xs tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: FUERTE, marginBottom: 20 }}>
               Contacto
             </div>
