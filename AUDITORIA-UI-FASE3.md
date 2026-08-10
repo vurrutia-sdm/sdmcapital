@@ -23,9 +23,10 @@ página de confirmación de pago), estados que solo fallan sobre fotografía, y 
 `SearchBar`, que es la herramienta principal del home y quedó fuera de tres reglas que el
 resto del sitio sí cumple.
 
-**Los tres hallazgos críticos y los once altos están resueltos**, y con ellos el eje de
-contraste entero del sitio público. Lo que queda es de severidad media o baja, más la
-deuda de admin.
+**Todo el código de esta auditoría está aplicado**, en once commits del 2026-08-10.
+Quedan abiertos **un hallazgo medio** —M2, el rango 768–1023px, que es una decisión de
+diseño y no un arreglo— y las tres notas que se registraron sin resolver: dos de método
+y una de alcance. Ver «Lo que queda» al final.
 
 C1 era el desfase del header, que escondía 27px de contenido en las 17 rutas desde 768px.
 C2 y C3 eran de navegación por teclado: una parada de foco invisible en todas las páginas,
@@ -36,8 +37,8 @@ tandas —doce pares—, la última con un barrido bidireccional de la regla 4.2
 |---|---|---|
 | Crítico | **0 abiertos** (de 3) | rompen contenido o dejan al teclado sin salida, en todas las páginas |
 | Alto | **0 abiertos** (de 11) | incumplen WCAG AA en superficies públicas |
-| Medio | 11 | inconsistencia interna, valores fuera de escala, roce de usabilidad |
-| Bajo | 5 | deuda cosmética y de mantenimiento |
+| Medio | **1 abierto** (de 12) | inconsistencia interna, valores fuera de escala, roce de usabilidad |
+| Bajo | **0 abiertos** (de 5) | deuda cosmética y de mantenimiento |
 
 ### Estado
 
@@ -49,15 +50,15 @@ tandas —doce pares—, la última con un barrido bidireccional de la regla 4.2
 | A1 | Kicker del hero a 2,13:1 | ✅ **Resuelto** — tanda 1 |
 | A2 | Fecha del artículo a 2,67:1 | ✅ **Resuelto** — tanda 1 |
 | A3 | Rótulos de Rental a 3,68:1 | ✅ **Resuelto** — tanda 1 |
-| A4 | Puntos del carrusel sin nombre accesible | pendiente |
-| A5 | `aria-haspopup="listbox"` sin listbox | pendiente |
+| A4 | Puntos del carrusel sin nombre accesible | ✅ **Resuelto** — `7ab009b` |
+| A5 | `aria-haspopup="listbox"` sin listbox | ✅ **Resuelto** — `7ab009b` |
 | A6 | Bordes del buscador con `--border` | ✅ **Resuelto** — tanda 1 |
-| A7 | Emoji en la confirmación de pago | pendiente |
-| A8 | `<select>` móviles a 13px (zoom iOS) | pendiente |
+| A7 | Emoji en la confirmación de pago | ✅ **Resuelto** — `cd2ecff` |
+| A8 | `<select>` móviles a 13px (zoom iOS) | ✅ **Resuelto** — `570d848` |
 | A9 | `scrollIntoView` a `#contacto` sin offset | ✅ **Resuelto** el 2026-08-10 |
 | A10 | Los cuatro pares del barrido de contraste | ✅ **Resuelto** — tanda 2 |
 | A11 | Barrido bidireccional de la regla 4.2 | ✅ **Resuelto** — tanda 3 |
-| M12 | Dos usos de color fuera de norma en admin | pendiente — **descubierto** en las tandas 2 y 3 |
+| M12 | Color fuera de norma y anclaje en admin | ✅ **Resuelto** — `8a25133` |
 
 > **El eje de contraste queda cerrado en el sitio público — verificado con un barrido
 > bidireccional de la regla 4.2.** Doce pares corregidos en tres tandas. La afirmación se
@@ -393,7 +394,12 @@ recibe un valor peor. La tarjeta *destacada* es la menos legible de las dos.
 
 ---
 
-### A4 · Los puntos del carrusel del hero no tienen nombre accesible
+### A4 · Los puntos del carrusel del hero no tienen nombre accesible — ✅ RESUELTO
+
+> **`7ab009b`.** `aria-label` con la posición + `aria-current` en el activo, y un anillo
+> sólido de 1px en `--navy-deeper`. **La opacidad sola no servía**: los puntos van en
+> `zIndex: 10`, encima del degradado, así que su fondo es la foto cruda — y blanco sobre
+> foto blanca es 1,00:1 a cualquier alfa. El anillo da 17,92:1 independiente de la foto.
 
 **Dónde:** [`src/components/sections/HeroSection.tsx:164-179`](./src/components/sections/HeroSection.tsx#L164)
 
@@ -437,7 +443,9 @@ foto; subir la opacidad sola no basta contra un cielo blanco.
 
 ---
 
-### A5 · `aria-haspopup="listbox"` promete un listbox que no existe
+### A5 · `aria-haspopup="listbox"` promete un listbox que no existe — ✅ RESUELTO
+
+> **`7ab009b`.** Pasa a `"true"`, el camino barato de los dos que proponía el hallazgo.
 
 **Dónde:** [`src/components/sections/SearchBar.tsx:104`](./src/components/sections/SearchBar.tsx#L104)
 y [`:199`](./src/components/sections/SearchBar.tsx#L199)
@@ -495,7 +503,9 @@ estado activo ya usa `--navy-dark` y no se toca.
 
 ---
 
-### A7 · La confirmación de pago usa ✅ y ❌ como iconos de estado
+### A7 · La confirmación de pago usa ✅ y ❌ como iconos de estado — ✅ RESUELTO
+
+> **`cd2ecff`**, junto con M6: la página entera volvió al sistema en el mismo commit.
 
 **Dónde:** [`src/pages/ReservaConfirmacionPage.tsx:41`](./src/pages/ReservaConfirmacionPage.tsx#L41)
 y [`:59`](./src/pages/ReservaConfirmacionPage.tsx#L59)
@@ -531,7 +541,10 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 
 ---
 
-### A8 · Los cinco `<select>` móviles del buscador provocan zoom en iOS
+### A8 · Los `<select>` móviles del buscador provocan zoom en iOS — ✅ RESUELTO
+
+> **`570d848`.** Los `<select>` pasan a 16px. **Son tres en el código y cuatro en
+> pantalla** —el tercero se repite para Tipo y Precio—, no cinco como decía el título.
 
 **Dónde:** [`SearchBar.tsx:386`](./src/components/sections/SearchBar.tsx#L386)
 · [`:395`](./src/components/sections/SearchBar.tsx#L395) · [`:406`](./src/components/sections/SearchBar.tsx#L406)
@@ -880,7 +893,10 @@ es donde rinde (5,81:1 sobre `--navy-dark`).
 
 ---
 
-### M5 · `#e8edf2` escrito a mano 62 veces en 20 archivos
+### M5 · `#e8edf2` escrito a mano 62 veces en 20 archivos — ✅ RESUELTO
+
+> **`41c3519`.** Eran 62 en **27** archivos, no 20. Verificado antes de correrlo que
+> ninguno de los seis selectores por subcadena de `mobile.css` mira el color.
 
 `--border` existe desde el principio y su valor es exactamente ese. Aun así aparece
 literal en `Header.tsx` (6), `PropiedadDetailPage.tsx` (9), `RentalPage.tsx` (4),
@@ -900,7 +916,9 @@ visual: se puede verificar con una captura antes/después.
 
 ---
 
-### M6 · `ReservaConfirmacionPage` está enteramente fuera del sistema
+### M6 · `ReservaConfirmacionPage` está enteramente fuera del sistema — ✅ RESUELTO
+
+> **`cd2ecff`.** Las siete divergencias corregidas de una vez.
 
 **Dónde:** [`src/pages/ReservaConfirmacionPage.tsx:32-66`](./src/pages/ReservaConfirmacionPage.tsx#L32)
 
@@ -924,7 +942,13 @@ esfuerzo/resultado de toda la auditoría después de los críticos.
 
 ---
 
-### M7 · Diez imágenes públicas sin `loading="lazy"`
+### M7 · Diez imágenes públicas sin `loading="lazy"` — ✅ RESUELTO
+
+> **`570d848`.** **El barrido dio 16, no 10**: un análisis por etiqueta —varias son
+> multilínea y el grep por línea las contaba mal— encontró seis más. Once se difieren;
+> cinco NO, y es deliberado: los dos héroes LCP, el logo del hero de Rental, la imagen
+> principal de la galería (el LCP de la ficha) y la del lightbox, que solo se monta al
+> abrirlo.
 
 **Dónde:** [`BlogPreviewSection.tsx:65`](./src/components/sections/BlogPreviewSection.tsx#L65), [`:89`](./src/components/sections/BlogPreviewSection.tsx#L89)
 · [`ServiciosPage.tsx:101`](./src/pages/ServiciosPage.tsx#L101)
@@ -956,7 +980,17 @@ mismo manejador que hace `setOpen(false)`. Va junto con C3, que necesita la mism
 
 ---
 
-### M9 · El menú móvil no atrapa el foco ni marca la ruta activa
+### M9 · El menú móvil no atrapa el foco ni marca la ruta activa — ✅ RESUELTO (con matiz)
+
+> **`7ab009b`.** El estado activo, resuelto: `navLinkClass` en los enlaces móviles.
+>
+> **El foco atrapado, NO — y es deliberado.** `useDialogoModal` está escrito para un
+> `role="dialog"` con `aria-modal`, y esto es un disclosure. Atrapar el Tab sin declarar
+> `aria-modal` deja al lector anunciando una lista de enlaces normal mientras el Tab, en
+> silencio, no deja salir de ella; y su Escape duplicaría el de `useCerrarConEscape`.
+> Convertir el menú en diálogo es un cambio de estructura, no el arreglo que describe
+> este hallazgo. Lo que sí se aplicó es `useBloquearScroll`, que resuelve la mitad
+> concreta: la página de detrás ya no se desplaza bajo el panel.
 
 **Dónde:** [`Header.tsx:246-297`](./src/components/layout/Header.tsx#L246)
 
@@ -976,7 +1010,9 @@ está escrito y probado.
 
 ---
 
-### M10 · Estados deshabilitados atenuados dos veces en el buscador
+### M10 · Estados deshabilitados atenuados dos veces en el buscador — ✅ RESUELTO
+
+> **`41c3519`.**
 
 **Dónde:** [`SearchBar.tsx:229`](./src/components/sections/SearchBar.tsx#L229) (pestaña «Comuna»)
 y [`:393-396`](./src/components/sections/SearchBar.tsx#L393) (select de comuna)
@@ -996,7 +1032,9 @@ deshabilitado.
 
 ---
 
-### M11 · La fila de lead de Captación no se abre con el teclado
+### M11 · La fila de lead de Captación no se abre con el teclado — ✅ RESUELTO
+
+> **`8a25133`.**
 
 **Dónde:** [`src/pages/admin/Captacion.tsx:1051`](./src/pages/admin/Captacion.tsx#L1051)
 
@@ -1102,7 +1140,9 @@ Es admin —público interno, no indexable— y por eso queda en Medio y no en A
 
 ## BAJO
 
-### B1 · Emoji como icono en el panel de Captación
+### B1 · Emoji como icono en el panel de Captación — ✅ RESUELTO
+
+> **`8a25133`.** `Mic`, `Hand` y `Bot` de lucide.
 
 [`admin/Captacion.tsx:531`](./src/pages/admin/Captacion.tsx#L531) (`🎤 Nota de voz`),
 [`:641`](./src/pages/admin/Captacion.tsx#L641) y [`:677`](./src/pages/admin/Captacion.tsx#L677)
@@ -1116,7 +1156,9 @@ prioridad, pero `lucide-react` tiene `Mic`, `Hand` y `Bot`.
 al lado: la accesibilidad está resuelta. Queda el detalle de que la bandera de Chile no
 se dibuja en Windows, donde se ve «CL».)*
 
-### B2 · Caracteres tipográficos como iconos de éxito
+### B2 · Caracteres tipográficos como iconos de éxito — ✅ RESUELTO
+
+> **`cd2ecff`.**
 
 [`ContactSection.tsx:60`](./src/components/sections/ContactSection.tsx#L60) y
 [`VendeConNosotrosPage.tsx:164`](./src/pages/VendeConNosotrosPage.tsx#L164) usan `✓` como
@@ -1135,7 +1177,10 @@ diferencias que nadie distingue»*. **Ninguna** de las duraciones interactivas s
 rango 150–300ms que pide la skill (las de 0.5s y 0.6s son entradas del hero y del
 showcase, no retroalimentación). Queda anotado, no es defecto.
 
-### B4 · El sitio no tiene enlace de salto al contenido
+### B4 · El sitio no tiene enlace de salto al contenido — ✅ RESUELTO
+
+> **`7ab009b`.** Verificado: es la primera parada de Tab, y el salto aterriza con el
+> primer contenido a 91px, desfase 0, gracias al `scroll-padding-top` de A9.
 
 `Layout.tsx` tiene `<main>`, y `Header` tiene `<nav>`, `<header>` y `<footer>`: los
 landmarks están. Pero no hay «Saltar al contenido», y el header público expone 7 paradas
@@ -1152,7 +1197,9 @@ seis líneas en `Layout.tsx`:
 <main id="contenido" className="flex-1" style={{ paddingTop: 'var(--sdm-header-total)' }}>
 ```
 
-### B5 · `navLinkStyle(active)` recibe un parámetro que no usa
+### B5 · `navLinkStyle(active)` recibe un parámetro que no usa — ✅ RESUELTO
+
+> **`7ab009b`.**
 
 [`Header.tsx:133`](./src/components/layout/Header.tsx#L133). Desde que el color se movió a
 `navLinkClass` (por la trampa 5.1), `navLinkStyle` ignora su argumento, pero las seis
@@ -1198,6 +1245,57 @@ Lo que **no** es quick win:
 - **A9 (`scrollIntoView` sin offset)** — la clase en `<html>` desde `Layout.tsx` más
   quitar el `scrollMarginTop` de `ServiciosPage.tsx:76`. ~15 min, pero hay que verificar
   los cuatro puntos de entrada y que el admin no se vea alcanzado.
+
+---
+
+## Lo que queda
+
+Cuatro cosas, ninguna de ellas un arreglo pendiente de código.
+
+### M2 · El rango 768–1023px no tiene diseño propio — **decisión, no defecto**
+
+El 74 % de las decisiones responsive cuelgan de `lg:` (1024px), así que entre 768 y 1023
+el sitio muestra la disposición móvil sobre un lienzo de casi 1000px. Excluido
+explícitamente de la tanda de cierre: bajar la navegación a `md:` y dar un paso
+intermedio a las rejillas es una decisión de diseño con implicaciones visuales en las
+cuatro plantillas públicas, no una corrección.
+
+### M8 · El foco no vuelve al disparador **al elegir una opción**
+
+C3 cerró la vía de Escape, y se dio M8 por cerrado con ella. No lo está: elegir una
+opción llama a `setOpen(false)` sin devolver el foco, en `SearchBar.tsx:134` (`DropSelect`)
+y en `handleRegion` / `handleComuna`. El panel se desmonta con el foco dentro, así que cae
+al `<body>` y el siguiente Tab reinicia el recorrido.
+
+Es de dos líneas —el `disparador` ya existe en los dos componentes, puesto por C3— pero
+quedó fuera del alcance enumerado de la tanda de cierre.
+
+### `#1C2B3A` no se migró a `--navy-dark`
+
+M4 lo listaba junto a las otras variantes de navy con la nota «ninguna diferencia es
+perceptible». Medido, es falso: la distancia sRGB es **15,2**, contra 2,0 y 5,4 de las
+dos que sí se migraron. Cambia visiblemente el panel del modal de crédito y dos secciones
+de `/evaluacion-gratuita`, que son superficies de conversión. Cuatro usos, más `#2E4057`
+(18,9) que vive en el mismo modal y tendría que decidirse con él.
+
+### El verde de El Barranco: el diagnóstico de M4 estaba equivocado
+
+M4 decía que `ElBarrancoBanner` pinta `#4CAF82` **sobre blanco**, a 2,71:1. No es así: el
+contenedor del banner tiene `background: '#0a0c0b'`, el negro de la marca El Barranco, y
+sobre él el verde da **7,25:1**. El uso es correcto.
+
+Lo que sí hay es otra cosa, y es la misma que ya mordió dos veces en el hero: **una
+fotografía al 35 % de opacidad encima del fondo**. Contra ese compuesto:
+
+| foto | ratio | |
+|---|---|---|
+| oscura | 6,72 | ✅ |
+| media | 4,58 | ✅ |
+| clara | 2,78 | ❌ |
+| blanca | 2,30 | ❌ |
+
+El arreglo no es el color sino el velo: bajar el 0.35 o meter un degradado bajo el texto.
+Sin tocar, a la espera de tu decisión — El Barranco es marca aparte con paleta propia.
 
 ---
 
