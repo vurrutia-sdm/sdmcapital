@@ -114,11 +114,48 @@ export default function ElBarrancoBanner({ clave = 'banner_detalle_foto' }: { cl
               </p>
             </div>
 
+            {/* ─── EL BORDE DEL CTA VA SÓLIDO, Y NINGÚN ALFA LO ARREGLABA ─────
+                `rgba(76,175,130,0.5)` se mezclaba con el compuesto que tiene
+                debajo —base `#0a0c0b` + foto al 35 % + velo—, así que su color
+                real dependía del fondo y se movía con él: cuanto más claro el
+                fondo, más claro el borde. Por eso el ratio quedaba plano entre
+                **2,13 y 2,60** sobre las cuatro luminancias de foto, muy por
+                debajo del 3:1 que 1.4.11 pide al límite de un control.
+
+                No es un alfa mal elegido. Un color semitransparente sobre un
+                fondo variable NO puede garantizar contraste: al subir el alfa
+                se acerca al verde sólido y al bajarlo al fondo; el máximo que
+                alcanza es justamente el del sólido. La única salida es fijar
+                el color.
+
+                SE USA `#4CAF82`, el verde de El Barranco — el MISMO que ya
+                llevan el eyebrow y la etiqueta de este CTA. No un token del
+                sistema SDM: esta pieza pinta con la paleta de la marca del
+                hotel (`C` en `ElBarrancoShowcase.tsx`).
+
+                Medido sobre el compuesto real, contra las cuatro luminancias
+                de foto (255 · 220 · 128 · 40) y en los tres puntos del velo:
+
+                                      blanca  clara  media  oscura
+                  a=0.46 (centro)       4,23   4,68   5,91    6,98
+                  a=0.53 (el CTA)       4,63   5,03   6,11    7,02
+                  a=0.62 (borde)        5,17   5,50   6,37    7,07
+
+                **Peor caso 4,23:1**, contra un umbral de 3. Se mide también a
+                0.46 —el mínimo del velo en cualquier punto del banner, que
+                está en el centro— para que el resultado valga a cualquier
+                ancho, incluido el caso en que el CTA envuelve de línea y se va
+                hacia la izquierda.
+
+                Los otros candidatos de la paleta: `cream` (9,72) y `navyLight`
+                (6,30) también pasan, pero dejan el borde de un tono distinto
+                al de su propia etiqueta. `greenMuted` (2,20) y `muted` (2,42)
+                fallan. */}
             <div className="text-sdm-xs" style={{ display: 'flex',
               alignItems: 'center',
               gap: 12,
               padding: '14px 32px',
-              border: '1px solid rgba(76,175,130,0.5)',
+              border: '1px solid #4CAF82',
               color: '#4CAF82',
               fontFamily: "'Jost', sans-serif",
               fontWeight: 400,
