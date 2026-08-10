@@ -233,6 +233,7 @@ export default function ElBarrancoShowcase() {
     if (cmsLoading) return
     startCarousel()
     return () => { if (interval.current) clearInterval(interval.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `startCarousel` se redefine en cada render, así que con ella en el array el efecto correría en cada render: limpiaría el `setInterval` y lo volvería a armar desde cero antes de cumplir los 5500 ms, y el carrusel no pasaría nunca de la primera lámina. Lo que debe reiniciarlo es `cmsLoading` y `pausado`, que ya están.
   }, [cmsLoading, pausado])
 
   const goSlide = (i: number) => { setSlide(i); startCarousel() }

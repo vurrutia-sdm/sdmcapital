@@ -375,7 +375,7 @@ function CotizacionWizard({
       credito_uf:       creditoUF      || undefined,
       dividendo_uf:     divUF,
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- este efecto ESCRIBE en `draft` lo que deriva de `draft`, así que el array lleva las ENTRADAS del cálculo y no sus resultados. Lo que esconde son `precioClp`, `precioFinalUF`, `precioFinalCLP`, `pieUF`, `creditoUF`, `divUF` y `upd`: los seis primeros son las salidas —ponerlas es cerrar el lazo cálculo → escritura → recálculo—, y `upd` es una función sin memoizar que cambia de identidad en cada render, con lo que el efecto correría siempre. El disable venía sin razón escrita desde `8c9e412`.
   }, [draft.precio_uf, draft.descuento_pct, draft.valor_uf, draft.pie_pct, draft.tasa_anual, draft.plazo_anos])
 
   // ── Selección de propiedad ───────────────────────────────────────────────

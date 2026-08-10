@@ -97,6 +97,7 @@ export default function FichaClienteDetalle() {
     setLoading(false)
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `loadAll` se redefine en cada render y lo único que lee de fuera es `clienteId`, que ya está en el array. Con ella dentro, el efecto dispararía las dos consultas a Supabase en cada render, incluidos los que provoca el propio `setLoading`/`setFichas` que hace `loadAll` — un bucle de peticiones.
   useEffect(() => { if (authed) loadAll() }, [authed, clienteId])
 
   const saveEdit = async () => {

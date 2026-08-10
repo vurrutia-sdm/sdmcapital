@@ -204,7 +204,10 @@ export function usePointerSort<T>(
 export function useDragSort<T extends { id: string }>(initialItems: T[], onReorder: (items: T[]) => void) {
   const [items, setItems] = useState<T[]>(initialItems)
 
+  // `key` es el disparador a propósito: resincronizar solo cuando cambia el
+  // CONTENIDO de la lista, no su identidad de array.
   const key = initialItems.map(i => i.id + (i as Record<string,unknown>).activo + (i as Record<string,unknown>).estado).join(',')
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- con `initialItems` en el array el efecto corre en cada render del padre, porque el padre construye un array nuevo cada vez; ese `setItems` pisaría el orden que el usuario acaba de dejar arrastrando y todavía no se ha guardado.
   useEffect(() => { setItems(initialItems) }, [key])
 
   const { arrastrando, filaProps, manijaProps } = usePointerSort(items, setItems, onReorder)

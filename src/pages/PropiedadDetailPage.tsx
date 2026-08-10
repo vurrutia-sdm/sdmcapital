@@ -356,6 +356,7 @@ export default function PropiedadDetailPage() {
     }
     if (lightbox) window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `prev` y `next` se redefinen en cada render, pero no leen nada obsoleto: mueven el índice con `setImgIdx(i => …)`, la forma funcional, y lo único externo que tocan es `allImgs.length`, que ya está en el array. Agregarlas solo haría desmontar y remontar el listener de teclado en cada render.
   }, [lightbox, imgIdx, allImgs.length])
 
   // El lightbox es un diálogo modal como cualquier otro: tapa la página entera

@@ -37,6 +37,7 @@ export default function ReservaConfirmacionPage() {
         setEstado(data.exito ? "exitosa" : "fallida");
       })
       .catch(() => setEstado("fallida"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- el token de Transbank se canjea UNA vez, al montar. `useSearchParams` devuelve un objeto nuevo en cada render, así que con `params` en el array este efecto reenviaría el mismo `token_ws` al confirmador en cada render, que es una operación de pago y no es idempotente.
   }, []);
 
   return (
