@@ -156,14 +156,26 @@
   /* Íconos redes sociales: NO tocar — tienen flex inline propio */
 }
 
-/* ── Tablet (768px - 1024px) ── */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* ── Tablet (768px - 1024px) ──
+   BORRADO EL 2026-08-10. Aquí había una regla que forzaba
+   `.sitio-publico .lg\:grid-cols-3` a 2 columnas, con este aviso:
+   «NO borrar … sin esta regla el grid del home pasa de 2 columnas a 1».
 
-  /* Grid de propiedades: 2 columnas en tablet.
-     NO borrar: entre 768 y 1024 la utilidad lg no esta activa, pero la CLASE
-     si esta en el atributo, asi que el selector matchea. Sin esta regla el
-     grid del home pasa de 2 columnas a 1. Verificado a 800 y 1000px. */
-  .sitio-publico .lg\:grid-cols-3 {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
+   Se comprobó antes de quitarla, borrándola en caliente y releyendo
+   `gridTemplateColumns` en producción a 800, 1000 y 1024 px:
+
+     · en el home ya NO hay ningún elemento con `.lg:grid-cols-3`. El grid que
+       el aviso protegía dejó de existir en algún rediseño posterior.
+     · el ÚNICO que la clase alcanza hoy es el de `/asociados`, y su base es
+       `grid-cols-2`: a 800 y 1000 da 2 columnas con la regla y sin ella. La
+       regla no cambiaba nada.
+     · a 1024 EXACTOS sí cambiaba, y para mal: `max-width: 1024px` incluye el
+       1024 y `lg:` arranca justo ahí, así que le robaba la tercera columna a
+       `/asociados` en ese píxel.
+
+   O sea: muerta donde se escribió y equivocada por un píxel donde actuaba.
+   Además, ahora el catálogo lleva `lg:grid-cols-3` de verdad, y esta regla le
+   habría impuesto 2 columnas a 1024 justo donde debe pasar a 3.
+
+   Si vuelve a hacer falta un ajuste en este rango, va con `max-width: 1023.98px`
+   —no 1024— y con un selector que no dependa de una clase de utilidad ajena. */

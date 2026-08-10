@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import SEO from '@/components/SEO'
 import { useSearchParams, useLocation, Link } from 'react-router-dom'
 import { SlidersHorizontal, X, Map, Grid } from 'lucide-react'
@@ -33,6 +33,45 @@ declare global { interface Window { google: typeof google } }
 // el mismo bache, de 32 px. Se dejaron como estaban a propósito: cambiarlas
 // mueve el margen lateral de todas las páginas y es decisión de sistema de
 // diseño, no un arreglo de borde.
+
+// ─── CUÁNTAS COLUMNAS TIENE LA REJILLA AHORA MISMO ───────────────────────────
+// El relleno de la última fila necesita ese número, y quien lo decide es el CSS
+// (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3`).
+//
+// SE LEE DEL ELEMENTO, NO SE VUELVE A DECLARAR. La alternativa era un
+// `matchMedia('(min-width: 1024px)')` en JavaScript, pero eso escribe los
+// breakpoints por segunda vez: el día que alguien cambie las clases, el relleno
+// se queda con los viejos y aparecen celdas de más sin que nada falle. Leyendo
+// `gridTemplateColumns` del DOM, el relleno sigue a las clases sea cual sea.
+//
+// Cuesta un render de retraso tras un cambio de tamaño —el observador dispara
+// después de pintar—, y no importa: lo que llega tarde es un div blanco sobre
+// fondo blanco.
+//
+// VA COMO REF DE CALLBACK Y NO COMO `useRef` + `useEffect`, y no es estilo.
+// La rejilla vive detrás de `{loading ? … : …}`, así que en el primer render no
+// existe: un efecto con `[ref]` de dependencia encuentra `ref.current === null`,
+// sale temprano y NO vuelve a correr cuando la rejilla aparece, porque la
+// identidad del ref no cambia. El observador no llegaba a instalarse nunca y
+// `columnas` se quedaba en 1: con 3 columnas reales el relleno calculaba
+// `(1 − 82 % 1) % 1 = 0` y la última fila salía sin tapar. La ref de callback la
+// llama React al montar y al desmontar el nodo, que es justo el momento bueno.
+function useColumnasRejilla() {
+  const [columnas, setColumnas] = useState(1)
+  const observador = useRef<ResizeObserver | null>(null)
+  const ref = useCallback((el: HTMLDivElement | null) => {
+    observador.current?.disconnect()
+    if (!el) return
+    const leer = () => {
+      const n = getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length
+      setColumnas(c => (n > 0 && n !== c ? n : c))
+    }
+    leer()
+    observador.current = new ResizeObserver(leer)
+    observador.current.observe(el)
+  }, [])
+  return [ref, columnas] as const
+}
 
 // Estado vacío del filtro de arriendo.
 //
@@ -461,6 +500,7 @@ export default function PropiedadesPage() {
   }, [searchParams, categoria])
 
   const displayProps = applyCatalogOrder(props, ordenCatalogo)
+  const [rejillaRef, columnas] = useColumnasRejilla()
   const clearFiltro  = (key: keyof FiltrosPropiedades) => {
     const nuevos = new URLSearchParams(searchParams)
     nuevos.delete(key)
@@ -706,10 +746,16 @@ export default function PropiedadesPage() {
         </div>
       ) : (
         <div className="px-4 pb-20">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)', marginTop: 24 }}>
+          <div ref={rejillaRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px"
+            style={{ background: 'var(--border)', marginTop: 24 }}>
             {displayProps.map(p => <PropertyCard key={p.id} propiedad={p} />)}
-            {displayProps.length % 3 === 1 && <><div className="bg-white" /><div className="bg-white" /></>}
-            {displayProps.length % 3 === 2 && <div className="bg-white" />}
+            {/* Relleno de la última fila. Los `<div>` blancos tapan el fondo
+                `--border` del contenedor, que es lo que dibuja las líneas de la
+                rejilla: sin ellos, la fila incompleta se ve como un bloque
+                gris. El número sale de `columnas`, no de un `% 3` fijo. */}
+            {Array.from({ length: (columnas - displayProps.length % columnas) % columnas },
+              (_, i) => <div key={`relleno-${i}`} className="bg-white" />)}
           </div>
         </div>
       )}
