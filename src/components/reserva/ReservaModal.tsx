@@ -8,16 +8,29 @@ import { useBloquearScroll } from '@/hooks/useBloquearScroll'
 // clave editable desde el admin es una superficie más donde un dígito mal pegado
 // desvía un depósito. Si algún día se editan desde el panel, que sea con una
 // decisión explícita y no por inercia.
+//
+// Actualizados el 2026-08-10: la cuenta pasa de Scotiabank a Banco Santander, y
+// el contacto para el comprobante deja de ser el correo general y pasa a ser el
+// de Roberto Urrutia —Director Comercial—, que es quien verifica los depósitos.
+// El RUT es lo único que no cambió.
+//
+// `titular` es «SDM Capital Real Estate» y NO «SDM Capital SpA», que es como
+// figura la sociedad en las páginas legales. No es una inconsistencia que haya
+// que unificar: acá va el nombre del TITULAR DE LA CUENTA tal como lo espera el
+// banco, y en las legales el de la razón social. Si algún día no coinciden con
+// lo que el banco tiene registrado, manda el banco.
 const CUENTA = {
-  titular: 'SDM Capital SpA',
+  titular: 'SDM Capital Real Estate',
   rut: '77.917.699-1',
-  banco: 'Scotiabank',
+  banco: 'Banco Santander',
   tipo: 'Cuenta Corriente',
-  numero: '990497621',
-  correo: 'contacto@sdmcapital.cl',
-  // El wa.me va sin signos: la API los rechaza.
-  telefono: '+56 9 2973 7048',
-  telefonoWa: '56929737048',
+  numero: '96875266',
+  correo: 'rurrutia@sdmcapital.cl',
+  // El wa.me va sin signos: la API los rechaza. `telefono` y `telefonoWa` son el
+  // MISMO número escrito de dos formas — si se cambia uno hay que cambiar el
+  // otro, y por eso van pegados.
+  telefono: '+56 9 3103 8954',
+  telefonoWa: '56931038954',
 }
 
 // ─── CÓDIGO DE RESERVA ────────────────────────────────────────────────────────
@@ -141,7 +154,13 @@ export default function ReservaModal({ propiedad, onClose }: {
   useBloquearScroll(true)
 
   const codigo = codigoReserva(propiedad.id)
-  const filaDato: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '7px 0' }
+  // `flexWrap` Y `minWidth: 0`, y los dos hacen falta a 375px.
+  //
+  // Sin envolver, la fila del número de cuenta empujaba su botón «Copiar» 17px
+  // FUERA de la caja del modal: un hijo flex no se encoge por debajo de su
+  // contenido a menos que se le baje el `min-width`, así que el botón salía por
+  // la derecha en vez de bajar. Medido antes de arreglarlo.
+  const filaDato: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '7px 0', flexWrap: 'wrap' }
 
   return (
     <div
@@ -192,7 +211,10 @@ export default function ReservaModal({ propiedad, onClose }: {
               <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 2 }}>
                 Código de reserva
               </div>
-              <div className="text-sdm-xl" style={{ fontWeight: 'var(--sdm-peso-semi)', color: 'var(--navy-dark)', letterSpacing: '0.06em' }}>
+              {/* `nowrap`: a 375px «SDM-67D9EA» se partía en «SDM-» y «67D9EA»,
+                  que es justo lo que no puede pasarle a un código que se dicta
+                  por teléfono. Cabe entero: son 10 caracteres. */}
+              <div className="text-sdm-xl" style={{ fontWeight: 'var(--sdm-peso-semi)', color: 'var(--navy-dark)', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
                 {codigo}
               </div>
             </div>
@@ -210,20 +232,20 @@ export default function ReservaModal({ propiedad, onClose }: {
                   ['Banco', `${CUENTA.banco} · ${CUENTA.tipo}`],
                 ].map(([k, v], i) => (
                   <div key={k} className="text-sdm-base" style={{ ...filaDato, borderTop: i === 0 ? 'none' : '1px solid var(--border)' }}>
-                    <span style={{ color: 'var(--muted)' }}>{k}</span>
-                    <span style={{ color: 'var(--ink)', textAlign: 'right' }}>{v}</span>
+                    <span style={{ color: 'var(--muted)', flexShrink: 0 }}>{k}</span>
+                    <span style={{ color: 'var(--ink)', textAlign: 'right', minWidth: 0 }}>{v}</span>
                   </div>
                 ))}
                 <div className="text-sdm-base" style={{ ...filaDato, borderTop: '1px solid var(--border)' }}>
                   <span style={{ color: 'var(--muted)' }}>N° de cuenta</span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 4, minWidth: 0 }}>
                     <span style={{ color: 'var(--ink)', fontWeight: 'var(--sdm-peso-semi)' }}>{CUENTA.numero}</span>
                     <BotonCopiar valor={CUENTA.numero} que="el número de cuenta" />
                   </span>
                 </div>
                 <div className="text-sdm-base" style={{ ...filaDato, borderTop: '1px solid var(--border)' }}>
                   <span style={{ color: 'var(--muted)' }}>Correo</span>
-                  <a href={`mailto:${CUENTA.correo}`} style={{ color: 'var(--navy)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                  <a href={`mailto:${CUENTA.correo}`} style={{ color: 'var(--navy)', textDecoration: 'underline', textUnderlineOffset: 3, minWidth: 0, overflowWrap: 'anywhere', textAlign: 'right' }}>
                     {CUENTA.correo}
                   </a>
                 </div>
