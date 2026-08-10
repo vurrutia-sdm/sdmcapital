@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useId } from 'react'
+import { useState, useRef, useEffect, useId, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, ChevronDown, Check, X } from 'lucide-react'
 import { getComunas } from '@/data/comunas-chile'
+import { useCerrarConEscape } from '@/hooks/useCerrarConEscape'
 
 type Tab = 'comprar' | 'arrendar' | 'internacional'
 
@@ -90,6 +91,11 @@ function DropSelect({ label, options, value, onChange }: {
   // ids iguales no fallan: se asocian al primero y dejan al segundo apuntando al
   // panel del otro.
   const panelId = useId()
+  // El `mousedown` de abajo solo cubre el ratón. Escape es la salida del teclado,
+  // y devuelve el foco a este botón: el panel se desmonta al cerrarse y sin esto
+  // el foco caería al <body>.
+  const disparador = useRef<HTMLButtonElement>(null)
+  useCerrarConEscape(open, useCallback(() => setOpen(false), []), disparador)
 
   useEffect(() => {
     const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
@@ -106,6 +112,7 @@ function DropSelect({ label, options, value, onChange }: {
           `aria-controls` SOLO cuando está abierto: el panel se desmonta al cerrarse,
           y un IDREF a un elemento inexistente es una referencia rota. */}
       <button className="text-sdm-sm"
+        ref={disparador}
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-controls={open ? panelId : undefined}
@@ -155,6 +162,11 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
   // a diferencia de `DropSelect`. Mismo criterio que allá: el IDREF solo
   // mientras el panel existe en el DOM.
   const panelId = useId()
+  // Ídem que en `DropSelect`. Acá importa aún más: este panel lista 17 regiones
+  // o hasta 52 comunas, así que sin Escape la única salida del teclado era
+  // recorrerlas todas y elegir una.
+  const disparador = useRef<HTMLButtonElement>(null)
+  useCerrarConEscape(open, useCallback(() => setOpen(false), []), disparador)
 
   useEffect(() => {
     const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
@@ -203,6 +215,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
       >
         <button
           type="button"
+          ref={disparador}
           aria-labelledby={etiquetaId}
           aria-expanded={open}
           aria-haspopup="listbox"

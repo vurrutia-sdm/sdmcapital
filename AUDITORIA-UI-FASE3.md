@@ -23,14 +23,17 @@ página de confirmación de pago), estados que solo fallan sobre fotografía, y 
 `SearchBar`, que es la herramienta principal del home y quedó fuera de tres reglas que el
 resto del sitio sí cumple.
 
-Quedan **2 hallazgos críticos**. El tercero —C1, el desfase del header, que escondía 27px
-de contenido en todas las páginas desde 768px— **ya está resuelto**, igual que **todo el
-eje de contraste**: doce pares corregidos en tres tandas, la última cerrada con un
-barrido bidireccional de la regla 4.2 sobre las nueve rutas públicas.
+**Los tres hallazgos críticos están resueltos**, y con ellos el eje de contraste entero
+del sitio público. Queda **un alto** (A9) y la deuda de admin.
+
+C1 era el desfase del header, que escondía 27px de contenido en las 17 rutas desde 768px.
+C2 y C3 eran de navegación por teclado: una parada de foco invisible en todas las páginas,
+y un buscador del que no se podía salir sin elegir. El eje de contraste se cerró en tres
+tandas —doce pares—, la última con un barrido bidireccional de la regla 4.2.
 
 | Severidad | Cantidad | Naturaleza |
 |---|---|---|
-| Crítico | 2 (de 3) | rompen contenido o dejan al teclado sin salida, en todas las páginas |
+| Crítico | **0 abiertos** (de 3) | rompen contenido o dejan al teclado sin salida, en todas las páginas |
 | Alto | **1 abierto** (de 11) | incumplen WCAG AA en superficies públicas |
 | Medio | 11 | inconsistencia interna, valores fuera de escala, roce de usabilidad |
 | Bajo | 5 | deuda cosmética y de mantenimiento |
@@ -40,8 +43,8 @@ barrido bidireccional de la regla 4.2 sobre las nueve rutas públicas.
 | # | Hallazgo | Estado |
 |---|---|---|
 | C1 | Desfase del header | ✅ **Resuelto** el 2026-08-10 |
-| C2 | Botón «volver arriba» enfocable e invisible | pendiente |
-| C3 | Escape en los desplegables del buscador | pendiente |
+| C2 | Botón «volver arriba» enfocable e invisible | ✅ **Resuelto** el 2026-08-10 |
+| C3 | Escape en los desplegables del buscador | ✅ **Resuelto** el 2026-08-10 |
 | A1 | Kicker del hero a 2,13:1 | ✅ **Resuelto** — tanda 1 |
 | A2 | Fecha del artículo a 2,67:1 | ✅ **Resuelto** — tanda 1 |
 | A3 | Rótulos de Rental a 3,68:1 | ✅ **Resuelto** — tanda 1 |
@@ -168,7 +171,27 @@ desplazamiento suave).
 
 ---
 
-### C2 · El botón «Volver al inicio» es enfocable mientras es invisible
+### C2 · El botón «Volver al inicio» es enfocable mientras es invisible — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10.** `tabIndex={show ? 0 : -1}` + `aria-hidden={!show}`.
+> Verificado tabulando: **80 Tab por el home con el botón oculto, cero paradas de foco
+> invisibles**; y con el botón visible, `tabIndex 0`, enfocable y Enter lo activa
+> (scroll 2000 → 0).
+>
+> **Los dos atributos hacen falta, no uno.** `tabIndex={-1}` cubre al teclado y
+> `aria-hidden` al lector de pantalla, que puede llegar por su propia navegación por
+> encabezados o regiones sin pasar nunca por el Tab.
+>
+> **No se usó `hidden` ni `display: none`**: el botón se anima al aparecer con
+> `translate-y` y `transition-all`, y sacarlo del flujo mataría esa transición.
+>
+> **Barrido del patrón.** Se revisaron los 21 usos de `opacity`/`visibility` del
+> proyecto: éste era **el único** caso de un elemento *interactivo* ocultado a
+> opacidad 0 sin salir del orden de tabulación. Los demás son opacidades parciales
+> sobre elementos decorativos (separadores, iconos, marcadores de posición) o sobre
+> `<span>` no enfocables dentro de enlaces que sí son visibles — `AsociadosPage.tsx:162`
+> es el caso típico: `opacity-0 group-hover:opacity-100` sobre un `<span>` dentro de un
+> `<a>` visible, así que la parada de foco es el enlace, no el span.
 
 **Dónde:** [`src/components/layout/FloatingButtons.tsx:27-33`](./src/components/layout/FloatingButtons.tsx#L27)
 
@@ -202,7 +225,31 @@ sobre un elemento con `opacity: 0`— y que no puede pulsar con el ratón. Es WC
 
 ---
 
-### C3 · Los cuatro desplegables del buscador no se cierran con Escape
+### C3 · Los desplegables del buscador no se cierran con Escape — ✅ RESUELTO
+
+> **Resuelto el 2026-08-10.** Nace
+> [`src/hooks/useCerrarConEscape.ts`](./src/hooks/useCerrarConEscape.ts), y lo consumen
+> los tres desplegables del buscador **y el `Header`**, que era de donde salía el patrón.
+>
+> Verificado con teclado en los tres: Enter abre, Escape cierra, y **el foco vuelve al
+> disparador**, no al `<body>`. En el `Header`, los dos desplegables de escritorio y el
+> menú móvil siguen cerrando con Escape tras la migración.
+>
+> **La prueba que importaba: Escape no cierra dos cosas a la vez.** Con el desplegable
+> «Tipo» abierto y el modal de crédito encima, **un** Escape cierra solo el modal y deja
+> el desplegable abierto (`aria-expanded="true"`). No es casualidad: `useDialogoModal`
+> escucha en `document` en fase de **captura** y llama a `stopPropagation()`, así que el
+> evento no llega al `window` donde escucha este hook. Por eso el hook escucha en burbuja
+> — la jerarquía correcta es que lo más superficial cierre primero, y solo eso.
+>
+> **Dónde vive el hook y por qué.** En `src/hooks/`, junto a los otros cinco, con nombre
+> en español (`useBloquearScroll`, `useDialogoModal`, `useContenido`…), `.ts` por no
+> llevar JSX y export nombrado. La convención del proyecto era inequívoca; no hubo que
+> elegir.
+>
+> **Nota sobre el conteo.** El título decía «los cuatro desplegables». En escritorio son
+> **tres** instancias —`DropSelect` ×2 y un `RegionComunaPicker`—; la versión móvil usa
+> `<select>` nativos, que ya cierran con Escape por su cuenta y no necesitan el hook.
 
 **Dónde:** [`src/components/sections/SearchBar.tsx:88-92`](./src/components/sections/SearchBar.tsx#L88)
 y [`:152-156`](./src/components/sections/SearchBar.tsx#L152)

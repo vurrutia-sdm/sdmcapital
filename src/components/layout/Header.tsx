@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useCerrarConEscape } from '@/hooks/useCerrarConEscape'
 import { obtenerIndicadores, formatear, fechaCorta } from '@/lib/indicadores'
 import type { Indicador, Indicadores } from '@/lib/indicadores'
 import { Menu, X, ChevronDown } from 'lucide-react'
@@ -89,15 +90,19 @@ export default function Header() {
 
   // Escape cierra el desplegable que esté abierto. Sin esto, quien abre un menú
   // con teclado no tiene forma de cerrarlo sin activar una de sus opciones.
-  useEffect(() => {
-    if (!servicesOpen && !propiedadesOpen && !mobileOpen) return
-    const alTeclear = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      setServicesOpen(false); setPropiedadesOpen(false); setMobileOpen(false)
-    }
-    window.addEventListener('keydown', alTeclear)
-    return () => window.removeEventListener('keydown', alTeclear)
-  }, [servicesOpen, propiedadesOpen, mobileOpen])
+  //
+  // El efecto que vivía acá fue el ORIGEN de `useCerrarConEscape`, y ahora lo
+  // consume: eran dos implementaciones del mismo comportamiento —ésta y la que
+  // le faltaba al buscador— y mantener dos es cómo se acaba arreglando una sola.
+  //
+  // SIN `disparador`: los tres desplegables se cierran con la misma pulsación,
+  // así que no hay un único elemento al que devolver el foco. El navegador lo
+  // deja donde estaba, que acá es lo correcto — el <button> que abre el menú no
+  // se desmonta al cerrarse, a diferencia de los paneles del buscador.
+  const cerrarMenus = useCallback(() => {
+    setServicesOpen(false); setPropiedadesOpen(false); setMobileOpen(false)
+  }, [])
+  useCerrarConEscape(servicesOpen || propiedadesOpen || mobileOpen, cerrarMenus)
 
   // Los disparadores de los desplegables son <button aria-expanded>, no <Link>.
   // Con onMouseEnter solamente, sus opciones ni siquiera llegaban a renderizarse

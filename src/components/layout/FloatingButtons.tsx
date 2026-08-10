@@ -24,9 +24,26 @@ export default function FloatingButtons() {
       </a>
 
       {/* Scroll to top */}
+      {/* `pointer-events-none` DESACTIVA EL RATÓN, NO EL TECLADO.
+          Con `opacity-0` el botón era invisible pero seguía en el orden de
+          tabulación: en las 17 rutas públicas había una parada de foco que no se
+          veía —el anillo se dibujaba sobre un elemento a opacidad 0—, que el
+          lector anunciaba como «Volver al inicio, botón» y que Enter activaba.
+          Es WCAG 2.4.7 (foco visible) y 2.4.3 (orden de foco significativo).
+
+          `tabIndex={-1}` lo saca del recorrido y `aria-hidden` del árbol de
+          accesibilidad. Los dos hacen falta: el primero cubre al teclado y el
+          segundo al lector de pantalla, que puede llegar por su propia
+          navegación sin pasar por el Tab.
+
+          NO se usa `hidden` ni `display: none` a propósito: el botón se anima al
+          aparecer con `translate-y` y `transition-all`, y quitarlo del flujo
+          mataría esa transición. */}
       <button
         onClick={scrollTop}
         aria-label="Volver al inicio"
+        tabIndex={show ? 0 : -1}
+        aria-hidden={!show}
         className={`w-11 h-11 rounded-full flex items-center justify-center border border-[#e8edf2] bg-white shadow-md transition-all duration-300 hover:border-[#1C3D5C] hover:bg-[#1C3D5C] hover:text-white group ${
           show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
