@@ -222,7 +222,7 @@ export default function FichaClienteDetalle() {
                       style={{ background: '#fff', borderRadius: 4, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s', opacity: isDel ? 0.5 : 1 , position: 'relative' }}
                     >
                       {/* Thumb */}
-                      <div style={{ width: 56, height: 42, borderRadius: 3, overflow: 'hidden', flexShrink: 0, background: '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 56, height: 42, borderRadius: 3, overflow: 'hidden', flexShrink: 0, background: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {f.fotos && f.fotos.length > 0
                           ? <img src={f.fotos[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           : <Image size={16} style={{ color: '#c0cdd8' }} />

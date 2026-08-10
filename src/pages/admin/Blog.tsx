@@ -53,7 +53,7 @@ export default function Blog() {
       </div>
 
       {editing && (
-        <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
+        <div className="bg-white border border-[var(--border)] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar artículo' : 'Nuevo artículo'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Field label="Título"><Inp value={editing.titulo || ''} onChange={v => setEditing(p => ({ ...p, titulo: v, slug: p?.id ? p.slug : makeSlug(v) }))} /></Field>
@@ -101,12 +101,12 @@ export default function Blog() {
           <thead className="hidden lg:table-header-group"><tr style={{ borderBottom: '1px solid var(--border)' }}>{['Título','Categoría','Autor','Estado','Acciones'].map(h => <th key={h} className="text-left pb-3 pr-6 text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 400 }}>{h}</th>)}</tr></thead>
           <tbody className="block lg:table-row-group">
             {posts.map(p => (
-              <tr key={p.id} className="flex flex-wrap items-center gap-y-2 rounded-sm border border-[#e8edf2] bg-white p-4 mb-3 lg:table-row lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:mb-0" style={{ borderBottom: '1px solid var(--border)' }}>
+              <tr key={p.id} className="flex flex-wrap items-center gap-y-2 rounded-sm border border-[var(--border)] bg-white p-4 mb-3 lg:table-row lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:mb-0" style={{ borderBottom: '1px solid var(--border)' }}>
                 <td className="block w-full order-1 lg:table-cell lg:w-auto lg:py-4 lg:pr-6"><div className="text-sdm-base" style={{ fontWeight: 500 }}>{p.titulo}</div><div className="text-sdm-xs opacity-70 lg:text-sdm-sm lg:opacity-100" style={{ color: 'var(--muted)' }}>{p.slug}</div></td>
                 <td className="order-3 text-sdm-sm lg:table-cell lg:py-4 lg:pr-6" style={{ color: 'var(--muted)' }}>{p.categoria}</td>
                 <td className="order-4 text-sdm-sm lg:table-cell lg:py-4 lg:pr-6" style={{ color: 'var(--muted)' }}><span className="lg:hidden" aria-hidden> · </span>{p.autor_nombre}</td>
                 <td className="block w-full order-2 lg:table-cell lg:w-auto lg:py-4 lg:pr-6"><Badge label={p.publicado ? 'Publicado' : 'Borrador'} color={p.publicado ? 'var(--green)' : 'var(--muted)'} /></td>
-                <td className="block w-full order-5 mt-3 pt-3 border-t border-[#e8edf2] lg:table-cell lg:w-auto lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-4"><div className="flex justify-end gap-6 lg:justify-start lg:gap-3"><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => setEditing(p)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => del(p.id)} style={{ color: 'var(--error)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
+                <td className="block w-full order-5 mt-3 pt-3 border-t border-[var(--border)] lg:table-cell lg:w-auto lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-4"><div className="flex justify-end gap-6 lg:justify-start lg:gap-3"><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => setEditing(p)} style={{ color: 'var(--navy)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}>Editar</button><button className="text-sdm-sm min-h-[44px] px-2 lg:min-h-0 lg:px-0" onClick={() => del(p.id)} style={{ color: 'var(--error)', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit' }}>Eliminar</button></div></td>
               </tr>
             ))}
             {posts.length === 0 && <tr className="block lg:table-row"><td colSpan={5} className="block py-12 text-center text-sdm-base lg:table-cell" style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Todavía no hay artículos.</td></tr>}

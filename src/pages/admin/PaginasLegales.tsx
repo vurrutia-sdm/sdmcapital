@@ -63,7 +63,7 @@ export default function PaginasLegales() {
           <button key={p.slug} onClick={() => setActiveSlug(p.slug)}
             className="rounded-sm text-sdm-sm"
             style={{ padding: '9px 18px', fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
-              border: `1px solid ${activeSlug === p.slug ? 'var(--navy-dark)' : '#e8edf2'}`,
+              border: `1px solid ${activeSlug === p.slug ? 'var(--navy-dark)' : 'var(--border)'}`,
               background: activeSlug === p.slug ? 'var(--navy-dark)' : '#fff',
               color: activeSlug === p.slug ? '#fff' : 'var(--muted)' }}>
             {p.label}
@@ -73,7 +73,7 @@ export default function PaginasLegales() {
 
       {error && <p className="text-sdm-sm" style={{ color: 'var(--error)', marginBottom: 16 }}>{error}</p>}
 
-      <div className="bg-white border border-[#e8edf2] rounded-sm p-8">
+      <div className="bg-white border border-[var(--border)] rounded-sm p-8">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)', marginBottom: 20, lineHeight: 1.7 }}>
           Este texto se muestra públicamente en <code>{active.ruta}</code>. Usa los títulos (H2) para separar las secciones, igual que en el resto del sitio.
         </p>

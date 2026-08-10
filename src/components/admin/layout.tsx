@@ -22,8 +22,8 @@
 // sacarlo al nivel superior del módulo. Está documentado en SINCRONIA.md.
 
 export const Sec = ({ title, children }: { title: React.ReactNode; children: React.ReactNode }) => (
-  <div className="bg-white border border-[#e8edf2] rounded-sm p-8 mb-6">
-    <h3 className="font-serif font-light mb-6 pb-4 border-b border-[#e8edf2] flex items-center gap-2 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{title}</h3>
+  <div className="bg-white border border-[var(--border)] rounded-sm p-8 mb-6">
+    <h3 className="font-serif font-light mb-6 pb-4 border-b border-[var(--border)] flex items-center gap-2 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{title}</h3>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
   </div>
 )

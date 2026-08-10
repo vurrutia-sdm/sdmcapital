@@ -74,7 +74,7 @@ export default function RentalPage() {
       </div>
 
       {/* Quiénes Somos Rental */}
-      <section style={{ ...sp, paddingTop: 72, paddingBottom: 72, background: 'var(--off)', borderBottom: '1px solid #e8edf2' }}>
+      <section style={{ ...sp, paddingTop: 72, paddingBottom: 72, background: 'var(--off)', borderBottom: '1px solid var(--border)' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>Quiénes Somos</div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(26px,4vw,42px)', color: 'var(--navy-dark)', lineHeight: 1.1 }}>{quienesTitulo}</h2>
@@ -83,7 +83,7 @@ export default function RentalPage() {
       </section>
 
       {/* Para Propietarios */}
-      <section id="propietarios" style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid #e8edf2' }}>
+      <section id="propietarios" style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid var(--border)' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <div className="section-label" style={{ marginBottom: 20 }}>Para Propietarios</div>
@@ -100,7 +100,7 @@ export default function RentalPage() {
             <a className="text-sdm-xs tracking-sdm-wide border border-[var(--navy-dark)] text-[var(--navy-dark)] bg-transparent hover:bg-[var(--navy-dark)] hover:text-white" href="#contacto" style={{ display: 'inline-block', marginTop: 24, padding: '13px 28px', textDecoration: 'none', fontWeight: 400, textTransform: 'uppercase', borderRadius: 2 }}
             >Quiero arrendar mi propiedad</a>
           </div>
-          <div style={{ background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', borderRadius: 2, padding: '48px 40px' }}>
+          <div style={{ background: 'linear-gradient(160deg,var(--navy),var(--navy-dark))', borderRadius: 2, padding: '48px 40px' }}>
             {/* `--green-dark`: este eyebrow va sobre BLANCO, y ahí `--green` da
                 2,93:1. Es la regla 4.2 en su cara más simple, y sobrevivió al
                 barrido de los 29 usos del 2026-08-09. */}
@@ -120,7 +120,7 @@ export default function RentalPage() {
       </section>
 
       {/* Para Arrendatarios */}
-      <section id="arrendatarios" style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--off)', borderBottom: '1px solid #e8edf2' }}>
+      <section id="arrendatarios" style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--off)', borderBottom: '1px solid var(--border)' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>Para Arrendatarios</div>
         <h2 className="font-serif font-light mb-6 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>{arrTitulo}</h2>
         <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.9, maxWidth: 560, marginBottom: 40 }}>{arrSubtitulo}</p>
@@ -130,7 +130,7 @@ export default function RentalPage() {
       </section>
 
       {/* Comparativo */}
-      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid #e8edf2' }}>
+      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid var(--border)' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>¿Cuál elegir?</div>
         <h2 className="font-serif font-light mb-16 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>{compTitulo}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-px" style={{ background: 'var(--border)' }}>

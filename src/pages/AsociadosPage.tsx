@@ -49,7 +49,7 @@ export default function AsociadosPage() {
         description="Red de socios y alianzas estratégicas de SDM Capital en Chile y Paraguay."
       />
       {/* Header */}
-      <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]">
+      <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[var(--border)]">
         <div className="section-label" style={{ marginBottom: 18 }}>
           {lang === 'es' ? 'Red de socios' : 'Partner network'}
         </div>
@@ -65,7 +65,7 @@ export default function AsociadosPage() {
       </div>
 
       {/* Texto editorial */}
-      <section className="px-8 lg:px-12 py-16 border-b border-[#e8edf2]" style={{ background: 'var(--off)' }}>
+      <section className="px-8 lg:px-12 py-16 border-b border-[var(--border)]" style={{ background: 'var(--off)' }}>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16" style={{ padding: '0 clamp(16px,5vw,0px)' }}>
           <div>
             <div style={{ width: 28, height: 2, background: 'var(--green)', marginBottom: 16 }} />
@@ -165,7 +165,7 @@ export default function AsociadosPage() {
             </a>
           ))}
         </div>
-        <div className="mt-16 border border-[#e8edf2] p-10 text-center" style={{ borderRadius: 2 }}>
+        <div className="mt-16 border border-[var(--border)] p-10 text-center" style={{ borderRadius: 2 }}>
           <div className="section-label justify-center mb-4">
             {lang === 'es' ? '¿Quieres ser socio?' : 'Want to be a partner?'}
           </div>

@@ -52,7 +52,7 @@ export default function EliminacionDatosPage() {
         url="/eliminacion-de-datos"
       />
 
-      <div style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--navy-dark)', borderBottom: '1px solid #e8edf2' }}>
+      <div style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--navy-dark)', borderBottom: '1px solid var(--border)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 20 }}>
           {lang === 'es' ? 'Legal' : 'Legal'}
         </div>

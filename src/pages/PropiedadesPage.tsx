@@ -479,7 +479,7 @@ export default function PropiedadesPage() {
       <SEO title={META[categoria].title} description={META[categoria].description} url={location.pathname} />
 
       {/* Header */}
-      <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[#e8edf2]">
+      <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[var(--border)]">
         <div className="section-label" style={{ marginBottom: 14 }}>Catálogo</div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.05 }}>
@@ -508,7 +508,7 @@ export default function PropiedadesPage() {
 
         {/* Filter panel */}
         {panelOpen && (
-          <div className="mt-6 pt-6 border-t border-[#e8edf2] grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="mt-6 pt-6 border-t border-[var(--border)] grid grid-cols-2 lg:grid-cols-5 gap-4">
             {[
               { label: 'Tipo',     key: 'tipo',   opts: TIPOS },
               { label: 'Estado',   key: 'estado', opts: ESTADOS },

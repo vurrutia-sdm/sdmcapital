@@ -81,7 +81,7 @@ export default function PropertyCard({ propiedad, index = 0 }: Props) {
       style={{ textDecoration: 'none' }}
     >
       {/* Image */}
-      <div style={{ aspectRatio: '4/3', overflow: 'hidden', position: 'relative', background: 'linear-gradient(160deg,#1a3d5c,#0d2035)' }}>
+      <div style={{ aspectRatio: '4/3', overflow: 'hidden', position: 'relative', background: 'linear-gradient(160deg,var(--navy),var(--navy-dark))' }}>
         {(() => {
           // Tarjeta de ~350px: usa la miniatura de 400px, no el original
           const imgSrc = thumbUrl(propiedad.imagen_principal || propiedad.imagenes?.[0] || '')

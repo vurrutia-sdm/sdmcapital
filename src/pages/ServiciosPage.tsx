@@ -12,7 +12,7 @@ const SLUGS = [
   { slug: 'bancarizacion-extranjero',key: 'banco',   titulo: 'Bancarización en el Extranjero' },
 ]
 
-const GRADIENTS = ['#1a3d5c','#1a3528','#252535','#351a1a','#2a1a35']
+const GRADIENTS = ['var(--navy)','#1a3528','#252535','#351a1a','#2a1a35']
 
 function parseTags(raw: string): { label: string; url: string }[] {
   if (!raw || !raw.trim()) return []
@@ -52,7 +52,7 @@ export default function ServiciosPage() {
         description="Inversión inmobiliaria en Chile e internacional, financiamiento hipotecario y bancarización."
         url="/servicios"
       />
-      <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[#e8edf2]" style={{ background: 'var(--navy-dark)' }}>
+      <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[var(--border)]" style={{ background: 'var(--navy-dark)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 18 }}>Lo que hacemos</div>
         <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(40px,5vw,64px)', color: '#fff', lineHeight: 1.07 }}>
           Nuestros <em>servicios</em>
@@ -72,7 +72,7 @@ export default function ServiciosPage() {
           const isCredito = s.slug === 'financiamiento-personas' || s.slug === 'financiamiento-empresas'
           return (
             <div key={s.slug} id={s.slug}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-px border-b border-[#e8edf2]"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-px border-b border-[var(--border)]"
               /* SIN `scrollMarginTop`: lo cubre `html.ruta-publica` con
                  `scroll-padding-top`, en globals.css. Tenerlo acá TAMBIÉN no era
                  redundante sino un defecto — `scroll-padding` del contenedor y
@@ -102,7 +102,7 @@ export default function ServiciosPage() {
                 </button>
               </div>
               <div className={'flex items-center justify-center overflow-hidden' + (flip ? ' lg:order-1' : '')}
-                style={{ minHeight: 340, background: 'linear-gradient(160deg,' + (GRADIENTS[i] || '#1a3d5c') + ',#0d2035)' }}>
+                style={{ minHeight: 340, background: 'linear-gradient(160deg,' + (GRADIENTS[i] || 'var(--navy)') + ',var(--navy-dark))' }}>
                 {img ? <img src={img} alt={titulo} className="w-full h-full object-cover" style={{ minHeight: 340 }} /> : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.15)' }}>{titulo}</span>}
               </div>
             </div>

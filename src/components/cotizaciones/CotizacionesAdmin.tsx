@@ -1157,7 +1157,7 @@ export function CotizacionesAdmin() {
               {/* Acciones. Debajo de xl: fila propia con borde superior, 44px de
                   alto tactil y 24px entre botones. Con el padding de 4px 6px que
                   tenian, en un telefono era imposible acertarles. */}
-              <div className="order-7 flex w-full items-center justify-end gap-6 mt-2 pt-2 border-t border-[#e8edf2] xl:order-none xl:w-auto xl:justify-start xl:gap-1 xl:mt-0 xl:pt-0 xl:border-t-0">
+              <div className="order-7 flex w-full items-center justify-end gap-6 mt-2 pt-2 border-t border-[var(--border)] xl:order-none xl:w-auto xl:justify-start xl:gap-1 xl:mt-0 xl:pt-0 xl:border-t-0">
                 {/* Editar */}
                 <button className="text-sdm-base min-h-[44px] min-w-[44px] xl:min-h-0 xl:min-w-0"
                   onClick={() => openEdit(c)}

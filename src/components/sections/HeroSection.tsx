@@ -112,7 +112,7 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
 
   if (images.length === 0) {
     return (
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg,#1a3d5c 0%,#0d2035 55%,#071524 100%)' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg,var(--navy) 0%,var(--navy-dark) 55%,#071524 100%)' }} />
     )
   }
 

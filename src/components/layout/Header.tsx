@@ -171,7 +171,7 @@ export default function Header() {
     active ? 'text-[var(--navy-dark)]' : 'text-[var(--muted)] hover:text-[var(--navy-dark)]'
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e8edf2]">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[var(--border)]">
       <nav className="flex items-center justify-between px-8 lg:px-12 h-16">
 
         {/* Logo */}
@@ -209,7 +209,7 @@ export default function Header() {
               <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: propiedadesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {propiedadesOpen && (
-              <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
+              <div className="absolute top-full left-0 bg-white border border-[var(--border)] shadow-lg py-2 z-50" style={{ width: 200, borderRadius: 2 }}>
                 <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades?estado=en_venta" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >En Venta</Link>
                 <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades?estado=en_arriendo" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
@@ -220,7 +220,7 @@ export default function Header() {
                     nombre y como pareja de «Proyectos Nuevos». */}
                 <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/propiedades-usadas" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                 >Solo usadas</Link>
-                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/vende-con-nosotros" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none', borderTop: '1px solid var(--border)', marginTop: 4 }}
                 >Vende con nosotros</Link>
               </div>
             )}
@@ -241,7 +241,7 @@ export default function Header() {
               <ChevronDown aria-hidden="true" size={11} style={{ transition: 'transform 0.2s', transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
             {servicesOpen && (
-              <div className="absolute top-full left-0 bg-white border border-[#e8edf2] shadow-lg py-2 z-50" style={{ width: 240, borderRadius: 2 }}>
+              <div className="absolute top-full left-0 bg-white border border-[var(--border)] shadow-lg py-2 z-50" style={{ width: 240, borderRadius: 2 }}>
                 {SERVICES.map(s => (
                   <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" key={s.slug} to={`/servicios/${s.slug}`} style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none' }}
                   >{s.label}</Link>
@@ -249,7 +249,7 @@ export default function Header() {
                 {/* El disparador dejó de ser un enlace, así que /servicios se
                     quedaba sin destino desde el header. Va acá, igual que «Ver
                     todas» en el desplegable de Propiedades. */}
-                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/servicios" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none', borderTop: '1px solid #e8edf2', marginTop: 4 }}
+                <Link className="text-sdm-sm text-[var(--muted)] hover:text-[var(--navy-dark)] hover:bg-[var(--off)]" to="/servicios" style={{ display: 'block', padding: '10px 20px', fontWeight: 300, textDecoration: 'none', borderTop: '1px solid var(--border)', marginTop: 4 }}
                 >Ver todos los servicios</Link>
               </div>
             )}
@@ -273,7 +273,7 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-white border-t border-[#e8edf2] px-8 py-6 flex flex-col gap-5">
+        <div className="lg:hidden bg-white border-t border-[var(--border)] px-8 py-6 flex flex-col gap-5">
           {/* `navLinkClass` TAMBIÉN ACÁ. Los catorce enlaces del menú móvil iban
               en `--muted`, así que en el teléfono no había forma de saber en qué
               página estabas — la navegación de escritorio sí lo distingue desde

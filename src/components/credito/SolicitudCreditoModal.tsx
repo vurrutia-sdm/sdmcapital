@@ -79,7 +79,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
             ))}
           </ul>
 
-          <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid #5C9B7E', padding: '1rem', borderRadius: '6px', marginBottom: 20 }}>
+          <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid var(--green)', padding: '1rem', borderRadius: '6px', marginBottom: 20 }}>
             <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
               Honorarios
             </div>
@@ -109,7 +109,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
             </p>
           </div>
 
-          <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid #5C9B7E', padding: '1rem', borderRadius: '6px', marginBottom: 24 }}>
+          <div style={{ backgroundColor: '#2E4057', borderLeft: '4px solid var(--green)', padding: '1rem', borderRadius: '6px', marginBottom: 24 }}>
             <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 8, backgroundColor: 'transparent' }}>
               Preevaluación gratuita
             </div>
@@ -118,7 +118,7 @@ export default function SolicitudCreditoModal({ onClose }: { onClose: () => void
             </p>
           </div>
 
-          <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: '#5C9B7E', marginBottom: 12, backgroundColor: 'transparent' }}>
+          <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 500, textTransform: 'uppercase', color: 'var(--green)', marginBottom: 12, backgroundColor: 'transparent' }}>
             Documentos necesarios (trabajador dependiente)
           </div>
           <ul style={{ listStyle: 'none', backgroundColor: 'transparent' }}>

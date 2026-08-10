@@ -40,7 +40,7 @@ export default function BlogPreviewSection() {
   const getFecha = (p: BlogPost) => new Date(p.created_at).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderTop: '1px solid #e8edf2' }}>
+    <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderTop: '1px solid var(--border)' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 48, flexWrap: 'wrap', gap: 16 }}>
         <div>

@@ -44,7 +44,7 @@ export default function FloatingButtons() {
         aria-label="Volver al inicio"
         tabIndex={show ? 0 : -1}
         aria-hidden={!show}
-        className={`w-11 h-11 rounded-full flex items-center justify-center border border-[#e8edf2] bg-white shadow-md transition-all duration-300 hover:border-[#1C3D5C] hover:bg-[#1C3D5C] hover:text-white group ${
+        className={`w-11 h-11 rounded-full flex items-center justify-center border border-[var(--border)] bg-white shadow-md transition-all duration-300 hover:border-[#1C3D5C] hover:bg-[#1C3D5C] hover:text-white group ${
           show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >

@@ -66,7 +66,7 @@ export default function Equipo() {
       <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las filas para cambiar el orden de aparición.</p>
 
       {editing && (
-        <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
+        <div className="bg-white border border-[var(--border)] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar miembro' : 'Nuevo miembro'}</h3>
           <div className="mb-6 p-6 rounded-sm bg-[var(--off)]" style={{ border: '1px solid var(--border)' }}>
             <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><Camera size={14} strokeWidth={2} />Foto del miembro</div>
@@ -102,7 +102,7 @@ export default function Equipo() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sorted.map((m, i) => (
           <div key={m.id} {...filaProps(i)}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab" style={{ borderTop: '3px solid var(--green)', opacity: arrastrando === i ? 0.45 : 1 }}>
+            className="bg-white border border-[var(--border)] rounded-sm p-5 cursor-grab" style={{ borderTop: '3px solid var(--green)', opacity: arrastrando === i ? 0.45 : 1 }}>
             <div className="flex items-center gap-4 mb-4">
               <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: -10, flexShrink: 0 }}>
                 <GripVertical size={18} strokeWidth={2} style={{ color: 'var(--muted)' }} />

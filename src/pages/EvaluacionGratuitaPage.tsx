@@ -33,7 +33,7 @@ export default function EvaluacionGratuitaPage() {
       />
 
       {/* Header mínimo — solo logo, sin navegación */}
-      <header className="flex items-center justify-center" style={{ padding: '20px 24px', backgroundColor: '#FFFFFF', borderBottom: '1px solid #e8edf2' }}>
+      <header className="flex items-center justify-center" style={{ padding: '20px 24px', backgroundColor: '#FFFFFF', borderBottom: '1px solid var(--border)' }}>
         <Link to="/" title="Volver al sitio SDM Capital" className="flex items-center gap-3.5">
           <div className="logo-stripes">
             <div className="logo-stripe logo-stripe--sky" />

@@ -65,7 +65,7 @@ export default function QuienesSomosPage() {
       <SEO title="Quiénes Somos" description="SDM Capital — Más de 15 años conectando personas con oportunidades inmobiliarias. Conoce nuestro equipo de expertos en bienes raíces y financiamiento." url="/quienes-somos" />
 
       {/* Hero band */}
-      <div style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--navy-dark)', borderBottom: '1px solid #e8edf2' }}>
+      <div style={{ ...sp, paddingTop: 80, paddingBottom: 80, background: 'var(--navy-dark)', borderBottom: '1px solid var(--border)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 20 }}>
           {lang === 'es' ? 'Quiénes Somos' : 'About Us'}
         </div>
@@ -81,7 +81,7 @@ export default function QuienesSomosPage() {
       </div>
 
       {/* Valores */}
-      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid #e8edf2' }}>
+      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid var(--border)' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>
           {lang === 'es' ? 'Nuestros valores' : 'Our values'}
         </div>
@@ -101,7 +101,7 @@ export default function QuienesSomosPage() {
       </section>
 
       {/* Historia */}
-      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid #e8edf2', background: 'var(--off)' }}>
+      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid var(--border)', background: 'var(--off)' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <div>
             <div className="section-label" style={{ marginBottom: 20 }}>{lang === 'es' ? 'Nuestra historia' : 'Our story'}</div>
@@ -116,7 +116,7 @@ export default function QuienesSomosPage() {
               <p key={i} className="font-light mb-5 text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9 }}>{p}</p>
             ))}
           </div>
-          <div className="flex items-center justify-center overflow-hidden" style={{ height: 440, background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', borderRadius: 2 }}>
+          <div className="flex items-center justify-center overflow-hidden" style={{ height: 440, background: 'linear-gradient(160deg,var(--navy),var(--navy-dark))', borderRadius: 2 }}>
             {historiaImg
               ? <img src={historiaImg} alt="Equipo SDM Capital" className="w-full h-full object-cover" style={{ borderRadius: 2 }} />
               : <span className="font-serif italic text-sdm-lg" style={{ color: 'rgba(255,255,255,0.2)' }}>Fotografía oficina / equipo</span>
@@ -166,7 +166,7 @@ export default function QuienesSomosPage() {
                 <div style={{ height: 'clamp(240px, 40vw, 400px)', background: '#f4f6f8', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden' }}>
                   {m.foto
                     ? <img src={m.foto} alt={m.nombre} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center bottom', display: 'block' }} />
-                    : <div className="flex items-center justify-center w-full h-full" style={{ background: 'linear-gradient(160deg,#1a3d5c,#0d2035)' }}>
+                    : <div className="flex items-center justify-center w-full h-full" style={{ background: 'linear-gradient(160deg,var(--navy),var(--navy-dark))' }}>
                         <span className="font-serif text-white opacity-20 italic text-sdm-base">{m.nombre}</span>
                       </div>
                   }
@@ -208,7 +208,7 @@ export default function QuienesSomosPage() {
         </div>
       </section>
 
-      <section style={{ paddingLeft: 'clamp(16px, 5vw, 48px)', paddingRight: 'clamp(16px, 5vw, 48px)', paddingTop: 80, paddingBottom: 80, borderTop: '1px solid #e8edf2' }}>
+      <section style={{ paddingLeft: 'clamp(16px, 5vw, 48px)', paddingRight: 'clamp(16px, 5vw, 48px)', paddingTop: 80, paddingBottom: 80, borderTop: '1px solid var(--border)' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>Red de Asociados</div>
         <h2 className="font-serif font-light mb-6 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
           Nuestros <em>asociados</em>

@@ -104,7 +104,7 @@ export default function VendeConNosotrosPage() {
       </div>
 
       {/* Tres pilares */}
-      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid #e8edf2' }}>
+      <section style={{ ...sp, paddingTop: 80, paddingBottom: 80, borderBottom: '1px solid var(--border)' }}>
         <div className="section-label" style={{ marginBottom: 20 }}>Por qué elegirnos</div>
         <h2 className="font-serif font-light mb-16 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08, maxWidth: 640 }}>
           {pilaresTitulo}

@@ -66,7 +66,7 @@ export default function Asociados() {
       <p className="text-sdm-base" style={{ color: 'var(--muted)', marginBottom: 24 }}><MousePointer2 size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-0.2em' }} /> Arrastra las tarjetas para cambiar el orden.</p>
 
       {editing && (
-        <div className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
+        <div className="bg-white border border-[var(--border)] p-8 mb-10 rounded-sm">
           <h3 className="font-serif font-light mb-6 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>{editing.id ? 'Editar asociado' : 'Nuevo asociado'}</h3>
           <div className="mb-6 p-6 rounded-sm bg-[var(--off)]" style={{ border: '1px solid var(--border)' }}>
             <div className="text-sdm-sm tracking-sdm-wide" style={{ fontWeight: 600, textTransform: 'uppercase', color: 'var(--navy-dark)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><Building2 size={14} strokeWidth={2} />Logo de la empresa</div>
@@ -98,7 +98,7 @@ export default function Asociados() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {sorted.map((a, i) => (
           <div key={a.id} {...filaProps(i)}
-            className="bg-white border border-[#e8edf2] rounded-sm p-5 cursor-grab flex flex-col items-center text-center"
+            className="bg-white border border-[var(--border)] rounded-sm p-5 cursor-grab flex flex-col items-center text-center"
             style={{ opacity: arrastrando === i ? 0.45 : 1 }}>
             <span {...manijaProps} className="flex items-center" style={{ ...manijaProps.style, padding: 10, margin: '-10px -10px -2px' }}>
               <GripVertical size={16} strokeWidth={2} style={{ color: 'var(--muted)' }} />

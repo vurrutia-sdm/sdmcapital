@@ -313,7 +313,7 @@ export function TarjetasEquipo() {
               {/* Acciones. Debajo de lg: fila propia con borde superior, con
                   Imprimir / PDF junto a Editar y Eliminar en vez de flotando
                   encima del texto. 44px de alto tactil y 24px entre botones. */}
-              <div data-orden-quieto="" className="order-4 w-full flex items-center justify-end gap-6 mt-1 pt-2 border-t border-[#e8edf2] lg:order-none lg:w-auto lg:flex-col lg:items-end lg:gap-2 lg:mt-0 lg:pt-0 lg:border-t-0" style={{ flexShrink: 0 }}>
+              <div data-orden-quieto="" className="order-4 w-full flex items-center justify-end gap-6 mt-1 pt-2 border-t border-[var(--border)] lg:order-none lg:w-auto lg:flex-col lg:items-end lg:gap-2 lg:mt-0 lg:pt-0 lg:border-t-0" style={{ flexShrink: 0 }}>
                 <button onClick={() => imprimirTarjeta(t)} className="btn-primary text-sdm-xs min-h-[44px] lg:min-h-0" style={{ padding: '8px 14px' }}>
                   <Printer aria-hidden="true" size={14} strokeWidth={2} /> Imprimir / PDF
                 </button>

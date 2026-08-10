@@ -53,7 +53,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
   return (
     <div ref={wrapperRef} style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
       {/* Trigger */}
-      <button className={`text-sdm-sm tracking-sdm-normal border ${copied ? 'border-[#3DAA6E] text-[#3DAA6E]' : 'border-[#e8edf2] text-[#0F2535] hover:border-[#3DAA6E] hover:text-[#3DAA6E]'}`}
+      <button className={`text-sdm-sm tracking-sdm-normal border ${copied ? 'border-[#3DAA6E] text-[#3DAA6E]' : 'border-[var(--border)] text-[#0F2535] hover:border-[#3DAA6E] hover:text-[#3DAA6E]'}`}
         onClick={() => setOpen(o => !o)}
         style={{ display: 'inline-flex',
           alignItems: 'center',
@@ -77,7 +77,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
           top: 'calc(100% + 6px)',
           left: 0,
           background: '#fff',
-          border: '1px solid #e8edf2',
+          border: '1px solid var(--border)',
           borderRadius: 4,
           boxShadow: '0 8px 28px rgba(15,37,53,0.13)',
           zIndex: 60,
@@ -118,7 +118,7 @@ function ShareButtons({ titulo }: { titulo: string }) {
           ))}
 
           {/* Divider */}
-          <div style={{ height: 1, background: '#e8edf2', margin: '2px 0' }} />
+          <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
 
           {/* Copy link */}
           <button className="text-sdm-base bg-transparent hover:bg-[#f4f8fb]"
@@ -382,7 +382,7 @@ export default function PropiedadDetailPage() {
         type="article"
       />
       {/* Breadcrumb */}
-      <div className="px-8 lg:px-12 py-4 border-b border-[#e8edf2] flex items-center gap-2 text-sdm-sm" style={{ color: 'var(--muted)' }}>
+      <div className="px-8 lg:px-12 py-4 border-b border-[var(--border)] flex items-center gap-2 text-sdm-sm" style={{ color: 'var(--muted)' }}>
         <Link to="/propiedades" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Propiedades</Link>
         <span>›</span>
         <span className="text-sdm-sm" style={{ color: 'var(--navy-dark)' }}>{titulo}</span>
@@ -404,7 +404,7 @@ export default function PropiedadDetailPage() {
                 Para el ratón la imagen se sigue pulsando entera. */}
             <div
               className="w-full mb-3 relative overflow-hidden"
-              style={{ height: 420, background: 'linear-gradient(160deg,#1a3d5c,#0d2035)', borderRadius: 2 }}
+              style={{ height: 420, background: 'linear-gradient(160deg,var(--navy),var(--navy-dark))', borderRadius: 2 }}
             >
               {allImgs.length > 0 && (
                 <button
@@ -512,7 +512,7 @@ export default function PropiedadDetailPage() {
             <ShareButtons titulo={titulo} />
 
             {(prop.a_consultar || prop.precio_uf || prop.precio_usd || prop.precio_clp) && (
-              <div className="mb-6 pb-6 border-b border-[#e8edf2]">
+              <div className="mb-6 pb-6 border-b border-[var(--border)]">
                 {prop.baja_precio && prop.precio_anterior_uf && (
                   <div className="text-sdm-xl" style={{ color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
                     UF {prop.precio_anterior_uf.toLocaleString('es-CL')} — precio anterior
@@ -553,7 +553,7 @@ export default function PropiedadDetailPage() {
 
               if (specs.length === 0) return null
               return (
-                <div className="flex gap-8 mb-6 pb-6 border-b border-[#e8edf2] flex-wrap items-start">
+                <div className="flex gap-8 mb-6 pb-6 border-b border-[var(--border)] flex-wrap items-start">
                   {specs.map((s, i) => s && (
                     <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 60 }}>
                       <div style={{ height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -692,7 +692,7 @@ export default function PropiedadDetailPage() {
               const subsidios = prop.subsidios || []
               if (!items.length && !subsidios.length) return null
               return (
-                <div className="mb-6 pb-6 border-b border-[#e8edf2]">
+                <div className="mb-6 pb-6 border-b border-[var(--border)]">
                   <h2 className="font-serif font-light mb-4 text-sdm-2xl" style={{ color: 'var(--navy-dark)' }}>
                     Información del Proyecto
                   </h2>
@@ -902,7 +902,7 @@ export default function PropiedadDetailPage() {
           no llegan, casi todas en comunas de una sola propiedad y sin precio
           con el que comparar. */}
       {similaresOrdenadas.length >= 2 && (
-        <div className="px-8 lg:px-12 py-12 border-t border-[#e8edf2]">
+        <div className="px-8 lg:px-12 py-12 border-t border-[var(--border)]">
           <h2 className="font-serif font-light mb-6 text-sdm-display-sm" style={{ color: 'var(--navy-dark)' }}>
             Propiedades similares
           </h2>
@@ -914,7 +914,7 @@ export default function PropiedadDetailPage() {
 
       {/* Mapa */}
       {(prop.map_address || prop.comuna) && (
-        <div className="px-8 lg:px-12 py-10 border-t border-[#e8edf2]">
+        <div className="px-8 lg:px-12 py-10 border-t border-[var(--border)]">
           <PropertyMap
             address={prop.map_address}
             lat={prop.map_lat}

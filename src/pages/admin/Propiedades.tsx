@@ -193,7 +193,7 @@ function UnidadesEditor({ items, onChanged }: { items: UnidadPropiedad[]; onChan
           <div className="flex flex-col gap-3 lg:gap-2 mb-3">
             {items.map((u, i) => (
               <div key={i} {...filaProps(i)}
-                className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-sm border border-[#e8edf2] p-3 lg:flex-nowrap lg:border-0 lg:rounded-none lg:p-0"
+                className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-sm border border-[var(--border)] p-3 lg:flex-nowrap lg:border-0 lg:rounded-none lg:p-0"
                 style={{ opacity: arrastrando === i ? 0.45 : 1, cursor: 'grab' }}>
 
                 <span {...manijaProps} className="order-first flex items-center"
@@ -825,7 +825,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
       </div>
 
       {editing && (
-        <div id="prop-edit-form" className="bg-white border border-[#e8edf2] p-8 mb-10 rounded-sm">
+        <div id="prop-edit-form" className="bg-white border border-[var(--border)] p-8 mb-10 rounded-sm">
           {/* El enlace va junto al título del formulario: editando es cuando
               más se quiere comprobar cómo quedó. En una propiedad nueva no se
               dibuja —todavía no hay slug— y en una pausada sale deshabilitado
@@ -1150,7 +1150,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
               <tr
                 key={p.id}
                 {...(arrastreActivo ? filaProps(idx) : {})}
-                className="flex flex-wrap items-center gap-y-0.5 rounded-sm border border-[#e8edf2] p-3 mb-2 lg:table-row lg:rounded-none lg:border-0 lg:p-0 lg:mb-0"
+                className="flex flex-wrap items-center gap-y-0.5 rounded-sm border border-[var(--border)] p-3 mb-2 lg:table-row lg:rounded-none lg:border-0 lg:p-0 lg:mb-0"
                 style={{ borderBottom: '1px solid var(--border)', cursor: arrastreActivo ? 'grab' : 'default', opacity: arrastrando === idx ? 0.45 : p.activo === false ? 0.5 : 1, background: p.activo === false ? '#fff8f8' : 'transparent' }}
               >
                 {/* Debajo de lg la manija es una franja propia arriba de la
@@ -1193,7 +1193,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
                 {/* El toggle lleva flex-1 para que su borde superior se estire hasta
                     encontrarse con el de las acciones: entre los dos dibujan una
                     sola linea continua sin necesidad de un contenedor. */}
-                <td className="flex-1 order-7 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
+                <td className="flex-1 order-7 mt-2 pt-2 border-t border-[var(--border)] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
                   <button className="text-sdm-sm min-h-[44px] lg:min-h-0"
                     aria-pressed={p.activo !== false}
                     onClick={e => { e.stopPropagation(); e.preventDefault(); toggleActivo(p) }}
@@ -1212,7 +1212,7 @@ export default function Propiedades({ onIrAContenido }: { onIrAContenido?: () =>
                 {/* Editar y Eliminar separados 24px y con 44px de alto tactil: en el
                     escritorio estaban a 12px, que en un telefono es un borrado por
                     accidente. En lg vuelven a los dos botones de texto de siempre. */}
-                <td className="order-8 mt-2 pt-2 border-t border-[#e8edf2] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
+                <td className="order-8 mt-2 pt-2 border-t border-[var(--border)] lg:table-cell lg:mt-0 lg:pt-0 lg:border-t-0 lg:py-3 lg:pr-4" data-orden-quieto="">
                   <div className="flex items-center justify-end gap-6 lg:justify-start lg:gap-3">
                     {/* El `data-orden-quieto` lo pone este mismo <td>, así que
                         el enlace no inicia arrastre — el hook lo busca con

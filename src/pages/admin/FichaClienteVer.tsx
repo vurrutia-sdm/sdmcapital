@@ -140,7 +140,7 @@ export default function FichaClienteVer() {
       {/* ── Document ── */}
       {!loading && ficha && cliente && (
         <div className="doc-print-wrapper pe"
-          style={{ fontFamily: 'system-ui, -apple-system, sans-serif', background: '#e8edf2', minHeight: '100vh' }}>
+          style={{ fontFamily: 'system-ui, -apple-system, sans-serif', background: 'var(--border)', minHeight: '100vh' }}>
 
           {/* ═══ PAGE 1 ═══ */}
           <div className="page-1 pe" style={{ background: '#fff', maxWidth: 794, margin: '0 auto' }}>

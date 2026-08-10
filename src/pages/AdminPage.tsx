@@ -182,7 +182,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-[var(--off)]"
       style={{ '--admin-header-h': '80px', paddingTop: menuAbierto ? altoHeader : undefined } as React.CSSProperties}>
       <div ref={header}
-        className={`bg-white border-b border-[#e8edf2] px-4 lg:px-8 py-4 flex items-center justify-between z-40 lg:h-[var(--admin-header-h)] ${menuAbierto ? 'fixed top-0 left-0 right-0' : 'sticky top-0'}`}>
+        className={`bg-white border-b border-[var(--border)] px-4 lg:px-8 py-4 flex items-center justify-between z-40 lg:h-[var(--admin-header-h)] ${menuAbierto ? 'fixed top-0 left-0 right-0' : 'sticky top-0'}`}>
         <div className="flex items-center gap-3">
           <button onClick={abrirMenu} aria-label="Abrir menú" aria-expanded={menuAbierto}
             className="lg:hidden flex items-center justify-center -ml-1 p-1"
@@ -210,7 +210,7 @@ export default function AdminPage() {
       <div className="flex overflow-visible">
         {/* Debajo de lg es un cajón que se superpone; de lg para arriba, el
             sidebar fijo de siempre, anclado bajo el header. */}
-        <aside className={`fixed left-0 top-0 h-screen w-64 z-50 overflow-y-auto bg-white border-r border-[#e8edf2] py-6 transition-transform duration-200 lg:transition-none lg:w-56 lg:z-30 lg:top-[var(--admin-header-h)] lg:h-[calc(100vh-var(--admin-header-h))] lg:translate-x-0 ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside className={`fixed left-0 top-0 h-screen w-64 z-50 overflow-y-auto bg-white border-r border-[var(--border)] py-6 transition-transform duration-200 lg:transition-none lg:w-56 lg:z-30 lg:top-[var(--admin-header-h)] lg:h-[calc(100vh-var(--admin-header-h))] lg:translate-x-0 ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="lg:hidden flex items-center justify-between" style={{ padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
             <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Secciones</span>
             <button onClick={() => setMenuAbierto(false)} aria-label="Cerrar menú"

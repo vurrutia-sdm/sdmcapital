@@ -259,7 +259,7 @@ function RegionComunaPicker({ region, comuna, onChangeRegion, onChangeComuna }: 
             </button>
             <button className="text-sdm-xs tracking-sdm-wide"
               onClick={() => region && setStep('comuna')}
-              style={{ flex: 1, padding: '10px 0', fontWeight: step === 'comuna' ? 600 : 400, textTransform: 'uppercase', border: 'none', background: 'none', cursor: region ? 'pointer' : 'not-allowed', fontFamily: 'inherit', color: step === 'comuna' ? 'var(--navy-dark)' : region ? 'var(--muted)' : 'var(--border)', borderBottom: step === 'comuna' ? '2px solid var(--navy-dark)' : '2px solid transparent', opacity: region ? 1 : 0.5 }}
+              style={{ flex: 1, padding: '10px 0', fontWeight: step === 'comuna' ? 600 : 400, textTransform: 'uppercase', border: 'none', background: 'none', cursor: region ? 'pointer' : 'not-allowed', fontFamily: 'inherit', color: step === 'comuna' ? 'var(--navy-dark)' : 'var(--muted)', borderBottom: step === 'comuna' ? '2px solid var(--navy-dark)' : '2px solid transparent', opacity: region ? 1 : 0.5 }}
             >
               Comuna
             </button>
@@ -423,10 +423,18 @@ export default function SearchBar() {
         </label>
 
         {/* Comuna mobile */}
+        {/* UNA SOLA ATENUACIÓN POR CONTROL. El `opacity: 0.5` se queda acá, en el
+            <label> que envuelve, y el <select> de dentro perdió el suyo: los dos
+            juntos daban 0,25 efectivo y el campo no parecía deshabilitado sino
+            ausente. La pestaña «Comuna» tenía el mismo problema por otra vía —
+            `--border` como color de TEXTO, 1,18:1, y encima su propio 0.5.
+            WCAG exime del contraste a los deshabilitados, así que el criterio no
+            es un ratio sino que se DISTINGA del habilitado; el sistema ya fijó
+            una sola regla al 50 % en globals.css y esto la respeta. */}
         <label className="mb-3" style={{ display: 'block', background: 'var(--off)', border: '1px solid var(--border-input)', opacity: region ? 1 : 0.5, borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px' }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Comuna</span>
           <select className="text-sdm-sm area-44" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
-            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed', opacity: region ? 1 : 0.5 }}>
+            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed' }}>
             <option value="" style={{ color: 'var(--ink)', background: '#fff' }}>{region ? 'Todas las comunas' : 'Primero elige región'}</option>
             {region && getComunas(region).map(c => <option key={c} value={c} style={{ color: 'var(--ink)', background: '#fff' }}>{c}</option>)}
           </select>
