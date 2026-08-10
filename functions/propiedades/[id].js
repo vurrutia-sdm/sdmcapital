@@ -99,10 +99,31 @@ export async function onRequestGet(context) {
   const supabaseAnonKey = env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY_FALLBACK
 
   try {
+    // `activo=eq.true` NO SOBRA, aunque el RLS ya lo haga.
+    //
+    // La política `propiedades_select_anon` —USING (activo IS TRUE), migración
+    // 20260805000300— descarta las pausadas antes de que lleguen, y esta
+    // Function consulta con la anon key, así que hoy el filtro no cambia ni una
+    // respuesta. Está por lo mismo que se añadió en `PropiedadDetailPage`
+    // (commit 67634a3): que la política no sea el ÚNICO control.
+    //
+    // Lo que hay detrás son las 10 fichas de la cartera del socio, que siguen en
+    // la base con su `direccion` real y solo están en `activo = false`. Si la
+    // política se edita o alguien la recrea desde el dashboard como `Allow all`
+    // —contra lo que la propia migración advierte—, esta Function empezaría a
+    // emitir título, descripción y comuna de esas fichas en las etiquetas Open
+    // Graph, y encima servidas al rastreador de Google y al de WhatsApp, que es
+    // donde peor se corrige: una vez indexado, retirarlo no depende de nosotros.
+    // `direccion` no está en el `select`, así que la calle no se filtraría; el
+    // nombre del edificio sí, y el acuerdo con el socio también lo cubre.
+    //
+    // `eq.true` y no `neq.false`, por lo mismo que en la ficha: copia exacta del
+    // predicado de la política, no algo parecido.
     const filterField = UUID_REGEX.test(slugOrId) ? 'id' : 'slug'
     const query =
       `${supabaseUrl}/rest/v1/propiedades` +
       `?${filterField}=eq.${encodeURIComponent(slugOrId)}` +
+      `&activo=eq.true` +
       `&select=titulo,descripcion,imagen_principal,precio_uf,dormitorios,banos,comuna,region,tipo,slug` +
       `&limit=1`
 
