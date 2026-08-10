@@ -13,6 +13,27 @@ const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY
 
 declare global { interface Window { google: typeof google } }
 
+// ─── EL PADDING LATERAL DE ESTA PÁGINA ES `px-4` FIJO, SIN ESCALÓN ────────────
+// Los seis contenedores de esta página llevaban `px-4 lg:px-12`. Eso hacía que
+// al cruzar 1024 la caja de contenido ENCOGIERA de 985 a 922 px, y con ella las
+// tarjetas de 328 a 307: la ventana crecía 1 px y el padding se comía 64.
+//
+// LA CAUSA ES EL ESCALÓN EN SÍ, NO SU TAMAÑO. Cualquier `px-N lg:px-M` con
+// M > N produce en 1024 una caída de contenido de exactamente 2·(M−N) px,
+// porque el breakpoint aporta 1 px de ventana y cobra 2·(M−N) de padding.
+// `lg:px-8` la habría dejado en −25 px en vez de −63, pero seguiría bajando;
+// mover el escalón a `xl:` solo traslada el mismo bache a 1280. La única forma
+// de que el ancho crezca de forma monótona es que no haya escalón.
+//
+// Por eso NO se le vuelva a poner un `lg:px-*` a estos seis. El aire lateral
+// que el diseño busca en escritorio sale del ancho de la ventana, que a 1280 ya
+// da 1248 px de caja.
+//
+// Las otras 20 apariciones de `lg:px-12` del sitio son `px-8 lg:px-12` y tienen
+// el mismo bache, de 32 px. Se dejaron como estaban a propósito: cambiarlas
+// mueve el margen lateral de todas las páginas y es decisión de sistema de
+// diseño, no un arreglo de borde.
+
 // Estado vacío del filtro de arriendo.
 //
 // El menú del header y RentalPage enlazan a ?estado=en_arriendo, y hoy el
@@ -28,7 +49,7 @@ function SinArriendos() {
   const texto = 'Hola, me interesa arrendar. ¿Me avisan cuando tengan propiedades disponibles?'
 
   return (
-    <div className="px-4 lg:px-12 pb-20">
+    <div className="px-4 pb-20">
       <div
         className="text-center mx-auto"
         style={{ maxWidth: 620, marginTop: 32, padding: '56px 32px', background: 'var(--off)', border: '1px solid var(--border)' }}
@@ -67,7 +88,7 @@ function SinArriendos() {
 // filtro ya puesto para no obligar a rehacer la búsqueda.
 function ArriendosEnElCatalogo() {
   return (
-    <div className="px-4 lg:px-12 pb-20">
+    <div className="px-4 pb-20">
       <div
         className="text-center mx-auto"
         style={{ maxWidth: 620, marginTop: 32, padding: '56px 32px', background: 'var(--off)', border: '1px solid var(--border)' }}
@@ -479,7 +500,7 @@ export default function PropiedadesPage() {
       <SEO title={META[categoria].title} description={META[categoria].description} url={location.pathname} />
 
       {/* Header */}
-      <div className="px-4 lg:px-12 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[var(--border)]">
+      <div className="px-4 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[var(--border)]">
         <div className="section-label" style={{ marginBottom: 14 }}>Catálogo</div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.05 }}>
@@ -661,7 +682,7 @@ export default function PropiedadesPage() {
       </div>
 
       {/* Count */}
-      <div className="px-4 lg:px-12 pt-6 pb-2">
+      <div className="px-4 pt-6 pb-2">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
           {loading ? 'Cargando...' : `${displayProps.length} ${displayProps.length === 1 ? 'propiedad encontrada' : 'propiedades encontradas'}`}
         </p>
@@ -680,11 +701,11 @@ export default function PropiedadesPage() {
           </div>
         )
       ) : viewMode === 'map' ? (
-        <div className="px-4 lg:px-12 pb-20 mt-6">
+        <div className="px-4 pb-20 mt-6">
           <MapView props={displayProps} />
         </div>
       ) : (
-        <div className="px-4 lg:px-12 pb-20">
+        <div className="px-4 pb-20">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--border)', marginTop: 24 }}>
             {displayProps.map(p => <PropertyCard key={p.id} propiedad={p} />)}
             {displayProps.length % 3 === 1 && <><div className="bg-white" /><div className="bg-white" /></>}
