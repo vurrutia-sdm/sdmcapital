@@ -180,19 +180,34 @@ function Financiamiento({ get, t, onSolicitar }: {
   // `financiamiento_titulo` YA EXISTÍA en el admin y en la semilla, y no la leía
   // nadie: el home usaba la constante de i18n. Editar ese campo guardaba sin
   // cambiar nada en pantalla. Acá queda conectada por fin.
-  const titulo    = get('financiamiento_titulo', '¿El banco te va a')
-  const tituloEm  = get('financiamiento_titulo_em', 'decir que sí?')
-  const body      = get('financiamiento_body', 'Hacemos la preevaluación hipotecaria y te acompañamos hasta la inscripción en el Conservador de Bienes Raíces. Si compras tu propiedad con nosotros, la gestión del crédito no tiene costo.')
-  const condicion = get('financiamiento_condicion', 'Sin pagos adelantados en ninguna etapa. Si la compra la haces por fuera, la gestión sí se cobra.')
+  //
+  // EL CORTE DEL PAR CAE ENTRE SUJETO Y PREDICADO: «¿El banco» en redonda y
+  // «te dijo no?» en cursiva. Se probaron las tres particiones en pantalla.
+  // «¿El banco te / dijo no?» separa el clítico de su verbo, que van juntos en
+  // castellano, y «¿El banco te dijo / no?» deja una cursiva de tres glifos que
+  // se lee como huérfana en vez de como énfasis.
+  const titulo    = get('financiamiento_titulo', '¿El banco')
+  const tituloEm  = get('financiamiento_titulo_em', 'te dijo no?')
+  const body      = get('financiamiento_body', 'Hacemos la preevaluación hipotecaria y te acompañamos en todo el proceso. Sin pagos adelantados.')
   const prueba    = get('financiamiento_prueba', 'Roberto Urrutia · Director Comercial · +20 años en banca')
   const cta       = get('financiamiento_cta', 'Solicita tu preevaluación gratuita')
 
+  // `financiamiento_condicion` DESAPARECE de acá y su campo del admin se
+  // retira. Existía para responder a la pregunta que abría el cuerpo anterior
+  // —«si compras con nosotros no tiene costo» invita a «¿y si no?»—, y ese
+  // cuerpo ya no está. «Sin pagos adelantados» es cierto en los dos casos y no
+  // promete de más, así que no hay nada que matizar.
+  //
+  // LA POLÍTICA COMPLETA NO SE PIERDE, se queda donde se decide: el bloque
+  // «Honorarios» de `SolicitudCreditoModal.tsx` y el sexto beneficio de
+  // `EvaluacionGratuitaPage.tsx`. Ahí no se acorta nada.
+
   return (
-    // `py-8 md:py-14` y no un 56 fijo: a 390 el cuerpo cae en 5 líneas, la
-    // condición en 2 y el rótulo del botón en 2, y con 56 arriba y abajo el
-    // bloque medía 530 — más que los 462 del que reemplaza, o sea que el home
-    // habría CRECIDO en móvil. El aire se recorta donde no cuesta lectura, no
-    // en el texto. Desde 768 vuelve a 56, donde nunca hubo problema.
+    // `py-8 md:py-14` y no un 56 fijo: a 390 el rótulo del botón cae en 2
+    // líneas y el cuerpo en varias, y con 56 arriba y abajo el bloque se pasaba
+    // de los 462 del que reemplaza, o sea que el home habría CRECIDO en móvil.
+    // El aire se recorta donde no cuesta lectura, no en el texto. Desde 768
+    // vuelve a 56, donde nunca hubo problema.
     <section
       className="py-8 md:py-14"
       style={{
@@ -226,21 +241,6 @@ function Financiamiento({ get, t, onSolicitar }: {
 
         <p className="text-sdm-base" style={{ fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.85)', marginTop: 16 }}>
           {body}
-        </p>
-
-        {/* LA CONDICIÓN VA EN LÍNEA APARTE Y NO ES LETRA CHICA.
-            «Si compras con nosotros, la gestión no tiene costo» invita a la
-            pregunta «¿y si no?», y dejarla sin responder sería prometer de más
-            aunque cada palabra fuera cierta. Esta línea la responde en la misma
-            pantalla.
-            Va en `--sdm-text-sm` —el mismo tamaño que la ciudad bajo el nombre
-            de cada testimonio— y a 8,35:1, MÁS contraste que el cuerpo que
-            había antes. La letra chica es la que se esconde; ésta se lee.
-            NO dice cuándo se cobra en el caso de compra por fuera: las dos
-            superficies que lo declaraban no coincidían entre sí y ninguna
-            describía la política. Está anotado en SINCRONIA.md. */}
-        <p className="text-sdm-sm" style={{ fontWeight: 300, lineHeight: 1.7, color: 'rgba(255,255,255,0.70)', marginTop: 10 }}>
-          {condicion}
         </p>
 
         {/* La prueba: hasta ahora solo aparecía dentro del modal, a un clic de

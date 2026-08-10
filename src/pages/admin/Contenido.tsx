@@ -300,10 +300,9 @@ export default function Contenido() {
     banner_subtitulo: '42 oficinas disponibles · desde 178 m² · ejes Miraflores, Ahumada y Nueva York',
     banner_cta_texto: 'Ver disponibilidad',
     banner_cta_url: '/propiedades/oficinas-arriendo-santiago-centro',
-    financiamiento_titulo: '¿El banco te va a',
-    financiamiento_titulo_em: 'decir que sí?',
-    financiamiento_body: 'Hacemos la preevaluación hipotecaria y te acompañamos hasta la inscripción en el Conservador de Bienes Raíces. Si compras tu propiedad con nosotros, la gestión del crédito no tiene costo.',
-    financiamiento_condicion: 'Sin pagos adelantados en ninguna etapa. Si la compra la haces por fuera, la gestión sí se cobra.',
+    financiamiento_titulo: '¿El banco',
+    financiamiento_titulo_em: 'te dijo no?',
+    financiamiento_body: 'Hacemos la preevaluación hipotecaria y te acompañamos en todo el proceso. Sin pagos adelantados.',
     financiamiento_prueba: 'Roberto Urrutia · Director Comercial · +20 años en banca',
     financiamiento_cta: 'Solicita tu preevaluación gratuita',
     testimonial_1_texto: 'SDM Capital hizo posible el sueño de mi familia de adquirir nuestra primera vivienda en Santiago.',
@@ -487,17 +486,19 @@ export default function Contenido() {
         <Sec title={<><Home size={18} strokeWidth={1.75} />Propiedades destacadas en el Inicio</>}>
           <Full><HomeDestacadasSelector value={d.home_destacadas_ids || '[]'} onChange={v => setD(p => ({ ...p, home_destacadas_ids: v }))} /></Full>
         </Sec>
-        {/* «Foto de apoyo» se retiró: el bloque del Inicio ya no dibuja imagen.
-            `financiamiento_imagen` sigue en la base pero nadie la lee, y un
-            campo que edita algo invisible es una trampa — misma regla que
-            `hero_location`.
+        {/* Dos campos retirados, misma regla que `hero_location`: un editor que
+            modifica algo que ya no se dibuja es una trampa.
+            · «Foto de apoyo» (`financiamiento_imagen`) — el bloque del Inicio
+              dejó de dibujar imagen.
+            · «Condición» (`financiamiento_condicion`) — el cuerpo se acortó y
+              ya no menciona la gratuidad, así que no queda nada que matizar.
+            Las dos filas siguen en la base sin que nadie las lea.
             «Título» en cambio EMPIEZA a funcionar: existía desde siempre y el
             Inicio no la leía, así que guardaba sin cambiar nada en pantalla. */}
         <Sec title={<><Wallet size={18} strokeWidth={1.75} />Sección Financiamiento</>}>
           <Field label="Título"><Inp value={d.financiamiento_titulo} onChange={set('financiamiento_titulo')} /></Field>
           <Field label="Título en cursiva"><Inp value={d.financiamiento_titulo_em} onChange={set('financiamiento_titulo_em')} /></Field>
           <Full><Field label="Descripción"><Txa value={d.financiamiento_body} onChange={set('financiamiento_body')} rows={3} /></Field></Full>
-          <Full><Field label="Condición (línea pequeña bajo la descripción)"><Txa value={d.financiamiento_condicion} onChange={set('financiamiento_condicion')} rows={2} /></Field></Full>
           <Full><Field label="Línea de respaldo"><Inp value={d.financiamiento_prueba} onChange={set('financiamiento_prueba')} /></Field></Full>
           <Field label="Texto del botón"><Inp value={d.financiamiento_cta} onChange={set('financiamiento_cta')} /></Field>
         </Sec>
