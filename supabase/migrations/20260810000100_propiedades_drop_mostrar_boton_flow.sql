@@ -1,0 +1,25 @@
+-- PASO 4 DE 4 del renombrado `mostrar_boton_flow` → `mostrar_boton_reserva`.
+-- Cierra lo que empezó `20260810000000_propiedades_mostrar_boton_reserva.sql`.
+--
+-- ESTE ARCHIVO NO EXISTÍA HASTA QUE EL PASO 3 ESTUVO VERIFICADO, y esa demora
+-- era el punto: una migración destructiva escrita «para después» dentro del
+-- directorio que la CLI recorre se aplica en el próximo `migration up` de
+-- cualquiera, sin que nadie haya decidido que era el momento.
+--
+--   1. `ADD COLUMN mostrar_boton_reserva` + backfill   hecho el 2026-08-10
+--   2. el código pasa a la columna nueva               hecho el 2026-08-10
+--   3. deploy y verificación en producción             hecho el 2026-08-10
+--   4. (acá) borrar la columna vieja
+--
+-- Condiciones comprobadas antes de escribir esto:
+--   · los bundles desplegados tienen 0 ocurrencias de `mostrar_boton_flow`
+--     —comprobado sobre el JS DESCARGADO de sdmcapital.cl, no sobre `dist/`—
+--   · las 82 fichas recorridas en producción: 73 con botón, Futaleufú sin él,
+--     0 discrepancias contra lo que predice la columna nueva
+--   · las dos columnas coinciden en las 82 filas, sin NULL en ninguna
+--   · Víctor confirmó a mano que el checkbox del admin escribe en la nueva
+--
+-- No lleva vuelta atrás. Si hiciera falta, el camino es el mismo del paso 1 al
+-- revés: añadir la columna y rellenarla desde `mostrar_boton_reserva`. El dato
+-- que importa vive en la columna nueva.
+ALTER TABLE propiedades DROP COLUMN mostrar_boton_flow;

@@ -7463,7 +7463,7 @@ fundirse**: uno dice «todavía no tenemos», el otro «no están aquí, están 
 
 ---
 
-## `mostrar_boton_flow` → `mostrar_boton_reserva`, en dos pasos de cuatro — 2026-08-10
+## `mostrar_boton_flow` → `mostrar_boton_reserva`, los cuatro pasos — 2026-08-10
 
 **ZONA COMPARTIDA:** `src/types/index.ts`. Además toca `src/pages/` (sesión web
 pública) y `src/pages/admin/` (sesión admin). El árbol estaba limpio al empezar.
@@ -7473,39 +7473,80 @@ transferencia. La columna seguía llamándose como el proveedor que ya no se usa
 `PropiedadDetailPage.tsx` traía escrito que no valía la pena renombrarla; el
 encargo decidió lo contrario, con el procedimiento que hace que no sea riesgoso.
 
-### PENDIENTE, Y CONDICIONADO: falta el paso 4
-
-```sql
--- NO EJECUTAR hasta que el deploy esté verificado en producción
-ALTER TABLE propiedades DROP COLUMN mostrar_boton_flow;
-```
-
-Los cuatro pasos, y en cuál vamos:
+### CERRADO — los cuatro pasos, el mismo día
 
 | paso | qué | estado |
 |---|---|---|
 | 1 | `ADD COLUMN mostrar_boton_reserva`, backfill, mismo default | **hecho** (`20260810000000`) |
 | 2 | el código pasa a la columna nueva | **hecho** |
-| 3 | deploy, y verificar en producción | **pendiente** |
-| 4 | `DROP COLUMN mostrar_boton_flow` | **pendiente, y bloqueado por el 3** |
+| 3 | deploy, y verificar en producción | **hecho** (`3ac3392c`) |
+| 4 | `DROP COLUMN mostrar_boton_flow` | **hecho** (`20260810000100`) |
 
-El archivo del paso 4 **no está escrito a propósito**. Escribirlo antes de tiempo
-es dejar una migración destructiva en el directorio que la CLI recorre.
+`mostrar_boton_flow` ya no existe. Pedirla por PostgREST devuelve
+`42703 column propiedades.mostrar_boton_flow does not exist`, y `select=*`
+devuelve 54 columnas sin ella.
 
-### MIENTRAS TANTO: no muevas la bandera en el admin
+### EL ARCHIVO DEL PASO 4 NO SE ESCRIBIÓ HASTA QUE EL 3 ESTUVO VERIFICADO
 
-Entre el commit y el deploy las dos columnas conviven, y el código nuevo **solo
-escribe la nueva**. En producción no pasa nada —corre el código viejo, que lee y
-escribe la vieja, y las dos están de acuerdo—, pero si alguien levanta el admin
-con `npm run dev` contra la base de producción y toca ese checkbox, las dos
-columnas divergen y el sitio en vivo sigue mostrando lo viejo hasta el deploy.
+Es la parte del procedimiento que conviene copiar. Un `DROP COLUMN` escrito «para
+después» dentro de `supabase/migrations/` no es una nota: es una migración
+pendiente, y **se aplica en el próximo `migration up` de cualquier sesión**, sin
+que nadie haya decidido que era el momento. La lista de migraciones no distingue
+«listo para correr» de «escrito por adelantado».
 
-Lo mismo al crear una propiedad nueva desde local: `mostrar_boton_reserva` toma
-lo del formulario y `mostrar_boton_flow` toma el `DEFAULT true` de la columna.
+### La ventana entre el paso 2 y el 3 existió y se cerró sin usarse
 
-Se descartó sincronizar las dos con un trigger o escribiendo ambas desde el
-admin: reintroduce el nombre viejo en el código que el encargo venía a limpiar, y
-la ventana se cierra con un deploy.
+Mientras las dos columnas convivieron, el código nuevo **solo escribía la nueva**.
+En producción no pasaba nada —corría el código viejo, que leía y escribía la
+vieja—, pero un `npm run dev` local contra la base de producción tocando ese
+checkbox las habría separado. No ocurrió: la comprobación previa al `DROP`
+encontró **0 desacuerdos en las 82 filas**.
+
+Se descartó sincronizarlas con un trigger o escribiendo ambas desde el admin:
+reintroduce el nombre viejo en el código que el encargo venía a limpiar, y la
+ventana se cierra con un deploy.
+
+### Verificación después del borrado
+
+Las 82 fichas recorridas otra vez en producción, con el mismo barrido de antes:
+
+| | antes del DROP | después |
+|---|---|---|
+| botón renderizado | 73 | **73** |
+| discrepancias contra lo que predice la columna | 0 | **0** |
+| Futaleufú | sin botón | **sin botón** |
+| errores y excepciones de consola | 0 | **0** |
+
+Y las rutas que consultan `propiedades` con `select('*')` —`/`, `/propiedades`,
+`/proyectos-nuevos`, `/propiedades-usadas`, la ficha de Futaleufú y su showcase—
+más `/admin`, que sigue pintando su formulario de acceso. Ningún `42703` en
+ninguna.
+
+### EL BOTÓN SALE EN 73, NO EN 81, Y LA BANDERA NO ES LA CAUSA
+
+Se descubrió al verificar y conviene que quede escrito, porque invita a
+diagnosticar mal. `PropiedadDetailPage.tsx` pinta el botón con:
+
+```jsx
+{prop.mostrar_boton_reserva !== false && !destacado && (
+```
+
+`destacado` es `ESTADO_DESTACADO[prop.estado]`, o sea `vendida`, `arrendada` o
+`reservada`. La bandera está encendida en 81 propiedades, pero **8 de ellas
+tienen uno de esos tres estados**, así que el botón no se pinta:
+
+| | |
+|---|---|
+| bandera encendida | 81 |
+| **botón en pantalla** | **73** |
+| oculto por estado (3 vendidas, 3 arrendadas, 2 reservadas) | 8 |
+| oculto por bandera | 1 · Hotel + Restaurante · Futaleufú |
+
+Es comportamiento previo y correcto —una propiedad vendida no se reserva—, y
+ninguno de los commits de este encargo lo tocó. Pero «la bandera está en 81, así
+que el botón sale en 81» es falso, y quien cuente fichas para comprobar un cambio
+en esa bandera va a encontrar 8 que no cuadran por una razón que no tiene nada
+que ver.
 
 ### Por qué el `ADD` + backfill y no un `RENAME`
 
