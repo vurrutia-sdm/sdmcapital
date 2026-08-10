@@ -16,6 +16,9 @@ archivo define quién toca qué y las reglas para no pisarse.
 - `src/pages/`
 - `src/components/sections/`
 - `src/components/ui/`
+- `src/components/credito/` — no figuraba en ninguna sesión hasta el 2026-08-09.
+  Es el modal de solicitud de crédito y su formulario, que solo se abren desde
+  el sitio público (Inicio, `/servicios` y `/evaluacion-gratuita`)
 
 ### Sesión admin
 
@@ -88,6 +91,52 @@ git status
 Si aparecen cambios sin commitear que no son tuyos, **detente y pregunta**. No
 edites, no commitees por tu cuenta, no hagas `git checkout` para "limpiar": ese
 trabajo es de otra sesión y puede estar a medio terminar o ya desplegado.
+
+## Pendientes de decisión comercial, no de código
+
+### Cuándo se cobra la gestión del crédito si el cliente compra por fuera
+
+La política, según Víctor: **si el cliente consigue el crédito y compra su
+propiedad con SDM —nueva o usada—, la gestión del crédito NO se cobra. Si
+compra por fuera, sí se cobra.**
+
+Lo que falta definir es **el momento** del cobro en ese segundo caso. Las dos
+superficies que lo declaraban no coincidían entre sí y ninguna describía la
+política:
+
+| dónde | qué decía |
+|---|---|
+| `SolicitudCreditoModal.tsx` | «contra el **éxito de la operación**» |
+| `EvaluacionGratuitaPage.tsx` | «solo al **éxito de la gestión**» |
+
+No son lo mismo: la gestión tiene éxito cuando el banco aprueba, y la operación
+cuando la compra se cierra. Entre esas dos fechas puede pasar que el cliente se
+eche atrás.
+
+Los textos nuevos **no inventan el momento**: el modal dice «siempre contra el
+resultado» y el Inicio no lo menciona. Cuando Víctor lo defina, se escribe en el
+modal —que es donde cabe el caso completo— y se revisa si el Inicio necesita
+recogerlo.
+
+### La gratuidad es de la GESTIÓN CREDITICIA, no de la compra
+
+Las fichas de propiedad muestran **«Comisión corredora 2 %»**
+(`PropiedadDetailPage.tsx`, desde `comision_porcentaje`), y el showcase de El
+Barranco la declara también. Es otro cobro, por otro servicio.
+
+Un visitante puede leer «si compras con nosotros no tiene costo» y entender que
+la compra entera es gratis. Por eso los tres textos dicen **«la gestión»** y no
+«comprar con SDM». Si en algún momento se acorta alguna de las tres frases, esa
+palabra es la que no se puede perder.
+
+### Las tres superficies que declaran honorarios
+
+Si se cambia una, se cambian las tres:
+
+1. Inicio → `financiamiento_body` y `financiamiento_condicion` en `contenido_sitio`
+2. `src/components/credito/SolicitudCreditoModal.tsx` — bloque «Honorarios», en código
+3. `src/pages/EvaluacionGratuitaPage.tsx` — arreglo `BENEFICIOS`, en código
+
 
 ## En qué está trabajando cada sesión
 
@@ -164,6 +213,7 @@ línea o se marca como cerrada.
 | 2026-08-09 | SEO: los cuatro críticos | **INVASIÓN ANUNCIADA de `functions/`, dominio de la sesión Sofía.** Se añade un segundo filtro para buscadores (Googlebot, bingbot, Google-InspectionTool, DuckDuckBot, Applebot, Yandex) que sirve el index.html REAL con la cabecera reescrita, no el stub de los bots sociales. Canonical propio en el cliente para tres rutas. Sitemap generado en el prebuild | En curso |
 | 2026-08-09 | Datos estructurados de fichas y artículos | **INVASIÓN ANUNCIADA de `functions/`, dominio de la sesión Sofía.** `RealEstateListing`+`Accommodation` en las 82 fichas y `BlogPosting` en los 13 artículos, más `BreadcrumbList` en ambos, emitidos desde las Pages Functions. SIN `geo` ni `streetAddress` — ver el porqué en `src/lib/schema.js`. El `RealEstateAgent` de index.html se queda y convive | En curso |
 | 2026-08-09 | Buscador del hero + barra de indicadores | **ZONA COMPARTIDA: se crea `src/lib/indicadores.ts`**, que pasa a ser la única fuente de UF y dólar. `CotizacionesAdmin` deja de tener su propio `fetch` a mindicador y consume el módulo — TOCA EL CÁLCULO DE DINERO DEL WIZARD, verificado que el valor y el flujo no cambian | En curso |
+| 2026-08-09 | Financiamiento al puesto 3 del Inicio + política de honorarios | **ZONA SIN DUEÑO ASIGNADA: `src/components/credito/` pasa a la sesión web pública** — no figuraba en ninguna. **INVASIÓN ANUNCIADA de `src/pages/admin/Contenido.tsx`** (sesión admin) para los campos nuevos, y de **`src/lib/i18n.ts`, ZONA COMPARTIDA**, para retirar 4 claves muertas de `sections.financiamiento`. El bloque sube del puesto 5 al 3, por encima del banner promocional. Seis claves de `contenido_sitio`, sembradas con la migración `20260809000000`. Se corrige la declaración de honorarios en las TRES superficies que la hacían | Cerrado |
 | — | Sofía / chatbot | — | — |
 
 ### Sesión RLS — 2026-08-05
