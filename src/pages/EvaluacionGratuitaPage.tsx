@@ -3,13 +3,24 @@ import { Check } from 'lucide-react'
 import SEO from '@/components/SEO'
 import SolicitudCreditoForm from '@/components/credito/SolicitudCreditoForm'
 
+// El sexto decía «Honorarios solo al éxito de la gestión», y afirmaba lo
+// contrario de la política: la gestión del crédito NO se cobra cuando el
+// cliente compra su propiedad con SDM. «Al éxito de la gestión» describe justo
+// el caso en que no se cobra —el crédito conseguido— y lo daba por cobrado.
+//
+// Iba listado como beneficio y con un check verde, en la página que capta las
+// solicitudes. Era la peor de las tres superficies que declaraban honorarios.
+//
+// LA GRATUIDAD ES DE LA GESTIÓN CREDITICIA, NO DE LA COMPRA: las fichas de
+// propiedad muestran «Comisión corredora 2 %», que es otra cosa. De ahí que
+// diga «la gestión» y no «comprar con SDM».
 const BENEFICIOS = [
   'Sin cobros anticipados',
   '+20 años de experiencia bancaria',
   'Gestionamos ante múltiples bancos',
   'Acompañamiento hasta la escritura',
   'Resultado en aprox. 5 días hábiles',
-  'Honorarios solo al éxito de la gestión',
+  'La gestión no tiene costo si compras con SDM',
 ]
 
 export default function EvaluacionGratuitaPage() {
