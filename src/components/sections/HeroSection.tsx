@@ -257,8 +257,20 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Contenido encima de todo */}
-      <div className="relative h-full flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-14" style={{ zIndex: 4 }}>
+      {/* Contenido encima de todo.
+          EL RELLENO INFERIOR NO ES SIMÉTRICO CON EL SUPERIOR, y es a propósito.
+          La tarjeta del buscador sube 48px sobre el hero (`marginTop: -48` en
+          `SearchBar`), así que se come el relleno de abajo entero: con `py-12`
+          (48px) quedaban 0px de aire entre la base de los contadores y el borde
+          de la tarjeta a 390 y a 768, y con `lg:py-14` (56px) apenas 8 a 1440.
+          Los contadores no están bajos: es el solapamiento el que los alcanza.
+          `pb-[76px]` deja 28px libres en los tres anchos — los mismos 28 que ya
+          hay DEBAJO de la tarjeta, así que respira igual por los dos lados.
+          NO TOCA NINGUNA ALTURA: el hero mide `calc(100vh - 64px)` acotado
+          entre 540 y 920, o sea que su alto lo fija la ventana, no su relleno.
+          Subir el relleno mueve los contadores hacia arriba dentro de una caja
+          que no cambia de tamaño — cero desplazamiento de layout, cero CLS. */}
+      <div className="relative h-full flex flex-col justify-between px-8 lg:px-16 py-12 lg:py-14 pb-[76px] lg:pb-[76px]" style={{ zIndex: 4 }}>
 
         {/* Kicker — un renglón por línea del valor. Se filtran las líneas
             vacías y se recortan los espacios: la clave viene de un campo de
