@@ -131,6 +131,26 @@ export default function FichaClienteDetalle() {
     loadAll()
   }
 
+  // ─── TODOS LOS HOOKS ANTES DE LA PRIMERA GUARDA ────────────────────────────
+  // Estos tres estaban DEBAJO de `if (checking) return` y `if (!authed) return`,
+  // y eso rompía la página entera con el error #310 de React —«Rendered more
+  // hooks than during the previous render»—.
+  //
+  // El mecanismo: `useAdminAuth` arranca con `checking = true`, así que el PRIMER
+  // render sale por la guarda y React cuenta N hooks. Cuando la sesión resuelve,
+  // `checking` pasa a false, el render llega hasta acá y ejecuta tres hooks más:
+  // N+3 contra los N que React memorizó. React no puede emparejarlos y lanza.
+  //
+  // No era un fallo intermitente: pasaba en CADA carga, porque la comprobación de
+  // sesión siempre es asíncrona. La página nunca llegó a pintar.
+  //
+  // Los hooks reciben el estado del modal, que ya está declarado más arriba, así
+  // que subirlos no cambia ningún comportamiento: cuando el modal está cerrado
+  // los tres son inertes.
+  const cerrarModal = useCallback(() => setShowEdit(false), [])
+  useDialogoModal(showEdit, cajaModal, cerrarModal)
+  useBloquearScroll(showEdit)
+
   if (checking) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy-dark)' }}>
       <span className="text-sdm-xl" style={{ color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>Verificando sesión…</span>
@@ -145,9 +165,6 @@ export default function FichaClienteDetalle() {
     </div>
   )
 
-  const cerrarModal = useCallback(() => setShowEdit(false), [])
-  useDialogoModal(showEdit, cajaModal, cerrarModal)
-  useBloquearScroll(showEdit)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--off)', fontFamily: 'inherit' }}>
