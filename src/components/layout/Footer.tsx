@@ -234,16 +234,27 @@ export default function Footer() {
 
         {/* Pie — una sola frase corrida. Los enlaces van inline a propósito:
             así siguen amparados por la excepción de 2.5.8 para objetivos
-            dentro de un bloque de texto. */}
-        <p className="text-sdm-sm" style={{ fontWeight: 300, color: TENUE, lineHeight: 1.9 }}>
+            dentro de un bloque de texto.
+            CENTRARLO NO TOCA ESA EXCEPCIÓN: `text-align` no cambia el `display`
+            de nada, los cuatro enlaces siguen siendo `inline` dentro del mismo
+            párrafo y la frase sigue siendo una. Lo que sí cambia es cómo
+            envuelve, y por eso se midió en los tres anchos.
+            EL `nowrap` DE CADA ETIQUETA es lo que hace que los saltos caigan
+            siempre en un `·`. Sin él, a 768 la línea se partía por la mitad de
+            «Eliminación de / Datos»: el enlace seguía funcionando y 2.5.8
+            seguía cumpliéndose, pero centrado se veía como un descuido. Con él,
+            768 queda en 104 + 39 caracteres y 390 en 52 + 51 + 39, todos
+            cortando en separador. Ninguna etiqueta llega a los 326px de ancho
+            disponible en móvil, así que el `nowrap` nunca desborda. */}
+        <p className="text-sdm-sm" style={{ fontWeight: 300, color: TENUE, lineHeight: 1.9, textAlign: 'center' }}>
           © 2026 SDM Capital · Todos los derechos reservados{' · '}
-          <Link to="/politica-de-privacidad" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Política de Privacidad</Link>
+          <Link to="/politica-de-privacidad" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>Política de Privacidad</Link>
           {' · '}
-          <Link to="/condiciones-del-servicio" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Condiciones del Servicio</Link>
+          <Link to="/condiciones-del-servicio" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>Condiciones del Servicio</Link>
           {' · '}
-          <Link to="/eliminacion-de-datos" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>Eliminación de Datos</Link>
+          <Link to="/eliminacion-de-datos" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>Eliminación de Datos</Link>
           {' · '}
-          <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400 }}>By HaikuFlow.com</a>
+          <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>By HaikuFlow.com</a>
         </p>
       </div>
     </footer>
