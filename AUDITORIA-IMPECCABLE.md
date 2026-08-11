@@ -311,7 +311,19 @@ sin `aria-label` ni `<title>`. **Son los únicos controles anónimos del sitio.*
 **Choque.** Ninguno. Y contrasta con el resto, cuidado hasta el detalle («Ver la
 foto 3 de 5», «Facebook de SDM Capital (se abre en una pestaña nueva)»).
 
-### C-8 · P2 — Las imágenes deshacen el sistema de diseño
+### C-8 · P2 → **P1 desde el 2026-08-10** — Las imágenes deshacen el sistema de diseño
+
+> **La galería pegajosa le sube la prioridad, y conviene decirlo.** Desde
+> `aceef50` la imagen principal queda fija en pantalla mientras se lee la
+> columna derecha: en la ficha más larga, unas seis pantallas. El sticky **no
+> causa** este hallazgo, pero cambia su coste. Una `imagen_principal` que es un
+> volante —«INCLUYE BONO PIE» quemado en el bitmap, segundo logo SDM, la lista
+> de características en texto de imagen— antes pasaba por pantalla y se iba;
+> ahora preside la lectura entera de la ficha.
+>
+> Sigue siendo trabajo de contenido sobre 82 propiedades, no de código, y sigue
+> sin resolverse acá. Lo que cambia es que ya no es un defecto de primera
+> impresión: es el fondo permanente de la página.
 
 **Dónde.** La `imagen_principal` de varias propiedades es un **volante
 publicitario**: segundo logo SDM compitiendo con el del header, tipografía ajena,

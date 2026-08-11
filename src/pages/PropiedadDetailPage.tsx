@@ -526,6 +526,66 @@ export default function PropiedadDetailPage() {
                 ))}
               </div>
             )}
+
+            {/* ─── EL PRECIO VIVE CON LA FOTO, Y VIAJA CON ELLA ────────────────────
+                Sube desde la columna derecha, donde quedaba a media pantalla de la
+                galería y se perdía al desplazarse. Acá entra en el bloque pegajoso:
+                mientras se lee la descripción, la foto Y el precio siguen a la vista.
+
+                SUBE SOLO LO QUE LA COLUMNA DERECHA NO REPITE: el valor en UF, su
+                equivalente en CLP y el monto del bono pie. Los tres son marcado y no
+                existen en el texto del editor.
+
+                LAS ETIQUETAS DE ABAJO NO SUBEN, y no es un olvido. «Comisión
+                corredora 2 %» está también dentro de la descripción de muchas fichas,
+                y ahí dice «2 % + IVA». Subir el marcado encima pondría las dos
+                redacciones a la vista a la vez. Es una discrepancia de contenido en 82
+                fichas, anotada como hallazgo en AUDITORIA-VOZ-SDM.md.
+
+                ORDEN DEL DOM: galería → precio → banner de estado → specs → …
+                Sin CSS se lee igual de bien que antes; el precio sencillamente llega
+                antes. No hace falta ningún `order:`. */}
+            {(prop.a_consultar || prop.precio_uf || prop.precio_usd || prop.precio_clp) && (
+              <div className="mb-6 pb-6 border-b border-[var(--border)]">
+                {prop.baja_precio && prop.precio_anterior_uf && (
+                  <div className="text-sdm-xl" style={{ color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
+                    UF {prop.precio_anterior_uf.toLocaleString('es-CL')} — precio anterior
+                  </div>
+                )}
+                {/* Una rebaja es una oportunidad, no un error. Estaba en el rojo
+                    de error mientras la insignia de acá arriba ya decía «Precio
+                    rebajado» en verde: la misma tarjeta afirmaba dos cosas
+                    opuestas sobre el mismo hecho. La comparación ya la comunica
+                    el precio anterior tachado; el color no tiene que reforzarla. */}
+                <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: prop.baja_precio ? 'var(--oportunidad)' : 'var(--navy-dark)' }}>
+                  {prop.a_consultar
+                    ? 'A consultar'
+                    : prop.precio_uf
+                    ? `UF ${prop.precio_uf.toLocaleString('es-CL')}`
+                    : prop.precio_clp
+                    ? `$ ${(prop.precio_clp as number).toLocaleString('es-CL')}`
+                    : prop.precio_usd
+                    ? `USD ${prop.precio_usd.toLocaleString()}`
+                    : ''}
+                </div>
+                {/* Equivalente en pesos. `--muted` sobre blanco da 5,03:1. */}
+                {uf && prop.precio_uf && !prop.a_consultar && (
+                  <div className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 4 }}>
+                    ≈ ${Math.round(prop.precio_uf * uf).toLocaleString('es-CL')} CLP
+                  </div>
+                )}
+                {/* El bono pie decía solo su porcentaje. En monto es lo que el
+                    comprador descuenta de verdad del pie. 27 de las 28 fichas que
+                    llevan la insignia tienen los dos datos para calcularlo. */}
+                {prop.bono_pie && prop.bono_pie_porcentaje && prop.precio_uf && !prop.a_consultar && (
+                  <div className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--oportunidad)', marginTop: 6 }}>
+                    Bono pie de UF {Math.round(prop.precio_uf * prop.bono_pie_porcentaje / 100).toLocaleString('es-CL')}
+                    <span style={{ color: 'var(--muted)' }}> · {prop.bono_pie_porcentaje}% del valor</span>
+                  </div>
+                )}
+                <div className="text-sdm-base tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 6, textTransform: 'uppercase' }}>{estado}</div>
+              </div>
+            )}
           </div>
 
           {/* ── Detalle ── */}
@@ -570,47 +630,6 @@ export default function PropiedadDetailPage() {
             {/* ── Compartir ── */}
             <ShareButtons titulo={titulo} />
 
-            {(prop.a_consultar || prop.precio_uf || prop.precio_usd || prop.precio_clp) && (
-              <div className="mb-6 pb-6 border-b border-[var(--border)]">
-                {prop.baja_precio && prop.precio_anterior_uf && (
-                  <div className="text-sdm-xl" style={{ color: 'var(--muted)', textDecoration: 'line-through', marginBottom: 4 }}>
-                    UF {prop.precio_anterior_uf.toLocaleString('es-CL')} — precio anterior
-                  </div>
-                )}
-                {/* Una rebaja es una oportunidad, no un error. Estaba en el rojo
-                    de error mientras la insignia de acá arriba ya decía «Precio
-                    rebajado» en verde: la misma tarjeta afirmaba dos cosas
-                    opuestas sobre el mismo hecho. La comparación ya la comunica
-                    el precio anterior tachado; el color no tiene que reforzarla. */}
-                <div className="font-serif text-sdm-display-md" style={{ fontWeight: 300, color: prop.baja_precio ? 'var(--oportunidad)' : 'var(--navy-dark)' }}>
-                  {prop.a_consultar
-                    ? 'A consultar'
-                    : prop.precio_uf
-                    ? `UF ${prop.precio_uf.toLocaleString('es-CL')}`
-                    : prop.precio_clp
-                    ? `$ ${(prop.precio_clp as number).toLocaleString('es-CL')}`
-                    : prop.precio_usd
-                    ? `USD ${prop.precio_usd.toLocaleString()}`
-                    : ''}
-                </div>
-                {/* Equivalente en pesos. `--muted` sobre blanco da 5,03:1. */}
-                {uf && prop.precio_uf && !prop.a_consultar && (
-                  <div className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 4 }}>
-                    ≈ ${Math.round(prop.precio_uf * uf).toLocaleString('es-CL')} CLP
-                  </div>
-                )}
-                {/* El bono pie decía solo su porcentaje. En monto es lo que el
-                    comprador descuenta de verdad del pie. 27 de las 28 fichas que
-                    llevan la insignia tienen los dos datos para calcularlo. */}
-                {prop.bono_pie && prop.bono_pie_porcentaje && prop.precio_uf && !prop.a_consultar && (
-                  <div className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--oportunidad)', marginTop: 6 }}>
-                    Bono pie de UF {Math.round(prop.precio_uf * prop.bono_pie_porcentaje / 100).toLocaleString('es-CL')}
-                    <span style={{ color: 'var(--muted)' }}> · {prop.bono_pie_porcentaje}% del valor</span>
-                  </div>
-                )}
-                <div className="text-sdm-base tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 6, textTransform: 'uppercase' }}>{estado}</div>
-              </div>
-            )}
 
             {/* Specs principales — solo los que tienen valor */}
             {(() => {
