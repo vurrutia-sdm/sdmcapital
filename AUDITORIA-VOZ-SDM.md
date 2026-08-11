@@ -25,6 +25,11 @@ distingue de las corredoras grandes.
 
 **5 hallazgos altos · 12 medios · 4 bajos · 5 avisos legales.**
 
+> Se levantó un sexto hallazgo alto (A6, la comisión de corretaje) el
+> 2026-08-10 y **se retiró tras investigarlo**: las comisiones se pactan caso
+> a caso y las cifras de cada ficha son deliberadas. Queda documentado en
+> «Revisado y descartado» para que no se vuelva a levantar.
+
 ---
 
 ## Hallazgos
@@ -38,8 +43,6 @@ distingue de las corredoras grandes.
 | A3 | **Tres razones sociales, y la del dinero no coincide.** El modal de reserva dice «SDM Capital Real Estate» junto al número de cuenta; la política de privacidad dice «SDM Capital SpA»; `empresa_nombre` dice «SDM Capital». Quien va a transferir compara el titular con lo que dice el sitio | `ReservaModal:23` · `paginas_legales` · `empresa_nombre` | Fijar la razón social pública. En el modal de reserva debe coincidir **exactamente** con el titular de la cuenta bancaria |
 | A4 | **El eje declarado y el eje escrito no coinciden.** El negocio principal es corretaje, pero el sitio se posiciona como inversión: el kicker del hero dice «Inversión inmobiliaria · Chile», el `<title>` dice «Inversión Inmobiliaria Chile & Internacional», y Quiénes Somos abre con «especializada en inversión inmobiliaria y gestión de financiamiento». La palabra «corredora» no aparece en ninguna parte del copy | `hero_kicker`, `HomePage:420`, `qs_subtitulo`, `qs_historia_1` | Decidir si el posicionamiento cambia o si el copy se alinea al negocio |
 | A5 | **Quiénes Somos y Asociados están escritas en corporativo genérico.** «Red selecta de socios estratégicos», «el mejor servicio integral», «referentes en gestión», «democratizar el acceso», «equipo de expertos comprometidos», «compromiso con la excelencia en el servicio». Son las dos páginas donde se juega la confianza, y suenan igual que cualquier competidor | `AsociadosPage:61,77,95,107` · `qs_historia_1,2,3`, `QuienesSomosPage:16-18,27` | Reescribir con hechos: con quiénes se trabaja, desde cuándo, qué pasa en cada etapa |
-
-| A6 | **La comisión de corretaje está escrita en dos sitios con dos redacciones, y la diferencia es dinero.** El marcado de la ficha pinta la insignia «Comisión corredora 2 %» desde `comision_porcentaje`. El texto de la descripción, que escriben los editores, dice en muchas fichas «Comisión corretaje: **2 % + IVA** sobre valor de venta». Sobre UF 10.754 la diferencia es de UF 40,9 — cerca de 1,7 millones de pesos. Un cliente que compare las dos líneas no sabe cuál rige | `PropiedadDetailPage` (insignia, desde `comision_porcentaje`) · el texto de `descripcion` en las 82 fichas | Decidir la redacción única y propagarla. Si el 2 % es neto, la insignia debe decirlo; si lleva IVA, la insignia miente por defecto. **No se resuelve moviendo marcado**: es contenido en 82 registros |
 
 ### Severidad media
 
@@ -146,6 +149,45 @@ comisiones de Rental se publican con su base de cálculo (50% de un mes de
 arriendo, 7% mensual), sin ambigüedad. Y la política de privacidad declara el uso
 del asistente automatizado y el derecho a pedir atención humana, que es más de lo
 que hace la mayoría.
+
+---
+
+## Revisado y descartado — no volver a levantarlo
+
+Lo que una auditoría futura va a mirar y creer que es un defecto, con el motivo
+por el que no lo es. **Confirmado por Víctor el 2026-08-10.**
+
+### La comisión de corretaje no es fija, y por eso las cifras varían
+
+**Las comisiones se pactan caso a caso.** La página de Condiciones del Servicio
+ya lo dice —«las condiciones comerciales específicas de cada operación
+—incluyendo comisiones, plazos, forma de pago, exclusividad…»— y es la
+descripción correcta del negocio. **Las cifras que publica cada ficha son
+deliberadas, no un descuadre.**
+
+Se levantó como hallazgo A6 (severidad alta) el 2026-08-10, se investigó a fondo
+y **se retiró**. Esto es lo que se encontró, para que nadie lo vuelva a
+diagnosticar como error:
+
+| lo que se ve | qué es |
+|---|---|
+| **3 fichas publican «Comisión corredora 50 %»** — «Vive en el corazón de La Cisterna», «Arriendo Casa 2D1B Larapinta» y «Oficinas en arriendo» | Son **arriendos**. El 50 % es medio mes de renta, la misma tarifa que publica SDM Rental. No es el 50 % del precio del inmueble |
+| **2 fichas dicen «2 % + IVA» y 35 dicen «2 %»** | Redacciones distintas de operaciones distintas |
+| **4 fichas dan un monto fijo** en pesos en vez de un porcentaje | También arriendos |
+| **5 nombres para el concepto** — «de corretaje», «corretaje», «comprador», «corredora», y uno sin tilde | Texto de editor, escrito por operación |
+| **`comision_porcentaje` vale 2 en 51 fichas y 0 en 28** | El 0 son los proyectos nuevos, donde la etiqueta no se pinta a propósito |
+| **`ElBarrancoShowcase.tsx:438` lleva `'2%'` escrito en el componente**, sin pasar por `c()` como sus vecinos | Es esa operación concreta |
+
+**Lo que NO hay que tocar:** la columna `comision_porcentaje`, la etiqueta de
+`PropiedadDetailPage`, el literal del showcase, ni ninguno de los 41 textos de
+editor que mencionan comisión.
+
+> **Y la lección de método, que sí es reutilizable.** El hallazgo original decía
+> que «2 %» y «2 % + IVA» se contradecían. La contradicción era real en el papel
+> y falsa en el negocio: dos operaciones distintas pueden cobrar cosas distintas.
+> **Antes de llamar inconsistencia a una diferencia, hay que preguntar si lo que
+> varía es el dato o la realidad que describe.** Es la misma familia que el
+> `grep` que contaba nombres sin mirar a qué interfaz pertenecían.
 
 ---
 
