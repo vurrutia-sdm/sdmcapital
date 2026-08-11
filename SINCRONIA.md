@@ -7922,3 +7922,82 @@ enciende el conmutador, pero **no se pueden verificar en el navegador**.
 Es el dato que le faltaba al hallazgo M8 de `AUDITORIA-VOZ-SDM.md` («bilingüe
 parcial»): no es que cuatro páginas estén en inglés y el resto no — es que ese
 inglés no tiene forma de mostrarse, salvo en El Barranco.
+
+## `«UF —»` no era un límite de mindicador: era pedirle el dato a un solo sitio — 2026-08-11
+
+Sesión web pública. Tocado `src/lib/indicadores.ts` —zona compartida— y
+`src/components/layout/Header.tsx`.
+
+La barra del header mostraba `UF —` y `DÓLAR —` las primeras horas de cada día.
+
+### El diagnóstico, y por qué la UF no podía ser culpa del origen
+
+`obtenerIndicadores()` pedía **una sola URL**, `https://mindicador.cl/api`. Ese
+endpoint es un documento **del día en curso** que arma mindicador, y en las
+primeras horas todavía no está poblado: los nodos `uf` y `dolar` faltan o vienen
+sin valor. `leer()` devolvía `null`, el `catch` colapsaba todo a
+`{ uf: null, dolar: null }` y el Header pintaba dos guiones. No había fallback ni
+caché de ninguna clase.
+
+Pero el valor de la UF **existe siempre**. El Banco Central emite la UF diaria
+del 9 de cada mes al 9 del siguiente, y `/api/uf/2026` lo confirma: 252 nodos,
+el más nuevo con fecha `2026-09-09`, o sea 29 días por delante del día en que se
+consultó. La UF vacía era un bug nuestro.
+
+Solo el dólar observado depende de la mañana, porque es el promedio del día hábil
+anterior. Ese sí puede no estar todavía, y por eso es el único de los dos que
+puede acabar oculto en un día normal.
+
+### Tres intentos, y la regla que hace que el tercero sirva
+
+1. `/api` — un viaje para los dos. Acierta el resto del día.
+2. `/api/<codigo>` — la serie de 30 días, **solo para el que faltó**.
+3. `localStorage` — el último valor conocido.
+
+`guardarCache()` **descarta los nulos**. Sin esa regla, la primera visita de una
+madrugada mala borraría el respaldo justo cuando hace falta, y el tercer intento
+no tendría nada que ofrecer.
+
+Ningún valor de respaldo está escrito a mano. Cualquier cifra que se pinte salió
+alguna vez de mindicador y viaja con la fecha en que se publicó.
+
+### Dos bugs de huso horario que salieron por el camino
+
+`Header.tsx` calculaba `hoyISO` con `toISOString()`, que da la fecha **UTC**.
+Chile va en UTC-4, así que **desde las 20:00 de cada noche** la barra creía que
+hoy era mañana y estampaba «al 11 ago» sobre datos que sí eran de hoy. Y
+`fechaCorta()` formateaba en el huso del navegador: mindicador fecha sus nodos a
+medianoche de Chile (`T04:00:00.000Z`), que un navegador en UTC-5 o más al oeste
+retrocede al día anterior.
+
+Los dos se arreglan con `timeZone: 'America/Santiago'` explícito. `hoyEnChile()`
+usa el locale `en-CA` porque es el único corriente cuyo formato de fecha corta ya
+es ISO, así que no hay que armar el string desde las partes.
+
+### Un indicador sin dato no se pinta, y el alto no lo pone el contenido
+
+Nunca un guión: el `<span>` entero desaparece. Un «—» donde va la UF de un sitio
+que cotiza propiedades se lee como una cifra rota; que el rótulo no esté se lee
+como que hoy no hay, que es la verdad.
+
+Eso solo es seguro porque la barra lleva `height: 26` **fijo**, no un alto que
+salga de su contenido. Medido en el navegador con los tres casos —los dos datos,
+solo UF, ninguno— por 390, 768 y 1440: **26 px en los seis visibles, y oculta en
+390** (`hidden md:flex`). Si el alto lo pusiera el texto, esconder un indicador
+sumaría CLS al llegar el dato.
+
+El separador `·` se intercala **entre** piezas en vez de acompañar a cada una:
+pegado al indicador dejaría un «·» suelto colgando de la fecha cuando falte.
+
+### El sufijo de fecha no se atenúa
+
+`al 10 ago` es lo único que impide leer la cifra como si fuera de hoy. Bajarle la
+opacidad para hacerlo discreto es esconder justo el aviso. Hereda el `--sky` del
+contenedor: **8,68:1** sobre `--navy-dark`, compuesto en el navegador contra el
+fondo real y no contra el color declarado. Lo que lo separa del rótulo no es que
+se vea menos — es que el número que va en medio pesa más y va en blanco.
+
+### Nota para quien mire `PropiedadDetailPage.tsx:236`
+
+Ese comentario decía que el módulo «ya trae caché, timeout y su propio fallback».
+Traía timeout. Desde este commit, las tres cosas son ciertas.

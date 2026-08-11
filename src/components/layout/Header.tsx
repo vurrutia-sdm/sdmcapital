@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCerrarConEscape } from '@/hooks/useCerrarConEscape'
 import { useBloquearScroll } from '@/hooks/useBloquearScroll'
-import { obtenerIndicadores, formatear, fechaCorta } from '@/lib/indicadores'
+import { obtenerIndicadores, indicadoresCacheados, formatear, fechaCorta, hoyEnChile } from '@/lib/indicadores'
 import type { Indicador, Indicadores } from '@/lib/indicadores'
 import { Menu, X, ChevronDown } from 'lucide-react'
 
@@ -19,12 +19,14 @@ const SERVICES = [
 // rutas y a tocar el `sticky` del admin, que es zona compartida. Como segunda
 // línea del propio header crece con su contenido y no hay offset que ajustar.
 //
-// RESERVA SU ALTO DESDE EL PRIMER FRAME con guiones. Si apareciera al llegar el
-// dato empujaría el contenido hacia abajo y sumaría CLS: la barra existe desde
-// el primer pintado y lo único que cambia es el texto de dentro.
+// RESERVA SU ALTO DESDE EL PRIMER FRAME con `height: 26` fijo, no con su
+// contenido. Ese alto no depende de cuántos indicadores haya dentro, así que la
+// barra mide lo mismo con los dos, con uno o con ninguno y nunca empuja el
+// contenido de abajo. Si el alto lo pusiera el texto, esconder un indicador
+// sumaría CLS al llegar el dato.
 //
 // LA PETICIÓN NO BLOQUEA EL PINTADO: sale en un `useEffect`, después del primer
-// render, y si falla se queda en guiones. Nunca un cero ni un valor de ayer.
+// render, y arranca del último valor conocido en vez de guiones. Nunca un cero.
 // El número, no su rótulo, es el dato. Blanco sobre `--navy-dark` da 15,71:1
 // contra los 8,68:1 del rótulo en `--sky`, y el peso medio lo separa sin
 // necesidad de subir el tamaño.
@@ -33,21 +35,39 @@ function Cifra({ children }: { children: React.ReactNode }) {
 }
 
 function BarraIndicadores() {
-  const [ind, setInd] = useState<Indicadores>({ uf: null, dolar: null })
+  // Arranca del último valor conocido, no de `{ null, null }`: ver
+  // `indicadoresCacheados()` en `src/lib/indicadores.ts`.
+  const [ind, setInd] = useState<Indicadores>(indicadoresCacheados)
 
   useEffect(() => { obtenerIndicadores().then(setInd) }, [])
 
-  const hoy = new Date()
-  const hoyISO = hoy.toISOString().slice(0, 10)
-  const hoyTexto = hoy.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })
+  const hoyISO = hoyEnChile()
+  const hoyTexto = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Santiago' })
 
   // CADA INDICADOR CON SU FECHA, NO CON LA DE HOY. El dólar observado no se
   // publica fines de semana ni festivos: un domingo la UF es de hoy y el dólar
-  // del viernes. Se anota «(al 7 ago)» SOLO cuando la fecha del indicador no es
-  // la de hoy, así que en un día hábil normal la barra queda limpia y el aviso
+  // del viernes. Se anota «al 7 ago» SOLO cuando la fecha del indicador no es la
+  // de hoy, así que en un día hábil normal la barra queda limpia y el aviso
   // aparece justo cuando hace falta.
-  const sufijo = (i: Indicador | null) =>
-    i && i.fecha && i.fecha.slice(0, 10) !== hoyISO ? ` (al ${fechaCorta(i.fecha)})` : ''
+  //
+  // EL SUFIJO NO SE ATENÚA. Es la parte que dice que la cifra no es de hoy, o
+  // sea lo único que impide leer mal el número: bajarle la opacidad para hacerlo
+  // discreto es esconder justo el aviso. Hereda el `--sky` del contenedor —8,68:1
+  // sobre `--navy-dark`, medido—, y lo que lo separa del rótulo es que el número
+  // que va en medio pesa más y va en blanco, no que este se vea menos.
+  const sufijo = (i: Indicador) =>
+    i.fecha && i.fecha.slice(0, 10) !== hoyISO ? ` al ${fechaCorta(i.fecha)}` : ''
+
+  // NUNCA UN GUIÓN: el indicador sin dato no se pinta. Un «—» en una barra que
+  // publica la UF de un sitio que cotiza propiedades se lee como una cifra rota;
+  // que el rótulo no esté se lee como que hoy no hay, que es la verdad. Con el
+  // respaldo en caché esto solo ocurre en la primera visita con mindicador
+  // caído, y aun entonces el alto de la barra no cambia.
+  const piezas = [
+    <span key="fecha">{hoyTexto}</span>,
+    ...(ind.uf ? [<span key="uf">UF <Cifra>{formatear(ind.uf.valor)}</Cifra>{sufijo(ind.uf)}</span>] : []),
+    ...(ind.dolar ? [<span key="dolar">Dólar <Cifra>{formatear(ind.dolar.valor)}</Cifra>{sufijo(ind.dolar)}</span>] : []),
+  ]
 
   return (
     /* FONDO --navy-dark, Y SE DESCARTÓ --off CON UNA MEDICIÓN.
@@ -71,11 +91,12 @@ function BarraIndicadores() {
       className="hidden md:flex items-center justify-end gap-4 px-8 lg:px-12 text-sdm-xs tracking-sdm-wide"
       style={{ height: 26, background: 'var(--navy-dark)', color: 'var(--sky)', textTransform: 'uppercase' }}
     >
-      <span>{hoyTexto}</span>
-      <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
-      <span>UF <Cifra>{ind.uf ? formatear(ind.uf.valor) : '—'}</Cifra>{sufijo(ind.uf)}</span>
-      <span aria-hidden="true" style={{ opacity: 0.4 }}>·</span>
-      <span>Dólar <Cifra>{ind.dolar ? formatear(ind.dolar.valor) : '—'}</Cifra>{sufijo(ind.dolar)}</span>
+      {/* El separador va ENTRE piezas, no pegado a cada una: si acompañara al
+          indicador quedaría un «·» suelto colgando de la fecha cuando falte. */}
+      {piezas.flatMap((p, i) => i === 0 ? [p] : [
+        <span key={`sep${i}`} aria-hidden="true" style={{ opacity: 0.4 }}>·</span>,
+        p,
+      ])}
     </div>
   )
 }
