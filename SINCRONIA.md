@@ -8001,3 +8001,63 @@ se vea menos — es que el número que va en medio pesa más y va en blanco.
 
 Ese comentario decía que el módulo «ya trae caché, timeout y su propio fallback».
 Traía timeout. Desde este commit, las tres cosas son ciertas.
+
+## TRAMPA · `toISOString()` devuelve UTC, y Chile no está en UTC — 2026-08-11
+
+`new Date().toISOString().slice(0, 10)` **no es «la fecha de hoy»**. Es la fecha
+en UTC. Chile va en UTC-4 (UTC-3 en horario de verano), así que **desde las 20:00
+de cada noche** esa expresión ya devuelve la de mañana.
+
+Así se rompió la barra de indicadores del header: comparaba la fecha del
+indicador contra ese `hoyISO` y, cada noche a partir de las 20:00, estampaba «al
+11 ago» sobre datos que sí eran de hoy. El bug era invisible durante el día y
+aparecía solo de noche, que es la peor forma de fallar.
+
+**La regla: cualquier comparación o formateo de fechas en este proyecto tiene que
+ser explícita en `America/Santiago`.** El sitio publica indicadores del Banco
+Central, precios en UF y horarios de visita. Todos son fechas chilenas, y ninguna
+significa nada sin su huso.
+
+Para la fecha de hoy hay una función: `hoyEnChile()`, en
+[`src/lib/indicadores.ts`](./src/lib/indicadores.ts). Usa el locale `en-CA`
+porque es el único corriente cuyo formato de fecha corta ya es ISO, así que
+devuelve `YYYY-MM-DD` sin armar el string desde `getFullYear()` y compañía.
+
+```ts
+new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santiago' })
+```
+
+### Dónde SÍ está bien usar `toISOString()`
+
+Cuando lo que se guarda es un **instante**, no una fecha de calendario:
+
+- `VendeConNosotrosPage.tsx:50` y `PaginasLegales.tsx:42` escriben
+  `created_at` / `updated_at`. Un timestamp en UTC es exactamente lo correcto.
+
+La distinción es esa: un instante no tiene huso, una fecha de calendario sí.
+
+### Barrido del 2026-08-11 — pendientes, NO arreglados
+
+Ninguno se tocó en el commit de los indicadores. Quedan anotados acá para que se
+arreglen a conciencia y no de paso.
+
+**Depende del huso del navegador de quien mire** — correcto desde Chile, se
+corre un día o unas horas desde fuera:
+
+| Sitio | Qué muestra |
+|---|---|
+| `admin/Captacion.tsx:1336-1338` | `startOfToday` / `startOfMonth` de las métricas. `new Date(y, m, d)` construye medianoche **local**, así que el corte de «hoy» es el del navegador, no el de Chile |
+| `admin/Captacion.tsx:323` | `formatHora()` de los mensajes del chat — la hora de un mensaje leída en otro huso |
+| `admin/Mensajes.tsx:44` | fecha y hora completas del mensaje |
+| `admin/FichaClienteVer.tsx:100` | el «hoy» impreso en la ficha del cliente |
+| `admin/FichaClienteDetalle.tsx:260`, `admin/FichaClientesLista.tsx:199` | fecha de creación de la ficha |
+| `BlogPage.tsx:66`, `BlogPostPage.tsx:79`, `BlogPreviewSection.tsx:40` | fecha de publicación del post |
+| `cotizaciones/CotizacionPDF.tsx:46` y `:190` | fechas dentro del PDF de cotización |
+
+De todos ellos, los dos de **`Captacion.tsx`** son los que importan: uno decide
+qué leads entran en «hoy» —o sea, un número que alguien mira para tomar
+decisiones—, y el otro es una hora, donde un huso mal puesto no se corre un día
+sino cuatro horas, que es un error mucho más fácil de no notar.
+
+`scripts/sync-sitemap.mjs:79` también corta con `toISOString()`, pero ahí es
+`lastmod` de un sitemap, que el estándar espera en UTC. Se queda como está.
