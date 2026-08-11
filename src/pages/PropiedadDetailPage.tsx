@@ -428,7 +428,33 @@ export default function PropiedadDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
 
           {/* ── Galería ── */}
-          <div>
+          {/* ─── PEGAJOSA DESDE 768, Y `self-start` ES LO QUE LO HACE POSIBLE ───
+              Medido en 18 fichas: la galería mide **508 px exactos** tenga 8 o 20
+              imágenes, y la columna derecha va de 1.670 a 5.881. El hueco bajo la
+              galería es de 1.162 a 5.373 px, con mediana 2.448 — y está en
+              **18 de 18**, no en una minoría.
+
+              `md:self-start` NO ES COSMÉTICO: sin él la caja no se puede pegar.
+              Un hijo de grid se estira a la altura de la fila por defecto
+              (`align-self: stretch`), así que su caja YA ocupa los 5.881 px y
+              `sticky` no tiene recorrido. Con `self-start` la caja vuelve a medir
+              lo que mide su contenido y aparece el espacio por el que deslizarse.
+              (Ese estiramiento es también lo que hizo que la primera medición del
+              hueco diera 0 en 18/18: comparaba cajas, que siempre son iguales.)
+
+              El desplazamiento superior sale de `--sdm-header-total`, el MISMO
+              token que usa `scroll-padding-top` en `globals.css:427`. Escribir el
+              número a mano dejaría dos fuentes que divergen en cuanto alguien
+              toque la altura del header o de la barra de indicadores.
+
+              `md:` y no antes: bajo 768 la ficha es una sola columna y pegar la
+              galería la dejaría tapando el texto. El `top` inline es inofensivo
+              ahí porque no aplica a un elemento `static`.
+
+              §5.7 ya dejó el camino libre: `html` y `body` llevan `overflow-x:
+              clip` y no `hidden` justamente para no convertirse en contenedor de
+              scroll y romper cualquier `sticky` del sitio. */}
+          <div className="md:sticky md:self-start" style={{ top: 'var(--sdm-header-total)' }}>
             {/* Imagen principal — clic para abrir lightbox */}
             {/* El contenedor NO puede ser el <button>: contiene las flechas de
                 anterior/siguiente, y un botón dentro de otro es inválido. El
