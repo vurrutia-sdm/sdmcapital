@@ -1,6 +1,6 @@
 # Guía de voz — SDM Capital
 
-**Versión 1 · agosto 2026**
+**Versión 1.1 · agosto 2026**
 
 Este documento no inventa una voz: la extrae del copy que ya está en producción,
 se queda con lo que funciona y descarta lo que no. Cada regla viene con un
@@ -112,8 +112,20 @@ propiedad se vende, el orden está invertido.
 
 - **En imperativo y en primera persona del cliente**, no de la empresa.
   → «Quiero vender mi propiedad», «Solicita tu preevaluación gratuita».
-- **Sin flecha `→`.** El botón ya se ve como botón. Hoy conviven las dos formas
-  y hay que unificar.
+- **Sin flecha `→` escrita dentro del texto.** El rótulo de un botón es
+  `Enviar`, no `Enviar →`. La flecha escrita a mano dentro de la cadena de copy
+  no la ve un lector de pantalla como lo que es, se duplica cuando el componente
+  ya trae la suya, y sobra: el botón ya se ve como botón.
+
+  **La flecha que forma parte de un COMPONENTE sí se queda.** `.btn-text` está
+  definido en `SISTEMA-DISENO.md` §2.1 como «texto con subrayado y `→`», y ahí la
+  flecha es parte de la variante, no una decisión de redacción. No se toca.
+
+  > *Corregido en la v1.1.* La regla decía antes «Sin flecha `→`» a secas, y así
+  > redactada contradecía de frente a `SISTEMA-DISENO.md` §2.1 — dos autoridades
+  > del proyecto diciendo cosas opuestas sobre el mismo carácter. Lo que la regla
+  > quería decir siempre es lo de arriba: se va la flecha **escrita en el copy**,
+  > se queda la del **componente**.
 - Sin punto final.
 
 ### Puntuación

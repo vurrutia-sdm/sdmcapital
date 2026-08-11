@@ -98,7 +98,7 @@ export default function ServiciosPage() {
                     : document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
                   className="btn-primary inline-flex"
                 >
-                  {isCredito ? 'Solicita una evaluación gratuita →' : 'Más información →'}
+                  {isCredito ? 'Solicita tu evaluación gratuita' : 'Más información'}
                 </button>
               </div>
               <div className={'flex items-center justify-center overflow-hidden' + (flip ? ' lg:order-1' : '')}

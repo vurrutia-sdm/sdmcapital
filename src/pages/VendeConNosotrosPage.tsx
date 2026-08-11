@@ -71,12 +71,12 @@ export default function VendeConNosotrosPage() {
   }
 
   const heroTitulo = get('vende_hero_titulo', 'Ponemos tu propiedad en venta')
-  const heroSubtitulo = get('vende_hero_subtitulo', 'Somos expertos en soluciones inmobiliarias con más de 20 años de experiencia. Tenemos todas las herramientas para garantizar una venta ágil, segura y al mejor precio.')
+  const heroSubtitulo = get('vende_hero_subtitulo', 'Vendemos tu propiedad con el respaldo de un equipo que viene de la banca. Nos encargamos de la difusión, la tasación, el estudio de títulos y la escritura.')
   const heroImg = get('vende_hero_img', '')
 
   const pilaresTitulo = get('vende_pilares_titulo', 'Vende con el respaldo de un equipo especializado')
   const PILARES = [
-    { num: get('vende_pilar1_num', '01'), titulo: get('vende_pilar1_titulo', 'Experiencia'), desc: get('vende_pilar1_desc', 'Profesionales con más de 20 años en banca e inversión inmobiliaria, orientados 100% al cliente.') },
+    { num: get('vende_pilar1_num', '01'), titulo: get('vende_pilar1_titulo', 'Experiencia'), desc: get('vende_pilar1_desc', 'Roberto Urrutia, Director Comercial, con más de 20 años en banca. SDM Capital lleva 15 años en el mercado inmobiliario.') },
     { num: get('vende_pilar2_num', '02'), titulo: get('vende_pilar2_titulo', 'Marketing'), desc: get('vende_pilar2_desc', 'Publicamos tu propiedad en Yapo, TocToc, Portal, Mercado Libre, Google Ads y Meta para maximizar la exposición.') },
     { num: get('vende_pilar3_num', '03'), titulo: get('vende_pilar3_titulo', 'Respaldo Legal'), desc: get('vende_pilar3_desc', 'Acompañamos todo el proceso: desde el estudio de títulos hasta la inscripción en el Conservador de Bienes Raíces.') },
   ]
@@ -213,7 +213,7 @@ export default function VendeConNosotrosPage() {
 
               <div className="flex justify-center">
                 <button type="submit" disabled={status === 'sending'} className="btn-primary text-sdm-sm" style={{ padding: '13px 36px' }}>
-                  {status === 'sending' ? 'Enviando…' : 'Quiero vender mi propiedad →'}
+                  {status === 'sending' ? 'Enviando…' : 'Quiero vender mi propiedad'}
                 </button>
               </div>
             </form>

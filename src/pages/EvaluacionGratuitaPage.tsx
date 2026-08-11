@@ -15,7 +15,7 @@ import SolicitudCreditoForm from '@/components/credito/SolicitudCreditoForm'
 // propiedad muestran «Comisión corredora 2 %», que es otra cosa. De ahí que
 // diga «la gestión» y no «comprar con SDM».
 const BENEFICIOS = [
-  'Sin cobros anticipados',
+  'Sin pagos adelantados',
   '+20 años de experiencia bancaria',
   'Gestionamos ante múltiples bancos',
   'Acompañamiento hasta la escritura',
@@ -28,7 +28,7 @@ export default function EvaluacionGratuitaPage() {
     <div className="sitio-publico min-h-screen" style={{ backgroundColor: '#FFFFFF' }}>
       <SEO
         title="Evaluación Hipotecaria Gratuita"
-        description="Solicita tu preevaluación hipotecaria sin costo. Resultado en 5 días hábiles. Sin pagos anticipados."
+        description="Solicita tu preevaluación hipotecaria sin costo. Resultado en 5 días hábiles. Sin pagos adelantados."
         url="/evaluacion-gratuita"
       />
 
@@ -58,7 +58,7 @@ export default function EvaluacionGratuitaPage() {
           </h1>
           <p className="text-center text-sdm-lg" style={{ fontWeight: 300, lineHeight: 1.8, color: 'rgba(255,255,255,0.78)', maxWidth: 620, margin: '0 auto 48px' }}>
             Te hacemos una evaluación gratuita en 5 días hábiles. Sin papeleos innecesarios, sin pagos
-            anticipados, con acompañamiento de principio a fin.
+            adelantados, con acompañamiento de principio a fin.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -204,7 +204,7 @@ export default function SolicitudCreditoForm({
 
       setStatus('ok')
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Ocurrió un error al enviar la solicitud. Intenta nuevamente.')
+      setErrorMsg(err instanceof Error ? err.message : 'No pudimos enviar tu mensaje. Intenta de nuevo.')
       setStatus('error')
     }
   }

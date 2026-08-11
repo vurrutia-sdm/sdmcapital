@@ -86,7 +86,7 @@ export default function ContactSection() {
               )}
               <div className="flex justify-center">
                 <button type="submit" disabled={status === 'sending'} className="btn-primary text-sdm-sm" style={{ padding: '13px 48px' }}>
-                  {status === 'sending' ? 'Enviando…' : 'Enviar →'}
+                  {status === 'sending' ? 'Enviando…' : 'Enviar'}
                 </button>
               </div>
             </form>

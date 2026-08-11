@@ -51,7 +51,7 @@ export default function BlogPreviewSection() {
         </div>
         <Link className="area-44 text-sdm-xs tracking-sdm-wide text-[var(--navy-dark)] border-b border-[var(--navy-dark)] hover:text-[var(--green-dark)] hover:border-[var(--green-dark)]" to="/blog"
           style={{ fontWeight: 400, textTransform: 'uppercase', textDecoration: 'none', paddingBottom: 2, whiteSpace: 'nowrap' }}
-        >Ver todos los artículos →</Link>
+        >Ver todos los artículos</Link>
       </div>
 
       {/* Layout editorial: 1 grande + 2 pequeños */}

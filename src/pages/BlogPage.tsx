@@ -97,7 +97,7 @@ export default function BlogPage() {
                     <h2 className="font-serif font-normal mb-2 text-sdm-2xl" style={{ color: 'var(--navy-dark)', lineHeight: 1.25 }}>{titulo}</h2>
                     <p className="font-light text-sdm-base" style={{ color: 'var(--muted)', lineHeight: 1.7 }}>{resumen}</p>
                     <div className="mt-4 text-[13px] tracking-[2px] uppercase border-b pb-0.5 inline-flex items-center gap-1" style={{ color: 'var(--muted)', borderColor: 'var(--muted)' }}>
-                      Leer artículo →
+                      Leer artículo
                     </div>
                   </div>
                 </Link>

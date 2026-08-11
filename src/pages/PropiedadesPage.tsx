@@ -727,7 +727,7 @@ export default function PropiedadesPage() {
       {/* Count */}
       <div className="px-4 pt-6 pb-2">
         <p className="text-sdm-sm" style={{ color: 'var(--muted)' }}>
-          {loading ? 'Cargando...' : `${displayProps.length} ${displayProps.length === 1 ? 'propiedad encontrada' : 'propiedades encontradas'}`}
+          {loading ? 'Cargando…' : `${displayProps.length} ${displayProps.length === 1 ? 'propiedad encontrada' : 'propiedades encontradas'}`}
         </p>
       </div>
 

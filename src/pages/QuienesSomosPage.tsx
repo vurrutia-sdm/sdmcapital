@@ -13,7 +13,7 @@ import type { MiembroEquipo } from '@/types'
 // llegaba la consulta, y para siempre si fallaba. Ver SINCRONIA.md.
 
 const VALORES = [
-  { n:'01', titulo:'Transparencia', desc:'Operamos con total transparencia en cada transacción. Sin costos ocultos, sin pagos adelantados.' },
+  { n:'01', titulo:'Transparencia', desc:'Operamos con total transparencia en cada transacción. Sin pagos adelantados.' },
   { n:'02', titulo:'Experiencia',   desc:'Más de 15 años en el mercado nos respaldan. Conocemos el mercado chileno e internacional en profundidad.' },
   { n:'03', titulo:'Compromiso',    desc:'Cada cliente es único. Nos comprometemos a encontrar la mejor solución para cada persona y empresa.' },
   // Decía «Red Global — Presencia en más de 10 países», que contradecía de
