@@ -155,7 +155,27 @@ function HeroCarousel({ images, positions }: { images: string[]; positions: stri
           className="absolute flex items-center"
           /* 18px entre puntos por 2.5.8: con 8px el paso era 16 y los círculos de
              24px se cortaban. Ahora 26. El punto sigue midiendo 8px. */
-          style={{ bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 10, gap: 18 }}
+          /* ─── `bottom: 76` Y NO 24: LA TARJETA DEL BUSCADOR SE COMÍA ESTA FRANJA ───
+             `SearchBar` sube 48px sobre el hero (`marginTop: -48`), así que los
+             últimos 48px del hero están tapados por una tarjeta blanca opaca. A
+             `bottom: 24` estos seis controles caían enteros dentro de esa franja:
+             invisibles y, medido por hit-test, impulsables — el clic sobre ellos
+             lo recibía un botón del buscador.
+
+             SUBIR EL z-index NO LO ARREGLA, y conviene saber por qué. La raíz de
+             `SearchBar` es `position: relative; z-index: 10`, y este envoltorio es
+             `position: absolute; z-index: 10`. La raíz del hero es `relative` sin
+             z-index, así que NO crea contexto de apilamiento y los dos compiten en
+             el mismo: **mismo z-index, y el empate lo rompe el orden del DOM.**
+             `SearchBar` va después en `HomePage`, así que gana siempre. Ponerle 11
+             los pintaría ENCIMA de la tarjeta blanca, que es peor: su contraste
+             está calculado contra la fotografía, no contra blanco.
+
+             76px es el mismo valor que el `pb-[76px]` de la columna de contenido de
+             abajo, que ya se había ajustado por este solapamiento. Los controles
+             quedaron fuera de aquel arreglo porque son `absolute` y no participan
+             del relleno del contenedor. Ahora los dos comparten línea. */
+          style={{ bottom: 76, left: '50%', transform: 'translateX(-50%)', zIndex: 10, gap: 18 }}
         >
           {/* El control de 2.2.2. Va junto a los puntos, que cambian de foto
               pero NO detienen la rotación: sin esto no había forma de pararla. */}

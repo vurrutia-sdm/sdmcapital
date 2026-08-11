@@ -213,7 +213,11 @@ export default function SolicitudCreditoForm({
     return (
       <div className="h-full flex flex-col items-center justify-center text-center py-20">
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(61,170,110,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-          <Check size={28} color="var(--green)" />
+          {/* `--green-dark`: el círculo es `rgba(61,170,110,0.12)` sobre blanco,
+              o sea un fondo efectivo de ~`#E8F5EE`. Ahí `--green` da 2,58:1 y
+              `--green-dark` 4,28:1. Es la misma cara de la regla 4.2 que el visto
+              de Rental: marca verde sobre superficie clara. */}
+          <Check size={28} color="var(--green-dark)" />
         </div>
         <h2 className="font-serif font-light text-sdm-2xl" style={{ color: 'var(--navy-dark)', marginBottom: 10 }}>
           {successTitle}

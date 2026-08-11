@@ -91,7 +91,12 @@ export default function RentalPage() {
             <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8, marginBottom: 28 }}>{propSubtitulo}</p>
             {checklist.filter(Boolean).map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 16, alignItems: 'flex-start' }}>
-                <div style={{ width: 24, height: 24, minWidth: 24, background: 'var(--green)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {/* `--green-dark` y no `--green`: el visto es BLANCO encima, y ese
+                    par da 2,93:1 — la cara «fondo verde con blanco encima» de la
+                    regla 4.2, que es la que ya se había escapado una vez. Con
+                    `--green-dark` son 4,85:1. Lo encontró el barrido POR FORMA;
+                    los anteriores buscaban `color:` y esto es `background:`. */}
+                <div style={{ width: 24, height: 24, minWidth: 24, background: 'var(--green-dark)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
                 <p className="text-sdm-lg" style={{ fontWeight: 300, color: 'var(--muted)', lineHeight: 1.7 }}>{item}</p>

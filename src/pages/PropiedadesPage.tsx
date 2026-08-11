@@ -560,7 +560,10 @@ export default function PropiedadesPage() {
             </div>
             <button onClick={() => setPanelOpen(v => !v)}
               className="flex items-center gap-2 text-sdm-sm tracking-sdm-wide"
-              style={{ color: panelOpen ? 'var(--green)' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, textTransform: 'uppercase' }}>
+              /* `--green-dark` y no `--green`: es TEXTO sobre blanco, donde
+                 `--green` da 2,93:1 y falla AA. Regla 4.2. Estaba en un ternario,
+                 que es por lo que los barridos anteriores no lo vieron. */
+              style={{ color: panelOpen ? 'var(--green-dark)' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, textTransform: 'uppercase' }}>
               <SlidersHorizontal aria-hidden="true" size={14} />
               Filtros {activeFiltros.length > 0 && `(${activeFiltros.length})`}
             </button>

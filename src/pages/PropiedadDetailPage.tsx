@@ -451,11 +451,11 @@ export default function PropiedadDetailPage() {
               {/* Flechas si hay más de 1 */}
               {allImgs.length > 1 && (
                 <>
-                  <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
+                  <button aria-label="Ver la imagen anterior" className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
                     style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 2, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ChevronLeft aria-hidden="true" size={18} />
                   </button>
-                  <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
+                  <button aria-label="Ver la imagen siguiente" className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
                     style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 2, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ChevronRight aria-hidden="true" size={18} />
                   </button>
@@ -475,7 +475,7 @@ export default function PropiedadDetailPage() {
                   <button key={i} type="button" onClick={() => setImgIdx(i)}
                     aria-label={`Ver imagen ${i + 1} de ${allImgs.length}`}
                     aria-current={i === imgIdx ? 'true' : undefined}
-                    className="flex-shrink-0 cursor-pointer" style={{ width: 76, height: 56, borderRadius: 2, overflow: 'hidden', padding: 0, border: 'none', boxShadow: i === imgIdx ? '0 0 0 2px var(--green)' : '0 0 0 2px transparent', transition: 'box-shadow 0.15s', background: '#0d1e2e' }}>
+                    className="flex-shrink-0 cursor-pointer" style={{ width: 76, height: 56, borderRadius: 2, overflow: 'hidden', padding: 0, border: 'none', boxShadow: i === imgIdx ? '0 0 0 2px var(--green-dark)' : '0 0 0 2px transparent', transition: 'box-shadow 0.15s', background: '#0d1e2e' }}>
                     <img src={thumbUrl(img)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   </button>
                 ))}
@@ -593,7 +593,7 @@ export default function PropiedadDetailPage() {
                   {tags.map((tag, i) => (
                     <span className="text-sdm-xs tracking-sdm-wide" key={i} style={{ padding: '6px 16px',
                       borderRadius: 1,
-                      background: tag.dark ? '#4a4a4a' : 'var(--green)',
+                      background: tag.dark ? '#4a4a4a' : 'var(--green-dark)',
                       color: '#fff',
                       fontWeight: 500,
                       textTransform: 'uppercase' }}>
@@ -902,12 +902,12 @@ export default function PropiedadDetailPage() {
           {/* Flechas */}
           {allImgs.length > 1 && (
             <>
-              <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
+              <button aria-label="Ver la imagen anterior" className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); prev() }}
                 style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
               >
                 <ChevronLeft aria-hidden="true" size={24} />
               </button>
-              <button className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
+              <button aria-label="Ver la imagen siguiente" className="bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.25)]" onClick={e => { e.stopPropagation(); next() }}
                 style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', border: 'none', borderRadius: '50%', color: '#fff', width: 48, height: 48, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
               >
                 <ChevronRight aria-hidden="true" size={24} />
@@ -922,7 +922,7 @@ export default function PropiedadDetailPage() {
                 <button key={i} type="button" onClick={e => { e.stopPropagation(); setImgIdx(i) }}
                   aria-label={`Ver imagen ${i + 1} de ${allImgs.length}`}
                   aria-current={i === imgIdx ? 'true' : undefined}
-                  style={{ width: 60, height: 44, borderRadius: 2, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', padding: 0, border: 'none', background: 'transparent', boxShadow: i === imgIdx ? '0 0 0 2px var(--green)' : '0 0 0 2px transparent', opacity: i === imgIdx ? 1 : 0.55, transition: 'all 0.15s' }}>
+                  style={{ width: 60, height: 44, borderRadius: 2, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', padding: 0, border: 'none', background: 'transparent', boxShadow: i === imgIdx ? '0 0 0 2px var(--green-dark)' : '0 0 0 2px transparent', opacity: i === imgIdx ? 1 : 0.55, transition: 'all 0.15s' }}>
                   <img src={thumbUrl(img)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </button>
               ))}
