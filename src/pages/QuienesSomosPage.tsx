@@ -16,15 +16,14 @@ const VALORES = [
   { n:'01', titulo:'Transparencia', desc:'Operamos con total transparencia en cada transacción. Sin pagos adelantados.' },
   { n:'02', titulo:'Experiencia',   desc:'Más de 15 años en el mercado nos respaldan. Conocemos el mercado chileno e internacional en profundidad.' },
   { n:'03', titulo:'Compromiso',    desc:'Cada cliente es único. Nos comprometemos a encontrar la mejor solución para cada persona y empresa.' },
-  // Decía «Red Global — Presencia en más de 10 países», que contradecía de
-  // frente al contador del hero («2+ PAÍSES») y a la decisión de que la
-  // operación es Chile y Paraguay. El ítem conserva su función —es el que dice
-  // DÓNDE se opera, no un rasgo de carácter— porque el 02 también es un dato
-  // con número y el bloque siempre mezcló las dos cosas.
+  // AQUÍ HUBO UN CUARTO VALOR, «Alcance regional», y se quitó entero el
+  // 2026-08-10 por decisión de Víctor. Antes de eso decía «Red Global —
+  // Presencia en más de 10 países», que contradecía al contador del hero, y se
+  // había reescrito para que dijera Chile y Paraguay.
   //
-  // Del texto de apoyo se cayó además «que otros no pueden ofrecer»: es una
-  // afirmación que nadie puede comprobar, de la misma familia que la falsa.
-  { n:'04', titulo:'Alcance regional', desc:'Operamos en Chile y Paraguay. Acceso a oportunidades inmobiliarias en ambos mercados.' },
+  // Al quitarlo, el bloque queda con tres valores que SÍ son rasgos de
+  // carácter. El 04 era el único que decía DÓNDE se opera, no cómo se trabaja:
+  // mezclaba dos cosas distintas en la misma rejilla.
 ]
 
 const P = '48px' // padding lateral desktop
@@ -74,8 +73,8 @@ export default function QuienesSomosPage() {
         </h1>
         <p className="font-light mt-6 border-l-2 pl-4 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.9, borderColor: 'var(--green)', maxWidth: 520 }}>
           {lang === 'es'
-            ? 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con oportunidades únicas en Chile y Paraguay.'
-            : 'SDM Capital is a Chilean company specializing in real estate investment and financial management, with over 15 years connecting people with unique opportunities in Chile and Paraguay.'
+            ? 'SDM Capital es una empresa chilena especializada en inversión inmobiliaria y gestión de financiamiento, con más de 15 años conectando personas con sus necesidades.'
+            : 'SDM Capital is a Chilean company specializing in real estate investment and financial management, with over 15 years connecting people with their needs.'
           }
         </p>
       </div>
@@ -88,7 +87,16 @@ export default function QuienesSomosPage() {
         <h2 className="font-serif font-light mb-16 tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
           Lo que nos <em>define</em>
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: 'var(--border)' }}>
+        {/* TRES COLUMNAS PORQUE HAY TRES VALORES, y la cuenta importa acá.
+            El contenedor va pintado en `--border` con `gap-px` para dibujar las
+            líneas, así que una fila incompleta NO deja un espacio en blanco:
+            deja un rectángulo gris. Con `lg:grid-cols-4` y tres valores se veía
+            justo eso —el 25 % de la rejilla sin cubrir— y a `md:grid-cols-2`
+            también, porque 3 no es múltiplo de 2.
+            Es el mismo mecanismo que obliga a rellenar la última fila del
+            catálogo con divs blancos. Acá no hace falta relleno: basta con que
+            el número de columnas divida al de tarjetas. */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: 'var(--border)' }}>
           {VALORES.map(v => (
             <div key={v.n} className="bg-white p-8 lg:p-10">
               <div className="font-serif mb-6 text-sdm-display-md" style={{ fontWeight: 300, color: 'var(--border)' }}>{v.n}</div>
@@ -110,7 +118,7 @@ export default function QuienesSomosPage() {
             </h2>
             {[
               'SDM Capital nació con una visión clara: democratizar el acceso a inversiones inmobiliarias de calidad para personas y empresas en Chile.',
-              'A lo largo de más de 15 años, hemos construido una red de socios y alianzas estratégicas que nos permite ofrecer oportunidades únicas en Chile y Paraguay.',
+              'A lo largo de más de 15 años, hemos construido una red de socios y alianzas estratégicas que nos permite ofrecer un servicio integral.',
               'Hoy somos referentes en gestión de financiamiento y asesoría inmobiliaria, con un equipo de expertos comprometidos con los resultados de cada cliente.',
             ].map((p, i) => (
               <p key={i} className="font-light mb-5 text-sdm-lg" style={{ color: 'var(--muted)', lineHeight: 1.9 }}>{p}</p>
