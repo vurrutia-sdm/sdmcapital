@@ -72,6 +72,18 @@ Las secciones 2 a 5 son mías, sobre esa evidencia más escaneos de fuente propi
 > columnas, sin diferencia en ninguna dirección**. La «deuda de tipos» que estas
 > dos afirmaciones sugerían **no existe**, y no debe anotarse como pendiente.
 >
+> **3. Paraguay SÍ está aprobado. El hallazgo C-9 es falso.**
+> C-9 dice que el sitio publica «2+ PAÍSES» y menciona Paraguay contra lo que
+> `PRODUCT.md` marcaba como no confirmado. **`PRODUCT.md` estaba mal**: Víctor
+> aprobó las cuatro cifras, no tres, y el registro solo recogió tres. La
+> operación en Paraguay es real, `stats_paises = 2` se sostiene y las menciones
+> del hero, de `/servicios` y de la descripción SEO **son correctas**. No hay
+> nada que corregir en el sitio por ese motivo.
+>
+> El `INACTIVE` del proyecto Supabase `sdm-paraguay` no prueba lo contrario: es
+> infraestructura sin usar, no ausencia de operación. Esa inferencia es la que
+> dio verosimilitud al hallazgo.
+
 > **Qué NO cambia.** Lo medido en el navegador —contrastes, hit-tests, alturas,
 > anchos, conteos de las 20 cargas— se verificó dos veces y se sostiene. Lo que
 > falló fue lo afirmado a partir de leer el código sin contrastarlo con la base.

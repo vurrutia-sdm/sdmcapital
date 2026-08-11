@@ -126,15 +126,22 @@ asociados; el showcase de El Barranco.
 | Años de trayectoria de la empresa | **15** |
 | Propiedades | **120** (acumulado, no el inventario actual de 82) |
 | Clientes | **500** |
+| Países | **2** — Chile y Paraguay |
 
-**NO CONFIRMADO — Paraguay y «2 países».** El sitio publica hoy
-`stats_paises = 2` y `servicios_intro` dice «tanto en Chile como en Paraguay».
-**Víctor no aprobó esa cifra al revisar la lista.** Existe un proyecto Supabase
-`sdm-paraguay` aparte, hoy **INACTIVE**.
+**La operación en Paraguay está confirmada.** `stats_paises = 2` se sostiene, y
+las menciones vigentes son correctas: el kicker del hero, `servicios_intro`
+—«tanto en Chile como en Paraguay»— y la descripción SEO del inicio. **No hay que
+cambiar nada en el sitio por este motivo.**
 
-Hasta que se confirme: **ningún trabajo futuro debe afirmar que SDM opera en
-Paraguay**, ni construir superficie sobre esa premisa. Queda pendiente decidir si
-la operación es real y la cifra se mantiene, o si el texto vigente se corrige.
+> El proyecto Supabase `sdm-paraguay` figura como `INACTIVE`, y **eso no lo
+> contradice**: es infraestructura sin usar, no ausencia de operación. Quien
+> vuelva a cruzar ese dato con el sitio no debe deducir de ahí que la cifra
+> sobra — el error ya se cometió una vez.
+>
+> *Corregido el 2026-08-10.* Este documento registró Paraguay como no confirmado
+> por un fallo al recoger la respuesta de Víctor sobre las cuatro cifras: las
+> cuatro estaban aprobadas y solo se anotaron tres. La afirmación viajó desde
+> aquí a `AUDITORIA-IMPECCABLE.md`, que la levantó como hallazgo P1.
 
 **No inventar:** no hay benchmarks, premios, prensa, certificaciones ni precios de
 servicio documentados más allá de lo anterior.
