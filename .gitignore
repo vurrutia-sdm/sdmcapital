@@ -1,11 +1,25 @@
-node_modules
-dist
+# Dependencias y build
+node_modules/
+dist/
+
+# Entorno — nunca versionar
 .env
 .env.local
+
+# Herramientas
+.wrangler/
+
+# Configuración local de agentes.
+# Los tres llevan rutas absolutas a la carpeta personal de quien los instaló
+# (`/Users/<usuario>/…`), así que versionarlos le daría a cualquier otra persona
+# una configuración que apunta a archivos que no tiene. `.claude/settings.local.json`
+# ya estaba cubierto por un ignore global; estos van acá para que la regla viva
+# en el repo y proteja también al resto del equipo.
+.claude/
+.codex/
+.cursor/
+.gstack/
+
+# Sistema
 .DS_Store
 *.log
-.wrangler/
-dist/
-node_modules/
-.env
-.gstack/
