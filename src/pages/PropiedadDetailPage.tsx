@@ -17,6 +17,7 @@ import PropertyMap from '@/components/ui/PropertyMap'
 import PropertyCard from '@/components/ui/PropertyCard'
 import { normalizeDossiers, dossierTitle } from '@/lib/dossiers'
 import { thumbUrl } from '@/lib/imagenes'
+import { obtenerIndicadores } from '@/lib/indicadores'
 import type { Propiedad } from '@/types'
 
 // ── ShareButtons ──────────────────────────────────────────────────────────────
@@ -222,6 +223,24 @@ export default function PropiedadDetailPage() {
   const [imgIdx, setImgIdx] = useState(0)
   const [lightbox, setLightbox] = useState(false)
   const [reservaAbierta, setReservaAbierta] = useState(false)
+
+  // ─── EL EQUIVALENTE EN PESOS, PARA LOS DOS COMPRADORES ─────────────────────
+  // La ficha mostraba «UF 1.779» y nunca su valor en pesos, aunque el sitio YA
+  // conoce la UF del día: la publica la cinta del header y la usa el modal de
+  // crédito. La pieza existía y no estaba enchufada donde se decide la compra.
+  //
+  // Sirve a los dos usuarios principales, no a uno: quien invierte compara en UF
+  // y quien compra para vivir piensa el presupuesto en pesos.
+  //
+  // Se usa el MISMO módulo que el header (`obtenerIndicadores`), que ya trae
+  // caché, timeout y su propio fallback. Si la consulta falla devuelve `null` y
+  // la línea sencillamente no se pinta: nunca un «$ NaN» ni un cero.
+  const [uf, setUf] = useState<number | null>(null)
+  useEffect(() => {
+    let vivo = true
+    obtenerIndicadores().then(i => { if (vivo && i.uf) setUf(i.uf.valor) })
+    return () => { vivo = false }
+  }, [])
 
   useEffect(() => {
     if (!slug) return
@@ -548,6 +567,21 @@ export default function PropiedadDetailPage() {
                     ? `USD ${prop.precio_usd.toLocaleString()}`
                     : ''}
                 </div>
+                {/* Equivalente en pesos. `--muted` sobre blanco da 5,03:1. */}
+                {uf && prop.precio_uf && !prop.a_consultar && (
+                  <div className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 4 }}>
+                    ≈ ${Math.round(prop.precio_uf * uf).toLocaleString('es-CL')} CLP
+                  </div>
+                )}
+                {/* El bono pie decía solo su porcentaje. En monto es lo que el
+                    comprador descuenta de verdad del pie. 27 de las 28 fichas que
+                    llevan la insignia tienen los dos datos para calcularlo. */}
+                {prop.bono_pie && prop.bono_pie_porcentaje && prop.precio_uf && !prop.a_consultar && (
+                  <div className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--oportunidad)', marginTop: 6 }}>
+                    Bono pie de UF {Math.round(prop.precio_uf * prop.bono_pie_porcentaje / 100).toLocaleString('es-CL')}
+                    <span style={{ color: 'var(--muted)' }}> · {prop.bono_pie_porcentaje}% del valor</span>
+                  </div>
+                )}
                 <div className="text-sdm-base tracking-sdm-wide" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 6, textTransform: 'uppercase' }}>{estado}</div>
               </div>
             )}

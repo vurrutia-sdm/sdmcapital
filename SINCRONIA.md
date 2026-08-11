@@ -7783,3 +7783,91 @@ Consecuencias prácticas:
   cuando RLS filtra todas las filas candidatas, y que la del catch-all de SPA que
   devuelve **200 para cualquier ruta**. En los tres casos la respuesta es
   sintácticamente correcta y semánticamente vacía.
+
+---
+
+## Dos trampas que mordieron aplicando la auditoría — 2026-08-10
+
+### El SQL Editor de Supabase corre cada bloque en su propia sesión
+
+`begin;` … `commit;` escritos en el mismo archivo **no forman una transacción**
+si el editor los ejecuta por separado. Los `UPDATE` de en medio quedan en una
+sesión que se cierra sin confirmar, y se deshacen enteros.
+
+Pasó con las siete claves de `contenido_sitio` de la tanda 2 de la auditoría. El
+editor dijo que todo había ido bien y la base seguía con el texto viejo.
+
+> **«Success. No rows returned» después de un `commit;` NO PRUEBA NADA.** Es la
+> respuesta normal de un `commit` — incluso cuando no había ninguna transacción
+> abierta que confirmar. Leerla como confirmación es exactamente el mismo error
+> que leer el **204 de un `DELETE`** como borrado, o el **200 del catch-all de
+> SPA** como «esta ruta existe». Las tres respuestas son sintácticamente
+> correctas y semánticamente vacías.
+
+**La regla:** el `select` de verificación va **DESPUÉS del `commit;` y en la
+misma ejecución**. Si el editor los separa, el select cae en otra sesión y lee lo
+que de verdad quedó confirmado — que es justo lo que se quiere comprobar. Un
+select antes del commit lee lo que la transacción ve, no lo que sobrevive.
+
+Y la comprobación final se hace **desde fuera**: con la anon key contra
+PostgREST, no dentro del editor.
+
+### Contar coincidencias de un `grep` no dice a qué interfaz pertenecen
+
+`dividendo_uf` se dio por «campo de `Propiedad` que existe en el esquema y no se
+pinta en ninguna superficie pública». Se verificó así:
+
+```
+grep -rn "dividendo_uf" src/pages/PropiedadDetailPage.tsx …   → 0
+grep -rn "dividendo_uf" src/                                  → 4
+```
+
+**Las dos cifras eran ciertas y la conclusión falsa.** `dividendo_uf` está en la
+línea 240 de `src/types/index.ts`, que pertenece a la interfaz **`Cotizacion`**,
+no a `Propiedad` — el archivo declara varias interfaces seguidas. Y los 4 usos no
+son «solo admin»: son el módulo de cotizaciones, donde el campo **funciona
+correctamente**, escrito por `CotizacionesAdmin.tsx:376` y pintado por
+`CotizacionPDF.tsx:368`.
+
+Comprobado después contra la base: el tipo `Propiedad` tiene **54 campos y la
+tabla 54 columnas, sin una sola diferencia en ninguna dirección**. No había
+ninguna deuda de tipos.
+
+Es la misma familia que el fallo de la regla 4.2: **buscar por forma sintáctica y
+confundir el resultado con el hecho**. Allá se buscó `color:` y `background:` y se
+declaró el eje cerrado cuatro veces mientras los usos vivían en ternarios y en
+`boxShadow`. Acá se contó un nombre y se le atribuyó un dueño.
+
+**La regla:** antes de afirmar que un campo pertenece a un tipo, mirar la
+declaración —no la coincidencia— y contrastarla con la tabla real. Un nombre
+repetido en un archivo de tipos no es un campo, es una cadena.
+
+### Medir posiciones con `scroll-behavior: smooth` devuelve cifras falsas
+
+`globals.css:395` declara `scroll-behavior: smooth` para todo el documento. Un
+`scrollIntoView()` seguido de `getBoundingClientRect()` **lee el rect a mitad de
+la animación**, así que devuelve una posición intermedia que no es ni la de antes
+ni la de después.
+
+**Ya mordió dos veces el mismo día:** a la evaluación B de la auditoría, que lo
+detectó y lo dejó escrito, y a la verificación de la tanda 4, que lo repitió sin
+haber leído esa nota. En el segundo caso el síntoma fue `elementFromPoint`
+devolviendo `null` en 22 de 22 controles — se leyó como «ningún control recibe el
+clic» cuando lo que pasaba es que aún no estaban en pantalla.
+
+**La regla, antes de medir cualquier posición o hacer cualquier hit-test:**
+
+```js
+document.documentElement.style.scrollBehavior = 'auto'
+```
+
+Y dos corolarios que salieron del mismo error:
+
+- **`elementFromPoint` solo resuelve coordenadas DENTRO del viewport.** Un
+  elemento por debajo del pliegue devuelve `null`, que no significa «tapado»
+  sino «fuera de pantalla». Hay que centrarlo primero y comprobar que el rect
+  quedó dentro.
+- **Al extraer cifras del texto de la página, la cinta del header entra en la
+  muestra.** Un `match(/UF ([\d.]+)/)` sobre `document.body.innerText` captura
+  el valor de la UF del día —40.846— junto a los precios de las propiedades. Hay
+  que leer desde el contenedor de las tarjetas, no desde el `body`.

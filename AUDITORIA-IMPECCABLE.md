@@ -45,6 +45,37 @@ Las secciones 2 a 5 son mías, sobre esa evidencia más escaneos de fuente propi
 
 ---
 
+> ## ⚠ ERRATA — dos afirmaciones de este documento son FALSAS
+>
+> Verificadas contra la base el 2026-08-10, al ir a aplicarlas. Se dejan a la
+> vista en vez de corregirlas en silencio, porque el resto del documento se está
+> usando como fuente y conviene saber que **no todo lo que afirma se comprobó
+> contra la base**.
+>
+> **1. `dividendo_uf` NO es un campo de `Propiedad`, y sí está en uso.**
+> El hallazgo C-3 dice que «existe en `src/types/index.ts:240` y no se renderiza
+> en ninguna superficie pública», y lo presenta como un dato de propiedad que la
+> ficha desaprovecha. La línea 240 pertenece a la interfaz **`Cotizacion`**, no a
+> `Propiedad`. El campo funciona donde corresponde: lo escribe
+> `CotizacionesAdmin.tsx:376` y lo pinta `CotizacionPDF.tsx:368`. **No existe
+> ninguna columna `propiedades.dividendo_uf`** — pedirla devuelve `42703`.
+>
+> El error de método: se contaron coincidencias de `grep` por nombre sin mirar a
+> qué interfaz pertenecían. Las cifras eran ciertas; la inferencia, falsa.
+>
+> **2. `superficie_construida` no existe en ninguna parte.**
+> C-3 la lista como una de las seis specs que pinta la ficha. No es columna de la
+> tabla, no es campo de `Propiedad` y no aparece en ningún componente. La ficha
+> pinta cinco specs, no seis.
+>
+> Comprobado de paso: el tipo `Propiedad` tiene **54 campos y la tabla 54
+> columnas, sin diferencia en ninguna dirección**. La «deuda de tipos» que estas
+> dos afirmaciones sugerían **no existe**, y no debe anotarse como pendiente.
+>
+> **Qué NO cambia.** Lo medido en el navegador —contrastes, hit-tests, alturas,
+> anchos, conteos de las 20 cargas— se verificó dos veces y se sostiene. Lo que
+> falló fue lo afirmado a partir de leer el código sin contrastarlo con la base.
+
 # 1 · CRITIQUE
 
 **Método: dual-agente (A: revisión de diseño · B: detector + navegador).**

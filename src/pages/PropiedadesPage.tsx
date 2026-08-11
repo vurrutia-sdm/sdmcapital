@@ -231,7 +231,13 @@ const META: Record<string, { title: string; description: string }> = {
 
 function applyCatalogOrder(props: Propiedad[], mode: string): Propiedad[] {
   const copy = [...props]
-  if (mode === 'precio_alto') { const c = copy.filter(p => p.a_consultar); const r = copy.filter(p => !p.a_consultar).sort((a,b) => (b.precio_uf||0)-(a.precio_uf||0)); return [...c,...r] }
+  // LAS «A CONSULTAR» VAN AL FINAL EN LOS DOS SENTIDOS.
+  // `precio_alto` las ponía primero (`[...c,...r]`), así que el catálogo abría
+  // con cuatro tarjetas sin precio — y `catalogo_orden` vale justamente
+  // `precio_alto`, o sea que era la portada real del catálogo. Mientras el orden
+  // solo lo elegía el admin era discutible; con el control expuesto es
+  // incoherente: quien ordena por precio quiere ver precios.
+  if (mode === 'precio_alto') { const c = copy.filter(p => p.a_consultar); const r = copy.filter(p => !p.a_consultar).sort((a,b) => (b.precio_uf||0)-(a.precio_uf||0)); return [...r,...c] }
   if (mode === 'precio_bajo') { const c = copy.filter(p => p.a_consultar); const r = copy.filter(p => !p.a_consultar).sort((a,b) => (a.precio_uf||0)-(b.precio_uf||0)); return [...r,...c] }
   if (mode === 'aleatorio')   return copy.sort(() => Math.random() - 0.5)
   return copy.sort((a,b) => { const ao = a.orden ?? 9999; const bo = b.orden ?? 9999; return ao - bo })
@@ -499,7 +505,24 @@ export default function PropiedadesPage() {
     return () => { ignore = true }
   }, [searchParams, categoria])
 
-  const displayProps = applyCatalogOrder(props, ordenCatalogo)
+  // ─── EL ORDEN ERA UNA CAPACIDAD ESCRITA Y NO EXPUESTA ──────────────────────
+  // `applyCatalogOrder` ya implementaba `precio_alto`, `precio_bajo` y
+  // `aleatorio`; lo único que existía era la clave `catalogo_orden` del admin, o
+  // sea que el orden lo decidía Víctor y el visitante no podía tocarlo. Con 82
+  // propiedades sin paginación, ordenar por precio es lo mínimo que se espera de
+  // un catálogo — y le falta a los DOS compradores: el de inversión no puede
+  // rankear por UF, el de vivienda no puede acotar por presupuesto sin abrir el
+  // panel de filtros.
+  //
+  // Va en la URL como los demás filtros, así que el orden se comparte y se marca.
+  // Vacío = el que eligió el admin, que sigue siendo el estado inicial.
+  const ordenUsuario = searchParams.get('orden') || ''
+  const displayProps = applyCatalogOrder(props, ordenUsuario || ordenCatalogo)
+  const cambiarOrden = (v: string) => {
+    const nuevos = new URLSearchParams(searchParams)
+    if (v) nuevos.set('orden', v); else nuevos.delete('orden')
+    setSearchParams(nuevos, { replace: true })
+  }
   const [rejillaRef, columnas] = useColumnasRejilla()
   const clearFiltro  = (key: keyof FiltrosPropiedades) => {
     const nuevos = new URLSearchParams(searchParams)
@@ -558,6 +581,28 @@ export default function PropiedadesPage() {
                 <Map aria-hidden="true" size={14} /> Mapa
               </button>
             </div>
+            {/* `<label>` que ENVUELVE al select: lo asocia sin `htmlFor` ni `id`,
+                que es el patrón de `campos.tsx` §2.2. El rótulo va en el <span>
+                y NO en el <label>, porque `text-transform` se hereda y dejaría
+                el texto del select en mayúsculas — trampa 5.4. */}
+            <label className="flex items-center gap-2" style={{ cursor: 'pointer' }}>
+              <span className="text-sdm-sm tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)', whiteSpace: 'nowrap' }}>Ordenar</span>
+              <select
+                value={ordenUsuario}
+                onChange={e => cambiarOrden(e.target.value)}
+                className="text-sdm-sm"
+                /* 44px de alto REAL y no `.area-44`: sobre un <select> el
+                   pseudo-elemento no se renderiza —es un elemento reemplazado—,
+                   así que el área táctil tiene que salir del alto del control. */
+                style={{ minHeight: 44, padding: '0 8px', background: 'none', border: 'none',
+                  borderBottom: '1px solid var(--border-input)', color: 'var(--ink)',
+                  fontFamily: 'inherit', cursor: 'pointer' }}
+              >
+                <option value="">Recomendado</option>
+                <option value="precio_bajo">Precio: de menor a mayor</option>
+                <option value="precio_alto">Precio: de mayor a menor</option>
+              </select>
+            </label>
             <button onClick={() => setPanelOpen(v => !v)}
               className="flex items-center gap-2 text-sdm-sm tracking-sdm-wide"
               /* `--green-dark` y no `--green`: es TEXTO sobre blanco, donde

@@ -243,13 +243,13 @@ export default function Footer() {
             disponible en móvil, así que el `nowrap` nunca desborda. */}
         <p className="text-sdm-sm" style={{ fontWeight: 300, color: TENUE, lineHeight: 1.9, textAlign: 'center' }}>
           © 2026 SDM Capital · Todos los derechos reservados{' · '}
-          <Link to="/politica-de-privacidad" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>Política de Privacidad</Link>
+          <Link to="/politica-de-privacidad" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>Política de Privacidad</Link>
           {' · '}
-          <Link to="/condiciones-del-servicio" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>Condiciones del Servicio</Link>
+          <Link to="/condiciones-del-servicio" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>Condiciones del Servicio</Link>
           {' · '}
-          <Link to="/eliminacion-de-datos" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>Eliminación de Datos</Link>
+          <Link to="/eliminacion-de-datos" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>Eliminación de Datos</Link>
           {' · '}
-          <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap' }}>By HaikuFlow.com</a>
+          <a href="https://haikuflow.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--navy-dark)]" style={{ textDecoration: 'none', color: TENUE, fontWeight: 400, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>By HaikuFlow.com</a>
         </p>
       </div>
     </footer>

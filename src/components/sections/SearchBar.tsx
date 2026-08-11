@@ -453,8 +453,12 @@ export default function SearchBar() {
             densidad visual no se resiente. */}
         <label className="mb-2" style={{ display: 'block', background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px' }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Región</span>
-          <select className="area-44" value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
-            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer', fontSize: '16px' }}>
+          {/* `minHeight: 44` Y NO `.area-44`: sobre un <select> el pseudo-elemento
+              NO se renderiza —es un elemento reemplazado— así que la clase se
+              computa y no amplía nada. Medido por hit-test: 22×22 efectivo. El
+              área tiene que salir del alto del control. */}
+          <select value={region} onChange={e => { setRegion(e.target.value); setComuna('') }}
+            style={{ minHeight: 44, background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer', fontSize: '16px' }}>
             {REGIONES.map(r => <option key={r.value} value={r.value} style={{ color: 'var(--ink)', background: '#fff' }}>{r.label}</option>)}
           </select>
         </label>
@@ -470,8 +474,8 @@ export default function SearchBar() {
             una sola regla al 50 % en globals.css y esto la respeta. */}
         <label className="mb-3" style={{ display: 'block', background: 'var(--off)', border: '1px solid var(--border-input)', opacity: region ? 1 : 0.5, borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px' }}>
           <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>Comuna</span>
-          <select className="area-44" value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
-            style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed', fontSize: '16px' }}>
+          <select value={comuna} onChange={e => setComuna(e.target.value)} disabled={!region}
+            style={{ minHeight: 44, background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: region ? 'pointer' : 'not-allowed', fontSize: '16px' }}>
             <option value="" style={{ color: 'var(--ink)', background: '#fff' }}>{region ? 'Todas las comunas' : 'Primero elige región'}</option>
             {region && getComunas(region).map(c => <option key={c} value={c} style={{ color: 'var(--ink)', background: '#fff' }}>{c}</option>)}
           </select>
@@ -481,7 +485,7 @@ export default function SearchBar() {
           {[{ label: 'Tipo', options: TIPOS, value: tipo, onChange: setTipo }, { label: 'Precio', options: PRECIOS, value: precio, onChange: setPrecio }].map(f => (
             <label key={f.label} style={{ display: 'block', flex: 1, background: 'var(--off)', border: '1px solid var(--border-input)', borderRadius: 'var(--sdm-radio-control)', padding: '8px 12px' }}>
               <span className="text-sdm-xs tracking-sdm-wide" style={{ display: 'block', textTransform: 'uppercase', color: 'var(--green-dark)', marginBottom: 2 }}>{f.label}</span>
-              <select className="area-44" value={f.value} onChange={e => f.onChange(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer', fontSize: '16px' }}>
+              <select value={f.value} onChange={e => f.onChange(e.target.value)} style={{ minHeight: 44, background: 'transparent', border: 'none', color: 'var(--ink)', fontFamily: 'inherit', width: '100%', cursor: 'pointer', fontSize: '16px' }}>
                 {f.options.map(o => <option key={o.value} value={o.value} style={{ color: 'var(--ink)', background: '#fff' }}>{o.label}</option>)}
               </select>
             </label>
