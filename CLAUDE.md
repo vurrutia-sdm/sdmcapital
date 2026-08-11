@@ -147,6 +147,42 @@ Deploy a Cloudflare Pages:
 unset CLOUDFLARE_API_TOKEN && npm run build && npx wrangler pages deploy dist --project-name=sdmcapitalpage
 ```
 
+### Antes de desplegar: verificar con qué cuenta quedó wrangler
+
+Es la misma trampa que la de Supabase, con otra CLI. El login de `wrangler` es
+**global de la máquina**, no por proyecto, y el account id queda cacheado en
+`node_modules/.cache/wrangler/wrangler-account.json`. El repo se ve
+perfectamente normal mientras la CLI apunta a otra cuenta, y el error no aparece
+hasta el momento de desplegar.
+
+```bash
+npx wrangler whoami
+```
+
+Tiene que devolver `184d514a05e9b756bd0a448ed96c6d38`
+(`Vurrutia@sdmcapital.cl's Account`), que es la dueña de `sdmcapitalpage`. **No
+dar por hecho que el login de la última vez sigue siendo el bueno**: el
+2026-08-11 un deploy falló porque la CLI había quedado en `beocert36@gmail.com`.
+
+Síntoma cuando pasa:
+
+```
+✘ [ERROR] A request to the Cloudflare API
+  (/accounts/184d514a05e9b756bd0a448ed96c6d38/pages/projects/sdmcapitalpage) failed.
+
+  Authentication error [code: 10000]
+```
+
+Ese account id en la URL es el **correcto** —sale de la caché de un deploy que sí
+funcionó—, así que el mensaje engaña: parece que el proyecto rechaza la
+petición, cuando lo que pasa es que la cuenta autenticada no ve esa cuenta.
+Detrás del error, wrangler imprime un `whoami` con el email real. Ahí está la
+respuesta.
+
+Se resuelve con `npx wrangler login`. La caché solo estorba si después del login
+el account id sigue sin coincidir con el `whoami`; ahí sí se borra el archivo y
+se reintenta. Si coincide, no se toca.
+
 ## Escrituras a Supabase
 
 Toda operación de escritura debe recoger el `{ error }` y pasarlo por
