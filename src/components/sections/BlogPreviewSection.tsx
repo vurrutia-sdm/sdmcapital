@@ -45,7 +45,7 @@ export default function BlogPreviewSection() {
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 48, flexWrap: 'wrap', gap: 16 }}>
         <div>
           <div className="section-label" style={{ marginBottom: 16 }}>Artículos y noticias</div>
-          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
+          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-sm),4vw,var(--sdm-display-md))', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
             Últimas <em>publicaciones</em>
           </h2>
         </div>
@@ -55,7 +55,7 @@ export default function BlogPreviewSection() {
       </div>
 
       {/* Layout editorial: 1 grande + 2 pequeños */}
-      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-px items-stretch" style={{ background: 'var(--border)' }}>
+      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-px items-stretch" style={{ background: 'var(--border)' }}>
 
         {/* Post principal — grande */}
         <Link to={`/blog/${main.slug}`} className="group bg-white hover:bg-[var(--off)]" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column' }}

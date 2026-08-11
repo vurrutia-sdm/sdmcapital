@@ -54,7 +54,7 @@ export default function ServiciosPage() {
       />
       <div className="px-8 lg:px-12 pt-14 pb-12 border-b border-[var(--border)]" style={{ background: 'var(--navy-dark)' }}>
         <div className="section-label section-label--light" style={{ marginBottom: 18 }}>Lo que hacemos</div>
-        <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(40px,5vw,64px)', color: '#fff', lineHeight: 1.07 }}>
+        <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-sm),5vw,var(--sdm-display-lg))', color: '#fff', lineHeight: 1.07 }}>
           Nuestros <em>servicios</em>
         </h1>
         <p className="font-light mt-5 text-sdm-lg" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.9, maxWidth: 480 }}>
@@ -72,7 +72,7 @@ export default function ServiciosPage() {
           const isCredito = s.slug === 'financiamiento-personas' || s.slug === 'financiamiento-empresas'
           return (
             <div key={s.slug} id={s.slug}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-px border-b border-[var(--border)]"
+              className="grid grid-cols-1 md:grid-cols-2 gap-px border-b border-[var(--border)]"
               /* SIN `scrollMarginTop`: lo cubre `html.ruta-publica` con
                  `scroll-padding-top`, en globals.css. Tenerlo acá TAMBIÉN no era
                  redundante sino un defecto — `scroll-padding` del contenedor y

@@ -74,7 +74,7 @@ function Testimonios({ get, t }: { get: (k: string, d: string) => string; t: Ret
           de la tanda 4 no se mueve. */}
       <div className="text-center mb-8">
         <div className="section-label" style={{ marginBottom: 12, justifyContent: 'center' }}>{t.sections.testimonios.label}</div>
-        <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--navy-dark)', lineHeight: 1.1 }}>
+        <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-sm),4vw,var(--sdm-display-md))', color: 'var(--navy-dark)', lineHeight: 1.1 }}>
           {get('testimonios_titulo', 'Palabras de nuestros clientes')}
         </h2>
       </div>
@@ -279,7 +279,7 @@ function Financiamiento({ get, t, onSolicitar }: {
             asociados», «Alianzas estratégicas», «Red regional»—. El `<em>` en
             `--sky` existe SOLO sobre fondo oscuro: el hero y la sección de
             contacto. Acá `--sky` daría 1,73:1. */}
-        <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,4vw,40px)', lineHeight: 1.12, color: 'var(--navy-dark)' }}>
+        <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-md),5vw,var(--sdm-display-lg))', lineHeight: 1.12, color: 'var(--navy-dark)' }}>
           {titulo} <em>{tituloEm}</em>
         </h2>
 
@@ -441,7 +441,7 @@ export default function HomePage() {
             <div className="section-label" style={{ marginBottom: 12, justifyContent: 'center' }}>
               {get('props_label', t.sections.propiedades.label)}
             </div>
-            <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(32px,6vw,50px)', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
+            <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-sm),4vw,var(--sdm-display-md))', color: 'var(--navy-dark)', lineHeight: 1.08 }}>
               {get('props_titulo', 'Oportunidades')} <em>{get('props_titulo_em', 'en Chile')}</em>
             </h2>
             <p className="text-sdm-base" style={{ fontWeight: 300, color: 'var(--muted)', marginTop: 8, lineHeight: 1.8 }}>

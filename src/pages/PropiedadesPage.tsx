@@ -543,7 +543,7 @@ export default function PropiedadesPage() {
       <div className="px-4 pt-10 lg:pt-14 pb-8 lg:pb-10 border-b border-[var(--border)]">
         <div className="section-label" style={{ marginBottom: 14 }}>Catálogo</div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(28px,5vw,48px)', color: 'var(--navy-dark)', lineHeight: 1.05 }}>
+          <h1 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-sm),5vw,var(--sdm-display-lg))', color: 'var(--navy-dark)', lineHeight: 1.05 }}>
             {pageTitle}
           </h1>
           <div className="flex items-center gap-3 mt-2">

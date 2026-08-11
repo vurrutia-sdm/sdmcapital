@@ -144,7 +144,7 @@ export default function BannerPromo() {
 
           <h2
             className="font-serif tracking-sdm-tight"
-            style={{ fontWeight: 300, fontSize: 'clamp(30px,3.4vw,42px)', color: '#fff', lineHeight: 1.1 }}
+            style={{ fontWeight: 300, fontSize: 'clamp(var(--sdm-display-sm),4vw,var(--sdm-display-md))', color: '#fff', lineHeight: 1.1 }}
           >
             {titulo}
           </h2>

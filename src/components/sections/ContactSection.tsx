@@ -49,7 +49,7 @@ export default function ContactSection() {
           <div className="section-label section-label--light justify-center" style={{ marginBottom: 16 }}>
             Contáctanos
           </div>
-          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(36px,4vw,56px)', color: '#fff', lineHeight: 1.1 }}>
+          <h2 className="font-serif font-light tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-sm),4vw,var(--sdm-display-md))', color: '#fff', lineHeight: 1.1 }}>
             Hablemos de <em>tus metas</em>
           </h2>
         </div>

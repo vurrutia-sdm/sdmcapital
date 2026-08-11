@@ -368,7 +368,7 @@ export default function HeroSection() {
               renglones. El reset de Tailwind deja los encabezados en
               `font-size: inherit` y sin margen, así que el estilo es el mismo
               que tenía el <div>. */}
-          <h1 className="font-serif tracking-sdm-tight" style={{ fontSize: 'clamp(52px,6.5vw,88px)', fontWeight: 300, lineHeight: 1.03, color: '#fff' }}>
+          <h1 className="font-serif tracking-sdm-tight" style={{ fontSize: 'clamp(var(--sdm-display-lg),6.5vw,var(--sdm-display-xl))', fontWeight: 300, lineHeight: 1.03, color: '#fff' }}>
             <span style={{ display: 'block' }}>{titulo1}</span>
             <span style={{ display: 'block' }}>
               {titulo2.startsWith('en ') ? (

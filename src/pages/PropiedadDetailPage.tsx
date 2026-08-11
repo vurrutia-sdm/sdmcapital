@@ -406,7 +406,7 @@ export default function PropiedadDetailPage() {
       {prop.id === EL_BARRANCO_ID && <ElBarrancoBanner />}
 
       <div className="px-8 lg:px-12 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
 
           {/* ── Galería ── */}
           <div>
