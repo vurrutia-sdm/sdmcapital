@@ -7871,3 +7871,54 @@ Y dos corolarios que salieron del mismo error:
   muestra.** Un `match(/UF ([\d.]+)/)` sobre `document.body.innerText` captura
   el valor de la UF del día —40.846— junto a los precios de las propiedades. Hay
   que leer desde el contenedor de las tarjetas, no desde el `body`.
+
+### Una comprobación cuya salida no depende de nada no es una comprobación
+
+El guion de despliegue llevaba esto:
+
+```bash
+git status --short && echo "(limpio)" && npx wrangler pages deploy dist …
+```
+
+`git status --short` **imprimió `M index.html`** y justo debajo apareció
+«(limpio)», porque el `echo` era incondicional: no derivaba nada de la salida
+anterior. El despliegue salió con el árbol sucio y se reportó limpio.
+
+**La regla: toda comprobación tiene que poder fallar.** Si su salida es la misma
+pase lo que pase, no está comprobando — está decorando. La forma correcta deriva
+el mensaje del hecho:
+
+```bash
+[ -z "$(git status --porcelain)" ] && echo "limpio" || { echo "ÁRBOL SUCIO"; exit 1; }
+```
+
+Es la cuarta de la misma familia en esta sesión, y conviene verlas juntas porque
+la forma es idéntica:
+
+| | el error |
+|---|---|
+| El **204** de un `DELETE` | leído como «borró», cuando también es lo que devuelve si RLS filtró todo |
+| El **`grep`** de `dividendo_uf` | contó 4 coincidencias por nombre y les atribuyó una interfaz que no era la suya |
+| El **barrido de la regla 4.2** | buscó `color:` y `background:`, y declaró el eje cerrado cuatro veces mientras los usos vivían en ternarios y en `boxShadow` |
+| El **`echo "(limpio)"`** | imprimió el resultado deseado sin mirar el real |
+
+Las cuatro comparten la misma raíz: **confundir la forma de la evidencia con el
+hecho que se quería establecer.** Un código de estado, un conteo, una coincidencia
+de texto y un mensaje en pantalla no son el hecho; son señales que hay que
+interpretar, y las cuatro pueden decir «bien» estando mal.
+
+### La versión en inglés del sitio público es código inalcanzable
+
+`LangProvider` (`src/hooks/useLang.tsx:14`) inicializa `lang` en `'es'`, y
+**nadie llama a `setLang` en todo el sitio público**. El único conmutador de
+idioma que existe es el de `ElBarrancoShowcase`, que usa su propio `useState`
+local y no toca ese contexto.
+
+Consecuencia: todas las ramas `lang === 'es' ? … : '…in English'` de
+`QuienesSomosPage` y `AsociadosPage` **no se renderizan nunca**. Se pueden
+editar, y hay que mantenerlas coherentes con el español por si algún día se
+enciende el conmutador, pero **no se pueden verificar en el navegador**.
+
+Es el dato que le faltaba al hallazgo M8 de `AUDITORIA-VOZ-SDM.md` («bilingüe
+parcial»): no es que cuatro páginas estén en inglés y el resto no — es que ese
+inglés no tiene forma de mostrarse, salvo en El Barranco.
