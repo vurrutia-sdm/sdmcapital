@@ -1306,6 +1306,60 @@ function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving, expanded,
 }
 
 // ── Sección 2: Leads recientes ───────────────────────────────────────────────
+
+// Editar · eliminar · chevron. UN SOLO COMPONENTE PARA LAS DOS PRESENTACIONES:
+// escritorio y móvil pintan cabeceras distintas, y tener el bloque de acciones
+// escrito dos veces es la forma segura de que dentro de un mes solo una de las
+// dos tenga el `stopPropagation` o el `disabled` que hace falta.
+//
+// `separacion` existe por `.area-44`. Ese utilitario no agranda el botón: le
+// cuelga un `::after` de 44×44 centrado. Con los 4 px de hueco de escritorio,
+// dos botones de 30 px quedan con los centros a 34 px y sus zonas táctiles se
+// SOLAPAN 10 px — y en el solape gana el último del DOM, o sea que parte del
+// blanco de «editar» dispararía «eliminar». En móvil van a 14: 30 + 14 = 44,
+// los centros quedan justo a 44 y las dos zonas se tocan sin pisarse.
+function AccionesFila({ expanded, onEdit, onDelete, deleting, separacion }: {
+  expanded: boolean
+  onEdit: () => void
+  onDelete: () => void
+  deleting: boolean
+  separacion: number
+}) {
+  const base: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 30, height: 30, background: 'none', border: `1px solid ${COLORS.border}`,
+    borderRadius: 'var(--sdm-radio-contenedor)', flexShrink: 0,
+  }
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: separacion, flexShrink: 0 }}>
+      <button className="area-44" type="button" title="Editar lead" aria-label="Editar lead"
+        onClick={e => { e.stopPropagation(); onEdit() }}
+        style={{ ...base, cursor: 'pointer', color: COLORS.muted }}>
+        <Pencil size={13} aria-hidden="true" />
+      </button>
+      <button className="area-44" type="button" title="Eliminar lead" aria-label="Eliminar lead"
+        onClick={e => { e.stopPropagation(); onDelete() }} disabled={deleting}
+        style={{ ...base, cursor: deleting ? 'default' : 'pointer', color: COLORS.red }}>
+        <Trash2 size={13} aria-hidden="true" />
+      </button>
+      {expanded ? <ChevronUp size={18} style={{ color: COLORS.muted }} /> : <ChevronDown size={18} style={{ color: COLORS.muted }} />}
+    </div>
+  )
+}
+
+// Un par «rótulo · valor» de la tarjeta móvil. Fuera de la tabla el dato solo
+// no dice nada: «Quilicura» y «compra» sueltos no se sabe de qué son. En
+// escritorio ese trabajo lo hace la posición de la columna; acá no hay columna
+// que posicione, así que el rótulo va al lado.
+function CampoMovil({ label, valor }: { label: string; valor: string }) {
+  return (
+    <div style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
+      <span className="text-sdm-xs" style={{ color: COLORS.muted, minWidth: 84, flexShrink: 0 }}>{label}</span>
+      <span className="text-sdm-sm" style={{ color: COLORS.navy, overflowWrap: 'anywhere' }}>{valor}</span>
+    </div>
+  )
+}
+
 function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, deleting, onModoChange, onContactado, onCerrar, onReabrir, accionEnCurso }: {
   lead: Lead
   ultimaVisita: UltimaVisita | undefined
@@ -1352,44 +1406,72 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
         onKeyDown={e => {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() }
         }}
-        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer' }}>
-        <ScoreBadge score={lead.score} />
-        {/* Estas seis columnas ENVUELVEN en vez de recortarse. Medido: a 1100 px
-            de ancho —el máximo del panel— cada una mide ~124 px, y a 768 px
-            bajan a ~108 px. Ahí entran «Ñuñoa» y «3 a 6 meses», pero no un
-            presupuesto tal como lo escribe el cliente ni un nombre completo.
-            La fila crece a dos líneas cuando hace falta; antes el dato se
-            cortaba y no había forma de recuperarlo sin abrir el detalle. */}
-        <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
-          <div className="text-sdm-base" style={{ fontWeight: 700, color: COLORS.navy, overflowWrap: 'anywhere' }}>{fmt(lead.nombre, 'Sin nombre')}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.comuna)}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.intencion)}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.presupuesto)}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.plazo)}</div>
-          {/* El ciclo del EQUIPO, y nada más: ni `leads.status` ni el estado de
-              la visita entran acá. Los dos siguen visibles en el detalle, con
-              su propio rótulo. Sin `capitalize` porque las etiquetas ya vienen
-              escritas. */}
-          <div className="text-sdm-sm" style={{ color: lead.cerrado_en ? COLORS.muted : COLORS.navy }}>{cicloLead(lead)}</div>
+        style={{ padding: '14px 18px', cursor: 'pointer' }}>
+
+        {/* ── DOS CABECERAS, NO UNA CON MEDIA QUERIES ────────────────────────
+            La de escritorio es una tabla: seis columnas alineadas, y el guión
+            de un campo vacío MANTIENE esa alineación. La de móvil es una ficha:
+            no hay columna que alinear, así que un guión apilado en su propia
+            línea no informa de nada y se come la mitad del alto — «cata
+            gallegos» ocupaba cinco líneas para decir un nombre y un estado.
+
+            Las diferencias son de CONTENIDO, no de estilo: en móvil los campos
+            vacíos NO SE PINTAN y los que hay LLEVAN RÓTULO. Ni lo uno ni lo
+            otro se puede hacer desde CSS —haría falta borrar nodos y añadir
+            texto—, así que forzar el mismo marcado obligaba a `::before` con
+            el rótulo en `content` y a esconder por `:empty` lo que `fmt()`
+            nunca deja vacío. Dos ramas honestas se leen mejor que una con
+            trucos, y solo una está en el DOM a la vez: `hidden`/`lg:hidden` es
+            `display: none`, así que el lector de pantalla tampoco ve las dos.
+
+            El resto —el `role="button"`, la franja de un clic, el bloque
+            expandido— no se toca: lo comparten las dos. */}
+
+        {/* ESCRITORIO. Las seis columnas ENVUELVEN en vez de recortarse.
+            Medido: a 1100 px —el máximo del panel— cada una mide ~124 px. */}
+        <div className="hidden lg:flex" style={{ alignItems: 'center', gap: 14 }}>
+          <ScoreBadge score={lead.score} />
+          <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
+            <div className="text-sdm-base" style={{ fontWeight: 700, color: COLORS.navy, overflowWrap: 'anywhere' }}>{fmt(lead.nombre, 'Sin nombre')}</div>
+            <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.comuna)}</div>
+            <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.intencion)}</div>
+            <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.presupuesto)}</div>
+            <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.plazo)}</div>
+            {/* El ciclo del EQUIPO, y nada más: ni `leads.status` ni el estado
+                de la visita entran acá. Los dos siguen visibles en el detalle,
+                con su propio rótulo. */}
+            <div className="text-sdm-sm" style={{ color: lead.cerrado_en ? COLORS.muted : COLORS.navy }}>{cicloLead(lead)}</div>
+          </div>
+          <AccionesFila expanded={expanded} onEdit={onEdit} onDelete={onDelete} deleting={deleting} separacion={4} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-          <button
-            type="button"
-            title="Editar lead"
-            onClick={e => { e.stopPropagation(); onEdit() }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, background: 'none', border: `1px solid ${COLORS.border}`, borderRadius: 4, cursor: 'pointer', color: COLORS.muted, flexShrink: 0 }}>
-            <Pencil size={13} />
-          </button>
-          <button
-            type="button"
-            title="Eliminar lead"
-            onClick={e => { e.stopPropagation(); onDelete() }}
-            disabled={deleting}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, background: 'none', border: `1px solid ${COLORS.border}`, borderRadius: 4, cursor: deleting ? 'default' : 'pointer', color: COLORS.red, flexShrink: 0 }}>
-            <Trash2 size={13} />
-          </button>
+
+        {/* MÓVIL */}
+        <div className="lg:hidden" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {/* Nombre, calificación y ciclo SIEMPRE, y alineados entre sí: la
+              píldora iba antes en un flex de altura completa y quedaba flotando
+              a media altura del bloque apilado. Acá comparte línea con el
+              nombre y el ciclo va justo debajo, los tres a la izquierda. */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <ScoreBadge score={lead.score} />
+            <div className="text-sdm-base" style={{ flex: 1, minWidth: 0, fontWeight: 700, color: COLORS.navy, overflowWrap: 'anywhere' }}>
+              {fmt(lead.nombre, 'Sin nombre')}
+            </div>
+            <AccionesFila expanded={expanded} onEdit={onEdit} onDelete={onDelete} deleting={deleting} separacion={14} />
+          </div>
+
+          <div className="text-sdm-sm" style={{ color: lead.cerrado_en ? COLORS.muted : COLORS.navy, fontWeight: 600 }}>{cicloLead(lead)}</div>
+
+          {/* Solo lo que tiene dato. `trim()` porque una cadena de espacios es
+              tan vacía como `null` y `fmt()` no lo detecta. */}
+          {[
+            { label: 'Comuna', valor: lead.comuna },
+            { label: 'Intención', valor: lead.intencion },
+            { label: 'Presupuesto', valor: lead.presupuesto },
+            { label: 'Plazo', valor: lead.plazo },
+          ].filter(c => c.valor?.trim()).map(c => (
+            <CampoMovil key={c.label} label={c.label} valor={c.valor!.trim()} />
+          ))}
         </div>
-        {expanded ? <ChevronUp size={18} style={{ color: COLORS.muted }} /> : <ChevronDown size={18} style={{ color: COLORS.muted }} />}
       </div>
 
       {/* ── Franja de un clic ─────────────────────────────────────────────────
