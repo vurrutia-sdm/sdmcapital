@@ -1182,8 +1182,15 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
                               sistema. Es la acción que sostiene el filtro de
                               `seguimiento_candidatos`: sin esa marca, Sofía
                               puede escribirle a alguien que Roberto ya llamó.
-            «Cerrar»          .btn-green    sólido pero más liviano que el navy.
-            «Ya no está…»     .btn-text     salida de escape, sin relleno.
+            «Cerrar»          .btn-text     sin relleno.
+            «Ya no está…»     .btn-text     igual, empujado al borde derecho.
+
+          SON DOS NIVELES, NO TRES. «Cerrar» estuvo un rato en `.btn-green`, que
+          era el único sólido que quedaba por debajo del navy, pero el verde se
+          lee como «esta es la buena» y cerrar incluye «No calificó» y «No
+          respondió». Antes que forzar un tercer escalón con el color
+          equivocado, los dos cierres bajan al mismo peso y se distinguen por
+          posición.
 
           NINGÚN color a mano. El `background: var(--muted)` que había en los dos
           últimos fabricaba una sexta variante que no existe en el sistema, y
@@ -1212,12 +1219,18 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
                   <Check size={14} aria-hidden="true" /> Ya lo contacté
                 </button>
               )}
-              <button type="button" className="btn-green text-sdm-xs" style={{ padding: '8px 14px' }}
+              <button type="button" className="btn-text text-sdm-xs"
                 aria-expanded={cerrarAbierto}
                 onClick={() => setCerrarAbierto(v => !v)} disabled={accionEnCurso}>
                 Cerrar
               </button>
-              <button type="button" className="btn-text text-sdm-xs"
+              {/* `marginLeft: auto` empuja el escape al borde derecho. Es lo
+                  ÚNICO que lo separa de «Cerrar», y a propósito: los dos son
+                  `.btn-text`, mismo color y mismo peso. Diferenciarlos por tono
+                  o por grosor inventaría una jerarquía entre dos acciones que
+                  están al mismo nivel — cerrar con motivo y cerrar sin él. Lo
+                  que cambia es dónde vive cada una, no cuánto pesa. */}
+              <button type="button" className="btn-text text-sdm-xs" style={{ marginLeft: 'auto' }}
                 onClick={() => onCerrar(null)} disabled={accionEnCurso}>
                 Ya no está en mi lista
               </button>
