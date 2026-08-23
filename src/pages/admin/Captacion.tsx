@@ -82,8 +82,10 @@ type MetricsData = {
   // Estado actual, sin ventana. Preguntarle «¿de qué mes?» a esto no significa
   // nada: o alguien está esperando ahora, o no.
   sinContactar: number
-  visitasPorCoordinar: number
-  visitasConfirmadas: number
+  // Los dos contadores de visitas NO están acá: los da `loadVisitas`, que es
+  // quien aplica el filtro de leads cerrados. Contarlos por separado con una
+  // consulta propia es exactamente cómo el panel terminó contradiciéndose antes
+  // —la tarjeta decía 10 y la sección mostraba 0—, así que hay una sola fuente.
 
   // Ventana: día / 7 días naturales / mes calendario, los tres en hora de Chile.
   leadsHoy: number
@@ -116,7 +118,7 @@ type MetricsData = {
 }
 
 const METRICAS_CERO: MetricsData = {
-  sinContactar: 0, visitasPorCoordinar: 0, visitasConfirmadas: 0,
+  sinContactar: 0,
   leadsHoy: 0, leadsSemana: 0, leadsMes: 0,
   hot: 0, warm: 0, cold: 0, sinCalificar: 0,
   compra: 0, arriendo: 0, sinIntencion: 0,
@@ -920,7 +922,17 @@ function MetricCard({ title, fallo, children }: { title: string; fallo?: boolean
 // avanzaba a realizada salía del numerador y la tarjeta marcaba 0,0 % para
 // siempre. Con 14 leads en dos meses ningún porcentaje significaba nada. Vuelve
 // cuando haya volumen y con el numerador acumulado, no como foto.
-function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loading: boolean }) {
+function MetricsSection({ metrics, loading, porCoordinar, confirmadas, visitasFallo }: {
+  metrics: MetricsData | null
+  loading: boolean
+  // Los dos contadores de visitas vienen de las MISMAS listas que se pintan más
+  // arriba en la página, ya filtradas de leads cerrados. No es prop drilling
+  // gratuito: es lo que garantiza que la tarjeta no pueda decir «10» mientras
+  // la sección de al lado muestra cero, que es el bug que se está arreglando.
+  porCoordinar: number
+  confirmadas: number
+  visitasFallo: boolean
+}) {
   const m: MetricsData = metrics || METRICAS_CERO
 
   return (
@@ -965,10 +977,10 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
             (`cerrado_en` / `resultado`), y `visitas.estado='realizada'` dejó de
             usarse para cerrar gestiones. «Por coordinar» y no «Pendientes»:
             significa que Sofía ofreció coordinar, no que haya visita agendada. */}
-        <MetricCard title="Visitas" fallo={m.fallo}>
+        <MetricCard title="Visitas" fallo={visitasFallo}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-            <Stat label="Por coordinar" value={m.visitasPorCoordinar} color={VISITA_ESTADO_STYLE.pendientes} />
-            <Stat label="Confirmadas" value={m.visitasConfirmadas} color={VISITA_ESTADO_STYLE.confirmadas} />
+            <Stat label="Por coordinar" value={porCoordinar} color={VISITA_ESTADO_STYLE.pendientes} />
+            <Stat label="Confirmadas" value={confirmadas} color={VISITA_ESTADO_STYLE.confirmadas} />
           </div>
         </MetricCard>
 
@@ -1059,29 +1071,67 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
   )
 }
 
+// ── Cabecera colapsable, común a las dos tarjetas de visita ──────────────────
+//
+// Antes las tarjetas venían todas abiertas: brief completo, asignador y campo
+// de horario, media pantalla cada una. Con tres visitas había que desplazarse
+// para ver la tercera.
+//
+// EL MECANISMO ES EL DE `LeadRow`, no uno nuevo: `role="button"` con `tabIndex`,
+// `aria-expanded` y Enter/Espacio. No es un `<button>` de verdad por la misma
+// razón que allá — la cabecera puede convivir con otros controles, y un
+// `<button>` dentro de otro es marcado inválido. El `preventDefault()` en
+// Espacio tampoco sobra: sin él la página se desplaza además de abrir.
+function CabeceraVisita({ visita, expanded, onToggle }: {
+  visita: VisitaConLead
+  expanded: boolean
+  onToggle: () => void
+}) {
+  const lead = visita.lead
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-expanded={expanded}
+      onClick={onToggle}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() }
+      }}
+      style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer' }}>
+      {lead && <ScoreBadge score={lead.score} />}
+      <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
+        <div className="text-sdm-base" style={{ fontWeight: 700, color: COLORS.navy, overflowWrap: 'anywhere' }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
+        <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead?.comuna)}</div>
+        <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead?.intencion)}</div>
+        <div className="text-sdm-sm" style={{ color: COLORS.muted }}>solicitada {timeAgo(visita.created_at)}</div>
+      </div>
+      {expanded ? <ChevronUp size={18} style={{ color: COLORS.muted }} /> : <ChevronDown size={18} style={{ color: COLORS.muted }} />}
+    </div>
+  )
+}
+
 // ── Sección 1: Visitas por confirmar ─────────────────────────────────────────
-function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
+function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving, expanded, onToggle }: {
   visita: VisitaConLead
   edit: { asignado: string; horario: string }
   onChange: (next: { asignado: string; horario: string }) => void
   onConfirm: () => void
   onCancel: () => void
   saving: boolean
+  expanded: boolean
+  onToggle: () => void
 }) {
   const lead = visita.lead
   return (
-    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-        <div>
-          <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, marginTop: 2 }}>{fmt(lead?.wa_phone)} · solicitada {timeAgo(visita.created_at)}</div>
-        </div>
-        {lead && <ScoreBadge score={lead.score} />}
-      </div>
+    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', overflow: 'hidden' }}>
+      <CabeceraVisita visita={visita} expanded={expanded} onToggle={onToggle} />
 
+      {expanded && (
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 14 }}>
-        <DRow label="Comuna" value={fmt(lead?.comuna)} />
-        <DRow label="Intención" value={fmt(lead?.intencion)} />
+        {/* El teléfono estaba en la cabecera vieja; baja acá para que la línea
+            colapsada quede en los cuatro campos que piden decidir. */}
+        <DRow label="Teléfono" value={fmt(lead?.wa_phone)} />
         <DRow label="Presupuesto" value={fmt(lead?.presupuesto)} />
         <DRow label="Plazo" value={fmt(lead?.plazo)} />
       </div>
@@ -1139,6 +1189,8 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
           </button>
         </div>
       </div>
+      </div>
+      )}
     </div>
   )
 }
@@ -1153,26 +1205,23 @@ function VisitaCard({ visita, edit, onChange, onConfirm, onCancel, saving }: {
 // exige rociar `disabled` por todas partes y confiar en no olvidar ninguno.
 // Acá simplemente no hay controles que apagar: lo que era editable se pinta
 // como texto, y el único elemento enfocable es la acción que sí funciona.
-function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving }: {
+function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving, expanded, onToggle }: {
   visita: VisitaConLead
   onRealizada: () => void
   onCancel: () => void
   saving: boolean
+  expanded: boolean
+  onToggle: () => void
 }) {
   const lead = visita.lead
   return (
-    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-        <div>
-          <div className="text-sdm-lg" style={{ fontWeight: 700, color: COLORS.navy }}>{fmt(lead?.nombre, 'Sin nombre')}</div>
-          <div className="text-sdm-sm" style={{ color: COLORS.muted, marginTop: 2 }}>{fmt(lead?.wa_phone)} · solicitada {timeAgo(visita.created_at)}</div>
-        </div>
-        {lead && <ScoreBadge score={lead.score} />}
-      </div>
+    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', overflow: 'hidden' }}>
+      <CabeceraVisita visita={visita} expanded={expanded} onToggle={onToggle} />
 
+      {expanded && (
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 14 }}>
-        <DRow label="Comuna" value={fmt(lead?.comuna)} />
-        <DRow label="Intención" value={fmt(lead?.intencion)} />
+        <DRow label="Teléfono" value={fmt(lead?.wa_phone)} />
         {/* Lo que en una visita pendiente son controles, acá son datos. */}
         <DRow label="Asignada a" value={fmt(visita.asignado_a)} />
         <DRow label="Horario" value={fmt(visita.horario_confirmado || visita.horario_propuesto)} />
@@ -1206,6 +1255,8 @@ function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving }: {
           <X size={15} aria-hidden="true" /> Cancelar la visita
         </button>
       </div>
+      </div>
+      )}
     </div>
   )
 }
@@ -1476,6 +1527,7 @@ export default function Captacion() {
   const [visitas, setVisitas] = useState<VisitaConLead[]>([])
   const [confirmadas, setConfirmadas] = useState<VisitaConLead[]>([])
   const [loadingVisitas, setLoadingVisitas] = useState(true)
+  const [visitasFallo, setVisitasFallo] = useState(false)
   const [edits, setEdits] = useState<Record<string, { asignado: string; horario: string }>>({})
   const [savingId, setSavingId] = useState<string | null>(null)
 
@@ -1486,6 +1538,9 @@ export default function Captacion() {
   const [loadingLeads, setLoadingLeads] = useState(true)
   const [filter, setFilter] = useState<ScoreFilter>('todos')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  // Una sola por las dos secciones de visitas: los ids son únicos en la tabla,
+  // así que no hace falta un estado por sección.
+  const [expandedVisitaId, setExpandedVisitaId] = useState<string | null>(null)
 
   // Notificaciones
   const [notifValue, setNotifValue] = useState<NotifValue | null>(null)
@@ -1538,15 +1593,33 @@ export default function Captacion() {
     if (leadIds.length) {
       const { data: ls } = await supabase
         .from('leads')
-        .select('id, nombre, wa_phone, comuna, intencion, presupuesto, plazo, brief, score')
+        // `cerrado_en` no es para pintarlo: es el filtro de abajo.
+        .select('id, nombre, wa_phone, comuna, intencion, presupuesto, plazo, brief, score, cerrado_en')
         .in('id', leadIds)
       for (const l of (ls as Lead[]) || []) leadsMap[l.id] = l
     }
 
     const merged: VisitaConLead[] = visitasArr.map(v => ({ ...v, lead: v.lead_id ? leadsMap[v.lead_id] || null : null }))
-    const pendientes = merged.filter(v => v.estado === 'pendiente')
+
+    // UNA VISITA DE UN LEAD CERRADO NO ES TRABAJO PENDIENTE.
+    //
+    // Bug visto en producción: Salomón Adasme y Francisca salían en «Visitas por
+    // confirmar» pidiendo coordinar, y al mismo tiempo «Cerrado» en la lista de
+    // leads de la misma pantalla. Son de los 9 del backfill de
+    // `20260823000000`: al mover el cierre al eje del lead, sus visitas
+    // volvieron a 'pendiente' y quedaron pidiendo un trabajo ya terminado.
+    //
+    // El filtro es por `cerrado_en`, no por `visitas.estado`: el estado de la
+    // visita no sabe nada del cierre de la gestión, que es justo el punto.
+    //
+    // Una visita SIN lead cargado se queda visible: no se puede demostrar que
+    // esté cerrada, y esconderla por las dudas escondería trabajo real. Hoy no
+    // hay ninguna —0 con `lead_id` nulo, 0 huérfanas—, pero la regla importa.
+    const abiertas = merged.filter(v => !v.lead?.cerrado_en)
+    const pendientes = abiertas.filter(v => v.estado === 'pendiente')
+    const confirmadasArr = abiertas.filter(v => v.estado === 'confirmada')
     setVisitas(pendientes)
-    setConfirmadas(merged.filter(v => v.estado === 'confirmada'))
+    setConfirmadas(confirmadasArr)
     // `edits` solo para las pendientes: son las únicas con campos editables.
     setEdits(prev => {
       const next = { ...prev }
@@ -1556,6 +1629,9 @@ export default function Captacion() {
       return next
     })
     setLoadingVisitas(false)
+    // La tarjeta de métricas «Visitas» cuenta estas mismas listas, así que
+    // también tiene que saber cuándo la lectura falló y no pintar un cero.
+    setVisitasFallo(!!error)
     return error
   }, [])
 
@@ -1634,8 +1710,6 @@ export default function Captacion() {
       leadsHoyRes,
       leadsSemanaRes,
       leadsMesRes,
-      visitasPorCoordinarRes,
-      visitasConfirmadasRes,
       contactadosMesRes,
       cerradosMesRes,
     ] = await Promise.all([
@@ -1648,8 +1722,6 @@ export default function Captacion() {
       // Una sola consulta para todo el perfil del mes: score, intención y
       // comuna salen de las mismas filas. Añadir `intencion` no cuesta viaje.
       supabase.from('leads').select('score, intencion, comuna').gte('created_at', desdeMes),
-      supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
-      supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'confirmada'),
       supabase.from('leads').select('id', { count: 'exact', head: true }).gte('contactado_en', desdeMes),
       // Filas y no `count`: de la misma consulta salen el total de cerrados del
       // mes y el desglose por resultado, sin cuatro consultas más.
@@ -1664,7 +1736,7 @@ export default function Captacion() {
     // El detalle va a consola; la pantalla lo dice con `fallo`.
     const falloMetricas = [
       sinContactarRes, leadsHoyRes, leadsSemanaRes, leadsMesRes,
-      visitasPorCoordinarRes, visitasConfirmadasRes, contactadosMesRes, cerradosMesRes,
+      contactadosMesRes, cerradosMesRes,
     ].find(r => r.error)?.error || null
     if (falloMetricas) {
       console.error('[No se pudieron cargar las métricas]', falloMetricas)
@@ -1714,8 +1786,6 @@ export default function Captacion() {
 
     setMetrics({
       sinContactar: sinContactarRes.count || 0,
-      visitasPorCoordinar: visitasPorCoordinarRes.count || 0,
-      visitasConfirmadas: visitasConfirmadasRes.count || 0,
       leadsHoy: leadsHoyRes.count || 0,
       leadsSemana: leadsSemanaRes.count || 0,
       leadsMes: leadsMesArr.length,
@@ -2103,6 +2173,8 @@ export default function Captacion() {
                     onConfirm={() => confirmarVisita(v)}
                     onCancel={() => cancelarVisita(v)}
                     saving={savingId === v.id}
+                    expanded={expandedVisitaId === v.id}
+                    onToggle={() => setExpandedVisitaId(prev => prev === v.id ? null : v.id)}
                   />
                 ))}
               </div>
@@ -2129,6 +2201,8 @@ export default function Captacion() {
                     onRealizada={() => marcarRealizada(v)}
                     onCancel={() => cancelarVisita(v)}
                     saving={savingId === v.id}
+                    expanded={expandedVisitaId === v.id}
+                    onToggle={() => setExpandedVisitaId(prev => prev === v.id ? null : v.id)}
                   />
                 ))}
               </div>
@@ -2136,7 +2210,13 @@ export default function Captacion() {
           </section>
 
           {/* ── Sección 3: Métricas ───────────────────────────────────────── */}
-          <MetricsSection metrics={metrics} loading={loadingMetrics} />
+          <MetricsSection
+            metrics={metrics}
+            loading={loadingMetrics}
+            porCoordinar={visitas.length}
+            confirmadas={confirmadas.length}
+            visitasFallo={visitasFallo}
+          />
         </div>
       </div>
 
