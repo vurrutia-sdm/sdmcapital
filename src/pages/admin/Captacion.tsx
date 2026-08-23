@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, RefreshCw, ChevronDown, ChevronUp, Check, X, Pencil, Trash2, Bell, CalendarCheck, Mic, Hand, Bot } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
+import { useGuardado } from '@/components/admin/acciones'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -1074,7 +1075,7 @@ function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving }: {
 }
 
 // ── Sección 2: Leads recientes ───────────────────────────────────────────────
-function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, deleting, onModoChange, onContactado, onCerrar, accionEnCurso }: {
+function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, deleting, onModoChange, onContactado, onCerrar, onReabrir, accionEnCurso }: {
   lead: Lead
   ultimaVisita: UltimaVisita | undefined
   expanded: boolean
@@ -1085,6 +1086,7 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
   onModoChange: () => void
   onContactado: () => void
   onCerrar: (resultado: string | null) => void
+  onReabrir: () => void
   accionEnCurso: boolean
 }) {
   const [detailTab, setDetailTab] = useState<DetailTab>('detalles')
@@ -1170,29 +1172,52 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
           marca que cuesta el doble es una marca que el equipo no pone. De esa
           marca depende que `seguimiento_candidatos` no le escriba a alguien ya
           atendido. */}
+      {/* JERARQUÍA — las tres variantes usables sobre fondo claro, y solo esas:
+          `.btn-inverse` es blanco sobre navy y `.btn-outline` es texto blanco
+          translúcido para el hero sobre foto; las dos DESAPARECEN sobre esta
+          tarjeta blanca. Quedan `.btn-primary`, `.btn-green` y `.btn-text`, que
+          son exactamente los tres escalones que hacen falta.
+
+            «Ya lo contacté»  .btn-primary  navy casi negro, el peso máximo del
+                              sistema. Es la acción que sostiene el filtro de
+                              `seguimiento_candidatos`: sin esa marca, Sofía
+                              puede escribirle a alguien que Roberto ya llamó.
+            «Cerrar»          .btn-green    sólido pero más liviano que el navy.
+            «Ya no está…»     .btn-text     salida de escape, sin relleno.
+
+          NINGÚN color a mano. El `background: var(--muted)` que había en los dos
+          últimos fabricaba una sexta variante que no existe en el sistema, y
+          además, al ir inline, ganaba a los `:hover` de `globals.css` y dejaba
+          esos botones sin cambio de color al pasar por encima. */}
       <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: '10px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {lead.cerrado_en ? (
-            <span className="text-sdm-sm" style={{ color: COLORS.muted }}>
-              Cerrado el {fechaCorta(lead.cerrado_en)}
-              {lead.resultado ? ` · ${RESULTADO_LABEL[lead.resultado] || lead.resultado}` : ''}
-            </span>
+            // NO se repite «Cerrado» ni el resultado: la última columna de la
+            // fila ya los dice, a 30 cm de acá. Lo único que aporta esta franja
+            // es la fecha —que la columna no tiene— y la acción de revertir.
+            <>
+              <span className="text-sdm-sm" style={{ color: COLORS.muted }}>Se cerró el {fechaCorta(lead.cerrado_en)}</span>
+              <button type="button" className="btn-text text-sdm-xs"
+                onClick={onReabrir} disabled={accionEnCurso}>
+                Reabrir
+              </button>
+            </>
           ) : (
             <>
               {lead.contactado_en ? (
                 <span className="text-sdm-sm" style={{ color: COLORS.muted }}>Contactado el {fechaCorta(lead.contactado_en)}</span>
               ) : (
-                <button type="button" className="btn-green text-sdm-xs" style={{ padding: '8px 14px' }}
+                <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}
                   onClick={onContactado} disabled={accionEnCurso}>
                   <Check size={14} aria-hidden="true" /> Ya lo contacté
                 </button>
               )}
-              <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}
+              <button type="button" className="btn-green text-sdm-xs" style={{ padding: '8px 14px' }}
                 aria-expanded={cerrarAbierto}
                 onClick={() => setCerrarAbierto(v => !v)} disabled={accionEnCurso}>
                 Cerrar
               </button>
-              <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px', background: COLORS.muted }}
+              <button type="button" className="btn-text text-sdm-xs"
                 onClick={() => onCerrar(null)} disabled={accionEnCurso}>
                 Ya no está en mi lista
               </button>
@@ -1203,13 +1228,14 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
         {cerrarAbierto && !lead.cerrado_en && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span className="text-sdm-xs" style={{ color: COLORS.muted }}>¿Con qué resultado?</span>
+            {/* Los cuatro son pares entre sí: misma variante, mismo peso. */}
             {RESULTADOS.map(r => (
               <button key={r} type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}
                 onClick={() => { setCerrarAbierto(false); onCerrar(r) }} disabled={accionEnCurso}>
                 {RESULTADO_LABEL[r]}
               </button>
             ))}
-            <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px', background: COLORS.muted }}
+            <button type="button" className="btn-text text-sdm-xs"
               onClick={() => setCerrarAbierto(false)} disabled={accionEnCurso}>
               Cancelar
             </button>
@@ -1327,7 +1353,20 @@ export default function Captacion() {
   // Ciclo de gestión: qué fila tiene una escritura en vuelo.
   const [accionId, setAccionId] = useState<string | null>(null)
 
+  // Confirmación del botón Actualizar. Reusa el temporizador de `acciones.tsx`
+  // —el mismo de los catorce paneles, 2500 ms— pero no su componente
+  // `Guardado`: acá no se guardó nada, y decir «Guardado correctamente» tras una
+  // recarga es exactamente el tipo de mensaje falso que este admin ya pagó caro.
+  const [actualizadoVisible, avisarActualizado] = useGuardado()
+
   // ── Loaders ─────────────────────────────────────────────────────────────────
+  //
+  // LOS TRES DEVUELVEN SU `error` EN VEZ DE TRAGÁRSELO. Siguen logueando a
+  // consola y siguen sin levantar `alert()` —corren cada 25 s con el refresco
+  // automático, y un fallo no puede interrumpir a quien está trabajando—, pero
+  // ahora el que llama decide. `loadAll`, que es el del intervalo, ignora el
+  // retorno y se comporta igual que antes; `refrescar`, que es el del botón
+  // Actualizar, lo usa para no cantar «Actualizado» sobre una recarga fallida.
   const loadVisitas = useCallback(async () => {
     setLoadingVisitas(true)
     // Los DOS estados en una sola consulta, y se parten acá. Antes esto pedía
@@ -1368,16 +1407,20 @@ export default function Captacion() {
       return next
     })
     setLoadingVisitas(false)
+    return error
   }, [])
 
   // Recarga los leads sin tocar loadingLeads, para no disparar el indicador
   // "Cargando…" al cambiar de modo o enviar un mensaje manual.
   const loadLeadsQuiet = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error: errLeads } = await supabase
       .from('leads')
       .select('*')
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .limit(100)
+    // Este `error` no se recogía. La lista se quedaba con los leads viejos y
+    // nada lo decía — ni siquiera la consola.
+    if (errLeads) { console.error('[No se pudieron cargar los leads]', errLeads); return errLeads }
     const filas = (data as Lead[]) || []
     setLeads(filas)
 
@@ -1396,7 +1439,7 @@ export default function Captacion() {
     // tiene que verse como confirmado, no como cancelado; sin este orden, o
     // con un `if` que sobrescriba, saldría lo contrario.
     const ids = filas.map(l => l.id)
-    if (!ids.length) { setUltimasVisitas({}); return }
+    if (!ids.length) { setUltimasVisitas({}); return null }
 
     const { data: vs, error } = await supabase
       .from('visitas')
@@ -1407,8 +1450,8 @@ export default function Captacion() {
     // Sin `avisarError`: esto es una lectura de apoyo y corre cada 25 s con el
     // refresco automático. Un fallo acá no puede levantar un alert() encima de
     // quien está trabajando. Si falla, el mapa se queda como estaba y el panel
-    // muestra `lead.status` a secas, que es el comportamiento anterior.
-    if (error) { console.error('[No se pudo leer las visitas de los leads]', error); return }
+    // muestra el rótulo de visita anterior, que es el comportamiento previo.
+    if (error) { console.error('[No se pudo leer las visitas de los leads]', error); return error }
 
     const mapa: Record<string, UltimaVisita> = {}
     for (const v of (vs as { lead_id: string | null; estado: string; created_at: string | null }[]) || []) {
@@ -1416,12 +1459,14 @@ export default function Captacion() {
       mapa[v.lead_id] = { estado: v.estado, created_at: v.created_at }
     }
     setUltimasVisitas(mapa)
+    return null
   }, [])
 
   const loadLeads = useCallback(async () => {
     setLoadingLeads(true)
-    await loadLeadsQuiet()
+    const error = await loadLeadsQuiet()
     setLoadingLeads(false)
+    return error
   }, [loadLeadsQuiet])
 
   const loadMetrics = useCallback(async () => {
@@ -1449,6 +1494,14 @@ export default function Captacion() {
       supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'confirmada'),
       supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'realizada'),
     ])
+
+    // Ninguna de las siete miraba su `error`: con la red caída, las métricas
+    // se quedaban en cero y se leían como «no hubo leads este mes».
+    const falloMetricas = [
+      leadsHoyRes, leadsSemanaRes, leadsTotalRes, leadsMesRes,
+      visitasPendientesRes, visitasConfirmadasRes, visitasRealizadasRes,
+    ].find(r => r.error)?.error || null
+    if (falloMetricas) console.error('[No se pudieron cargar las métricas]', falloMetricas)
 
     const leadsMesArr = (leadsMesRes.data as Pick<Lead, 'score' | 'intencion' | 'comuna'>[]) || []
 
@@ -1491,6 +1544,7 @@ export default function Captacion() {
       comunasTotal: Object.keys(comunaCounts).length,
     })
     setLoadingMetrics(false)
+    return falloMetricas
   }, [])
 
   const loadNotifConfig = useCallback(async () => {
@@ -1503,6 +1557,16 @@ export default function Captacion() {
   }, [])
 
   const loadAll = useCallback(() => { loadVisitas(); loadLeads(); loadMetrics() }, [loadVisitas, loadLeads, loadMetrics])
+
+  // El botón Actualizar SÍ recargaba, pero cuando no había nada nuevo no cambiaba
+  // un solo píxel, y eso se lee como un botón muerto. Ahora espera a las tres
+  // consultas y confirma. `loadAll` queda para el intervalo de 25 s, que no debe
+  // avisar nada: un aviso cada 25 segundos es ruido, no información.
+  const refrescar = async () => {
+    const fallo = (await Promise.all([loadVisitas(), loadLeads(), loadMetrics()])).find(Boolean) || null
+    if (avisarError('No se pudo actualizar', fallo)) return
+    avisarActualizado()
+  }
 
   useEffect(() => {
     if (authed) { loadAll(); loadNotifConfig() }
@@ -1689,6 +1753,33 @@ export default function Captacion() {
     loadLeadsQuiet()
   }
 
+  // El único de los cuatro que REVIERTE algo, y por eso el único con
+  // confirmación. `confirm()` porque es lo que ya usan `cancelarVisita`,
+  // `marcarRealizada` y `deleteLead`: el archivo no tiene otro mecanismo, y
+  // meter un modal propio para un solo botón sería una quinta forma de
+  // preguntar lo mismo.
+  //
+  // `contactado_en` NO va en el payload: reabrir deshace el cierre, no el
+  // contacto. Si se limpiara, el lead volvería a `seguimiento_candidatos` y
+  // Sofía podría escribirle a alguien con quien el equipo ya habló.
+  const reabrirLead = async (lead: Lead) => {
+    if (!confirm(
+      `¿Reabrir la gestión de ${lead.nombre?.trim() || lead.wa_phone?.trim() || 'este lead'}?\n\n` +
+      'Vuelve a la lista de gestiones abiertas y se borra el resultado que tenía.\n\n' +
+      'La fecha de contacto se mantiene.'
+    )) return
+    setAccionId(lead.id)
+    // Los dos a `null` explícito. Con `undefined` la clave desaparece del JSON
+    // y PostgREST no la toca: el lead seguiría cerrado y el panel diría que se
+    // reabrió. Ver la prueba de serialización en el commit del ciclo.
+    const { error } = await supabase.from('leads')
+      .update({ cerrado_en: null, resultado: null })
+      .eq('id', lead.id)
+    setAccionId(null)
+    if (avisarError('No se pudo reabrir la gestión', error)) return
+    loadLeadsQuiet()
+  }
+
   // ── Acciones: eliminar lead ──────────────────────────────────────────────────
   const deleteLead = async (lead: Lead) => {
     if (!confirm('¿Eliminar este lead? Esto también elimina sus visitas asociadas. Esta acción no se puede deshacer.')) return
@@ -1732,10 +1823,20 @@ export default function Captacion() {
           <span style={{ color: COLORS.border }}>|</span>
           <span className="text-sdm-lg" style={{ fontWeight: 600, color: COLORS.navy }}>Captación — Leads y Visitas</span>
         </div>
-        <button className="text-sdm-sm tracking-sdm-wide" onClick={loadAll}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 2, padding: '9px 18px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-          <RefreshCw size={15} /> Actualizar
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* Misma forma que la píldora `Guardado` de los catorce paneles —el
+              check, el verde, el mismo temporizador de 2500 ms—, con el texto
+              que corresponde: acá se recargó, no se guardó. */}
+          {actualizadoVisible && (
+            <span className="text-sdm-sm" style={{ color: 'var(--green-dark)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Check size={14} strokeWidth={2} aria-hidden="true" />Actualizado
+            </span>
+          )}
+          <button className="text-sdm-sm tracking-sdm-wide" onClick={refrescar}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.navy, color: '#fff', border: 'none', borderRadius: 2, padding: '9px 18px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <RefreshCw size={15} /> Actualizar
+          </button>
+        </div>
       </div>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -1840,6 +1941,7 @@ export default function Captacion() {
                     onModoChange={loadLeadsQuiet}
                     onContactado={() => marcarContactado(l)}
                     onCerrar={(resultado) => cerrarLead(l, resultado)}
+                    onReabrir={() => reabrirLead(l)}
                     accionEnCurso={accionId === l.id}
                   />
                 ))}
