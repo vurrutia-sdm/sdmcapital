@@ -93,6 +93,11 @@ type MetricsData = {
   warm: number
   cold: number
   sinCalificar: number
+  // Intención declarada del mes. `sinIntencion` no sobra: sin él, compra +
+  // arriendo no suma `leadsMes` y se repite el agujero que tenían los scores.
+  compra: number
+  arriendo: number
+  sinIntencion: number
   contactadosMes: number
   cerradosMes: number
   // Los cuatro valores del CHECK más los cerrados sin resultado, del mes.
@@ -114,6 +119,7 @@ const METRICAS_CERO: MetricsData = {
   sinContactar: 0, visitasPorCoordinar: 0, visitasConfirmadas: 0,
   leadsHoy: 0, leadsSemana: 0, leadsMes: 0,
   hot: 0, warm: 0, cold: 0, sinCalificar: 0,
+  compra: 0, arriendo: 0, sinIntencion: 0,
   contactadosMes: 0, cerradosMes: 0, resultadosMes: {}, cerradosSinResultadoMes: 0,
   topComunas: [], comunasTotal: 0,
   fallo: false,
@@ -982,37 +988,69 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
         </MetricCard>
       </div>
 
+      {/* ── Perfil del mes: intención y comunas ───────────────────────────────
+          «Compra vs. arriendo» vivía en una tarjeta propia y volvió acá, no
+          allá. Dos motivos:
+
+            · No es accionable. Las cinco tarjetas de arriba responden «¿qué
+              hago ahora?»; esto responde «¿quién llegó este mes?». Es el mismo
+              plano que las comunas —perfil descriptivo—, no el de una cola de
+              trabajo, y como tarjeta competía por la mirada con «Sin contactar».
+            · Con 4 y 0, una tarjeta entera para dos números es justo lo que nos
+              hizo sacar la conversión.
+
+          Y de paso las dos salen ya de la MISMA consulta del mes, así que no
+          cuesta ni un viaje extra. La ventana se declara una vez, en el título
+          del bloque, y vale para sus dos partes. */}
       <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20 }}>
-        <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 12 }}>
-          Comunas más buscadas (este mes)
+        <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600, marginBottom: 14 }}>
+          Perfil de los leads (este mes)
         </div>
         {loading ? (
           <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Cargando…</span>
         ) : m.fallo ? (
           // Misma distinción que en las tarjetas: «no se pudo cargar» en rojo
-          // no es lo mismo que «no hubo comunas», que va en gris.
+          // no es lo mismo que «no hubo datos», que va en gris.
           <span className="text-sdm-sm" style={{ color: COLORS.red, fontStyle: 'italic' }}>No se pudo cargar</span>
-        ) : m.topComunas.length === 0 ? (
-          <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Sin datos de comunas para este mes.</span>
         ) : (
           <>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {m.topComunas.map((c, i) => (
-                <div key={c.comuna} style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.bg, borderRadius: 14, padding: '6px 14px' }}>
-                  <span className="text-sdm-sm" style={{ fontWeight: 700, color: COLORS.navy }}>{i + 1}.</span>
-                  <span className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{c.comuna}</span>
-                  <span className="text-sdm-sm" style={{ color: COLORS.muted, fontWeight: 600 }}>({c.count})</span>
-                </div>
-              ))}
-            </div>
-            {/* El recorte a 5 se dice. La caja no tiene scroll propio —es un
-                flex-wrap de fichas—, así que sin esta línea las comunas 6 en
-                adelante desaparecían sin dejar rastro y el ranking se leía
-                como la lista completa del mes. */}
-            {m.comunasTotal > m.topComunas.length && (
-              <div className="text-sdm-sm" style={{ color: COLORS.muted, marginTop: 12 }}>
-                Mostrando las {m.topComunas.length} más buscadas de {m.comunasTotal} comunas.
+            <div className="text-sdm-sm" style={{ fontWeight: 600, color: COLORS.navy, marginBottom: 6 }}>Intención</div>
+            {m.leadsMes === 0 ? (
+              <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Sin leads este mes.</span>
+            ) : (
+              <div className="text-sdm-sm" style={{ color: COLORS.muted }}>
+                Compra {m.compra} · Arriendo {m.arriendo}
+                {/* Se declara igual que «Sin calificar» en la tarjeta de
+                    scores: sin esto, 4 + 0 sobre 7 leads del mes deja tres
+                    filas sin explicar y el par se lee como el total. */}
+                {m.sinIntencion > 0 && <> · Sin declarar {m.sinIntencion}</>}
               </div>
+            )}
+
+            <div className="text-sdm-sm" style={{ fontWeight: 600, color: COLORS.navy, marginTop: 18, marginBottom: 8 }}>Comunas más buscadas</div>
+            {m.topComunas.length === 0 ? (
+              <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Sin datos de comunas para este mes.</span>
+            ) : (
+              <>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {m.topComunas.map((c, i) => (
+                    <div key={c.comuna} style={{ display: 'flex', alignItems: 'center', gap: 8, background: COLORS.bg, borderRadius: 14, padding: '6px 14px' }}>
+                      <span className="text-sdm-sm" style={{ fontWeight: 700, color: COLORS.navy }}>{i + 1}.</span>
+                      <span className="text-sdm-sm" style={{ color: COLORS.navy, textTransform: 'capitalize' }}>{c.comuna}</span>
+                      <span className="text-sdm-sm" style={{ color: COLORS.muted, fontWeight: 600 }}>({c.count})</span>
+                    </div>
+                  ))}
+                </div>
+                {/* El recorte a 5 se dice. La caja no tiene scroll propio —es un
+                    flex-wrap de fichas—, así que sin esta línea las comunas 6 en
+                    adelante desaparecían sin dejar rastro y el ranking se leía
+                    como la lista completa del mes. */}
+                {m.comunasTotal > m.topComunas.length && (
+                  <div className="text-sdm-sm" style={{ color: COLORS.muted, marginTop: 12 }}>
+                    Mostrando las {m.topComunas.length} más buscadas de {m.comunasTotal} comunas.
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -1607,7 +1645,9 @@ export default function Captacion() {
       supabase.from('leads').select('id', { count: 'exact', head: true }).is('contactado_en', null).is('cerrado_en', null),
       supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', desdeHoy),
       supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', desdeSemana),
-      supabase.from('leads').select('score, comuna').gte('created_at', desdeMes),
+      // Una sola consulta para todo el perfil del mes: score, intención y
+      // comuna salen de las mismas filas. Añadir `intencion` no cuesta viaje.
+      supabase.from('leads').select('score, intencion, comuna').gte('created_at', desdeMes),
       supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
       supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'confirmada'),
       supabase.from('leads').select('id', { count: 'exact', head: true }).gte('contactado_en', desdeMes),
@@ -1635,18 +1675,25 @@ export default function Captacion() {
       return falloMetricas
     }
 
-    const leadsMesArr = (leadsMesRes.data as Pick<Lead, 'score' | 'comuna'>[]) || []
+    const leadsMesArr = (leadsMesRes.data as Pick<Lead, 'score' | 'intencion' | 'comuna'>[]) || []
 
-    // `sinCalificar` es el que faltaba, y por eso los tres de la tarjeta no
-    // sumaban el total del mes: 1 + 3 + 1 daba 5 sobre 7 leads y los 2 que
-    // quedaban fuera no aparecían en ninguna parte de la pantalla.
+    // `sinCalificar` y `sinIntencion` son los que faltaban, y por eso ninguno de
+    // los dos grupos sumaba el total del mes: los scores daban 1+3+1 = 5 sobre
+    // 7 leads, y la intención 4+0 = 4 sobre 7. Lo que quedaba fuera no aparecía
+    // en ninguna parte de la pantalla.
     let hot = 0, warm = 0, cold = 0, sinCalificar = 0
+    let compra = 0, arriendo = 0, sinIntencion = 0
     const comunaCounts: Record<string, number> = {}
     for (const l of leadsMesArr) {
       if (l.score === 'hot') hot++
       else if (l.score === 'warm') warm++
       else if (l.score === 'cold') cold++
       else sinCalificar++
+
+      const intencion = (l.intencion || '').toLowerCase()
+      if (intencion.includes('arriendo')) arriendo++
+      else if (intencion.includes('compra') || intencion.includes('venta')) compra++
+      else sinIntencion++
 
       const comuna = l.comuna?.trim()
       if (comuna) comunaCounts[comuna] = (comunaCounts[comuna] || 0) + 1
@@ -1673,6 +1720,7 @@ export default function Captacion() {
       leadsSemana: leadsSemanaRes.count || 0,
       leadsMes: leadsMesArr.length,
       hot, warm, cold, sinCalificar,
+      compra, arriendo, sinIntencion,
       contactadosMes: contactadosMesRes.count || 0,
       cerradosMes: cerradosArr.length,
       resultadosMes,
