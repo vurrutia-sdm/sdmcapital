@@ -4,6 +4,9 @@ import { ArrowLeft, RefreshCw, ChevronDown, ChevronUp, Check, X, Pencil, Trash2,
 import { supabase } from '@/lib/supabase'
 import { avisarError } from '@/lib/errores'
 import { useGuardado } from '@/components/admin/acciones'
+// ZONA COMPARTIDA, solo lectura: `hoyEnChile()` es la fuente de la fecha local
+// desde el bug de la barra de indicadores. No se duplica su lógica acá.
+import { hoyEnChile } from '@/lib/indicadores'
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 function useAdminAuth() {
@@ -72,24 +75,48 @@ type Visita = {
 
 type VisitaConLead = Visita & { lead: Lead | null }
 
+// CADA CAMPO DECLARA SU VENTANA EN EL NOMBRE, o no tiene ninguna a propósito.
+// Antes las tarjetas mezclaban tres universos sin decirlo —el mes, las últimas
+// 168 h y el histórico completo— y los números no se podían comparar entre sí.
 type MetricsData = {
+  // Estado actual, sin ventana. Preguntarle «¿de qué mes?» a esto no significa
+  // nada: o alguien está esperando ahora, o no.
+  sinContactar: number
+  visitasPorCoordinar: number
+  visitasConfirmadas: number
+
+  // Ventana: día / 7 días naturales / mes calendario, los tres en hora de Chile.
   leadsHoy: number
   leadsSemana: number
   leadsMes: number
-  leadsTotal: number
   hot: number
   warm: number
   cold: number
-  visitasPendientes: number
-  visitasConfirmadas: number
-  visitasRealizadas: number
-  compra: number
-  arriendo: number
-  conversion: number
+  sinCalificar: number
+  contactadosMes: number
+  cerradosMes: number
+  // Los cuatro valores del CHECK más los cerrados sin resultado, del mes.
+  resultadosMes: Record<string, number>
+  cerradosSinResultadoMes: number
+
   topComunas: { comuna: string; count: number }[]
   // Cuántas comunas distintas hubo en el mes. `topComunas` solo trae las 5 más
   // buscadas, y sin este total la lista no puede decir de cuántas salieron.
   comunasTotal: number
+
+  // La diferencia entre «no hay» y «no se pudo saber». Con esto en `true` las
+  // tarjetas NO pintan sus números: un cero de fallo se lee igual que un cero
+  // real, y este panel ya tuvo un botón que parecía muerto por callarse.
+  fallo: boolean
+}
+
+const METRICAS_CERO: MetricsData = {
+  sinContactar: 0, visitasPorCoordinar: 0, visitasConfirmadas: 0,
+  leadsHoy: 0, leadsSemana: 0, leadsMes: 0,
+  hot: 0, warm: 0, cold: 0, sinCalificar: 0,
+  contactadosMes: 0, cerradosMes: 0, resultadosMes: {}, cerradosSinResultadoMes: 0,
+  topComunas: [], comunasTotal: 0,
+  fallo: false,
 }
 
 type ScoreFilter = 'todos' | 'hot' | 'warm' | 'cold'
@@ -300,6 +327,42 @@ function fechaCorta(iso: string | null | undefined) {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   return d.toLocaleDateString('es-CL', { timeZone: 'America/Santiago', day: '2-digit', month: '2-digit', year: '2-digit' })
+}
+
+// ── Los límites de las ventanas de métricas, SIEMPRE en hora de Chile ─────────
+//
+// Lo que había era `new Date(y, m, 1).toISOString()`. NO es el bug del
+// `toISOString().slice(0,10)` de los indicadores —no hay truncado, y sobre una
+// máquina chilena el límite salía bien—, pero la ventana era la del NAVEGADOR:
+// medido, el mismo código da 2026-08-01T04:00:00Z en Santiago, 2026-07-31T22:00Z
+// en Madrid y 2026-08-01T00:00:00Z en UTC. `resumen_diario` calcula su rango con
+// `AT TIME ZONE 'America/Santiago'` en el servidor, así que el panel y el correo
+// de la mañana se separaban en cuanto alguien abría el panel de viaje.
+//
+// `hoyEnChile()` se reusa de `src/lib/indicadores.ts`, que nació justo de aquel
+// bug. Lo que falta acá es pasar de una fecha a un INSTANTE, y eso es lo de
+// abajo.
+
+// Instante en que empieza, en Chile, el día `fecha` ('YYYY-MM-DD').
+//
+// El offset se mide sobre ese mismo día en vez de escribirse a mano: Chile es
+// UTC-4 en invierno y UTC-3 en verano, así que un `-04:00` fijo se equivocaría
+// media parte del año. Verificado: 2026-08-23 → 04:00Z, 2026-01-15 → 03:00Z.
+function inicioDiaChile(fecha: string): string {
+  const utc = new Date(`${fecha}T00:00:00Z`).getTime()
+  // 'sv-SE' formatea como 'YYYY-MM-DD HH:mm:ss', que es ISO sin la T; releerlo
+  // como si fuera UTC deja la diferencia con `utc` igual al offset de Chile.
+  const enChile = new Date(new Date(utc).toLocaleString('sv-SE', { timeZone: 'America/Santiago' }) + 'Z').getTime()
+  return new Date(utc + (utc - enChile)).toISOString()
+}
+
+// `toISOString().slice(0,10)` acá SÍ es seguro, y es la excepción: la fecha se
+// construye a las 00:00Z y se mueve en días UTC enteros, así que nunca sale del
+// día que dice. El peligro del `slice` es aplicarlo a un instante cualquiera.
+function sumarDias(fecha: string, dias: number): string {
+  const d = new Date(`${fecha}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + dias)
+  return d.toISOString().slice(0, 10)
 }
 
 // EL ESTILO DEL RÓTULO VA EN UN <span>, NUNCA EN EL <label>.
@@ -809,6 +872,16 @@ const VISITA_ESTADO_STYLE = {
   realizadas: 'var(--lead-cold)',
 }
 
+// UNA LÍNEA, NO UNA TARJETA VACÍA.
+//
+// Los tres estados vacíos usaban `padding: '48px 0'` con fondo blanco y borde:
+// una caja de altura casi completa para decir «no hay nada». Entre las dos
+// secciones de visitas —que suelen estar las dos vacías— se comían casi una
+// pantalla antes de llegar a los leads, que es lo único accionable.
+function SeccionVacia({ children }: { children: React.ReactNode }) {
+  return <div className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>{children}</div>
+}
+
 function Stat({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -818,39 +891,53 @@ function Stat({ label, value, color }: { label: string; value: number; color?: s
   )
 }
 
-function MetricCard({ title, children }: { title: string; children: React.ReactNode }) {
+// `fallo` se resuelve ACÁ y no en cada tarjeta: es una sola condición en un
+// solo sitio, y así ninguna tarjeta nueva puede olvidarse de contemplarlo y
+// pintar un cero inventado.
+function MetricCard({ title, fallo, children }: { title: string; fallo?: boolean; children: React.ReactNode }) {
   return (
     <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
       <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{title}</div>
-      {children}
+      {fallo
+        ? <span className="text-sdm-sm" style={{ color: COLORS.red, fontStyle: 'italic' }}>No se pudo cargar</span>
+        : children}
     </div>
   )
 }
 
-function ProportionBar({ a, b }: { a: number; b: number }) {
-  const total = a + b
-  const pctA = total > 0 ? (a / total) * 100 : 50
-  return (
-    <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', background: COLORS.bg }}>
-      <div style={{ width: `${pctA}%`, background: COLORS.navy }} />
-      <div style={{ width: `${100 - pctA}%`, background: COLORS.border }} />
-    </div>
-  )
-}
-
+// LAS DOS TARJETAS SIN VENTANA NO LLEVAN RÓTULO DE TIEMPO, y las tres que sí
+// la tienen la llevan escrita. Antes ninguna la declaraba y convivían el mes,
+// las últimas 168 h y el histórico completo en la misma cuadrícula.
+//
+// Se eliminó «Conversión lead → visita»: dividía `visitas.estado='confirmada'`
+// EN ESTE INSTANTE por los leads del histórico completo, así que una visita que
+// avanzaba a realizada salía del numerador y la tarjeta marcaba 0,0 % para
+// siempre. Con 14 leads en dos meses ningún porcentaje significaba nada. Vuelve
+// cuando haya volumen y con el numerador acumulado, no como foto.
 function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loading: boolean }) {
-  const m: MetricsData = metrics || {
-    leadsHoy: 0, leadsSemana: 0, leadsMes: 0, leadsTotal: 0,
-    hot: 0, warm: 0, cold: 0,
-    visitasPendientes: 0, visitasConfirmadas: 0, visitasRealizadas: 0,
-    compra: 0, arriendo: 0, conversion: 0, topComunas: [], comunasTotal: 0,
-  }
+  const m: MetricsData = metrics || METRICAS_CERO
 
   return (
     <section>
       <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Métricas</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
-        <MetricCard title="Leads nuevos">
+        {/* PRIMERA porque es la única que pide acción hoy. Sin ventana: o hay
+            alguien esperando ahora, o no. Mismo predicado que
+            `resumen_diario.sin_contactar`, el número del WhatsApp de la mañana. */}
+        <MetricCard title="Sin contactar" fallo={m.fallo}>
+          {m.sinContactar === 0 ? (
+            // Un cero acá es buena noticia, no un dato que falta, y tiene que
+            // leerse distinto del fallo de arriba —que es rojo e itálico— para
+            // que no se confundan nunca.
+            <span className="text-sdm-lg" style={{ fontWeight: 700, color: 'var(--green-dark)' }}>Nadie esperando</span>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+              <Stat label="Leads por contactar" value={m.sinContactar} />
+            </div>
+          )}
+        </MetricCard>
+
+        <MetricCard title="Leads nuevos" fallo={m.fallo}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
             <Stat label="Hoy" value={m.leadsHoy} />
             <Stat label="7 días" value={m.leadsSemana} />
@@ -858,33 +945,40 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
           </div>
         </MetricCard>
 
-        <MetricCard title="Calificación (este mes)">
+        <MetricCard title="Calificación (este mes)" fallo={m.fallo}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
             <Stat label="Hot" value={m.hot} color={SCORE_STYLE.hot.fg} />
             <Stat label="Warm" value={m.warm} color={SCORE_STYLE.warm.fg} />
             <Stat label="Cold" value={m.cold} color={SCORE_STYLE.cold.fg} />
+            {/* Sin este, los tres de al lado no suman el total del mes. */}
+            <Stat label="Sin calificar" value={m.sinCalificar} />
           </div>
         </MetricCard>
 
-        <MetricCard title="Visitas">
+        {/* Sin «Realizadas»: ese eje se movió a la gestión del lead
+            (`cerrado_en` / `resultado`), y `visitas.estado='realizada'` dejó de
+            usarse para cerrar gestiones. «Por coordinar» y no «Pendientes»:
+            significa que Sofía ofreció coordinar, no que haya visita agendada. */}
+        <MetricCard title="Visitas" fallo={m.fallo}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-            <Stat label="Pendientes" value={m.visitasPendientes} color={VISITA_ESTADO_STYLE.pendientes} />
+            <Stat label="Por coordinar" value={m.visitasPorCoordinar} color={VISITA_ESTADO_STYLE.pendientes} />
             <Stat label="Confirmadas" value={m.visitasConfirmadas} color={VISITA_ESTADO_STYLE.confirmadas} />
-            <Stat label="Realizadas" value={m.visitasRealizadas} color={VISITA_ESTADO_STYLE.realizadas} />
           </div>
         </MetricCard>
 
-        <MetricCard title="Compra vs. arriendo (este mes)">
+        <MetricCard title="Gestión del equipo (este mes)" fallo={m.fallo}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-            <Stat label="Compra" value={m.compra} />
-            <Stat label="Arriendo" value={m.arriendo} />
+            <Stat label="Contactados" value={m.contactadosMes} />
+            <Stat label="Cerrados" value={m.cerradosMes} />
           </div>
-          <ProportionBar a={m.compra} b={m.arriendo} />
-        </MetricCard>
-
-        <MetricCard title="Conversión lead → visita">
-          <span className="text-sdm-display-sm" style={{ fontWeight: 700, color: COLORS.navy }}>{m.conversion.toFixed(1)}%</span>
-          <span className="text-sdm-sm" style={{ color: COLORS.muted }}>{m.visitasConfirmadas} confirmadas / {m.leadsTotal} leads totales</span>
+          {m.cerradosMes > 0 && (
+            <div className="text-sdm-sm" style={{ color: COLORS.muted, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {RESULTADOS.filter(r => m.resultadosMes[r]).map(r => (
+                <span key={r}>{RESULTADO_LABEL[r]}: {m.resultadosMes[r]}</span>
+              ))}
+              {m.cerradosSinResultadoMes > 0 && <span>Sin resultado: {m.cerradosSinResultadoMes}</span>}
+            </div>
+          )}
         </MetricCard>
       </div>
 
@@ -894,6 +988,10 @@ function MetricsSection({ metrics, loading }: { metrics: MetricsData | null; loa
         </div>
         {loading ? (
           <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Cargando…</span>
+        ) : m.fallo ? (
+          // Misma distinción que en las tarjetas: «no se pudo cargar» en rojo
+          // no es lo mismo que «no hubo comunas», que va en gris.
+          <span className="text-sdm-sm" style={{ color: COLORS.red, fontStyle: 'italic' }}>No se pudo cargar</span>
         ) : m.topComunas.length === 0 ? (
           <span className="text-sdm-sm" style={{ color: COLORS.muted, fontStyle: 'italic' }}>Sin datos de comunas para este mes.</span>
         ) : (
@@ -1485,49 +1583,70 @@ export default function Captacion() {
   const loadMetrics = useCallback(async () => {
     setLoadingMetrics(true)
 
-    const now = new Date()
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
-    const startOfWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+    const hoy = hoyEnChile()
+    const desdeHoy = inicioDiaChile(hoy)
+    // 7 días NATURALES, no 168 horas. Lo anterior restaba milisegundos, así que
+    // la ventana empezaba a media tarde del séptimo día y el rótulo «7 días»
+    // no describía lo que se estaba contando. `-6` porque hoy es el séptimo.
+    const desdeSemana = inicioDiaChile(sumarDias(hoy, -6))
+    const desdeMes = inicioDiaChile(`${hoy.slice(0, 7)}-01`)
 
     const [
+      sinContactarRes,
       leadsHoyRes,
       leadsSemanaRes,
-      leadsTotalRes,
       leadsMesRes,
-      visitasPendientesRes,
+      visitasPorCoordinarRes,
       visitasConfirmadasRes,
-      visitasRealizadasRes,
+      contactadosMesRes,
+      cerradosMesRes,
     ] = await Promise.all([
-      supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', startOfToday),
-      supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', startOfWeek),
-      supabase.from('leads').select('id', { count: 'exact', head: true }),
-      supabase.from('leads').select('score, intencion, comuna').gte('created_at', startOfMonth),
+      // Mismo predicado, letra por letra, que `sin_contactar` de la RPC
+      // `resumen_diario`. Si los dos números no coinciden, uno está mal: es el
+      // que Roberto recibe por WhatsApp cada mañana.
+      supabase.from('leads').select('id', { count: 'exact', head: true }).is('contactado_en', null).is('cerrado_en', null),
+      supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', desdeHoy),
+      supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', desdeSemana),
+      supabase.from('leads').select('score, comuna').gte('created_at', desdeMes),
       supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
       supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'confirmada'),
-      supabase.from('visitas').select('id', { count: 'exact', head: true }).eq('estado', 'realizada'),
+      supabase.from('leads').select('id', { count: 'exact', head: true }).gte('contactado_en', desdeMes),
+      // Filas y no `count`: de la misma consulta salen el total de cerrados del
+      // mes y el desglose por resultado, sin cuatro consultas más.
+      supabase.from('leads').select('resultado').gte('cerrado_en', desdeMes),
     ])
 
-    // Ninguna de las siete miraba su `error`: con la red caída, las métricas
-    // se quedaban en cero y se leían como «no hubo leads este mes».
+    // Ninguna consulta miraba su `error`: con la red caída las métricas se
+    // quedaban en cero y ese cero se leía como «no hubo leads este mes».
+    //
+    // Sin `avisarError()` A PROPÓSITO: esto corre cada 25 s con el refresco
+    // automático, y un alert() encima de quien trabaja es peor que el problema.
+    // El detalle va a consola; la pantalla lo dice con `fallo`.
     const falloMetricas = [
-      leadsHoyRes, leadsSemanaRes, leadsTotalRes, leadsMesRes,
-      visitasPendientesRes, visitasConfirmadasRes, visitasRealizadasRes,
+      sinContactarRes, leadsHoyRes, leadsSemanaRes, leadsMesRes,
+      visitasPorCoordinarRes, visitasConfirmadasRes, contactadosMesRes, cerradosMesRes,
     ].find(r => r.error)?.error || null
-    if (falloMetricas) console.error('[No se pudieron cargar las métricas]', falloMetricas)
+    if (falloMetricas) {
+      console.error('[No se pudieron cargar las métricas]', falloMetricas)
+      // Se descartan los números a medias: media tarjeta cargada y media en
+      // cero es justo la mezcla que no se puede distinguir de la realidad.
+      setMetrics({ ...METRICAS_CERO, fallo: true })
+      setLoadingMetrics(false)
+      return falloMetricas
+    }
 
-    const leadsMesArr = (leadsMesRes.data as Pick<Lead, 'score' | 'intencion' | 'comuna'>[]) || []
+    const leadsMesArr = (leadsMesRes.data as Pick<Lead, 'score' | 'comuna'>[]) || []
 
-    let hot = 0, warm = 0, cold = 0, compra = 0, arriendo = 0
+    // `sinCalificar` es el que faltaba, y por eso los tres de la tarjeta no
+    // sumaban el total del mes: 1 + 3 + 1 daba 5 sobre 7 leads y los 2 que
+    // quedaban fuera no aparecían en ninguna parte de la pantalla.
+    let hot = 0, warm = 0, cold = 0, sinCalificar = 0
     const comunaCounts: Record<string, number> = {}
     for (const l of leadsMesArr) {
       if (l.score === 'hot') hot++
       else if (l.score === 'warm') warm++
       else if (l.score === 'cold') cold++
-
-      const intencion = (l.intencion || '').toLowerCase()
-      if (intencion.includes('arriendo')) arriendo++
-      else if (intencion.includes('compra') || intencion.includes('venta')) compra++
+      else sinCalificar++
 
       const comuna = l.comuna?.trim()
       if (comuna) comunaCounts[comuna] = (comunaCounts[comuna] || 0) + 1
@@ -1538,23 +1657,29 @@ export default function Captacion() {
       .slice(0, 5)
       .map(([comuna, count]) => ({ comuna, count }))
 
-    const leadsTotal = leadsTotalRes.count || 0
-    const visitasConfirmadas = visitasConfirmadasRes.count || 0
-    const conversion = leadsTotal > 0 ? (visitasConfirmadas / leadsTotal) * 100 : 0
+    const cerradosArr = (cerradosMesRes.data as { resultado: string | null }[]) || []
+    const resultadosMes: Record<string, number> = {}
+    let cerradosSinResultadoMes = 0
+    for (const c of cerradosArr) {
+      if (c.resultado) resultadosMes[c.resultado] = (resultadosMes[c.resultado] || 0) + 1
+      else cerradosSinResultadoMes++
+    }
 
     setMetrics({
+      sinContactar: sinContactarRes.count || 0,
+      visitasPorCoordinar: visitasPorCoordinarRes.count || 0,
+      visitasConfirmadas: visitasConfirmadasRes.count || 0,
       leadsHoy: leadsHoyRes.count || 0,
       leadsSemana: leadsSemanaRes.count || 0,
       leadsMes: leadsMesArr.length,
-      leadsTotal,
-      hot, warm, cold,
-      visitasPendientes: visitasPendientesRes.count || 0,
-      visitasConfirmadas,
-      visitasRealizadas: visitasRealizadasRes.count || 0,
-      compra, arriendo,
-      conversion,
+      hot, warm, cold, sinCalificar,
+      contactadosMes: contactadosMesRes.count || 0,
+      cerradosMes: cerradosArr.length,
+      resultadosMes,
+      cerradosSinResultadoMes,
       topComunas,
       comunasTotal: Object.keys(comunaCounts).length,
+      fallo: false,
     })
     setLoadingMetrics(false)
     return falloMetricas
@@ -1857,65 +1982,17 @@ export default function Captacion() {
         {/* ── Interruptor de notificaciones ──────────────────────────────── */}
         <NotifToggle value={notifValue} onChange={saveNotifConfig} saving={savingNotif} />
 
+        {/* ── ORDEN DE LA PÁGINA: lo accionable primero ─────────────────────
+            Estaba al revés. Arriba iban las métricas, después las dos secciones
+            de visitas —que suelen estar vacías y ocupaban casi una pantalla
+            entre las dos para decir «no hay nada»— y al final los leads, que es
+            lo único sobre lo que se actúa. Quien abría el panel tenía que
+            desplazarse para llegar al trabajo.
+
+            Ahora: leads, visitas, métricas. Las métricas se consultan; los
+            leads se trabajan. */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
-          {/* ── Sección 0: Métricas ───────────────────────────────────────── */}
-          <MetricsSection metrics={metrics} loading={loadingMetrics} />
-
-          {/* ── Sección 1: Visitas por confirmar ─────────────────────────── */}
-          <section>
-            <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Visitas por confirmar</h2>
-            {loadingVisitas && visitas.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando visitas…</div>
-            ) : visitas.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)' }}>
-                No hay visitas pendientes por confirmar.
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))', gap: 16 }}>
-                {visitas.map(v => (
-                  <VisitaCard
-                    key={v.id}
-                    visita={v}
-                    edit={edits[v.id] || { asignado: v.asignado_a || 'Roberto', horario: v.horario_propuesto || '' }}
-                    onChange={next => setEdits(prev => ({ ...prev, [v.id]: next }))}
-                    onConfirm={() => confirmarVisita(v)}
-                    onCancel={() => cancelarVisita(v)}
-                    saving={savingId === v.id}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* ── Sección 1b: Visitas confirmadas ──────────────────────────────
-              La sección que faltaba. Hasta ahora una visita desaparecía del
-              panel en el momento de confirmarla, que es justo cuando pasa a
-              ser un compromiso con un cliente: no había forma de saber qué
-              venía ni de cerrar el ciclo. */}
-          <section>
-            <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Visitas confirmadas</h2>
-            {loadingVisitas && confirmadas.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando visitas…</div>
-            ) : confirmadas.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)' }}>
-                No hay visitas confirmadas por realizar.
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))', gap: 16 }}>
-                {confirmadas.map(v => (
-                  <VisitaConfirmadaCard
-                    key={v.id}
-                    visita={v}
-                    onRealizada={() => marcarRealizada(v)}
-                    onCancel={() => cancelarVisita(v)}
-                    saving={savingId === v.id}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* ── Sección 2: Leads recientes ────────────────────────────────── */}
+          {/* ── Sección 1: Leads recientes ────────────────────────────────── */}
           <section>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
               <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy }}>Leads recientes</h2>
@@ -1934,11 +2011,9 @@ export default function Captacion() {
             </div>
 
             {loadingLeads && leads.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '40px 0', color: COLORS.muted, fontStyle: 'italic' }}>Cargando leads…</div>
+              <SeccionVacia>Cargando leads…</SeccionVacia>
             ) : filteredLeads.length === 0 ? (
-              <div className="text-sdm-base" style={{ textAlign: 'center', padding: '48px 0', color: COLORS.muted, fontStyle: 'italic', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)' }}>
-                No hay leads para este filtro.
-              </div>
+              <SeccionVacia>No hay leads para este filtro.</SeccionVacia>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {filteredLeads.map(l => (
@@ -1961,6 +2036,59 @@ export default function Captacion() {
               </div>
             )}
           </section>
+
+          {/* ── Sección 2: Visitas por confirmar ─────────────────────────── */}
+          <section>
+            <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Visitas por confirmar</h2>
+            {loadingVisitas && visitas.length === 0 ? (
+              <SeccionVacia>Cargando visitas…</SeccionVacia>
+            ) : visitas.length === 0 ? (
+              <SeccionVacia>No hay visitas pendientes por confirmar.</SeccionVacia>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))', gap: 16 }}>
+                {visitas.map(v => (
+                  <VisitaCard
+                    key={v.id}
+                    visita={v}
+                    edit={edits[v.id] || { asignado: v.asignado_a || 'Roberto', horario: v.horario_propuesto || '' }}
+                    onChange={next => setEdits(prev => ({ ...prev, [v.id]: next }))}
+                    onConfirm={() => confirmarVisita(v)}
+                    onCancel={() => cancelarVisita(v)}
+                    saving={savingId === v.id}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* ── Sección 2b: Visitas confirmadas ──────────────────────────────
+              La sección que faltaba. Hasta ahora una visita desaparecía del
+              panel en el momento de confirmarla, que es justo cuando pasa a
+              ser un compromiso con un cliente: no había forma de saber qué
+              venía ni de cerrar el ciclo. */}
+          <section>
+            <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Visitas confirmadas</h2>
+            {loadingVisitas && confirmadas.length === 0 ? (
+              <SeccionVacia>Cargando visitas…</SeccionVacia>
+            ) : confirmadas.length === 0 ? (
+              <SeccionVacia>No hay visitas confirmadas por realizar.</SeccionVacia>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))', gap: 16 }}>
+                {confirmadas.map(v => (
+                  <VisitaConfirmadaCard
+                    key={v.id}
+                    visita={v}
+                    onRealizada={() => marcarRealizada(v)}
+                    onCancel={() => cancelarVisita(v)}
+                    saving={savingId === v.id}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* ── Sección 3: Métricas ───────────────────────────────────────── */}
+          <MetricsSection metrics={metrics} loading={loadingMetrics} />
         </div>
       </div>
 
