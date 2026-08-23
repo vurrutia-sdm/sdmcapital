@@ -984,7 +984,13 @@ function MetricsSection({ metrics, loading, porCoordinar, confirmadas, visitasFa
           </div>
         </MetricCard>
 
-        <MetricCard title="Gestión del equipo (este mes)" fallo={m.fallo}>
+        {/* «Gestionados este mes», NO «Gestión del equipo (este mes)».
+            Cuenta la ACCIÓN del equipo dentro del mes, y esos leads pueden
+            haber entrado en meses anteriores: hoy son 14 contactados y 10
+            cerrados sobre 7 leads nuevos. Los números están bien; el rótulo
+            viejo invitaba a compararlos con esos 7 y no son comparables. Es el
+            mismo problema de denominadores que ya nos costó la conversión. */}
+        <MetricCard title="Gestionados este mes" fallo={m.fallo}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
             <Stat label="Contactados" value={m.contactadosMes} />
             <Stat label="Cerrados" value={m.cerradosMes} />
@@ -1348,17 +1354,35 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
         {expanded ? <ChevronUp size={18} style={{ color: COLORS.muted }} /> : <ChevronDown size={18} style={{ color: COLORS.muted }} />}
       </div>
 
-      {/* ── Barra del ciclo de gestión ────────────────────────────────────────
-          VA FUERA DEL `role="button"` DE ARRIBA, y no es un capricho de orden:
-          dentro quedarían controles anidados en otro control, que es lo mismo
-          que ya obligó a que la cabecera no sea un <button>. Además así no hace
-          falta `stopPropagation` en cada uno.
+      {/* ── Franja de un clic ─────────────────────────────────────────────────
+          SOLO APARECE CUANDO «Ya lo contacté» ES ACCIONABLE, y ese es todo el
+          diseño: la franja existiendo YA significa «esta fila te está
+          esperando». Un lead ya contactado o cerrado no tiene nada que hacerse
+          en un clic, así que colapsa a su cabecera y se sale del camino.
 
-          Y VA FUERA DE `{expanded && ...}`: marcar el contacto tiene que costar
-          UN clic. Si viviera en el detalle costaría dos —abrir y marcar—, y una
-          marca que cuesta el doble es una marca que el equipo no pone. De esa
-          marca depende que `seguimiento_candidatos` no le escriba a alguien ya
-          atendido. */}
+          SIGUE FUERA DE `{expanded && ...}` a propósito. Marcar el contacto
+          tiene que costar UN clic: si viviera en el detalle costaría dos —abrir
+          y marcar—, y una marca que cuesta el doble es una marca que el equipo
+          no pone. De esa marca depende que `seguimiento_candidatos` no le
+          escriba a alguien que Roberto ya llamó. El resto del ciclo —cerrar,
+          el escape y reabrir— sí puede vivir detrás del chevron: son acciones
+          que ya se piensan dos veces.
+
+          Y SIGUE FUERA DEL `role="button"` DE LA CABECERA: dentro quedaría un
+          control anidado en otro control, que es lo mismo que ya obligó a que
+          la cabecera no sea un `<button>`. Así tampoco hace falta
+          `stopPropagation`. */}
+      {!lead.contactado_en && !lead.cerrado_en && (
+        <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: '10px 18px' }}>
+          <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}
+            onClick={onContactado} disabled={accionEnCurso}>
+            <Check size={14} aria-hidden="true" /> Ya lo contacté
+          </button>
+        </div>
+      )}
+
+      {expanded && (
+      <>
       {/* JERARQUÍA — las tres variantes usables sobre fondo claro, y solo esas:
           `.btn-inverse` es blanco sobre navy y `.btn-outline` es texto blanco
           translúcido para el hero sobre foto; las dos DESAPARECEN sobre esta
@@ -1398,13 +1422,11 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
             </>
           ) : (
             <>
-              {lead.contactado_en ? (
+              {/* «Ya lo contacté» NO se repite acá: vive en la franja de un clic
+                  de arriba, que sigue visible con la fila expandida. Duplicarlo
+                  daría dos botones idénticos a diez centímetros. */}
+              {lead.contactado_en && (
                 <span className="text-sdm-sm" style={{ color: COLORS.muted }}>Contactado el {fechaCorta(lead.contactado_en)}</span>
-              ) : (
-                <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}
-                  onClick={onContactado} disabled={accionEnCurso}>
-                  <Check size={14} aria-hidden="true" /> Ya lo contacté
-                </button>
               )}
               <button type="button" className="btn-text text-sdm-xs"
                 aria-expanded={cerrarAbierto}
@@ -1443,7 +1465,6 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
         )}
       </div>
 
-      {expanded && (
         <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
           <DetailTabs active={detailTab} onChange={setDetailTab} />
 
@@ -1503,6 +1524,7 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
             </div>
           )}
         </div>
+      </>
       )}
     </div>
   )
