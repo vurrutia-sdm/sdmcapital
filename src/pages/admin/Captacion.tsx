@@ -902,9 +902,12 @@ function Stat({ label, value, color }: { label: string; value: number; color?: s
 // `fallo` se resuelve ACÁ y no en cada tarjeta: es una sola condición en un
 // solo sitio, y así ninguna tarjeta nueva puede olvidarse de contemplarlo y
 // pintar un cero inventado.
+// `flex: '1 1 190px'` — la base es lo que decide cuántas caben por fila, y el
+// `grow` es lo que hace que la última fila se reparta el ancho en vez de dejar
+// huecos. Ver el porqué del 190 en el contenedor de `MetricsSection`.
 function MetricCard({ title, fallo, children }: { title: string; fallo?: boolean; children: React.ReactNode }) {
   return (
-    <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+    <div style={{ flex: '1 1 190px', background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', padding: 20, display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
       <div className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: COLORS.muted, fontWeight: 600 }}>{title}</div>
       {fallo
         ? <span className="text-sdm-sm" style={{ color: COLORS.red, fontStyle: 'italic' }}>No se pudo cargar</span>
@@ -938,7 +941,28 @@ function MetricsSection({ metrics, loading, porCoordinar, confirmadas, visitasFa
   return (
     <section>
       <h2 className="text-sdm-xl" style={{ fontWeight: 700, color: COLORS.navy, marginBottom: 16 }}>Métricas</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
+      {/* ── FLEX-WRAP, NO GRID ────────────────────────────────────────────────
+          Eran cinco tarjetas en una grilla que solo daba para cuatro columnas,
+          así que «Gestionados este mes» caía sola a la segunda fila con tres
+          huecos al lado.
+
+          Y se pasaba POR 12 PÍXELES: con `minmax(200px, 1fr)` y `gap: 16`, cinco
+          columnas piden 5×200 + 4×16 = 1064 px, y el ancho útil del panel es
+          1100 − 24×2 = 1052. Bajando la base a 190 piden 1014 y entran las cinco
+          en una sola fila, de ~198 px cada una.
+
+          Pero el cambio de fondo es `grid` → `flex`, y no es cosmético: una
+          grilla reserva columnas vacías cuando la última fila no se llena, y
+          flex reparte ese ancho entre las que hay. Con `flex-wrap` NUNCA queda
+          un hueco, entren cinco por fila o dos. Bajar el `minmax` a secas
+          habría arreglado el escritorio de hoy y dejado el mismo agujero en
+          cuanto alguien tocara `maxWidth` o el `gap`.
+
+          En angosto: a ~768 px entran 3 y las 2 de abajo se estiran a la mitad
+          cada una; a ~480 px entran 2 y la quinta ocupa el ancho completo. En
+          ningún corte queda peor que la grilla, porque la grilla en esos mismos
+          cortes dejaba los huecos igual. */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
         {/* PRIMERA porque es la única que pide acción hoy. Sin ventana: o hay
             alguien esperando ahora, o no. Mismo predicado que
             `resumen_diario.sin_contactar`, el número del WhatsApp de la mañana. */}
@@ -947,7 +971,21 @@ function MetricsSection({ metrics, loading, porCoordinar, confirmadas, visitasFa
             // Un cero acá es buena noticia, no un dato que falta, y tiene que
             // leerse distinto del fallo de arriba —que es rojo e itálico— para
             // que no se confundan nunca.
-            <span className="text-sdm-lg" style={{ fontWeight: 700, color: 'var(--green-dark)' }}>Nadie esperando</span>
+            //
+            // `margin: 'auto 0'` ES EL ARREGLO DEL AIRE, y son márgenes
+            // automáticos de flexbox, no un `minHeight` a ojo. Esta línea mide
+            // ~24 px contra los ~47 de un `Stat` —cifra de 24 px más su rótulo—,
+            // así que su tarjeta se quedaba con un vacío abajo que las otras
+            // cuatro no tenían. Los `auto` se comen el sobrante por arriba y por
+            // abajo en partes iguales y la dejan centrada en el hueco.
+            //
+            // Sirve en los DOS estados sin tocar el otro: cuando el número es
+            // distinto de cero se pinta un `Stat` normal, alineado arriba como
+            // en las demás, y sus cifras siguen cuadrando en la misma línea. Y
+            // si esta tarjeta llega a ser la más alta de su fila, no hay
+            // sobrante, los `auto` valen 0 y queda pegada al título igual que
+            // antes. Sin números mágicos y sin contenido inventado.
+            <span className="text-sdm-lg" style={{ fontWeight: 700, color: 'var(--green-dark)', margin: 'auto 0' }}>Nadie esperando</span>
           ) : (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
               <Stat label="Leads por contactar" value={m.sinContactar} />
