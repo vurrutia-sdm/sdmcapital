@@ -47,6 +47,11 @@ type Lead = {
   ready: boolean | null
   brief: string | null
   status: string | null
+  // El ciclo de gestión del EQUIPO, independiente de `status` — ver el bloque
+  // «Dos ejes que no se cruzan» más abajo.
+  contactado_en: string | null
+  cerrado_en: string | null
+  resultado: string | null
   conversation: ChatMsg[] | null
   created_at: string | null
   last_message_at: string | null
@@ -93,7 +98,6 @@ type EditLeadDraft = {
   nombre: string
   contacto: string
   score: string
-  status: string
   presupuesto: string
   plazo: string
 }
@@ -178,17 +182,33 @@ function fmt(v: string | null | undefined, fallback = '—') {
   return String(v)
 }
 
-// ── El estado que se muestra sale del cruce con `visitas` ─────────────────────
+// ── Dos ejes que no se cruzan ────────────────────────────────────────────────
 //
-// `leads.status` LO ESCRIBE EL WORKER DE SOFÍA. El panel no se suma como
-// segundo escritor: antes de agregar cualquier `update({ status })` hay que
-// leer `index.js:1750`, donde el Worker lee ese mismo campo.
+// Antes había UN solo eje: `leads.status`, que el panel mostraba cruzado con
+// `visitas.estado` porque los dos peleaban por la misma etiqueta. De ahí salían
+// `estadoLead()`, `STATUS_DE_VISITA` y la marca `contradice`, todos borrados.
 //
-// El problema que resuelve esto: al cancelar una visita solo se escribe
-// `visitas.estado='cancelada'`, así que un lead que tenía `visita_pendiente` se
-// queda con esa etiqueta para siempre y el panel afirma que hay una visita por
-// coordinar que ya no existe. La corrección es de LECTURA: se cruza con la
-// última visita del lead y se muestra la verdad, sin tocar `leads`.
+// Ahora son tres cosas independientes, y cada una se muestra donde le toca:
+//
+//   `leads.status`   LO ESCRIBE EL WORKER DE SOFÍA, Y SOLO ÉL. El panel dejó
+//                    de ser el segundo escritor: escribía 'visita_confirmada',
+//                    un valor que el Worker no conoce, y eso vació 'derivado'
+//                    de la base y abrió un agujero en el filtro del seguimiento
+//                    de leads fríos. Acá solo se LEE, en el detalle.
+//                    Antes de volver a escribirlo: `index.js`, `procesarLote`.
+//
+//   `contactado_en`  el ciclo del EQUIPO, y lo único que decide la última
+//   `cerrado_en`     columna de la lista. `seguimiento_candidatos` filtra por
+//   `resultado`      estas dos fechas, así que marcar el contacto es lo que
+//                    evita que Sofía le escriba a alguien ya atendido.
+//
+//   `visitas.estado` el ciclo de la VISITA. Dato aparte, con su propio rótulo
+//                    en el detalle. No se toca en este panel más que por los
+//                    botones de la sección de visitas.
+//
+// Al no competir por la misma etiqueta, ya no hay nada que contradecir: un lead
+// puede estar «Cerrado» y tener una visita «Realizada» sin que eso sea un
+// conflicto, porque hablan de cosas distintas.
 
 const STATUS_LABEL: Record<string, string> = {
   nuevo: 'Nuevo',
@@ -200,17 +220,27 @@ const STATUS_LABEL: Record<string, string> = {
   perdido: 'Perdido',
 }
 
+// «Por coordinar», no «Pendiente». RENOMBRE SOLO DE INTERFAZ: el valor en la
+// base sigue siendo 'pendiente' y lo escribe el Worker. El rótulo viejo decía
+// que había una visita agendada esperando; lo que significa de verdad es que
+// Sofía ofreció coordinarla y nadie la agendó todavía.
 const VISITA_LABEL: Record<string, string> = {
-  pendiente: 'Visita pendiente',
+  pendiente: 'Por coordinar',
   confirmada: 'Visita confirmada',
   cancelada: 'Visita cancelada',
   realizada: 'Visita realizada',
 }
 
-// Los dos únicos `status` que hablan de una visita, y por lo tanto los únicos
-// que la visita puede contradecir. Un lead `cerrado` o `perdido` es una
-// afirmación más fuerte que el estado de su visita y NO se pisa.
-const STATUS_DE_VISITA = new Set(['visita_pendiente', 'visita_confirmada'])
+// Los cuatro del CHECK de `leads.resultado`. Si se agrega uno en la base, va
+// también acá: `cicloLead` cae al valor crudo si no lo encuentra.
+const RESULTADO_LABEL: Record<string, string> = {
+  vendido_arrendado: 'Vendido/arrendado',
+  no_califico: 'No calificó',
+  no_respondio: 'No respondió',
+  compro_por_fuera: 'Compró por fuera',
+}
+
+const RESULTADOS = Object.keys(RESULTADO_LABEL)
 
 type UltimaVisita = { estado: string; created_at: string | null }
 
@@ -246,18 +276,29 @@ function avisoCancelar(v: VisitaConLead): string {
     'Queda marcada como cancelada y sale de esta sección. El registro no se borra.'
 }
 
-function estadoLead(lead: Lead, ultima: UltimaVisita | undefined) {
-  const crudo = lead.status || ''
-  const propio = STATUS_LABEL[crudo] || fmt(lead.status)
-  if (!ultima || !STATUS_DE_VISITA.has(crudo)) return { texto: propio, contradice: false }
+// El ciclo del equipo, en una línea. Es lo único que muestra la última columna
+// de la lista. Función pura para poder verificar los cuatro casos sin base.
+//
+// El orden importa: `cerrado_en` manda sobre `contactado_en`, porque cerrar
+// escribe las dos fechas y un lead cerrado no debe leerse como «Contactado».
+function cicloLead(lead: Lead): string {
+  if (lead.cerrado_en) {
+    // `resultado` es nullable a propósito: el cierre rápido no lo pide.
+    const r = lead.resultado ? (RESULTADO_LABEL[lead.resultado] || lead.resultado) : null
+    return r ? `Cerrado · ${r}` : 'Cerrado'
+  }
+  if (lead.contactado_en) return 'Contactado'
+  return 'Sin contactar'
+}
 
-  const deVisita = VISITA_LABEL[ultima.estado]
-  if (!deVisita) return { texto: propio, contradice: false }
-
-  const coincide =
-    (crudo === 'visita_pendiente'  && ultima.estado === 'pendiente') ||
-    (crudo === 'visita_confirmada' && ultima.estado === 'confirmada')
-  return { texto: deVisita, contradice: !coincide }
+// Fecha corta en horario de Chile. `toLocaleDateString` con `timeZone` explícito
+// y no `toISOString().slice(0,10)`: ese devuelve el día en UTC, que después de
+// las 21:00 en Chile ya es el día siguiente.
+function fechaCorta(iso: string | null | undefined) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('es-CL', { timeZone: 'America/Santiago', day: '2-digit', month: '2-digit', year: '2-digit' })
 }
 
 // EL ESTILO DEL RÓTULO VA EN UN <span>, NUNCA EN EL <label>.
@@ -371,7 +412,6 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
     nombre: lead.nombre || '',
     contacto: lead.contacto || '',
     score: lead.score || '',
-    status: lead.status || '',
     presupuesto: lead.presupuesto || '',
     plazo: lead.plazo || '',
   })
@@ -421,20 +461,11 @@ function EditLeadModal({ lead, onSave, onCancel, saving, error }: {
           </select>
         </label>
 
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <Rotulo>Estado</Rotulo>
-          <select className="text-sdm-base" value={draft.status} onChange={e => upd('status', e.target.value)}
-            style={CAMPO}>
-            <option value="">—</option>
-            <option value="nuevo">Nuevo</option>
-            <option value="calificando">Calificando</option>
-            <option value="derivado">Derivado</option>
-            <option value="visita_pendiente">Visita pendiente</option>
-            <option value="visita_confirmada">Visita confirmada</option>
-            <option value="cerrado">Cerrado</option>
-            <option value="perdido">Perdido</option>
-          </select>
-        </label>
+        {/* AQUÍ HABÍA UN <select> DE ESTADO. NO SE VUELVE A PONER.
+            Escribía `leads.status`, que es campo del Worker de Sofía, y podía
+            dejarlo en cualquiera de los siete valores del CHECK o en NULL. El
+            ciclo del equipo se marca con los botones de cada fila, que escriben
+            `contactado_en` / `cerrado_en` / `resultado`. */}
 
         {error && (
           <div className="text-sdm-sm" style={{ color: COLORS.red, background: '#fde2e1', borderRadius: 4, padding: '10px 14px' }}>
@@ -1043,7 +1074,7 @@ function VisitaConfirmadaCard({ visita, onRealizada, onCancel, saving }: {
 }
 
 // ── Sección 2: Leads recientes ───────────────────────────────────────────────
-function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, deleting, onModoChange }: {
+function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, deleting, onModoChange, onContactado, onCerrar, accionEnCurso }: {
   lead: Lead
   ultimaVisita: UltimaVisita | undefined
   expanded: boolean
@@ -1052,10 +1083,16 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
   onDelete: () => void
   deleting: boolean
   onModoChange: () => void
+  onContactado: () => void
+  onCerrar: (resultado: string | null) => void
+  accionEnCurso: boolean
 }) {
   const [detailTab, setDetailTab] = useState<DetailTab>('detalles')
   const [refreshSignal, setRefreshSignal] = useState(0)
-  const estado = estadoLead(lead, ultimaVisita)
+  // Despliegue de los cuatro resultados. Estado local y en línea, no un popover:
+  // la barra de acciones ya es su propia fila, así que abrirla hacia abajo no
+  // pide posicionamiento, ni z-index, ni cerrar al hacer clic afuera.
+  const [cerrarAbierto, setCerrarAbierto] = useState(false)
 
   return (
     <div style={{ background: '#fff', border: `1px solid ${COLORS.border}`, borderRadius: 'var(--sdm-radio-contenedor)', overflow: 'hidden', opacity: deleting ? 0.5 : 1, transition: 'opacity 0.2s' }}>
@@ -1096,11 +1133,11 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
           <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.intencion)}</div>
           <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.presupuesto)}</div>
           <div className="text-sdm-sm" style={{ color: COLORS.muted, overflowWrap: 'anywhere' }}>{fmt(lead.plazo)}</div>
-          {/* El estado sale de `estadoLead`, no de `lead.status` a secas: si la
-              última visita lo contradice, manda la visita. Sin `capitalize`
-              porque las etiquetas ya vienen escritas — con él, `visita_pendiente`
-              se pintaba como «Visita_pendiente», guion bajo incluido. */}
-          <div className="text-sdm-sm" style={{ color: COLORS.navy }}>{estado.texto}</div>
+          {/* El ciclo del EQUIPO, y nada más: ni `leads.status` ni el estado de
+              la visita entran acá. Los dos siguen visibles en el detalle, con
+              su propio rótulo. Sin `capitalize` porque las etiquetas ya vienen
+              escritas. */}
+          <div className="text-sdm-sm" style={{ color: lead.cerrado_en ? COLORS.muted : COLORS.navy }}>{cicloLead(lead)}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           <button
@@ -1122,6 +1159,64 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
         {expanded ? <ChevronUp size={18} style={{ color: COLORS.muted }} /> : <ChevronDown size={18} style={{ color: COLORS.muted }} />}
       </div>
 
+      {/* ── Barra del ciclo de gestión ────────────────────────────────────────
+          VA FUERA DEL `role="button"` DE ARRIBA, y no es un capricho de orden:
+          dentro quedarían controles anidados en otro control, que es lo mismo
+          que ya obligó a que la cabecera no sea un <button>. Además así no hace
+          falta `stopPropagation` en cada uno.
+
+          Y VA FUERA DE `{expanded && ...}`: marcar el contacto tiene que costar
+          UN clic. Si viviera en el detalle costaría dos —abrir y marcar—, y una
+          marca que cuesta el doble es una marca que el equipo no pone. De esa
+          marca depende que `seguimiento_candidatos` no le escriba a alguien ya
+          atendido. */}
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: '10px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {lead.cerrado_en ? (
+            <span className="text-sdm-sm" style={{ color: COLORS.muted }}>
+              Cerrado el {fechaCorta(lead.cerrado_en)}
+              {lead.resultado ? ` · ${RESULTADO_LABEL[lead.resultado] || lead.resultado}` : ''}
+            </span>
+          ) : (
+            <>
+              {lead.contactado_en ? (
+                <span className="text-sdm-sm" style={{ color: COLORS.muted }}>Contactado el {fechaCorta(lead.contactado_en)}</span>
+              ) : (
+                <button type="button" className="btn-green text-sdm-xs" style={{ padding: '8px 14px' }}
+                  onClick={onContactado} disabled={accionEnCurso}>
+                  <Check size={14} aria-hidden="true" /> Ya lo contacté
+                </button>
+              )}
+              <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}
+                aria-expanded={cerrarAbierto}
+                onClick={() => setCerrarAbierto(v => !v)} disabled={accionEnCurso}>
+                Cerrar
+              </button>
+              <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px', background: COLORS.muted }}
+                onClick={() => onCerrar(null)} disabled={accionEnCurso}>
+                Ya no está en mi lista
+              </button>
+            </>
+          )}
+        </div>
+
+        {cerrarAbierto && !lead.cerrado_en && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span className="text-sdm-xs" style={{ color: COLORS.muted }}>¿Con qué resultado?</span>
+            {RESULTADOS.map(r => (
+              <button key={r} type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px' }}
+                onClick={() => { setCerrarAbierto(false); onCerrar(r) }} disabled={accionEnCurso}>
+                {RESULTADO_LABEL[r]}
+              </button>
+            ))}
+            <button type="button" className="btn-primary text-sdm-xs" style={{ padding: '8px 14px', background: COLORS.muted }}
+              onClick={() => setCerrarAbierto(false)} disabled={accionEnCurso}>
+              Cancelar
+            </button>
+          </div>
+        )}
+      </div>
+
       {expanded && (
         <div style={{ borderTop: `1px solid ${COLORS.border}`, padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
           <DetailTabs active={detailTab} onChange={setDetailTab} />
@@ -1139,15 +1234,12 @@ function LeadRow({ lead, ultimaVisita, expanded, onToggle, onEdit, onDelete, del
                 <DRow label="Crédito" value={fmt(lead.necesita_credito)} />
                 <DRow label="Disponibilidad" value={fmt(lead.disponibilidad)} />
                 <DRow label="Handoff" value={fmt(lead.handoff)} />
-                {/* Cuando la visita contradice al lead, se dice de dónde sale
-                    cada cosa en vez de esconder una de las dos. El campo de la
-                    base sigue siendo el que es, y quien mira el panel se entera
-                    de que van desacompasados. */}
-                <DRow label="Status" value={
-                  estado.contradice
-                    ? <>{estado.texto}<br /><span className="text-sdm-xs" style={{ color: COLORS.muted }}>el lead sigue marcado como «{fmt(lead.status)}»</span></>
-                    : estado.texto
-                } />
+                {/* Los tres ejes, cada uno con su rótulo y sin cruzarse. Antes
+                    esto era un solo campo «Status» que mezclaba el del Worker
+                    con el de la visita y avisaba cuando se contradecían; ya no
+                    hay nada que contradecir. */}
+                <DRow label="Estado en Sofía" value={STATUS_LABEL[lead.status || ''] || fmt(lead.status)} />
+                <DRow label="Gestión del equipo" value={cicloLead(lead)} />
                 <DRow label="Última visita" value={
                   ultimaVisita
                     ? `${VISITA_LABEL[ultimaVisita.estado] || ultimaVisita.estado} · ${timeAgo(ultimaVisita.created_at)}`
@@ -1231,6 +1323,9 @@ export default function Captacion() {
 
   // Eliminar lead
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Ciclo de gestión: qué fila tiene una escritura en vuelo.
+  const [accionId, setAccionId] = useState<string | null>(null)
 
   // ── Loaders ─────────────────────────────────────────────────────────────────
   const loadVisitas = useCallback(async () => {
@@ -1431,12 +1526,11 @@ export default function Captacion() {
     }).eq('id', v.id)
     if (error) { setSavingId(null); avisarError('No se pudo confirmar la visita', error); return }
 
-    if (v.lead_id) {
-      // La visita ya quedó confirmada; si el lead no se actualiza hay que
-      // avisarlo igual, porque los dos registros quedan descoordinados.
-      const { error: errLead } = await supabase.from('leads').update({ status: 'visita_confirmada' }).eq('id', v.lead_id)
-      avisarError('La visita se confirmó, pero no se pudo actualizar el estado del lead', errLead)
-    }
+    // ACÁ SE ESCRIBÍA `leads.status = 'visita_confirmada'`. Se quitó: ese campo
+    // es del Worker de Sofía, que no conoce ese valor. Escribirlo vaciaba
+    // 'derivado' de la base y sacaba al lead del filtro del seguimiento de
+    // leads fríos, que excluía por una lista de valores de `status`.
+    // La visita ya dice que está confirmada; el lead no tiene que repetirlo.
     setSavingId(null)
     loadVisitas()
     loadLeads()
@@ -1456,10 +1550,9 @@ export default function Captacion() {
     //      (`sdm-captacion-worker-project/index.js`) solo hace POST a `visitas`
     //      cuando el lead califica; no lee `estado` en ningún momento, así que
     //      cancelar acá no dispara ningún WhatsApp.
-    //   4. `leads.status` NO se toca, a propósito: ese campo lo escribe el
-    //      Worker de Sofía y el panel no se suma como segundo escritor. La
-    //      etiqueta que quedaría desfasada se corrige AL LEER, cruzando con la
-    //      última visita — ver `estadoLead`.
+    //   4. `leads` no se toca en absoluto. Ya no hace falta: la etiqueta de la
+    //      lista sale del ciclo del equipo y la de la visita vive en su propio
+    //      rótulo, así que cancelar no puede desfasar ninguna de las dos.
     //
     // Si algún día el worker empieza a reaccionar al estado, este texto miente.
     //
@@ -1469,9 +1562,8 @@ export default function Captacion() {
     setSavingId(null)
     if (avisarError('No se pudo cancelar la visita', error)) return
     loadVisitas()
-    // También los leads: el estado que muestra la fila sale del cruce con la
-    // última visita, así que sin esto la lista seguiría diciendo «Visita
-    // pendiente» hasta el refresco automático de los 25 s.
+    // También los leads: el detalle de cada fila muestra su última visita, y
+    // sin esto seguiría diciendo «Por coordinar» hasta el refresco de los 25 s.
     loadLeadsQuiet()
     loadMetrics()
   }
@@ -1487,8 +1579,8 @@ export default function Captacion() {
     //      dice: es la diferencia real con confirmar o cancelar, que siempre
     //      dejan la visita a la vista en alguna sección.
     //   4. Al cliente no le llega nada — el worker nunca lee `visitas.estado`.
-    //   5. `leads.status` no se toca: lo escribe el Worker. La fila del lead
-    //      pasará a decir «Visita realizada» por el cruce de `estadoLead`.
+    //   5. `leads` no se toca: el detalle del lead pasará a decir «Visita
+    //      realizada» en su rótulo de visita, sin tocar el ciclo del equipo.
     const quien = v.lead?.nombre?.trim() || v.lead?.wa_phone?.trim() || 'este lead'
     if (!confirm(
       `¿Marcar como realizada la visita de ${quien}?\n\n` +
@@ -1531,7 +1623,6 @@ export default function Captacion() {
       nombre:      draft.nombre      || null,
       contacto:    draft.contacto    || null,
       score:       draft.score       || null,
-      status:      draft.status      || null,
       presupuesto: draft.presupuesto || null,
       plazo:       draft.plazo       || null,
     }).eq('id', editingLead.id)
@@ -1554,6 +1645,48 @@ export default function Captacion() {
     setEditSaving(false)
     setEditingLead(null)
     loadLeads()
+  }
+
+  // ── Acciones: ciclo de gestión del equipo ────────────────────────────────────
+  //
+  // Las dos escriben `leads`, NUNCA `status`. Recargan con `loadLeadsQuiet` para
+  // no disparar el «Cargando…» de toda la lista por marcar una fila.
+  //
+  // La marca de tiempo sale del reloj del navegador en UTC, que es lo correcto
+  // para un `timestamptz`: guarda un instante, no un día de calendario. La
+  // trampa de `toISOString()` documentada en SINCRONIA.md es la contraria —
+  // derivar de ahí la FECHA en Chile—, y acá no se deriva ninguna fecha.
+
+  const marcarContactado = async (lead: Lead) => {
+    setAccionId(lead.id)
+    const { error } = await supabase.from('leads')
+      .update({ contactado_en: new Date().toISOString() })
+      .eq('id', lead.id)
+    setAccionId(null)
+    if (avisarError('No se pudo marcar el contacto', error)) return
+    loadLeadsQuiet()
+  }
+
+  // `resultado` es `string | null`, nunca `undefined`: una clave con `undefined`
+  // desaparece del JSON y PostgREST no la escribe, así que el cierre rápido
+  // dejaría `resultado` como estaba en vez de ponerlo en null.
+  const cerrarLead = async (lead: Lead, resultado: string | null) => {
+    setAccionId(lead.id)
+    const ahora = new Date().toISOString()
+    const { error } = await supabase.from('leads')
+      .update({
+        cerrado_en: ahora,
+        resultado,
+        // Cerrar implica contactado. Sin esto un lead cerrado sin marca de
+        // contacto vuelve a ser candidato de `seguimiento_candidatos`, que
+        // filtra por `contactado_en is null and cerrado_en is null`, y Sofía le
+        // escribiría a alguien que el equipo ya dio por terminado.
+        ...(lead.contactado_en ? {} : { contactado_en: ahora }),
+      })
+      .eq('id', lead.id)
+    setAccionId(null)
+    if (avisarError('No se pudo cerrar la gestión', error)) return
+    loadLeadsQuiet()
   }
 
   // ── Acciones: eliminar lead ──────────────────────────────────────────────────
@@ -1705,6 +1838,9 @@ export default function Captacion() {
                     onDelete={() => deleteLead(l)}
                     deleting={deletingId === l.id}
                     onModoChange={loadLeadsQuiet}
+                    onContactado={() => marcarContactado(l)}
+                    onCerrar={(resultado) => cerrarLead(l, resultado)}
+                    accionEnCurso={accionId === l.id}
                   />
                 ))}
               </div>
