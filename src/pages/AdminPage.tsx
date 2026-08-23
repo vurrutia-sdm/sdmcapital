@@ -209,8 +209,48 @@ export default function AdminPage() {
 
       <div className="flex overflow-visible">
         {/* Debajo de lg es un cajón que se superpone; de lg para arriba, el
-            sidebar fijo de siempre, anclado bajo el header. */}
-        <aside className={`fixed left-0 top-0 h-screen w-64 z-50 overflow-y-auto bg-white border-r border-[var(--border)] py-6 transition-transform duration-200 lg:transition-none lg:w-56 lg:z-30 lg:top-[var(--admin-header-h)] lg:h-[calc(100vh-var(--admin-header-h))] lg:translate-x-0 ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}`}>
+            sidebar fijo de siempre, anclado bajo el header.
+
+            `h-screen h-[100dvh]`, LOS DOS, Y EN ESE ORDEN.
+            En iOS `100vh` es el viewport GRANDE —el de las barras retraídas—,
+            así que este cajón medía ~800 px cuando lo visible eran ~680. Sus
+            789 px de contenido CABÍAN dentro de esos 800, de modo que
+            `overflow-y-auto` no tenía nada que scrollear y los últimos ~110 px
+            quedaban detrás de la barra de Safari: se veía «Ficha para cliente»
+            —que termina en 681— y no se llegaba a «Agentes» ni a «Captación».
+            El rebote hacia arriba era el gesto sin ancestro scrollable, contra
+            el `body` en `position: fixed` del bloqueo del cajón.
+
+            NO ERA EL `overflow-x: hidden` QUE ROMPE `sticky`: los tres sitios
+            donde vive esa regla —html y body en `globals.css`, body en
+            `mobile.css`— están en `clip`, y ninguna regla de `mobile.css`
+            alcanza a este `<aside>`. Se revisaron los once selectores sueltos
+            del archivo.
+
+            `100dvh` es el viewport dinámico y mide lo que de verdad se ve.
+            `h-screen` se queda como respaldo para navegadores sin `dvh`
+            (anteriores a Safari 15.4 / Chrome 108). En un SE ya funcionaba
+            —789 no cabe en 667— y por eso el bug solo salía en pantallas
+            grandes.
+
+            EL RESPALDO VA CON `supports-[...]`, Y NO COMO `h-screen h-[100dvh]`
+            A SECAS. Medido sobre el CSS compilado: Tailwind emite
+            `.h-\[100dvh\]` en el offset 15841 y `.h-screen` en el 15935, o sea
+            el valor arbitrario ANTES. Con la misma especificidad gana la
+            última, así que el par escrito así dejaba `100vh` pisando al `dvh` y
+            el arreglo no habría hecho nada. El orden en el `className` no
+            decide nada: decide el orden en la hoja. `@supports` sale del
+            empate porque se emite después y añade su propia condición.
+
+            De `lg` para arriba manda `lg:h-[calc(100vh-...)]`, que va dentro de
+            su media query y por tanto después en el CSS: ahí no hay barras
+            dinámicas y `100vh` es lo correcto.
+
+            `overscrollBehavior: 'contain'` corta la propagación del gesto al
+            documento cuando se llega al tope. Mismo recurso que ya usan
+            `ReservaModal` y `SolicitudCreditoModal`. */}
+        <aside style={{ overscrollBehavior: 'contain' }}
+          className={`fixed left-0 top-0 h-screen supports-[height:100dvh]:h-[100dvh] w-64 z-50 overflow-y-auto bg-white border-r border-[var(--border)] py-6 transition-transform duration-200 lg:transition-none lg:w-56 lg:z-30 lg:top-[var(--admin-header-h)] lg:h-[calc(100vh-var(--admin-header-h))] lg:translate-x-0 ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="lg:hidden flex items-center justify-between" style={{ padding: '0 16px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
             <span className="text-sdm-xs tracking-sdm-wide" style={{ textTransform: 'uppercase', color: 'var(--muted)' }}>Secciones</span>
             <button onClick={() => setMenuAbierto(false)} aria-label="Cerrar menú"
